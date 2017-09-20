@@ -1,0 +1,17 @@
+node_modules/
+.vscode/
+src/
+test/
+ts-node/
+npm-debug.log*
+.idea
+.project
+.history
+.npmrc
+.rpt2_cache
+ts*.json
+*.config.json
+tslint.json
+tsconfig*.json
+.npmignore
+package-lock.json

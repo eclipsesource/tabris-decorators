@@ -1,0 +1,22 @@
+{
+  "version": "0.1.0",
+  "command": "npm",
+  "isShellCommand": true,
+  "showOutput": "always",
+  "suppressTaskName": true,
+  "tasks": [
+    {
+      "taskName": "Test (file)",
+      "args": ["run", "test:file", "${file}"],
+      "isTestCommand": true
+    },
+    {
+      "taskName": "Test (all)",
+      "args": ["test"]
+    },
+    {
+      "taskName": "Publish",
+      "args": ["run", "safePublish"]
+    }
+  ]
+}

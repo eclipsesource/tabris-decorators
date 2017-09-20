@@ -1,0 +1,11 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+  "files.trimTrailingWhitespace": true,
+  "files.eol": "\n",
+  "editor.tabSize": 2,
+  "files.exclude": {
+    "node_modules": true,
+    "package-lock.json": true,
+    ".project": true
+  }
+}

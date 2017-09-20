@@ -1,0 +1,32 @@
+{
+  "name": "tabris-decorators",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "npm run lint && ts-mocha -p ./tsconfig-mocha.json ./test/**.spec.*",
+    "test:file": "ts-mocha -p ./tsconfig-mocha.json",
+    "lint": "tslint --project ./tsconfig-mocha.json 'src/**/*.ts' 'test/**/*.ts'",
+    "safePublish": "npm test && npm run build && npm publish"
+  },
+  "peerDependencies": {
+    "tabris": "^2.0.0"
+  },
+  "devDependencies": {
+    "tabris": "^2.0.0",
+    "typescript": "^2.5.0",
+    "@types/chai": "^3.5.0",
+    "@types/lodash": "^4.13.1",
+    "@types/mocha": "^2.2.41",
+    "@types/sinon": "^1.16.0",
+    "@types/sinon-chai": "^2.7.0",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "sinon": "^1.16.0",
+    "sinon-chai": "^2.7.0",
+    "ts-mocha": "^1.0.3",
+    "tslint": "^5.3.2"
+  }
+}
