@@ -6,9 +6,9 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -p ./tsconfig-pack.json",
-    "test": "npm run lint && ts-mocha -p ./tsconfig-mocha.json ./test/**.spec.*",
-    "test:file": "ts-mocha -p ./tsconfig-mocha.json",
-    "lint": "tslint --project ./tsconfig-mocha.json 'src/**/*.ts' 'test/**/*.ts'",
+    "test": "npm run lint && ts-mocha -p . /test/**.spec.*",
+    "test:file": "ts-mocha -p .",
+    "lint": "tslint --project . 'src/**/*.ts' 'test/**/*.ts'",
     "safePublish": "npm test && npm run build && npm publish"
   },
   "peerDependencies": {
