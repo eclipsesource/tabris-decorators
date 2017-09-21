@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import {Widget} from 'tabris';
 
-interface WidgetConstructor { new (...args: any[]): Widget; }
-type WidgetInterface = {[prop: string]: any} & Widget;
-type DecoratorFactory = (widgetProto: WidgetInterface, property: string) => void;
+export interface WidgetConstructor { new (...args: any[]): Widget; }
+export type WidgetInterface = {[prop: string]: any} & Widget;
+export type DecoratorFactory = (widgetProto: WidgetInterface, property: string) => void;
 
 export function findFirst(targetType: WidgetConstructor, selector: string): DecoratorFactory;
 export function findFirst(selector: string): DecoratorFactory;
@@ -23,6 +23,9 @@ export function findFirst(...args: any[]): DecoratorFactory {
 }
 
 function defineGetter(widgetProto: WidgetInterface, property: string, get: () => any): void {
+  if (Object.getOwnPropertyDescriptor(widgetProto, property)) {
+    throw new Error('A getter or setter was already defined.');
+  }
   Object.defineProperty(widgetProto, property, {
     get,
     enumerable: true,
