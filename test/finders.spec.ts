@@ -1,7 +1,7 @@
 import 'mocha';
 import 'sinon';
-import {Composite, Button, ui} from 'tabris';
-import {findFirst, findLast} from '../src';
+import {Composite, Button, ui, WidgetCollection} from 'tabris';
+import {findFirst, findLast, findAll} from '../src';
 import * as tabrisMock from './tabris-mock';
 import {restoreSandbox, expect} from './test';
 
@@ -12,6 +12,9 @@ class CustomComponent extends Composite {
 
   @findLast('.foo')
   public readonly lastFoo: Composite;
+
+  @findAll(Composite, '.foo')
+  public readonly allFoo: WidgetCollection<Composite>;
 
   @findFirst(Button, '.foo')
   public readonly maybeFoo: Button | null;
@@ -59,9 +62,17 @@ describe('finders', () => {
     });
 
     it('does not cache', () => {
+      let originalFirstFoo = widget.firstFoo.id;
       new Composite({class: 'foo', id: 'newFirstFoo'}).insertBefore(widget.firstFoo);
 
+      expect(originalFirstFoo).to.equal('foo1');
       expect(widget.firstFoo.id).to.equal('newFirstFoo');
+    });
+
+    it('includes grandchildren', () => {
+      new Composite({class: 'bar', id: 'bar1'}).appendTo(widget.firstFoo);
+
+      expect(widget.firstBar.id).to.equal('bar1');
     });
 
     it('filters by type', () => {
@@ -117,6 +128,45 @@ describe('finders', () => {
       }).to.throw(
           'Could not apply decorator "findLast" to property "unknownType": '
         + 'Return type was not given and could not be inferred.');
+    });
+
+  });
+
+  describe('findAll', () => {
+
+    it('returns all matches', () => {
+      expect(widget.allFoo.length).to.equal(3);
+    });
+
+    it('does not return non-matching types', () => {
+      widget.append(new Button({class: '.foo'}));
+
+      expect(widget.allFoo.length).to.equal(3);
+    });
+
+    it('does not return non-matching selectors', () => {
+      widget.append(new Composite({class: '.bar'}));
+
+      expect(widget.allFoo.length).to.equal(3);
+    });
+
+    it('does not cache', () => {
+      let originalCount = widget.allFoo.length;
+      widget.append(new Composite({class: 'foo'}));
+
+      expect(originalCount).to.equal(3);
+      expect(widget.allFoo.length).to.equal(4);
+    });
+
+    it('fails if return type is not WidgetCollection', () => {
+      expect(() => {
+        class FailingComponent extends Composite {
+           @findAll(Composite, '.foo')
+            public readonly wrongType: Composite;
+          }
+      }).to.throw(
+          'Could not apply decorator "findAll" to property "wrongType": '
+        + 'Return type has to be WidgetCollection or WidgetCollection<WidgetType>.');
     });
 
   });

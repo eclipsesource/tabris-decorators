@@ -1,1 +1,1 @@
-export {findFirst, findLast} from './finders';
+export {findFirst, findLast, findAll} from './finders';
