@@ -1,7 +1,7 @@
 import 'mocha';
 import 'sinon';
 import {Composite, Button, ui} from 'tabris';
-import {findFirst} from '../src';
+import {findFirst, findLast} from '../src';
 import * as tabrisMock from './tabris-mock';
 import {restoreSandbox, expect} from './test';
 
@@ -9,6 +9,9 @@ class CustomComponent extends Composite {
 
   @findFirst('.foo')
   public readonly firstFoo: Composite;
+
+  @findLast('.foo')
+  public readonly lastFoo: Composite;
 
   @findFirst(Button, '.foo')
   public readonly maybeFoo: Button | null;
@@ -95,6 +98,25 @@ describe('finders', () => {
       }).to.throw(
           'Could not apply decorator "findFirst" to property "aGetter": '
         + 'A getter or setter was already defined.');
+    });
+
+  });
+
+  describe('findLast', () => {
+
+    it('returns last found Widget', () => {
+      expect(widget.lastFoo.id).to.equal('foo3');
+    });
+
+    it('fails if return type can not be determined', () => {
+      expect(() => {
+        class FailingComponent extends Composite {
+            @findLast('.foo')
+            public readonly unknownType: Button | null;
+          }
+      }).to.throw(
+          'Could not apply decorator "findLast" to property "unknownType": '
+        + 'Return type was not given and could not be inferred.');
     });
 
   });
