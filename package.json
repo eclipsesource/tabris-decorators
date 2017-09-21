@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p .",
+    "build": "tsc -p ./tsconfig-pack.json",
     "test": "npm run lint && ts-mocha -p ./tsconfig-mocha.json ./test/**.spec.*",
     "test:file": "ts-mocha -p ./tsconfig-mocha.json",
     "lint": "tslint --project ./tsconfig-mocha.json 'src/**/*.ts' 'test/**/*.ts'",
