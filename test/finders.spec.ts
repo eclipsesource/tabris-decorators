@@ -10,6 +10,9 @@ class CustomComponent extends Composite {
   @findFirst('.foo')
   public readonly firstFoo: Composite;
 
+  @findFirst(Button, '.foo')
+  public readonly maybeFoo: Button | null;
+
   @findFirst('.bar')
   public readonly firstBar: Composite;
 
@@ -24,7 +27,7 @@ class CustomComponent extends Composite {
 
 }
 
-/* tslint:disable:no-unused-expression */
+/* tslint:disable:no-unused-expression max-classes-per-file */
 describe('finders', () => {
 
   let widget: CustomComponent;
@@ -57,7 +60,18 @@ describe('finders', () => {
     });
 
     it('returns null if nothing matches', () => {
-      expect(widget.firstBar).to.be.null;
+      expect(widget.maybeFoo).to.be.null;
+    });
+
+    it('fails if return type can not be determined', () => {
+      expect(() => {
+        class FailingComponent extends Composite {
+           @findFirst('.foo')
+            public readonly unknownType: Button | null;
+          }
+      }).to.throw(
+          'Could not apply decorator "findFirst" to property "unknownType": '
+        + 'Return type was not given and could not be inferred.');
     });
 
   });
