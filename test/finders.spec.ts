@@ -1,6 +1,6 @@
 import 'mocha';
 import 'sinon';
-import {Composite} from 'tabris';
+import {Composite, Button, ui} from 'tabris';
 import {findFirst} from '../src';
 import * as tabrisMock from './tabris-mock';
 import {restoreSandbox, expect} from './test';
@@ -8,7 +8,7 @@ import {restoreSandbox, expect} from './test';
 class CustomComponent extends Composite {
 
   @findFirst('.foo')
-  public firstFoo: Composite;
+  public readonly firstFoo: Composite;
 
   constructor() {
     super();
@@ -21,6 +21,7 @@ class CustomComponent extends Composite {
 
 }
 
+/* tslint:disable:no-unused-expression */
 describe('finders', () => {
 
   let widget = new CustomComponent();
@@ -33,6 +34,12 @@ describe('finders', () => {
   describe('findFirst', () => {
 
     it('returns first found Widget', () => {
+      expect(widget.firstFoo.id).to.equal('foo1');
+    });
+
+    it('filters by type', () => {
+      new Button({class: 'foo'}).insertBefore(widget.firstFoo);
+
       expect(widget.firstFoo.id).to.equal('foo1');
     });
 

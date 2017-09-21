@@ -1,12 +1,14 @@
+import 'reflect-metadata';
 import {Widget} from 'tabris';
 
 type Target = {[prop: string]: any} & Widget;
 
 export function findFirst(selector: string) {
-  return (target: Target, key: string) => {
-    Object.defineProperty(target, key, {
+  return (widgetProto: Target, property: string) => {
+    Object.defineProperty(widgetProto, property, {
       get(this: Widget) {
-        return this.find(selector).first() || null;
+        let type = Reflect.getMetadata('design:type', widgetProto, property);
+        return this.find(type).first(selector) || null;
       },
       enumerable: true,
       configurable: true
