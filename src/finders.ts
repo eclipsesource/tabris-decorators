@@ -1,10 +1,10 @@
 import 'reflect-metadata';
+import {DecoratorFactory, defineGetter, getPropertyType, areStaticDecoratorArgs, applyPropertyDecorator} from './utils';
 import {Widget} from 'tabris';
 import {WidgetCollection} from 'tabris';
 
 export interface WidgetConstructor { new (...args: any[]): Widget; }
 export type WidgetInterface = {[prop: string]: any} & Widget;
-export type DecoratorFactory = (widgetProto: WidgetInterface, property: string) => void;
 type Finder = (widget: WidgetInterface, string: Selector, type: WidgetConstructor) => any;
 type TypeParser = (widgetProto: WidgetInterface, property: string, finderArgs: any[]) => WidgetConstructor;
 
@@ -33,35 +33,13 @@ export function findAll(...args: any[]): DecoratorFactory | void {
   });
 }
 
-function defineFinder(
-  name: string, args: any[], widgetTypeParser: TypeParser, finder: Finder
-): DecoratorFactory | void {
-  let selector = getSelector(args);
-  let impl = (widgetProto: WidgetInterface, property: string) => {
-    try {
-      const type = widgetTypeParser(widgetProto, property, args);
-      defineGetter(widgetProto, property, function(this: Widget) {
-        return finder(this, selector, type);
-      });
-    } catch (error) {
-      throw new Error(`Could not apply decorator "${name}" to property "${property}": ${error.message}`);
-    }
-  };
-  if (areStaticDecoratorArgs(args)) {
-    impl(args[0], args[1]);
-  } else {
-    return impl;
-  }
-}
-
-function defineGetter(widgetProto: WidgetInterface, property: string, get: () => any): void {
-  if (Object.getOwnPropertyDescriptor(widgetProto, property)) {
-    throw new Error('A getter or setter was already defined.');
-  }
-  Object.defineProperty(widgetProto, property, {
-    get,
-    enumerable: true,
-    configurable: true
+function defineFinder(  name: string, args: any[], widgetTypeParser: TypeParser, finder: Finder) {
+  return applyPropertyDecorator(name, args, (widgetProto: WidgetInterface, property: string) => {
+    const selector = getSelector(args);
+    const type = widgetTypeParser(widgetProto, property, args);
+    defineGetter(widgetProto, property, function(this: Widget) {
+      return finder(this, selector, type);
+    });
   });
 }
 
@@ -70,10 +48,6 @@ function getSelector(args: any[]): string {
     return '*';
   }
   return args[args.length - 1] as string;
-}
-
-function areStaticDecoratorArgs(args: any[]): boolean {
-  return typeof args[0] === 'object';
 }
 
 function getWidgetType(widgetProto: WidgetInterface, property: string, finderArgs: any[]): WidgetConstructor {
@@ -93,9 +67,4 @@ function getWidgetCollectionType(widgetProto: WidgetInterface, property: string,
     throw new Error('Return type has to be WidgetCollection or WidgetCollection<WidgetType>.');
   }
   return finderArgs[0];
-}
-
-function getPropertyType(widgetProto: WidgetInterface, property: string): any {
-  let result = Reflect.getMetadata('design:type', widgetProto, property);
-  return result === Object ? null : result;
 }
