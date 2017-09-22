@@ -1,5 +1,10 @@
 export type DecoratorFactory = (widgetProto: any, property: string) => void;
 
+/**
+ * Takes a callback a property decorator factory and when possible calls it with the appropriate arguments,
+ * or returns it so it can be can be called later. Rethrows exceptions by the factory with an
+ * apropriate error message.
+ */
 export function applyPropertyDecorator(name: string, args: any[], factory: DecoratorFactory): DecoratorFactory | void {
   let impl = (widgetProto: any, property: string) => {
     try {
@@ -15,6 +20,10 @@ export function applyPropertyDecorator(name: string, args: any[], factory: Decor
   }
 }
 
+/**
+ * Determines wheter a decorator was applied with arguments (dynamic, e.g. "@foo(1,2,2)")
+ * or without (static, e.g. "@foo").
+ */
 export function areStaticDecoratorArgs(args: any[]): boolean {
   return typeof args[0] === 'object';
 }
