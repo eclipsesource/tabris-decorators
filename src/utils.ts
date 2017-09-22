@@ -1,4 +1,8 @@
+import {Widget} from 'tabris';
+
+export interface WidgetConstructor { new (...args: any[]): Widget; }
 export type DecoratorFactory = (widgetProto: any, property: string) => void;
+export type WidgetInterface = {[prop: string]: any} & Widget;
 
 /**
  * Takes a callback a property decorator factory and when possible calls it with the appropriate arguments,

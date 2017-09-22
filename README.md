@@ -2,6 +2,10 @@
 
 This module provides [TypeScript decorators](http://www.typescriptlang.org/docs/handbook/decorators.html) to use with [Tabris.js](http://tabrisjs.com). Below you find a description of the various decorators available. Have a look at the unit tests for examples and edge cases.
 
+## Setup
+
+TODOC
+
 ## finders
 
 These decorators are meant to be attached to properties of custom UI components and will make them return specific descendants of that widget. For example:
@@ -23,7 +27,7 @@ class CustomComponent extends Composite {
 
 }
 ```
-> :exclamation: The findXXX decorators that do not take a widget type as the first argument will infer the type from the property type. If the property type can not be inferred, the  decorator will throw an error when parsing the class. This may be the case for for a type like "`Composite | null`", which you may want to use  if the TypeScript [compiler option "strictNullChecks"](https://www.typescriptlang.org/docs/handbook/basic-types.html#null-and-undefined) (or "strict") is enabled. In this case you should use the decorators that do take the widget type as an argument.
+> :exclamation: The finder  decorators that do not take a widget type as the first argument will infer the type from the property type. If the property type can not be inferred, the  decorator will throw an error when parsing the class. This may be the case for for a type like "`Composite | null`", which you may want to use  if the TypeScript [compiler option "strictNullChecks"](https://www.typescriptlang.org/docs/handbook/basic-types.html#null-and-undefined) (or "strict") is enabled. In this case you should use the decorators that do take the widget type as an argument.
 
 ### @findFirst
 
@@ -72,25 +76,25 @@ get someChild(): any {
   return this.find('*').first(WidgetType) || null;
 }
 ```
-### findLast
+### @findLast
 
 Like `findFirst`, only returning the last found widget instead:
 
-### findLast(selector)
+### @findLast(selector)
 
 Like `findFirst(selector)`, only returning the last found widget instead:
 
-### findLast(WidgetType)
+### @findLast(WidgetType)
 
 Like `findFirst(WidgetType)`, only returning the last found widget instead.
 
-### findLast(WidgetType, selector)
+### @findLast(WidgetType, selector)
 
 Like `findFirst(WidgetType, selector)`, only returning the last found widget instead.
 
-### findAll(WidgetType)
+### @findAll(WidgetType)
 
-Returns an instance of `WidgetCollection` with all descendants matching the given type. If the property type is a parameterized collection (e.g. `WidgetCollection<Composite>), it is the developers responsibility to ensure that the parameter matches the type given in the decorator.
+Lets the property return an instance of `WidgetCollection` with all descendants matching the given type. If the property type is a parameterized collection (e.g. `WidgetCollection<Composite>), it is the developers responsibility to ensure that the parameter matches the type given in the decorator.
 
 ```js
 get someChildren(): any {
@@ -98,12 +102,23 @@ get someChildren(): any {
 }
 ```
 
-### findAll(WidgetType, selector)
+### @findAll(WidgetType, selector)
 
-Returns an instance of `WidgetCollection` with all descendants matching the given type and selector. If the property type is a parameterized collection (e.g. `WidgetCollection<Composite>), it is the developers responsibility to ensure that the parameter matches the type given in the decorator.
+Lets the property return an instance of `WidgetCollection` with all descendants matching the given type and selector. If the property type is a parameterized collection (e.g. `WidgetCollection<Composite>), it is the developers responsibility to ensure that the parameter matches the type given in the decorator.
 
 ```js
 get someChildren(): any {
   return this.find(selector).filter(WidgetType);
 }
 ```
+
+## getters
+
+### @getById
+
+Lets the property return the descendant with the same id as the property name. Unlike the finder decorators, `getById` is very strict.
+
+ * It can only be applied on widget classes that (directly or indirectly) extend `Composite`.
+ * It will search for a matching child exactly once, after `append` is called the first time on the widget instance.
+ * It will always return the same child, even if it is disposed or removed.
+ * It will throw if there is no match, more than one, or if the type is not correct.

@@ -210,4 +210,34 @@ describe('finders', () => {
 
   });
 
+  describe('getById', () => {
+
+    class ExtenedCustomComponent extends CustomComponent {
+
+      public readonly button1: Button;
+
+      constructor() {
+        super();
+        this.append(
+          new Button({id: 'button1', class: 'first'})
+        );
+      }
+
+    }
+
+    let widget2 = new ExtenedCustomComponent();
+
+    it('returns widget by type and id', () => {
+      expect(widget2.button1.id).to.equal('button1');
+    });
+
+    it('caches after constructor', () => {
+      widget.find('#button1').dispose();
+      widget.append(new Button({id: 'button1', class: 'second'}));
+
+      expect(widget2.button1.class).to.equal('first');
+    });
+
+  });
+
 });

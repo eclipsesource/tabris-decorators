@@ -1,10 +1,16 @@
 import 'reflect-metadata';
-import {DecoratorFactory, defineGetter, getPropertyType, areStaticDecoratorArgs, applyPropertyDecorator} from './utils';
 import {Widget} from 'tabris';
 import {WidgetCollection} from 'tabris';
+import {
+  DecoratorFactory,
+  defineGetter,
+  getPropertyType,
+  areStaticDecoratorArgs,
+  applyPropertyDecorator,
+  WidgetInterface,
+  WidgetConstructor
+} from './utils';
 
-export interface WidgetConstructor { new (...args: any[]): Widget; }
-export type WidgetInterface = {[prop: string]: any} & Widget;
 type Finder = (widget: WidgetInterface, string: Selector, type: WidgetConstructor) => any;
 type TypeParser = (widgetProto: WidgetInterface, property: string, finderArgs: any[]) => WidgetConstructor;
 
