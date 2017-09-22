@@ -1,6 +1,6 @@
 import 'mocha';
 import 'sinon';
-import {Composite, Button, ui, WidgetCollection} from 'tabris';
+import {Composite, Button, ui, WidgetCollection, Widget} from 'tabris';
 import {findFirst, findLast, findAll} from '../src';
 import * as tabrisMock from './tabris-mock';
 import {restoreSandbox, expect} from './test';
@@ -18,6 +18,15 @@ class CustomComponent extends Composite {
 
   @findFirst(Button, '.foo')
   public readonly maybeFoo: Button | null;
+
+  @findFirst(Button)
+  public readonly firstButton: Widget;
+
+  @findAll(Button)
+  public readonly allButtons: WidgetCollection<Button>;
+
+  @findFirst
+  public readonly firstButtonImplicit: Button;
 
   @findFirst('.bar')
   public readonly firstBar: Composite;
@@ -81,6 +90,20 @@ describe('finders', () => {
       expect(widget.firstFoo.id).to.equal('foo1');
     });
 
+    it('filters by type only', () => {
+      new Button({id: 'button1'}).insertBefore(widget.firstFoo);
+      new Button({id: 'button2'}).insertAfter(widget.firstFoo);
+
+      expect(widget.firstButton.id).to.equal('button1');
+    });
+
+    it('filters by implicit type only', () => {
+      new Button({id: 'button1'}).insertBefore(widget.firstFoo);
+      new Button({id: 'button2'}).insertAfter(widget.firstFoo);
+
+      expect(widget.firstButtonImplicit.id).to.equal('button1');
+    });
+
     it('returns null if nothing matches', () => {
       expect(widget.maybeFoo).to.be.null;
     });
@@ -119,6 +142,13 @@ describe('finders', () => {
       expect(widget.lastFoo.id).to.equal('foo3');
     });
 
+    it('filters by explicity type only', () => {
+      new Button({id: 'button1'}).insertBefore(widget.firstFoo);
+      new Button({id: 'button2'}).insertAfter(widget.firstFoo);
+
+      expect(widget.firstButton.id).to.equal('button1');
+    });
+
     it('fails if return type can not be determined', () => {
       expect(() => {
         class FailingComponent extends Composite {
@@ -148,6 +178,15 @@ describe('finders', () => {
       widget.append(new Composite({class: '.bar'}));
 
       expect(widget.allFoo.length).to.equal(3);
+    });
+
+    it('returns all matches by type only', () => {
+      new Button({id: 'button1'}).insertBefore(widget.firstFoo);
+      new Button({id: 'button2'}).insertAfter(widget.firstFoo);
+
+      expect(widget.allButtons.length).to.equal(2);
+      expect(widget.allButtons[0]).to.be.instanceof(Button);
+      expect(widget.allButtons[1]).to.be.instanceof(Button);
     });
 
     it('does not cache', () => {

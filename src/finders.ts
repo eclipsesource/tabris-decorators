@@ -8,32 +8,36 @@ export type DecoratorFactory = (widgetProto: WidgetInterface, property: string) 
 type Finder = (widget: WidgetInterface, string: Selector, type: WidgetConstructor) => any;
 type TypeParser = (widgetProto: WidgetInterface, property: string, finderArgs: any[]) => WidgetConstructor;
 
-export function findFirst(targetType: WidgetConstructor, selector: string): DecoratorFactory;
+export function findFirst(targetProto: Widget, property: string): void;
+export function findFirst(targetType?: WidgetConstructor, selector?: string): DecoratorFactory;
 export function findFirst(selector: string): DecoratorFactory;
-export function findFirst(...args: any[]): DecoratorFactory {
+export function findFirst(...args: any[]): DecoratorFactory | void {
   return defineFinder('findFirst', args, getWidgetType, (widget, selector, type) => {
     return widget.find(selector).first(type) || null;
   });
 }
 
+export function findLast(targetProto: Widget, property: string): void;
 export function findLast(targetType: WidgetConstructor, selector: string): DecoratorFactory;
 export function findLast(selector: string): DecoratorFactory;
-export function findLast(...args: any[]): DecoratorFactory {
+export function findLast(...args: any[]): DecoratorFactory | void {
   return defineFinder('findLast', args, getWidgetType, (widget, selector, type) => {
     return widget.find(selector).last(type) || null;
   });
 }
 
-export function findAll(targetType: WidgetConstructor, selector: string): DecoratorFactory;
-export function findAll(...args: any[]): DecoratorFactory {
+export function findAll(targetType: WidgetConstructor, selector?: string): DecoratorFactory;
+export function findAll(...args: any[]): DecoratorFactory | void {
   return defineFinder('findAll', args, getWidgetCollectionType, (widget, selector, type) => {
     return widget.find(selector).filter(type) || null;
   });
 }
 
-function defineFinder(name: string, args: any[], widgetTypeParser: TypeParser, finder: Finder): DecoratorFactory {
+function defineFinder(
+  name: string, args: any[], widgetTypeParser: TypeParser, finder: Finder
+): DecoratorFactory | void {
   let selector = getSelector(args);
-  return (widgetProto: WidgetInterface, property: string) => {
+  let impl = (widgetProto: WidgetInterface, property: string) => {
     try {
       const type = widgetTypeParser(widgetProto, property, args);
       defineGetter(widgetProto, property, function(this: Widget) {
@@ -43,6 +47,11 @@ function defineFinder(name: string, args: any[], widgetTypeParser: TypeParser, f
       throw new Error(`Could not apply decorator "${name}" to property "${property}": ${error.message}`);
     }
   };
+  if (areStaticDecoratorArgs(args)) {
+    impl(args[0], args[1]);
+  } else {
+    return impl;
+  }
 }
 
 function defineGetter(widgetProto: WidgetInterface, property: string, get: () => any): void {
@@ -56,12 +65,19 @@ function defineGetter(widgetProto: WidgetInterface, property: string, get: () =>
   });
 }
 
-function getSelector(finderArgs: any[]): string {
-  return finderArgs[finderArgs.length - 1] as string;
+function getSelector(args: any[]): string {
+  if (areStaticDecoratorArgs(args)) {
+    return '*';
+  }
+  return args[args.length - 1] as string;
+}
+
+function areStaticDecoratorArgs(args: any[]): boolean {
+  return typeof args[0] === 'object';
 }
 
 function getWidgetType(widgetProto: WidgetInterface, property: string, finderArgs: any[]): WidgetConstructor {
-  let type = finderArgs.length === 2 ? finderArgs[0] : null;
+  let type = finderArgs[0] instanceof Function ? finderArgs[0] : null;
   if (type === null) {
     type = getPropertyType(widgetProto, property);
   }
