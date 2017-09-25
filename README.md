@@ -78,19 +78,19 @@ get someChild(): any {
 ```
 ### @findLast
 
-Like `findFirst`, only returning the last found widget instead:
+Like `@findFirst`, only returning the last found widget instead:
 
 ### @findLast(selector)
 
-Like `findFirst(selector)`, only returning the last found widget instead:
+Like `@findFirst(selector)`, only returning the last found widget instead:
 
 ### @findLast(WidgetType)
 
-Like `findFirst(WidgetType)`, only returning the last found widget instead.
+Like `@findFirst(WidgetType)`, only returning the last found widget instead.
 
 ### @findLast(WidgetType, selector)
 
-Like `findFirst(WidgetType, selector)`, only returning the last found widget instead.
+Like `@findFirst(WidgetType, selector)`, only returning the last found widget instead.
 
 ### @findAll(WidgetType)
 
@@ -122,3 +122,7 @@ Lets the property return the descendant with the same id as the property name. U
  * It will search for a matching child exactly once, after `append` is called the first time on the widget instance.
  * It will always return the same child, even if it is disposed or removed.
  * It will throw if there is no match, more than one, or if the type is not correct.
+
+### @getByType
+
+Like `@getById`, but ignored the id and looks by return type only. Useful if there is only one widget of a specific type in your widget tree anyway, so you don't have to assign it an id.

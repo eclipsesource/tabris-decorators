@@ -1,7 +1,7 @@
 import 'mocha';
 import 'sinon';
 import {Composite, Button, ui, WidgetCollection, Widget} from 'tabris';
-import {getById} from '../src';
+import {getById, getByType} from '../src';
 import * as tabrisMock from './tabris-mock';
 import {restoreSandbox, expect} from './test';
 
@@ -66,7 +66,7 @@ describe('getters', () => {
       );
     });
 
-    it('throws if a getter can be resolved after first append', () => {
+    it('throws if a getter can not be resolved after first append', () => {
       expect(() => widget.append(composite1, new Button({id: 'button2'}))).to.throw(
         'Decorator "getById" could not resolve property "button1": No widget with id "button1" appended.'
       );
@@ -81,6 +81,55 @@ describe('getters', () => {
     it('throws if getters finds multiple matches', () => {
       expect(() => widget.append(composite1, button1, new Button({id: 'button1'}))).to.throw(
         'Decorator "getById" could not resolve property "button1": More than one widget with id "button1" appended.'
+      );
+    });
+
+  });
+
+  describe('getByType', () => {
+
+    class CustomComponent extends Composite {
+
+      @getByType
+      public readonly foo: Button;
+
+      @getByType
+      public readonly bar: Composite;
+
+    }
+
+    let widget: CustomComponent;
+    let button1: Button;
+    let composite1: Composite;
+
+    beforeEach(() => {
+      widget = new CustomComponent();
+      button1 = new Button({id: 'button1'});
+      composite1 = new Composite({id: 'composite1'});
+    });
+
+    it('returns widget by type', () => {
+      widget.append(composite1, button1);
+
+      expect(widget.foo).to.equal(button1);
+      expect(widget.bar).to.equal(composite1);
+    });
+
+    it('throws if a getter is accessed before first append', () => {
+      expect(() => widget.foo).to.throw(
+        'Decorator "getByType" could not resolve property "foo": No widgets have been appended yet.'
+      );
+    });
+
+    it('throws if a getter can not be resolved after first append', () => {
+      expect(() => widget.append(composite1)).to.throw(
+        'Decorator "getByType" could not resolve property "foo": No widget of expected type appended.'
+      );
+    });
+
+    it('throws if getters finds multiple matches', () => {
+      expect(() => widget.append(composite1, button1, new Composite())).to.throw(
+        'Decorator "getByType" could not resolve property "bar": More than one widget of expected type appended.'
       );
     });
 

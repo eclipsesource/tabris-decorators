@@ -1,2 +1,2 @@
 export {findFirst, findLast, findAll} from './finders';
-export {getById} from './getters';
+export {getById, getByType} from './getters';

@@ -17,9 +17,9 @@ type TypeParser = (widgetProto: WidgetInterface, property: string, finderArgs: a
 export function findFirst(targetProto: Widget, property: string): void;
 export function findFirst(targetType?: WidgetConstructor, selector?: string): DecoratorFactory;
 export function findFirst(selector: string): DecoratorFactory;
-export function findFirst(...args: any[]): DecoratorFactory | void {
 
-return defineFinder('findFirst', args, getWidgetType, (widget, selector, type) => {
+export function findFirst(...args: any[]): DecoratorFactory | void {
+  return defineWidgetFinder('findFirst', args, getWidgetType, (widget, selector, type) => {
     return widget.find(selector).first(type) || null;
   });
 }
@@ -29,7 +29,7 @@ export function findLast(targetType: WidgetConstructor, selector: string): Decor
 export function findLast(selector: string): DecoratorFactory;
 
 export function findLast(...args: any[]): DecoratorFactory | void {
-  return defineFinder('findLast', args, getWidgetType, (widget, selector, type) => {
+  return defineWidgetFinder('findLast', args, getWidgetType, (widget, selector, type) => {
     return widget.find(selector).last(type) || null;
   });
 }
@@ -37,12 +37,12 @@ export function findLast(...args: any[]): DecoratorFactory | void {
 export function findAll(targetType: WidgetConstructor, selector?: string): DecoratorFactory;
 
 export function findAll(...args: any[]): DecoratorFactory | void {
-  return defineFinder('findAll', args, getWidgetCollectionType, (widget, selector, type) => {
+  return defineWidgetFinder('findAll', args, getWidgetCollectionType, (widget, selector, type) => {
     return widget.find(selector).filter(type) || null;
   });
 }
 
-function defineFinder(name: string, args: any[], widgetTypeParser: TypeParser, finder: Finder) {
+function defineWidgetFinder(name: string, args: any[], widgetTypeParser: TypeParser, finder: Finder) {
   return applyPropertyDecorator(name, args, (widgetProto: WidgetInterface, property: string) => {
     const selector = getSelector(args);
     const type = widgetTypeParser(widgetProto, property, args);

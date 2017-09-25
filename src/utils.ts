@@ -3,6 +3,7 @@ import {Widget} from 'tabris';
 export interface WidgetConstructor { new (...args: any[]): Widget; }
 export type DecoratorFactory = (widgetProto: any, property: string) => void;
 export type WidgetInterface = {[prop: string]: any} & Widget;
+export type Initializer = (widgetInstance: WidgetInterface) => void;
 
 /**
  * Takes a callback a property decorator factory and when possible calls it with the appropriate arguments,
@@ -55,3 +56,57 @@ export function getPropertyType(proto: any, property: string): any {
   let result = Reflect.getMetadata('design:type', proto, property);
   return result === Object ? null : result;
 }
+
+/**
+ * Gets list of functions to be executed after first time append is called on instances of the given
+ * widget prototype or instance.
+ */
+export function initializers(widget: WidgetInterface) {
+  patchAppend(widget);
+  if (!widget[initializersKey]) {
+    widget[initializersKey] = [];
+  }
+  return widget[initializersKey] as Initializer[];
+}
+
+/**
+ * Gets map for the prupose of string property values of the given instance.
+ */
+export function getPropertyStore(instance: any): Map<string, any> {
+  if (!instance[propertyStoreKey]) {
+    instance[propertyStoreKey] = new Map<string, any>();
+  }
+  return instance[propertyStoreKey];
+}
+
+export function isInitialized(widget: WidgetInterface) {
+  return !!widget[isInitializedKey];
+}
+
+function patchAppend(widgetProto: WidgetInterface) {
+  if (widgetProto.append !== customAppend) {
+    widgetProto[originalAppendKey] = widgetProto.append;
+    widgetProto.append = customAppend;
+  }
+}
+
+function customAppend(this: WidgetInterface): any {
+  let result = this[originalAppendKey].apply(this, arguments);
+  initialize(this);
+  return result;
+}
+
+function initialize(widgetInstance: WidgetInterface) {
+  if (widgetInstance[isInitializedKey]) {
+    return;
+  }
+  for (let init of initializers(widgetInstance)) {
+    init(widgetInstance);
+  }
+  widgetInstance[isInitializedKey] = true;
+}
+
+const initializersKey = Symbol();
+const isInitializedKey = Symbol();
+const originalAppendKey = Symbol();
+const propertyStoreKey = Symbol();

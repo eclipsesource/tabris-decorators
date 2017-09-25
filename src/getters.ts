@@ -1,25 +1,41 @@
 import 'reflect-metadata';
-import {defineGetter, getPropertyType, applyPropertyDecorator, WidgetInterface} from './utils';
+import {
+  defineGetter,
+  getPropertyType,
+  applyPropertyDecorator,
+  WidgetInterface,
+  initializers,
+  isInitialized,
+  getPropertyStore,
+  Initializer
+} from './utils';
 import {Widget, Composite} from 'tabris';
 
-const cacheKey = Symbol();
-const propertyListKey = Symbol();
-const originalAppendKey = Symbol();
-const gettersResolvedKey = Symbol();
+type GetResolver = (widget: WidgetInterface, propertyName: string) => any;
 
 export function getById(targetProto: Composite, property: string): void;
 
 export function getById(...args: any[]): void {
-  applyPropertyDecorator('getById', args, (widgetProto: any, property: string) => {
+  defineWidgetGetter('getById', args, findWidgetById);
+}
+
+export function getByType(targetProto: Composite, property: string): void;
+
+export function getByType(...args: any[]): void {
+  defineWidgetGetter('getByType', args, findWidgetByType);
+}
+
+export function defineWidgetGetter(name: string, args: any[], resolver: GetResolver): void {
+  applyPropertyDecorator(name, args, (widgetProto: any, property: string) => {
     checkType(widgetProto, property);
-    patchAppend(widgetProto);
-    getPropertyList(widgetProto).push(property);
-    defineGetter(widgetProto, property, function(this: WidgetInterface) {
-      if (!this[gettersResolvedKey]) {
-        throw createGetByIdError(property, 'No widgets have been appended yet.');
+    initializers(widgetProto).push((widget) => {
+      try {
+        getPropertyStore(widget).set(property, resolver(widget, property));
+      } catch (ex) {
+        throwPropertyResolveError(name, property, ex.message);
       }
-      return getCache(this).get(property);
     });
+    defineStorageBackedGetter(widgetProto, property, name);
   });
 }
 
@@ -29,50 +45,7 @@ function checkType(widgetProto: WidgetInterface, property: string): void {
   }
 }
 
-function patchAppend(widgetProto: WidgetInterface) {
-  if (widgetProto.append !== customAppend) {
-    widgetProto[originalAppendKey] = widgetProto.append;
-    widgetProto.append = customAppend;
-  }
-}
-
-function customAppend(this: WidgetInterface): any {
-  let result = this[originalAppendKey].apply(this, arguments);
-  resolveGetters(this);
-  return result;
-}
-
-function resolveGetters(widgetInstance: WidgetInterface) {
-  if (widgetInstance[gettersResolvedKey]) {
-    return;
-  }
-  let cache = getCache(widgetInstance);
-  let getters = getPropertyList(widgetInstance);
-  for (let property of getters) {
-    try {
-      cache.set(property, findWidget(widgetInstance, property));
-    } catch (ex) {
-      throw createGetByIdError(property, ex.message);
-    }
-  }
-  widgetInstance[gettersResolvedKey] = true;
-}
-
-function getCache(widgetInstance: WidgetInterface): Map<string, WidgetInterface> {
-  if (!widgetInstance[cacheKey]) {
-    widgetInstance[cacheKey] = new Map<string, WidgetInterface>();
-  }
-  return widgetInstance[cacheKey];
-}
-
-function getPropertyList(widgetProto: WidgetInterface): string[] {
-  if (!widgetProto[propertyListKey]) {
-    widgetProto[propertyListKey] = [];
-  }
-  return widgetProto[propertyListKey];
-}
-
-function findWidget(widgetInstance: WidgetInterface, property: string): WidgetInterface {
+function findWidgetById(widgetInstance: WidgetInterface, property: string): WidgetInterface {
   let results = widgetInstance.find('#' + property);
   if (results.length === 0) {
     throw new Error(`No widget with id "${property}" appended.`);
@@ -86,6 +59,26 @@ function findWidget(widgetInstance: WidgetInterface, property: string): WidgetIn
   return results[0];
 }
 
-function createGetByIdError(property: string, message: string) {
-  return new Error(`Decorator "getById" could not resolve property "${property}": ${message}`);
+function findWidgetByType(widgetInstance: WidgetInterface, property: string): WidgetInterface {
+  let results = widgetInstance.find(getPropertyType(widgetInstance, property));
+  if (results.length === 0) {
+    throw new Error('No widget of expected type appended.');
+  }
+  if (results.length > 1) {
+    throw new Error('More than one widget of expected type appended.');
+  }
+  return results[0];
+}
+
+function defineStorageBackedGetter(widgetProto: any, property: string, decorator: string) {
+  defineGetter(widgetProto, property, function(this: WidgetInterface) {
+    if (!isInitialized(this)) {
+      throwPropertyResolveError(decorator, property, 'No widgets have been appended yet.');
+    }
+    return getPropertyStore(this).get (property);
+  });
+}
+
+function throwPropertyResolveError(decorator: string, property: string, message: string): never {
+  throw new Error(`Decorator "${decorator}" could not resolve property "${property}": ${message}`);
 }
