@@ -1,6 +1,5 @@
 import 'reflect-metadata';
-import {Widget} from 'tabris';
-import {WidgetCollection} from 'tabris';
+import {Widget, WidgetCollection} from 'tabris';
 import {
   DecoratorFactory,
   defineGetter,
@@ -8,41 +7,34 @@ import {
   areStaticDecoratorArgs,
   applyPropertyDecorator,
   WidgetInterface,
-  WidgetConstructor
+  WidgetConstructor,
+  WidgetResolver
 } from './utils';
 
-type Finder = (widget: WidgetInterface, string: Selector, type: WidgetConstructor) => any;
 type TypeParser = (widgetProto: WidgetInterface, property: string, finderArgs: any[]) => WidgetConstructor;
 
 export function findFirst(targetProto: Widget, property: string): void;
 export function findFirst(targetType?: WidgetConstructor, selector?: string): DecoratorFactory;
 export function findFirst(selector: string): DecoratorFactory;
-
 export function findFirst(...args: any[]): DecoratorFactory | void {
-  return defineWidgetFinder('findFirst', args, getWidgetType, (widget, selector, type) => {
-    return widget.find(selector).first(type) || null;
-  });
+  return defineWidgetFinder('findFirst', args, getReturnTypeWidget, findFirstImpl);
 }
 
 export function findLast(targetProto: Widget, property: string): void;
 export function findLast(targetType: WidgetConstructor, selector: string): DecoratorFactory;
 export function findLast(selector: string): DecoratorFactory;
-
 export function findLast(...args: any[]): DecoratorFactory | void {
-  return defineWidgetFinder('findLast', args, getWidgetType, (widget, selector, type) => {
-    return widget.find(selector).last(type) || null;
-  });
+  return defineWidgetFinder('findLast', args, getReturnTypeWidget, findLastImpl);
 }
 
 export function findAll(targetType: WidgetConstructor, selector?: string): DecoratorFactory;
-
 export function findAll(...args: any[]): DecoratorFactory | void {
-  return defineWidgetFinder('findAll', args, getWidgetCollectionType, (widget, selector, type) => {
-    return widget.find(selector).filter(type) || null;
-  });
+  return defineWidgetFinder('findAll', args, getReturnTypeCollection, findAllImpl);
 }
 
-function defineWidgetFinder(name: string, args: any[], widgetTypeParser: TypeParser, finder: Finder) {
+/* Internals */
+
+function defineWidgetFinder(name: string, args: any[], widgetTypeParser: TypeParser, finder: WidgetResolver) {
   return applyPropertyDecorator(name, args, (widgetProto: WidgetInterface, property: string) => {
     const selector = getSelector(args);
     const type = widgetTypeParser(widgetProto, property, args);
@@ -56,7 +48,7 @@ function getSelector(args: any[]): string {
   return areStaticDecoratorArgs(args) ? '*' : args[args.length - 1];
 }
 
-function getWidgetType(widgetProto: WidgetInterface, property: string, finderArgs: any[]): WidgetConstructor {
+function getReturnTypeWidget(widgetProto: WidgetInterface, property: string, finderArgs: any[]): WidgetConstructor {
   let type = finderArgs[0] instanceof Function ? finderArgs[0] : null;
   if (type === null) {
     type = getPropertyType(widgetProto, property);
@@ -67,10 +59,22 @@ function getWidgetType(widgetProto: WidgetInterface, property: string, finderArg
   return type;
 }
 
-function getWidgetCollectionType(widgetProto: WidgetInterface, property: string, finderArgs: any[]): WidgetConstructor {
+function getReturnTypeCollection(widgetProto: WidgetInterface, property: string, finderArgs: any[]): WidgetConstructor {
   let type = finderArgs[0];
   if (getPropertyType(widgetProto, property) !== WidgetCollection) {
-    throw new Error('Return type has to be WidgetCollection or WidgetCollection<WidgetType>.');
+    throw new Error('Return type has to be WidgetCollection<WidgetType>.');
   }
   return finderArgs[0];
+}
+
+function findFirstImpl(widget: WidgetInterface, selector: string, type: WidgetConstructor) {
+    return widget.find(selector).first(type) || null;
+}
+
+function findLastImpl(widget: WidgetInterface, selector: string, type: WidgetConstructor) {
+  return widget.find(selector).last(type) || null;
+}
+
+function findAllImpl(widget: WidgetInterface, selector: string, type: WidgetConstructor) {
+  return widget.find(selector).filter(type) || null;
 }

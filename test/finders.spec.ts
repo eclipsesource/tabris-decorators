@@ -205,7 +205,7 @@ describe('finders', () => {
           }
       }).to.throw(
           'Could not apply decorator "findAll" to property "wrongType": '
-        + 'Return type has to be WidgetCollection or WidgetCollection<WidgetType>.');
+        + 'Return type has to be WidgetCollection<WidgetType>.');
     });
 
   });

@@ -4,6 +4,7 @@ export interface WidgetConstructor { new (...args: any[]): Widget; }
 export type DecoratorFactory = (widgetProto: any, property: string) => void;
 export type WidgetInterface = {[prop: string]: any} & Widget;
 export type Initializer = (widgetInstance: WidgetInterface) => void;
+export type WidgetResolver = (widget: WidgetInterface, param: string, type: WidgetConstructor) => any;
 
 /**
  * Takes a callback a property decorator factory and when possible calls it with the appropriate arguments,
@@ -79,6 +80,9 @@ export function getPropertyStore(instance: any): Map<string, any> {
   return instance[propertyStoreKey];
 }
 
+/**
+ * Checks if the initializers of this widget type have already been executed for the given instance.
+ */
 export function isInitialized(widget: WidgetInterface) {
   return !!widget[isInitializedKey];
 }

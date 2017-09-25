@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {Widget, Composite} from 'tabris';
 import {
   defineGetter,
   getPropertyType,
@@ -7,45 +8,46 @@ import {
   initializers,
   isInitialized,
   getPropertyStore,
-  Initializer
+  Initializer,
+  WidgetConstructor,
+  WidgetResolver
 } from './utils';
-import {Widget, Composite} from 'tabris';
-
-type GetResolver = (widget: WidgetInterface, propertyName: string) => any;
 
 export function getById(targetProto: Composite, property: string): void;
-
 export function getById(...args: any[]): void {
-  defineWidgetGetter('getById', args, findWidgetById);
+  defineWidgetGetter('getById', args, getByIdImpl);
 }
 
 export function getByType(targetProto: Composite, property: string): void;
-
 export function getByType(...args: any[]): void {
-  defineWidgetGetter('getByType', args, findWidgetByType);
+  defineWidgetGetter('getByType', args, getByTypeImpl);
 }
 
-export function defineWidgetGetter(name: string, args: any[], resolver: GetResolver): void {
+/* Internals */
+
+function defineWidgetGetter(name: string, args: any[], resolver: WidgetResolver): void {
   applyPropertyDecorator(name, args, (widgetProto: any, property: string) => {
-    checkType(widgetProto, property);
+    let type = getPropertyType(widgetProto, property);
+    if (!type) {
+      throw new Error('Type could not be inferred.');
+    }
     initializers(widgetProto).push((widget) => {
       try {
-        getPropertyStore(widget).set(property, resolver(widget, property));
+        getPropertyStore(widget).set(property, resolver(widget, property, type));
       } catch (ex) {
         throwPropertyResolveError(name, property, ex.message);
       }
     });
-    defineStorageBackedGetter(widgetProto, property, name);
+    defineGetter(widgetProto, property, function(this: WidgetInterface) {
+      if (!isInitialized(this)) {
+        throwPropertyResolveError(name, property, 'No widgets have been appended yet.');
+      }
+      return getPropertyStore(this).get (property);
+    });
   });
 }
 
-function checkType(widgetProto: WidgetInterface, property: string): void {
-  if (!getPropertyType(widgetProto, property)) {
-    throw new Error('Type could not be inferred.');
-  }
-}
-
-function findWidgetById(widgetInstance: WidgetInterface, property: string): WidgetInterface {
+function getByIdImpl(widgetInstance: WidgetInterface, property: string): WidgetInterface {
   let results = widgetInstance.find('#' + property);
   if (results.length === 0) {
     throw new Error(`No widget with id "${property}" appended.`);
@@ -59,7 +61,7 @@ function findWidgetById(widgetInstance: WidgetInterface, property: string): Widg
   return results[0];
 }
 
-function findWidgetByType(widgetInstance: WidgetInterface, property: string): WidgetInterface {
+function getByTypeImpl(widgetInstance: WidgetInterface, property: string): WidgetInterface {
   let results = widgetInstance.find(getPropertyType(widgetInstance, property));
   if (results.length === 0) {
     throw new Error('No widget of expected type appended.');
@@ -68,15 +70,6 @@ function findWidgetByType(widgetInstance: WidgetInterface, property: string): Wi
     throw new Error('More than one widget of expected type appended.');
   }
   return results[0];
-}
-
-function defineStorageBackedGetter(widgetProto: any, property: string, decorator: string) {
-  defineGetter(widgetProto, property, function(this: WidgetInterface) {
-    if (!isInitialized(this)) {
-      throwPropertyResolveError(decorator, property, 'No widgets have been appended yet.');
-    }
-    return getPropertyStore(this).get (property);
-  });
 }
 
 function throwPropertyResolveError(decorator: string, property: string, message: string): never {
