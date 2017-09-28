@@ -126,3 +126,59 @@ Lets the property return the descendant with the same id as the property name. U
 ### @getByType
 
 Like `@getById`, but ignored the id and looks by return type only. Useful if there is only one widget of a specific type in your widget tree anyway, so you don't have to assign it an id.
+
+## Injectors
+
+The `inject` decorators allow for simple dependency injection. The main difference to most dependency injection libraries in high-level languages is that these use classes to define the type of the injection, not interfaces. However, since classes can be used like interfaces in TypeScript, nothing really changes.
+
+Before you can use the injectors, you have to register injection handlers for each type. You do this like this:
+
+```js
+import {injectionHandlers} from 'tabris-decorators';
+
+injectionHandlers.add(TypeToInject, (param: string | undefined) => {
+  return new SomeType();
+});
+```
+
+Where `SomeType` needs to be compatible to TypeToInject. This is guarenteed to be the case if `SomeType` IS `TypeToInject`, extends `TypeToInject`, implements it as an interface, or simply has the same structure. The IDE will warn you if they aren't compatible.
+
+A  `param` will be given to the injection handler only if the `@inject(param)` decorator is used, or if `inject(type, param)` is called.
+
+Primitives can also be injected. They are represented by their boxed Types, e.g. `injectionHandlers.add(Number, () => 23);`.
+
+Whether the return value is always the same (i.e. singleton), always different, or depending on `param` is not relevant to the framework. The value is not checked at runtime in any way.
+
+Injection handler can be removed/replaced if they have not be used yet be the framework.
+
+### @inject
+
+Decorate a property to inject a value based on the type of the property, e.g.:
+
+```js
+class Foo {
+
+  @inject public readonly aNumber: number;
+
+}
+```
+
+The value is resolved lazily, so the first time the property is accessed on each instance. The result is cached, so the value will never change during the lifecycle of the object, nor can it be set.
+
+### @inject(param)
+
+Like `inject`, but the `param` string will be passed to the injection handler.
+
+### inject(type)
+
+This is not a decorator, but a simple utility to call the injection framework directly. This may be useful when used with parameters, e.g.:
+
+```js
+new SomeWidget({
+  service: inject(MyService)
+});
+```
+
+### inject(type, param)
+
+Like `inject(type)`, only that `param` will be passed to the injection handler.
