@@ -1,6 +1,6 @@
 {
   "name": "tabris-decorators",
-  "version": "0.1.0-test1",
+  "version": "0.1.0-test2",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
