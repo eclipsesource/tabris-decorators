@@ -1,5 +1,4 @@
 /* tslint:disable no-namespace */
-
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import {use, expect} from 'chai';

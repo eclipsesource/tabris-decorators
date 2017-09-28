@@ -5,7 +5,6 @@ import {
   DecoratorFactory,
   defineGetter,
   getPropertyType,
-  areStaticDecoratorArgs,
   applyPropertyDecorator,
   getPropertyStore
 } from './utils';

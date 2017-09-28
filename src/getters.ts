@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import {Widget, Composite} from 'tabris';
+import {Composite} from 'tabris';
 import {
   defineGetter,
   getPropertyType,
@@ -8,8 +8,6 @@ import {
   initializers,
   isInitialized,
   getPropertyStore,
-  Initializer,
-  WidgetConstructor,
   WidgetResolver
 } from './utils';
 

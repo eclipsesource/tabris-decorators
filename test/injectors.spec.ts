@@ -1,10 +1,9 @@
+/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
 import 'mocha';
 import 'sinon';
 import InjectionHandlerCollection from '../src/InjectionHandlerCollection';
 import {injectionHandlers, inject} from '../src';
 import {restoreSandbox, expect} from './test';
-
-/* tslint:disable:no-unused-expression max-classes-per-file no-construct ban-types*/
 
 class MyServiceClass {
   constructor(readonly param: string | undefined) { }

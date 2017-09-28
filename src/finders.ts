@@ -60,7 +60,6 @@ function getReturnTypeWidget(widgetProto: WidgetInterface, property: string, fin
 }
 
 function getReturnTypeCollection(widgetProto: WidgetInterface, property: string, finderArgs: any[]): WidgetConstructor {
-  let type = finderArgs[0];
   if (getPropertyType(widgetProto, property) !== WidgetCollection) {
     throw new Error('Return type has to be WidgetCollection<WidgetType>.');
   }

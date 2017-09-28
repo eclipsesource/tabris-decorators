@@ -1,6 +1,7 @@
+/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import {Composite, Button, ui, WidgetCollection, Widget} from 'tabris';
+import {Composite, Button, WidgetCollection, Widget} from 'tabris';
 import {findFirst, findLast, findAll} from '../src';
 import * as tabrisMock from './tabris-mock';
 import {restoreSandbox, expect} from './test';
@@ -45,7 +46,6 @@ class CustomComponent extends Composite {
 
 }
 
-/* tslint:disable:no-unused-expression max-classes-per-file */
 describe('finders', () => {
 
   let widget: CustomComponent;

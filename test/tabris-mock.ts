@@ -1,5 +1,4 @@
 /* tslint:disable */
-
 import * as tabris from 'tabris';
 
 // polyfill installs fetch on self

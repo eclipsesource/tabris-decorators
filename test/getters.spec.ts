@@ -1,11 +1,11 @@
+/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import {Composite, Button, ui, WidgetCollection, Widget} from 'tabris';
+import {Composite, Button} from 'tabris';
 import {getById, getByType} from '../src';
 import * as tabrisMock from './tabris-mock';
 import {restoreSandbox, expect} from './test';
 
-/* tslint:disable:no-unused-expression max-classes-per-file */
 describe('getters', () => {
 
   afterEach(() => {
