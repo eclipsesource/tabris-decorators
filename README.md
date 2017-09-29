@@ -224,29 +224,26 @@ The `deep` flag changs the behavior if the target and sources property have diff
 Example:
 
 ```
-class Door {
-
-  public open: boolean;
-
-  constructor(open: any) {
-    this.open = !!open;
+class Model {
+  constructor(data: any) {
+    initialize(this, data, {deep: true}));
   }
-
 }
 
-class House {
+class Door extends Model{
+  @required public open: boolean;
+}
 
+class House extends Model {
   @required public door: Door;
-
 }
 
-let house1 = initialize(new House(), {door: new Door(true)}); // OK
-let house2 = initialize(new House(), {door: true}); // NOT OK
-let house3 = initialize(new House(), {door: true}, {deep: true}); // OK
+let houseJson = '{door: {open: true}}';
+let house = new House(JSON.parse(houseJson));
 
 ```
 
-Of course `Door` could also use the `initialize` function. In that way models of arbitrary depths can be constructed. There are no recursion checks, so if types are (indirectly) depending on themselvs it will produce a stack overflow.
+There are no recursion checks, so if types are (indirectly) depending on themselvs it will produce a stack overflow.
 
 ### @required
 
