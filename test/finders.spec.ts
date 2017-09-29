@@ -120,7 +120,7 @@ describe('finders', () => {
           }
       }).to.throw(
           'Could not apply decorator "findFirst" to property "unknownType": '
-        + 'Return type was not given and could not be inferred.');
+        + 'Property type could not be inferred. Only classes and primitive types are supported');
     });
 
     it('fails if a getter has already been defined', () => {
@@ -157,7 +157,7 @@ describe('finders', () => {
           }
       }).to.throw(
           'Could not apply decorator "findLast" to property "unknownType": '
-        + 'Return type was not given and could not be inferred.');
+        + 'Property type could not be inferred. Only classes and primitive types are supported.');
     });
 
   });

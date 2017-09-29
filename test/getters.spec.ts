@@ -57,7 +57,10 @@ describe('getters', () => {
         class FailedComponent extends Composite {
           @getById public readonly button1: Button | null;
         }
-      }).to.throw('Could not apply decorator "getById" to property "button1": Type could not be inferred.');
+      }).to.throw(
+          'Could not apply decorator "getById" to property "button1": '
+        + 'Property type could not be inferred. Only classes and primitive types are supported.'
+      );
     });
 
     it('throws if a getter is accessed before first append', () => {

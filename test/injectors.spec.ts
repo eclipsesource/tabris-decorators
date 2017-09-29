@@ -52,7 +52,7 @@ describe('inject', () => {
         public readonly unknownType: string | null;
       }
     }).to.throw(
-        'Could not apply decorator "inject" to property "unknownType": Type could not be inferred. '
+        'Could not apply decorator "inject" to property "unknownType": Property type could not be inferred. '
       + 'Only classes and primitive types are supported.'
     );
   });

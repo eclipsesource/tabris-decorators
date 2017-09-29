@@ -53,9 +53,6 @@ function getReturnTypeWidget(widgetProto: WidgetInterface, property: string, fin
   if (type === null) {
     type = getPropertyType(widgetProto, property);
   }
-  if (type === null) {
-    throw new Error('Return type was not given and could not be inferred.');
-  }
   return type;
 }
 

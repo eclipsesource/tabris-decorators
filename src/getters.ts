@@ -5,8 +5,8 @@ import {
   getPropertyType,
   applyPropertyDecorator,
   WidgetInterface,
-  initializers,
-  isInitialized,
+  postAppendHandlers,
+  wasAppended,
   getPropertyStore,
   WidgetResolver
 } from './utils';
@@ -29,7 +29,7 @@ function defineWidgetGetter(name: string, args: any[], resolver: WidgetResolver)
     if (!type) {
       throw new Error('Type could not be inferred.');
     }
-    initializers(widgetProto).push((widget) => {
+    postAppendHandlers(widgetProto).push((widget) => {
       try {
         getPropertyStore(widget).set(property, resolver(widget, property, type));
       } catch (ex) {
@@ -37,7 +37,7 @@ function defineWidgetGetter(name: string, args: any[], resolver: WidgetResolver)
       }
     });
     defineGetter(widgetProto, property, function(this: WidgetInterface) {
-      if (!isInitialized(this)) {
+      if (!wasAppended(this)) {
         throwPropertyResolveError(name, property, 'No widgets have been appended yet.');
       }
       return getPropertyStore(this).get (property);

@@ -1,5 +1,6 @@
+import {Constructor} from './utils';
+
 export type InjectionHandler<T> = (parameter: string | undefined) => T;
-export interface Constructor<T> {new(...args: any[]): T; }
 
 export default class InjectionHandlerCollection {
 

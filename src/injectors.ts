@@ -1,12 +1,12 @@
 import 'reflect-metadata';
-import {Constructor} from './InjectionHandlerCollection';
 import {injectionHandlers} from '.';
 import {
   DecoratorFactory,
   defineGetter,
   getPropertyType,
   applyPropertyDecorator,
-  getPropertyStore
+  getPropertyStore,
+  Constructor
 } from './utils';
 
 export function inject<T>(type: Constructor<T>, param?: string): T;
@@ -26,9 +26,6 @@ function directInject<T>(type: Constructor<T>, param?: string): T {
 function applyInjectDecorator(args: any[]): DecoratorFactory | void {
   return applyPropertyDecorator('inject', args, (proto, property) => {
     const type = getPropertyType(proto, property);
-    if (!type) {
-      throw new Error('Type could not be inferred. Only classes and primitive types are supported.');
-    }
     const unboxer = getUnboxer(type);
     const param = typeof args[0] === 'string' ? args[0] : undefined;
     defineGetter(proto, property, function(this: object) {
