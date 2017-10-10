@@ -2,7 +2,7 @@
 import 'mocha';
 import 'sinon';
 import InjectionHandlerCollection from '../src/InjectionHandlerCollection';
-import {injectionHandlers, inject} from '../src';
+import {injectionHandlers, inject, create} from '../src';
 import {restoreSandbox, expect} from './test';
 
 class MyServiceClass {
@@ -18,6 +18,20 @@ class MyClientClass {
   @inject public readonly aNumber: number;
   @inject public readonly aString: string;
   @inject public readonly aBoolean: boolean;
+}
+
+class ConstructorWithInjection {
+
+  public service: MyServiceClass;
+  public number: number;
+  public str: string;
+
+  constructor(str: string, @inject('foo2') service: MyServiceClass, @inject number: number) {
+    this.str = str;
+    this.number = number || 0;
+    this.service = service;
+  }
+
 }
 
 describe('inject', () => {
@@ -52,12 +66,12 @@ describe('inject', () => {
         public readonly unknownType: string | null;
       }
     }).to.throw(
-        'Could not apply decorator "inject" to property "unknownType": Property type could not be inferred. '
+        'Could not apply decorator "inject" to "unknownType": Property type could not be inferred. '
       + 'Only classes and primitive types are supported.'
     );
   });
 
-  describe('static injections', () => {
+  describe('parameterless injections', () => {
 
     it('inject by type', () => {
       expect(instance.injectedClass).to.be.instanceOf(MyServiceClass);
@@ -115,9 +129,40 @@ describe('inject', () => {
       expect(special.num).to.equal(0);
     });
 
+    describe('on constructor', () => {
+
+      it('ignored on direct constructor call', () => {
+        let instance2 = new ConstructorWithInjection('foo', new MyServiceClass('bar'), 23);
+        expect(instance2.number).to.equal(23);
+        expect(instance2.str).to.equal('foo');
+        expect(instance2.service.param).equal('bar');
+      });
+
+      it('injects when used with create', () => {
+        numberHandler = (param: any) => 44;
+
+        let instance2 = create(ConstructorWithInjection, ['foo']);
+
+        expect(instance2.number).to.equal(44);
+      });
+
+      it('injects with injection parameter', () => {
+        let instance2 = create(ConstructorWithInjection, ['foo']);
+        expect(instance2.service.param).to.equal('foo2');
+      });
+
+      it('does not inject when not decorated', () => {
+        let instance2 = create(ConstructorWithInjection, ['foo3', undefined, 34]);
+        expect(instance2.str).to.equal('foo3');
+        expect(instance2.service).to.be.instanceOf(MyServiceClass);
+        expect(instance2.number).to.equal(0);
+      });
+
+    });
+
   });
 
-  describe('dynamic injections', () => {
+  describe('parameterized injections', () => {
 
     it('default param is undefined', () => {
       expect(instance.injectedClass.param).to.be.undefined;

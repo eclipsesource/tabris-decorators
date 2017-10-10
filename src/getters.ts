@@ -3,7 +3,7 @@ import {Composite} from 'tabris';
 import {
   defineGetter,
   getPropertyType,
-  applyPropertyDecorator,
+  applyDecorator,
   WidgetInterface,
   postAppendHandlers,
   wasAppended,
@@ -24,7 +24,7 @@ export function getByType(...args: any[]): void {
 /* Internals */
 
 function defineWidgetGetter(name: string, args: any[], resolver: WidgetResolver): void {
-  applyPropertyDecorator(name, args, (widgetProto: any, property: string) => {
+  applyDecorator(name, args, (widgetProto: any, property: string) => {
     let type = getPropertyType(widgetProto, property);
     if (!type) {
       throw new Error('Type could not be inferred.');

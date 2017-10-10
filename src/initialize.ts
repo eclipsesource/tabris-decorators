@@ -1,6 +1,6 @@
 import {
   DecoratorFactory,
-  applyPropertyDecorator,
+  applyDecorator,
   defineProperty,
   getInitConfig,
   getPropertyStore,
@@ -32,7 +32,7 @@ export default function initialize<T extends object>(target: T, source: any, opt
 export function required(processor: (value: any) => any): DecoratorFactory;
 export function required(targetProto: object, property: string): void;
 export function required(...args: any[]): any {
-  return applyPropertyDecorator('required', args, (proto: object, property: string) => {
+  return applyDecorator('required', args, (proto: object, property: string) => {
     getInitConfig(proto).set(property, {
       type: getPropertyType(proto, property),
       optional: false,
@@ -45,7 +45,7 @@ export function required(...args: any[]): any {
 export function optional(fallback: any): DecoratorFactory;
 export function optional<T>(fallback: T, processor: (value: T) => any): DecoratorFactory;
 export function optional(...args: any[]) {
-  return applyPropertyDecorator('optional', args, (proto: object, property: string) => {
+  return applyDecorator('optional', args, (proto: object, property: string) => {
     getInitConfig(proto).set(property, {
       type: getPropertyType(proto, property),
       optional: true,

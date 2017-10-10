@@ -119,7 +119,7 @@ describe('finders', () => {
             public readonly unknownType: Button | null;
           }
       }).to.throw(
-          'Could not apply decorator "findFirst" to property "unknownType": '
+          'Could not apply decorator "findFirst" to "unknownType": '
         + 'Property type could not be inferred. Only classes and primitive types are supported');
     });
 
@@ -130,7 +130,7 @@ describe('finders', () => {
           public get aGetter(): Composite { return new Composite(); }
         }
       }).to.throw(
-          'Could not apply decorator "findFirst" to property "aGetter": '
+          'Could not apply decorator "findFirst" to "aGetter": '
         + 'A getter or setter was already defined.');
     });
 
@@ -156,7 +156,7 @@ describe('finders', () => {
             public readonly unknownType: Button | null;
           }
       }).to.throw(
-          'Could not apply decorator "findLast" to property "unknownType": '
+          'Could not apply decorator "findLast" to "unknownType": '
         + 'Property type could not be inferred. Only classes and primitive types are supported.');
     });
 
@@ -204,7 +204,7 @@ describe('finders', () => {
             public readonly wrongType: Composite;
           }
       }).to.throw(
-          'Could not apply decorator "findAll" to property "wrongType": '
+          'Could not apply decorator "findAll" to "wrongType": '
         + 'Return type has to be WidgetCollection<WidgetType>.');
     });
 

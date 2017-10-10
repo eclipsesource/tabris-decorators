@@ -5,7 +5,7 @@ import {
   defineGetter,
   getPropertyType,
   areStaticDecoratorArgs,
-  applyPropertyDecorator,
+  applyDecorator,
   WidgetInterface,
   WidgetConstructor,
   WidgetResolver
@@ -35,7 +35,7 @@ export function findAll(...args: any[]): DecoratorFactory | void {
 /* Internals */
 
 function defineWidgetFinder(name: string, args: any[], widgetTypeParser: TypeParser, finder: WidgetResolver) {
-  return applyPropertyDecorator(name, args, (widgetProto: WidgetInterface, property: string) => {
+  return applyDecorator(name, args, (widgetProto: WidgetInterface, property: string) => {
     const selector = getSelector(args);
     const type = widgetTypeParser(widgetProto, property, args);
     defineGetter(widgetProto, property, function(this: Widget) {

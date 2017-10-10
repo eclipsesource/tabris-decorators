@@ -129,7 +129,7 @@ Like `@getById`, but ignored the id and looks by return type only. Useful if the
 
 ## Injectors
 
-The `inject` decorators allow for simple dependency injection. The main difference to most dependency injection libraries in high-level languages is that these use classes to define the type of the injection, not interfaces. However, since classes can be used like interfaces in TypeScript, nothing really changes.
+The `inject` decorators allow for simple dependency injection. A significant difference to some other dependency injection libraries in high-level languages is that here we use classes to define the type of the injection, not interfaces. However, since classes can be used like interfaces in TypeScript, nothing really changes.
 
 Before you can use the injectors, you have to register injection handlers for each type. You do this like this:
 
@@ -149,7 +149,7 @@ Primitives can also be injected. They are represented by their boxed Types, e.g.
 
 Whether the return value is always the same (i.e. singleton), always different, or depending on `param` is not relevant to the framework. The value is not checked at runtime in any way.
 
-Injection handler can be removed/replaced if they have not be used yet be the framework.
+Already registered injection handler can be removed/replaced if they have not be used yet be the framework.
 
 ### @inject
 
@@ -158,12 +158,32 @@ Decorate a property to inject a value based on the type of the property, e.g.:
 ```js
 class Foo {
 
-  @inject public readonly aNumber: number;
+  @inject public readonly propA: classA;
 
 }
 ```
 
 The value is resolved lazily, so the first time the property is accessed on each instance. The result is cached, so the value will never change during the lifecycle of the object, nor can it be set.
+
+You can also decorate a constructor parameter, like this:
+
+```js
+class Foo {
+
+  constructor(@inject a: ClassA) {
+    ...
+  }
+
+}
+```
+
+For this parameter to be injected, the object needs to be created using the `create` function, like this:
+
+```js
+  let foo = create(Foo);
+```
+
+Also see the description for the `create` function below.
 
 ### @inject(param)
 
@@ -182,6 +202,36 @@ new SomeWidget({
 ### inject(type, param)
 
 Like `inject(type)`, only that `param` will be passed to the injection handler.
+
+### create(type)
+
+Not a decorator, but a function that will create a new instance of the given type and automatically inject all parameters decorated with `@inject` or `@inject(param)`. Non-decorated parameters will be `undefined`. To change this, use the signature below.
+
+A typical use of `create` would be to create instances inside an injection handler, e.g.:
+
+```js
+injectionHandlers.add(TypeToInject, () => create(SomeType));
+```
+
+Used in these manner, `SomeType` can be injected while also having constructor injections itself.
+
+### create(type, param[])
+
+Like `create(type)`, but any parameters not decorated with `inject` will be taken from the given array, with the index in the array matching that of the parameter. For example:
+
+```js
+class Foo {
+
+  constructor(@inject a: ClassA, b: ClassB, @inject c: ClassC) {
+    ...
+  }
+
+}
+
+let foo = create(Foo, [undefined, new ClassB(), new ClassC()]);
+```
+
+This will inject `a` and `c`, while `b` is taken from the given array. The instance of `ClassC` in the array will be ignored.
 
 ## initializers
 

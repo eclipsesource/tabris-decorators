@@ -160,7 +160,7 @@ describe('initialize', () => {
           @required public whatTypeIsThis: boolean | null;
         }
       }).to.throw(
-          'Could not apply decorator "required" to property "whatTypeIsThis": '
+          'Could not apply decorator "required" to "whatTypeIsThis": '
         + 'Property type could not be inferred. Only classes and primitive types are supported.'
       );
     });

@@ -58,7 +58,7 @@ describe('getters', () => {
           @getById public readonly button1: Button | null;
         }
       }).to.throw(
-          'Could not apply decorator "getById" to property "button1": '
+          'Could not apply decorator "getById" to "button1": '
         + 'Property type could not be inferred. Only classes and primitive types are supported.'
       );
     });
