@@ -69,6 +69,9 @@ function initializeSecure(target: any, source: any, options: InitializationOptio
       if (!sourceHasProperty && !config.optional) {
         throw new Error('Entry is missing in source object.');
       }
+      if (!config.converter) {
+        throw new Error('Initialization configuration incomplete. Conflicting decorators?');
+      }
       let value = config.converter(sourceHasProperty ? source[property] : config.fallback);
       if (options.deep && !isPrimitiveType(config.type ) && !(value instanceof config.type )) {
         propertyStore.set (property, new config.type (value));
