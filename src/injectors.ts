@@ -13,7 +13,7 @@ import {
 
 export function create<T, U, V, W>(
   type: {new(arg1?: U, arg2?: V, arg3?: W, ...args: any[]): T; },
-  args: {0?: U, 1?: V, 2?: W, [index: number]: any}
+  args: {0?: U, 1?: V, 2?: W, [index: number]: any} = []
 ): T {
   let finalArgs: any[] = [];
   let config = getParamConfig(type) || [];
