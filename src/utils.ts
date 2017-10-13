@@ -1,12 +1,13 @@
 import {Widget} from 'tabris';
 
 export interface Constructor<T> {new(...args: any[]): T; }
-export interface ParamConfig {type: Constructor<any>; injectParam?: string; }
-export interface InitConfig {
+export interface ParamInfo {type: Constructor<any>; injectParam?: string; }
+export interface PropertyInfo {
   type: Constructor<any>;
-  optional: boolean;
-  converter: (value: any) => any;
+  optional?: boolean;
+  converter?: (value: any) => any;
   fallback?: any;
+  injectParam?: string;
 }
 export interface PropertyConfig {
   proto: any;
@@ -142,21 +143,21 @@ export function getPropertyStore(instance: any): Map<string, any> {
 /**
  * Gets array of injection data for each parameter of the given function
  */
-export function getParamConfig(fn: any): ParamConfig[] {
-  if (!fn[paramConfigKey]) {
-    fn[paramConfigKey] = [];
+export function getParamInfo(fn: any): ParamInfo[] {
+  if (!fn[paramInfoKey]) {
+    fn[paramInfoKey] = [];
   }
-  return fn[paramConfigKey];
+  return fn[paramInfoKey];
 }
 
 /**
- * Gets map of data for each property how it should be handled by `initialize`
+ * Gets map of data for each property
  */
-export function getInitConfig(protoOrInstance: any): Map<string, InitConfig> {
-  if (!protoOrInstance[initConfigKey]) {
-    protoOrInstance[initConfigKey] = new Map<string, InitConfig>();
+export function getPropertyInfo(protoOrInstance: any): Map<string, PropertyInfo> {
+  if (!protoOrInstance[propertyInfoKey]) {
+    protoOrInstance[propertyInfoKey] = new Map<string, PropertyInfo>();
   }
-  return protoOrInstance[initConfigKey];
+  return protoOrInstance[propertyInfoKey];
 }
 
 /**
@@ -259,7 +260,7 @@ const postAppendHandlersKey = Symbol();
 const wasAppendedKey = Symbol();
 const originalAppendKey = Symbol();
 const propertyStoreKey = Symbol();
-const initConfigKey = Symbol();
+const propertyInfoKey = Symbol();
 const initializedKey = Symbol();
 const initializationFailedKey = Symbol();
-const paramConfigKey = Symbol();
+const paramInfoKey = Symbol();

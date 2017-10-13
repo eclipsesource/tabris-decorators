@@ -2,7 +2,7 @@ import {
   DecoratorFactory,
   applyDecorator,
   defineProperty,
-  getInitConfig,
+  getPropertyInfo,
   getPropertyStore,
   getPropertyType,
   checkType,
@@ -33,7 +33,7 @@ export function required(processor: (value: any) => any): DecoratorFactory;
 export function required(targetProto: object, property: string): void;
 export function required(...args: any[]): any {
   return applyDecorator('required', args, (proto: object, property: string) => {
-    getInitConfig(proto).set(property, {
+    getPropertyInfo(proto).set(property, {
       type: getPropertyType(proto, property),
       optional: false,
       converter: areStaticDecoratorArgs(args) ? noConvert : args[0]
@@ -46,7 +46,7 @@ export function optional(fallback: any): DecoratorFactory;
 export function optional<T>(fallback: T, processor: (value: T) => any): DecoratorFactory;
 export function optional(...args: any[]) {
   return applyDecorator('optional', args, (proto: object, property: string) => {
-    getInitConfig(proto).set(property, {
+    getPropertyInfo(proto).set(property, {
       type: getPropertyType(proto, property),
       optional: true,
       fallback: args[0],
@@ -60,7 +60,7 @@ export function optional(...args: any[]) {
 
 function initializeSecure(target: any, source: any, options: InitializationOptions) {
   let checkList = options.strict ? Object.assign({}, source) : {};
-  let initConfig = getInitConfig(target);
+  let initConfig = getPropertyInfo(target);
   let propertyStore = getPropertyStore(target);
   for (let entry of initConfig) {
     let[property, config] = entry;

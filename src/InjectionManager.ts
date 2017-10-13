@@ -1,4 +1,4 @@
-import {Constructor, getParamConfig} from './utils';
+import {Constructor, getParamInfo, getPropertyInfo} from './utils';
 
 export type InjectionHandler<T> = (parameter: string | undefined) => T;
 
@@ -53,11 +53,18 @@ export default class InjectionManager {
     args: {0?: U, 1?: V, 2?: W, [index: number]: any} = []
   ) => {
     let finalArgs: any[] = [];
-    let config = getParamConfig(type) || [];
+    let paramInfo = getParamInfo(type) || [];
+    let propertyInfo = getPropertyInfo(type.prototype);
     for (let i = 0; i < type.length; i++) {
-      finalArgs[i] = config[i] ? this.resolve(config[i].type, config[i].injectParam) : args[i];
+      finalArgs[i] = paramInfo[i] ? this.resolve(paramInfo[i].type, paramInfo[i].injectParam) : args[i];
     }
-    return new type(...finalArgs);
+    let result: T =  new type(...finalArgs);
+    if (propertyInfo) {
+      for (let entry of propertyInfo) {
+        (result as any)[entry[0]] = this.resolve(entry[1].type, entry[1].injectParam);
+      }
+    }
+    return result;
   }
 
 }

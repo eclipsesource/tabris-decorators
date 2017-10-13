@@ -13,12 +13,9 @@ class MyServiceClass {
   constructor(readonly param: string | undefined) { }
 }
 
-class MyUnusedServiceClass {}
-
 class MyClientClass {
   @inject public readonly injectedClass: MyServiceClass;
   @inject('foo') public readonly fooClass: MyServiceClass;
-  @inject public readonly unregisteredType: MyUnusedServiceClass;
   @inject public readonly aNumber: number;
   @inject public readonly aString: string;
   @inject public readonly aBoolean: boolean;
@@ -57,11 +54,11 @@ describe('inject', () => {
   injectionManager.addHandler(Boolean, (param) => booleanHandler(param));
 
   beforeEach(() => {
-    instance = new MyClientClass();
     serviceHandler = (param) => new MyServiceClass(param);
     numberHandler = (param: any) => 0;
     stringHandler = (param: any) => '';
     booleanHandler = (param: any) => false;
+    instance = create(MyClientClass);
   });
 
   afterEach(() => {
@@ -89,13 +86,15 @@ describe('inject', () => {
   });
 
   it('caches value per instance', () => {
-    expect(new MyClientClass().injectedClass).not.to.equal(instance.injectedClass);
+    expect(create(MyClientClass).injectedClass).not.to.equal(instance.injectedClass);
   });
 
   it('throws if handler does not exist (yet)', () => {
-    expect(() => instance.unregisteredType).to.throw(
-        'Decorator "inject" could not resolve property "unregisteredType": '
-      + 'Can not inject value of type MyUnusedServiceClass since no injection handler exists for this type.'
+    class MyUnusedServiceClass { }
+    class InjetingUnusedServiceClass { @inject public service: MyUnusedServiceClass; }
+
+    expect(() => create(InjetingUnusedServiceClass)).to.throw(
+      'Can not inject value of type MyUnusedServiceClass since no injection handler exists for this type.'
     );
   });
 
@@ -109,6 +108,7 @@ describe('inject', () => {
     numberHandler = (param: any) => new Number(23);
     stringHandler = (param: any) => new String('foo');
     booleanHandler = (param: any) => new Boolean('true');
+    instance = create(MyClientClass);
 
     expect(instance.aNumber.valueOf()).to.equal(23);
     expect(instance.aString.valueOf()).to.equal('foo');

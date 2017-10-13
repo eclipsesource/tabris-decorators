@@ -131,26 +131,6 @@ Like `@getById`, but ignored the id and looks by return type only. Useful if the
 
 The `inject` decorators allow for simple dependency injection. A significant difference to some other dependency injection libraries in high-level languages is that here we use classes to define the type of the injection, not interfaces. However, since classes can be used like interfaces in TypeScript, nothing really changes.
 
-Before you can use the injectors, you have to register injection handlers for each type. You do this like this:
-
-```js
-import {injectionManager} from 'tabris-decorators';
-
-injectionManager.addHandler(TypeToInject, (param: string | undefined) => {
-  return new SomeType();
-});
-```
-
-Where `SomeType` needs to be compatible to TypeToInject. This is guarenteed to be the case if `SomeType` IS `TypeToInject`, extends `TypeToInject`, implements it as an interface, or simply has the same structure. The IDE will warn you if they aren't compatible.
-
-A  `param` will be given to the injection handler only if the `@inject(param)` decorator is used, or if `inject(type, param)` is called.
-
-Primitives can also be injected. They are represented by their boxed Types, e.g. `injectionManager.addHandler(Number, () => 23);`.
-
-Whether the return value is always the same (i.e. singleton), always different, or depending on `param` is not relevant to the framework. The value is not checked at runtime in any way.
-
-Already registered injection handler can be removed/replaced if they have not be used yet be the framework.
-
 ### @inject
 
 Decorate a property to inject a value based on the type of the property, e.g.:
@@ -162,8 +142,6 @@ class Foo {
 
 }
 ```
-
-The value is resolved lazily, so the first time the property is accessed on each instance. The result is cached, so the value will never change during the lifecycle of the object, nor can it be set.
 
 You can also decorate a constructor parameter, like this:
 
@@ -177,39 +155,52 @@ class Foo {
 }
 ```
 
-For this parameter to be injected, the object needs to be created using the `create` method, like this:
-
-```js
-  let foo = injectionManager.create(Foo);
-```
-
-Also see the description for the `create` function below.
-
 ### @inject(param)
 
 Like `inject`, but the `param` string will be passed to the injection handler.
 
-### injectionManager.resolve(type)
+### injectionManager.addHandler
+Before you can use the injectors, you have to register injection handlers for each type that is injectable. You do this like this:
 
-Request an instance from the injection framework directly. `type` must be have a registered injection handler, which will be called.
+```js
+import {injectionManager} from 'tabris-decorators';
 
-### injectionManager.resolve(type, param)
+injectionManager.addHandler(TypeToInject, (param: string | undefined) => {
+  return new ExtendingTypeToInject();
+});
+```
 
-Like `injectionManager.resolve(type)`, only that `param` will be passed to the injection handler.
+Or, if the class that is created uses injection itself, like this:
+
+```js
+import {injectionManager} from 'tabris-decorators';
+
+injectionManager.addHandler(TypeToInject, (param: string | undefined) => {
+  return injectionManager.create(ExtendingTypeToInject);
+});
+```
+
+Where `ExtendingTypeToInject` needs to be compatible to TypeToInject. This is guarenteed to be the case if `SomeType` IS `TypeToInject`, extends `TypeToInject`, implements it as an interface, or simply has the same structure. The IDE will warn you if they aren't compatible.
+
+A  `param` will be given to the injection handler only if the `@inject(param)` decorator is used, or if `inject(type, param)` is called.
+
+Primitives can also be injected. They are represented by their boxed Types, e.g. `injectionManager.addHandler(Number, () => 23);`.
+
+Whether the return value is always the same (i.e. singleton), always different, or depending on `param` is not relevant to the framework. The value is not checked at runtime in any way.
+
+Already registered injection handler can be removed/replaced if they have not be used yet be the framework.
 
 ### injectionManager.create(type)
 
-Not a decorator, but a function that will create a new instance of the given type and automatically inject all parameters decorated with `@inject` or `@inject(param)`. Non-decorated parameters will be `undefined`. To change this, use the signature below.
-
-A typical use of `create` would be to create instances inside an injection handler, e.g.:
+Creates an instance of the given type and fulfills all this injection it defines. The type itself does not have to be injectable (have a handler registered), and typical use of `create` is to *make* it injectable via injection handler:
 
 ```js
 injectionHandlers.add(TypeToInject, () => create(SomeType));
 ```
 
-Used in these manner, `SomeType` can be injected while also having constructor injections itself.
+Used in these manner, `SomeType` can be injected while also having injections itself.
 
-### create(type, param[])
+### injectionManager.create(type, param[])
 
 Like `create(type)`, but any parameters not decorated with `inject` will be taken from the given array, with the index in the array matching that of the parameter. For example:
 
