@@ -16,7 +16,8 @@ export interface PropertyConfig {
   processSet: (target: any, value: any) => any;
 }
 export type WidgetConstructor = Constructor<Widget>;
-export type DecoratorFactory = (widgetProto: any, property: string, index?: number) => void;
+export type DecoratorFactory = (target: any, property: string, index?: number) => void;
+export type ClassDecoratorFactory = (type: Constructor<any>) => void;
 export type WidgetInterface = {[prop: string]: any} & Widget;
 export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
 export type WidgetResolver = (widget: WidgetInterface, param: string, type: WidgetConstructor) => any;
@@ -42,6 +43,30 @@ export function applyDecorator(name: string, args: any[], factory: DecoratorFact
 }
 
 /**
+ * Takes a callback a class decorator factory and when possible calls it with the appropriate arguments,
+ * or returns it so it can be can be called later. Rethrows exceptions by the factory with an
+ * apropriate error message.
+ */
+export function applyClassDecorator(
+  name: string,
+  args: any[],
+  factory: ClassDecoratorFactory
+): ClassDecoratorFactory | void {
+  let impl = (type: Constructor<any>) => {
+    try {
+      factory(type);
+    } catch (error) {
+      throw new Error(`Could not apply decorator "${name}" to "${type.name}": ${error.message}`);
+    }
+  };
+  if (areStaticClassDecoratorArgs(args)) {
+    impl(args[0]);
+  } else {
+    return impl;
+  }
+}
+
+/**
  * Determines wheter a decorator was applied with arguments (dynamic, e.g. "@foo(1,2,2)")
  * or without (static, e.g. "@foo").
  */
@@ -49,6 +74,14 @@ export function areStaticDecoratorArgs(args: any[]): boolean {
   let hasTarget = typeof args[0] === 'object' || typeof args[0] === 'function';
   let hasParam = typeof args[1] === 'string' || typeof args[2] === 'number';
   return hasTarget && hasParam && args.length === 3;
+}
+
+/**
+ * Determines wheter a decorator was applied with arguments (dynamic, e.g. "@foo(1,2,2)")
+ * or without (static, e.g. "@foo").
+ */
+export function areStaticClassDecoratorArgs(args: any[]): boolean {
+  return typeof args[0] === 'function' && args.length === 1;
 }
 
 /**

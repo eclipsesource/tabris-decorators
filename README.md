@@ -159,8 +159,33 @@ class Foo {
 
 Like `inject`, but the `param` string will be passed to the injection handler.
 
+### @injectable
+
+Apply this to a class to register it for injection. This causes a one-to-one relationship between dependency and injection:
+
+```js
+class Foo {}
+@injectable class Foo2 extends Foo {}
+
+
+Class Bar() {
+
+  @inject foo2: Foo2; // This will be an instance of `Foo2`
+  @inject foo: Foo; // This will fail, even though `Foo2` would be a valid injection.
+
+}
+
+```
+
+The injectable class (`Foo2`) may also have injection dependencies itself. For every injection a new instance will be created. If you want to share a single instance for all injections, use `@injectable(shared)` instead. If you want to inject an instance of another (compatible) class other than the one requested by the injection, use `injectionManager.addHandler` instead.
+
+### @injectable(shared)
+
+Like `@injectable`, but if `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton.
+
 ### injectionManager.addHandler
-Before you can use the injectors, you have to register injection handlers for each type that is injectable. You do this like this:
+
+Allows you to register custom injection handlers, and alternative to using `@injectable`. You do that like this:
 
 ```js
 import {injectionManager} from 'tabris-decorators';

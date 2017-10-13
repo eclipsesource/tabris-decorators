@@ -3,7 +3,7 @@ import 'mocha';
 import 'sinon';
 import {Composite, CompositeProperties} from 'tabris';
 import {restoreSandbox, expect} from './test';
-import {injectionManager, inject} from '../src';
+import {injectionManager, inject, injectable} from '../src';
 import * as tabrisMock from './tabris-mock';
 
 const create = injectionManager.create;
@@ -13,8 +13,18 @@ class MyServiceClass {
   constructor(readonly param: string | undefined) { }
 }
 
+@injectable(true) class MySingletonClass {}
+
+@injectable class MyInjectableClass {
+
+  @inject public singleton: MySingletonClass;
+
+}
+
 class MyClientClass {
   @inject public readonly injectedClass: MyServiceClass;
+  @inject public readonly autoInjectableClass: MyInjectableClass;
+  @inject public readonly singleton: MySingletonClass;
   @inject('foo') public readonly fooClass: MyServiceClass;
   @inject public readonly aNumber: number;
   @inject public readonly aString: string;
@@ -81,12 +91,23 @@ describe('inject', () => {
     expect(instance.injectedClass).to.be.instanceOf(MyServiceClass);
   });
 
+  it('injects @injectable class', () => {
+    expect(instance.autoInjectableClass).to.be.instanceOf(MyInjectableClass);
+  });
+
   it('caches value', () => {
     expect(instance.injectedClass).to.be.equal(instance.injectedClass);
+    expect(instance.autoInjectableClass).to.be.equal(instance.autoInjectableClass);
   });
 
   it('caches value per instance', () => {
     expect(create(MyClientClass).injectedClass).not.to.equal(instance.injectedClass);
+    expect(create(MyClientClass).autoInjectableClass).not.to.equal(instance.autoInjectableClass);
+  });
+
+  it('caches shared @injectable classes globally', () => {
+    expect(create(MyClientClass).singleton).to.equal(instance.singleton);
+    expect(create(MyClientClass).autoInjectableClass.singleton).to.equal(instance.singleton);
   });
 
   it('throws if handler does not exist (yet)', () => {
