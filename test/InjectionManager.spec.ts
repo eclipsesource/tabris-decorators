@@ -27,35 +27,35 @@ describe('InjectionManager', () => {
   describe('add', () => {
 
     it('stores handler', () => {
-      instance.add(Number, numberHandler);
+      instance.addHandler(Number, numberHandler);
 
-      expect(instance.get(Number)).to.equal(numberHandler);
+      expect(instance.getHandler(Number)).to.equal(numberHandler);
     });
 
     it('allows to add again for different type', () => {
-      instance.add(Number, numberHandler);
-      instance.add(String, stringHandler);
+      instance.addHandler(Number, numberHandler);
+      instance.addHandler(String, stringHandler);
 
-      expect(instance.get(Number)).to.equal(numberHandler);
-      expect(instance.get(String)).to.equal(stringHandler);
+      expect(instance.getHandler(Number)).to.equal(numberHandler);
+      expect(instance.getHandler(String)).to.equal(stringHandler);
     });
 
     it('does not allow to add again for same type', () => {
-      instance.add(Number, numberHandler);
+      instance.addHandler(Number, numberHandler);
 
-      expect(() => instance.add(Number, numberHandler)).to.throw(
+      expect(() => instance.addHandler(Number, numberHandler)).to.throw(
         'InjectionManager already has a handler for Number'
       );
     });
 
     it('does allow to add again after removing previous handler', () => {
       let numberHandler2 = () => 24;
-      instance.add(Number, numberHandler);
-      instance.remove(Number);
+      instance.addHandler(Number, numberHandler);
+      instance.removeHandler(Number);
 
-      instance.add(Number, numberHandler2);
+      instance.addHandler(Number, numberHandler2);
 
-      expect(instance.get(Number)).to.equal(numberHandler2);
+      expect(instance.getHandler(Number)).to.equal(numberHandler2);
     });
 
   });
@@ -63,26 +63,26 @@ describe('InjectionManager', () => {
   describe('remove', () => {
 
     it('removes handler', () => {
-      let originalEntry = instance.get(Number);
-      instance.add(Number, numberHandler);
+      let originalEntry = instance.getHandler(Number);
+      instance.addHandler(Number, numberHandler);
 
-      instance.remove(Number);
+      instance.removeHandler(Number);
 
       expect(originalEntry).to.be.null;
-      expect(instance.get(Number)).to.be.null;
+      expect(instance.getHandler(Number)).to.be.null;
     });
 
     it('is ignored if entry does not exists', () => {
-      expect(instance.remove(Number)).not.throw;
+      expect(instance.removeHandler(Number)).not.throw;
     });
 
     it('throws if handler was alrady used', () => {
-      instance.add(Number, numberHandler);
-      instance.add(String, stringHandler);
+      instance.addHandler(Number, numberHandler);
+      instance.addHandler(String, stringHandler);
       instance.resolve(String);
 
-      expect(() => instance.remove(Number)).not.to.throw;
-      expect(() => instance.remove(String)).to.throw(
+      expect(() => instance.removeHandler(Number)).not.to.throw;
+      expect(() => instance.removeHandler(String)).to.throw(
         'Can not remove InjectionHandler for type String because it was already used.'
       );
     });
@@ -92,25 +92,25 @@ describe('InjectionManager', () => {
   describe('clear', () => {
 
     it('removes all handlers', () => {
-      instance.add(Number, numberHandler);
-      instance.add(String, stringHandler);
+      instance.addHandler(Number, numberHandler);
+      instance.addHandler(String, stringHandler);
 
-      instance.clear();
+      instance.clearHandlers();
 
-      expect(instance.get(Number)).to.be.null;
-      expect(instance.get(String)).to.be.null;
+      expect(instance.getHandler(Number)).to.be.null;
+      expect(instance.getHandler(String)).to.be.null;
     });
 
     it('ignored if entry does not exists', () => {
-      expect(instance.remove(Number)).not.throw;
+      expect(instance.removeHandler(Number)).not.throw;
     });
 
     it('throws if handler was alrady used', () => {
-      instance.add(Number, numberHandler);
-      instance.add(String, stringHandler);
+      instance.addHandler(Number, numberHandler);
+      instance.addHandler(String, stringHandler);
       instance.resolve(String);
 
-      expect(() => instance.clear()).to.throw(
+      expect(() => instance.clearHandlers()).to.throw(
         'Can not clear InjectionManager because InjectionHandler for type String was already used.'
       );
     });
@@ -120,12 +120,12 @@ describe('InjectionManager', () => {
   describe('resolve', () => {
 
     beforeEach(() => {
-      instance.add(Number, numberHandler);
-      instance.add(String, stringHandler);
+      instance.addHandler(Number, numberHandler);
+      instance.addHandler(String, stringHandler);
     });
 
     it('throws in no handler exists', () => {
-      instance.remove(Number);
+      instance.removeHandler(Number);
       expect(() => instance.resolve(Number)).to.throw(
         'Can not inject value of type Number since no injection handler exists for this type.'
       );
@@ -137,8 +137,8 @@ describe('InjectionManager', () => {
     });
 
     it('passes param', () => {
-      instance.remove(String);
-      instance.add(String, (param) => param ? param : '');
+      instance.removeHandler(String);
+      instance.addHandler(String, (param) => param ? param : '');
 
       expect(instance.resolve(String, 'bar')).to.equal('bar');
       expect(instance.resolve(String)).to.equal('');
@@ -146,8 +146,8 @@ describe('InjectionManager', () => {
 
     it('does not cache', () => {
       let i = 0;
-      instance.remove(Number);
-      instance.add(Number, () => i++);
+      instance.removeHandler(Number);
+      instance.addHandler(Number, () => i++);
 
       expect(instance.resolve(Number)).to.equal(0);
       expect(instance.resolve(Number)).to.equal(1);
@@ -156,7 +156,7 @@ describe('InjectionManager', () => {
 
     it('supports singleton pattern', () => {
       let serviceObject = new MyClass('foo');
-      instance.add(MyClass, () => serviceObject);
+      instance.addHandler(MyClass, () => serviceObject);
 
       expect(instance.resolve(MyClass)).to.equal(serviceObject);
       expect(instance.resolve(MyClass)).to.equal(instance.resolve(MyClass));
@@ -168,7 +168,7 @@ describe('InjectionManager', () => {
           super('foo');
         }
       }
-      instance.add(MyClass, () => new MyClass2('bar'));
+      instance.addHandler(MyClass, () => new MyClass2('bar'));
 
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
     });
@@ -178,7 +178,7 @@ describe('InjectionManager', () => {
         public bar: string = 'bar';
         constructor(readonly value: any) {}
       }
-      instance.add(MyClass, () => new MyClass2('foo'));
+      instance.addHandler(MyClass, () => new MyClass2('foo'));
 
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
     });

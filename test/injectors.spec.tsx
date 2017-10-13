@@ -48,10 +48,10 @@ describe('inject', () => {
   let stringHandler: (param: any) => string | String;
   let booleanHandler: (param: any) => boolean | Boolean;
 
-  injectionManager.add(MyServiceClass, (param) => serviceHandler(param));
-  injectionManager.add(Number, (param) => numberHandler(param));
-  injectionManager.add(String, (param) => stringHandler(param));
-  injectionManager.add(Boolean, (param) => booleanHandler(param));
+  injectionManager.addHandler(MyServiceClass, (param) => serviceHandler(param));
+  injectionManager.addHandler(Number, (param) => numberHandler(param));
+  injectionManager.addHandler(String, (param) => stringHandler(param));
+  injectionManager.addHandler(Boolean, (param) => booleanHandler(param));
 
   beforeEach(() => {
     instance = new MyClientClass();
