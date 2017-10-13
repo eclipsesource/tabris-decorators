@@ -9,10 +9,10 @@ import {
   getPropertyInfo
 } from './utils';
 
-export function inject(targetProto: object, property: string): void;
-export function inject(constructor: Constructor<any>, property: string, index: number): void;
-export function inject(param: string): DecoratorFactory;
-export function inject(...args: any[]): any {
+export default function inject(targetProto: object, property: string): void;
+export default function inject(constructor: Constructor<any>, property: string, index: number): void;
+export default function inject(param: string): DecoratorFactory;
+export default function inject(...args: any[]): any {
   return applyInjectDecorator(args);
 }
 
