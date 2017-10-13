@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import {injectionHandlers} from '.';
+import {injectionManager} from '.';
 import {
   DecoratorFactory,
   defineGetter,
@@ -35,7 +35,7 @@ export function inject(...args: any[]): any {
 }
 
 function directInject<T>(type: Constructor<T>, param?: string): T {
-  return getUnboxer(type)(injectionHandlers.resolve(type, param));
+  return getUnboxer(type)(injectionManager.resolve(type, param));
 }
 
 function applyInjectDecorator(args: any[]): DecoratorFactory | void {
@@ -50,7 +50,7 @@ function applyInjectDecorator(args: any[]): DecoratorFactory | void {
       try {
         let store = getPropertyStore(this);
         if (!store.has(property)) {
-          store.set(property, unboxer(injectionHandlers.resolve(type, param)));
+          store.set(property, unboxer(injectionManager.resolve(type, param)));
         }
         return store.get(property);
       } catch (ex) {

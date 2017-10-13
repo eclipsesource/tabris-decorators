@@ -134,9 +134,9 @@ The `inject` decorators allow for simple dependency injection. A significant dif
 Before you can use the injectors, you have to register injection handlers for each type. You do this like this:
 
 ```js
-import {injectionHandlers} from 'tabris-decorators';
+import {injectionManager} from 'tabris-decorators';
 
-injectionHandlers.add(TypeToInject, (param: string | undefined) => {
+injectionManager.add(TypeToInject, (param: string | undefined) => {
   return new SomeType();
 });
 ```
@@ -145,7 +145,7 @@ Where `SomeType` needs to be compatible to TypeToInject. This is guarenteed to b
 
 A  `param` will be given to the injection handler only if the `@inject(param)` decorator is used, or if `inject(type, param)` is called.
 
-Primitives can also be injected. They are represented by their boxed Types, e.g. `injectionHandlers.add(Number, () => 23);`.
+Primitives can also be injected. They are represented by their boxed Types, e.g. `injectionManager.add(Number, () => 23);`.
 
 Whether the return value is always the same (i.e. singleton), always different, or depending on `param` is not relevant to the framework. The value is not checked at runtime in any way.
 

@@ -2,7 +2,7 @@ import {Constructor} from './utils';
 
 export type InjectionHandler<T> = (parameter: string | undefined) => T;
 
-export default class InjectionHandlerCollection {
+export default class InjectionManager {
 
   private handlers: HandlersMap = new Map<Constructor<any>, HandlerEntry>();
 
@@ -13,7 +13,7 @@ export default class InjectionHandlerCollection {
 
   public add<T, U extends T>(targetType: Constructor<T>, handler: InjectionHandler<U>): void {
     if (this.handlers.has(targetType)) {
-      throw new Error(`InjectionHandlerCollection already has a handler for ${targetType.name}`);
+      throw new Error(`InjectionManager already has a handler for ${targetType.name}`);
     }
     this.handlers.set(targetType, {handler, used: false});
   }
@@ -30,7 +30,7 @@ export default class InjectionHandlerCollection {
     for (let entry of this.handlers) {
       if (entry[1].used) {
         throw new Error(
-            'Can not clear InjectionHandlerCollection because InjectionHandler '
+            'Can not clear InjectionManager because InjectionHandler '
           + `for type ${entry[0].name} was already used.`
         );
       }
@@ -49,7 +49,7 @@ export default class InjectionHandlerCollection {
 
 }
 
-export const instance = new InjectionHandlerCollection();
+export const instance = new InjectionManager();
 
 interface HandlerEntry {handler: InjectionHandler<any>; used: boolean; }
 type HandlersMap = Map<Constructor<any>, HandlerEntry>;

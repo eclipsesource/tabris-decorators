@@ -1,7 +1,7 @@
 /* tslint:disable:no-unused-expression max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import InjectionHandlerCollection from '../src/InjectionHandlerCollection';
+import InjectionManager from '../src/InjectionManager';
 import {restoreSandbox, expect} from './test';
 
 class MyClass {
@@ -10,14 +10,14 @@ class MyClass {
 
 }
 
-describe('InjectionHandlerCollection', () => {
+describe('InjectionManager', () => {
 
-  let instance: InjectionHandlerCollection;
+  let instance: InjectionManager;
   let numberHandler = () => 23;
   let stringHandler = () => 'foo';
 
   beforeEach(() => {
-    instance = new InjectionHandlerCollection();
+    instance = new InjectionManager();
   });
 
   afterEach(() => {
@@ -44,7 +44,7 @@ describe('InjectionHandlerCollection', () => {
       instance.add(Number, numberHandler);
 
       expect(() => instance.add(Number, numberHandler)).to.throw(
-        'InjectionHandlerCollection already has a handler for Number'
+        'InjectionManager already has a handler for Number'
       );
     });
 
@@ -111,7 +111,7 @@ describe('InjectionHandlerCollection', () => {
       instance.resolve(String);
 
       expect(() => instance.clear()).to.throw(
-        'Can not clear InjectionHandlerCollection because InjectionHandler for type String was already used.'
+        'Can not clear InjectionManager because InjectionHandler for type String was already used.'
       );
     });
 
