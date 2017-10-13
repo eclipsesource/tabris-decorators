@@ -1,10 +1,10 @@
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
 import 'mocha';
 import 'sinon';
+import {Composite, CompositeProperties} from 'tabris';
 import {restoreSandbox, expect} from './test';
-import InjectionHandlerCollection from '../src/InjectionHandlerCollection';
 import {injectionHandlers, inject, create} from '../src';
-import {CompositeProperties} from 'tabris';
+import * as tabrisMock from './tabris-mock';
 
 class MyServiceClass {
   constructor(readonly param: string | undefined) { }
@@ -174,6 +174,73 @@ describe('inject', () => {
     it('injects implicit field', () => {
       let instance2 = create(ConstructorWithInjection);
       expect(instance2.otherService).to.be.instanceOf(MyServiceClass);
+    });
+
+    describe('via JSX', () => {
+
+      class MyCustomWidget extends Composite {
+
+        public service: MyServiceClass;
+        public foo: string;
+        public nonInjected: number;
+
+        private jsxProperties: CompositeProperties;
+
+        constructor(
+          properties: CompositeProperties,
+          @inject service: MyServiceClass,
+          @inject('foo') foo: string,
+          nothingToInject: number,
+          @inject('bar') public implicitField: string
+        ) {
+          super(properties);
+          this.foo = foo;
+          this.service = service;
+          this.nonInjected = nothingToInject;
+        }
+
+      }
+
+      let widget: MyCustomWidget;
+
+      beforeEach(() => {
+        stringHandler = (param: any) => new String(param);
+        widget = (
+        <MyCustomWidget left={3} top={4}>
+          <composite/>
+        </MyCustomWidget>
+        );
+      });
+
+      afterEach(() => {
+        tabrisMock.reset();
+      });
+
+      it('injects parameterless', () => {
+        expect(widget.service).to.be.instanceOf(MyServiceClass);
+      });
+
+      it('injects with injection parameter', () => {
+        expect(widget.foo).to.equal('foo');
+      });
+
+      it('does not inject when not decorated', () => {
+        expect(widget.nonInjected).to.be.undefined;
+      });
+
+      it('injects implicit field', () => {
+        expect(widget.foo).to.equal('foo');
+      });
+
+      it('passes attributes', () => {
+        expect(widget.left).to.equal(3);
+        expect(widget.top).to.equal(4);
+      });
+
+      it('passes children', () => {
+        expect(widget.children().length).to.equal(1);
+      });
+
     });
 
   });
