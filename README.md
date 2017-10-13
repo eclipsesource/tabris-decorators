@@ -177,10 +177,10 @@ class Foo {
 }
 ```
 
-For this parameter to be injected, the object needs to be created using the `create` function, like this:
+For this parameter to be injected, the object needs to be created using the `create` method, like this:
 
 ```js
-  let foo = create(Foo);
+  let foo = injectionManager.create(Foo);
 ```
 
 Also see the description for the `create` function below.

@@ -3,8 +3,10 @@ import 'mocha';
 import 'sinon';
 import {Composite, CompositeProperties} from 'tabris';
 import {restoreSandbox, expect} from './test';
-import {injectionManager, inject, create} from '../src';
+import {injectionManager, inject} from '../src';
 import * as tabrisMock from './tabris-mock';
+
+const create = injectionManager.create;
 
 class MyServiceClass {
   constructor(readonly param: string | undefined) { }

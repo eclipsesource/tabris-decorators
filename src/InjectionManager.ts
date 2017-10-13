@@ -1,4 +1,4 @@
-import {Constructor} from './utils';
+import {Constructor, getParamConfig} from './utils';
 
 export type InjectionHandler<T> = (parameter: string | undefined) => T;
 
@@ -38,13 +38,26 @@ export default class InjectionManager {
     this.handlers.clear();
   }
 
-  public resolve<T>(type: Constructor<T>, param?: string): T {
+  public resolve = <T>(type: Constructor<T>, param?: string) => {
     let handlerEntry = this.handlers.get(type);
+    let unbox = getUnboxer(type);
     if (!handlerEntry) {
       throw new Error(`Can not inject value of type ${type.name} since no injection handler exists for this type.`);
     }
     handlerEntry.used = true;
-    return handlerEntry.handler(param);
+    return unbox(handlerEntry.handler(param)) as T;
+  }
+
+  public create = <T, U, V, W>(
+    type: {new(arg1?: U, arg2?: V, arg3?: W, ...args: any[]): T; },
+    args: {0?: U, 1?: V, 2?: W, [index: number]: any} = []
+  ) => {
+    let finalArgs: any[] = [];
+    let config = getParamConfig(type) || [];
+    for (let i = 0; i < type.length; i++) {
+      finalArgs[i] = config[i] ? this.resolve(config[i].type, config[i].injectParam) : args[i];
+    }
+    return new type(...finalArgs);
   }
 
 }
@@ -53,3 +66,18 @@ export const instance = new InjectionManager();
 
 interface HandlerEntry {handler: InjectionHandler<any>; used: boolean; }
 type HandlersMap = Map<Constructor<any>, HandlerEntry>;
+
+function getUnboxer(type: any) {
+  if (type === Number || type === String || type === Boolean) {
+    return unboxValue;
+  }
+  return passValue;
+}
+
+function passValue(value: any) {
+  return value;
+}
+
+function unboxValue(box: any) {
+  return box.valueOf();
+}

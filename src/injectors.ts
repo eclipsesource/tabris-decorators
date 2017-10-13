@@ -11,18 +11,6 @@ import {
   Constructor
 } from './utils';
 
-export function create<T, U, V, W>(
-  type: {new(arg1?: U, arg2?: V, arg3?: W, ...args: any[]): T; },
-  args: {0?: U, 1?: V, 2?: W, [index: number]: any} = []
-): T {
-  let finalArgs: any[] = [];
-  let config = getParamConfig(type) || [];
-  for (let i = 0; i < type.length; i++) {
-    finalArgs[i] = config[i] ? inject(config[i].type, config[i].injectParam) : args[i];
-  }
-  return new type(...finalArgs);
-}
-
 export function inject<T>(type: Constructor<T>, param?: string): T;
 export function inject(targetProto: object, property: string): void;
 export function inject(constructor: Constructor<any>, property: string, index: number): void;
@@ -35,7 +23,7 @@ export function inject(...args: any[]): any {
 }
 
 function directInject<T>(type: Constructor<T>, param?: string): T {
-  return getUnboxer(type)(injectionManager.resolve(type, param));
+  return injectionManager.resolve(type, param);
 }
 
 function applyInjectDecorator(args: any[]): DecoratorFactory | void {
@@ -45,12 +33,11 @@ function applyInjectDecorator(args: any[]): DecoratorFactory | void {
       return setParameterConfig(target, index, param);
     }
     const type = getPropertyType(target, property);
-    const unboxer = getUnboxer(type);
     defineGetter(target, property, function(this: object) {
       try {
         let store = getPropertyStore(this);
         if (!store.has(property)) {
-          store.set(property, unboxer(injectionManager.resolve(type, param)));
+          store.set(property, injectionManager.resolve(type, param));
         }
         return store.get(property);
       } catch (ex) {
@@ -64,19 +51,4 @@ function setParameterConfig(target: any, index: number, injectParam?: string) {
   getParamConfig(target)[index] = {
     injectParam, type: getParameterType(target, index)
   };
-}
-
-function getUnboxer(type: any) {
-  if (type === Number || type === String || type === Boolean) {
-    return unboxValue;
-  }
-  return passValue;
-}
-
-function passValue(value: any) {
-  return value;
-}
-
-function unboxValue(box: any) {
-  return box.valueOf();
 }

@@ -1,6 +1,6 @@
 /* tslint:disable no-namespace ban-types only-arrow-functions */
 import {Constructor} from './utils';
-import {create} from './injectors';
+import {instance as injectionManager} from './InjectionManager';
 
 const originalJSX = JSX;
 
@@ -17,7 +17,7 @@ const originalJSX = JSX;
 function convertType(type: string | Constructor<any>): string | Function {
   if (type instanceof Function) {
     return function(...args: any[]) {
-      return create(type, args);
+      return injectionManager.create(type, args);
     };
   }
   return type;
