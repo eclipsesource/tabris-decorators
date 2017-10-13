@@ -189,21 +189,15 @@ Also see the description for the `create` function below.
 
 Like `inject`, but the `param` string will be passed to the injection handler.
 
-### inject(type)
+### injectionManager.resolve(type)
 
-This is not a decorator, but a simple utility to call the injection framework directly. This may be useful when used with parameters, e.g.:
+Request an instance from the injection framework directly. `type` must be have a registered injection handler, which will be called.
 
-```js
-new SomeWidget({
-  service: inject(MyService)
-});
-```
+### injectionManager.resolve(type, param)
 
-### inject(type, param)
+Like `injectionManager.resolve(type)`, only that `param` will be passed to the injection handler.
 
-Like `inject(type)`, only that `param` will be passed to the injection handler.
-
-### create(type)
+### injectionManager.create(type)
 
 Not a decorator, but a function that will create a new instance of the given type and automatically inject all parameters decorated with `@inject` or `@inject(param)`. Non-decorated parameters will be `undefined`. To change this, use the signature below.
 

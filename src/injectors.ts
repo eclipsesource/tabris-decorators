@@ -11,19 +11,11 @@ import {
   Constructor
 } from './utils';
 
-export function inject<T>(type: Constructor<T>, param?: string): T;
 export function inject(targetProto: object, property: string): void;
 export function inject(constructor: Constructor<any>, property: string, index: number): void;
 export function inject(param: string): DecoratorFactory;
 export function inject(...args: any[]): any {
-  if (args[0] instanceof Function && args.length <= 2) {
-    return directInject(args[0], args[1]);
-  }
   return applyInjectDecorator(args);
-}
-
-function directInject<T>(type: Constructor<T>, param?: string): T {
-  return injectionManager.resolve(type, param);
 }
 
 function applyInjectDecorator(args: any[]): DecoratorFactory | void {
