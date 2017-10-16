@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { instance as injectionManager } from './InjectionManager';
 import {
   DecoratorFactory,
   getPropertyType,
@@ -6,7 +7,8 @@ import {
   applyDecorator,
   getParamInfo,
   Constructor,
-  getPropertyInfo
+  defineGetter,
+  getPropertyStore
 } from './utils';
 
 export default function inject(targetProto: object, property: string): void;
@@ -20,19 +22,24 @@ function applyInjectDecorator(args: any[]): DecoratorFactory | void {
   return applyDecorator('inject', args, (target, property, index) => {
     const param = typeof args[0] === 'string' ? args[0] : undefined;
     if (typeof index === 'number') {
-      setParameterInfo(target, index, param);
-    } else {
-      setPropertyInfo(target, property, param);
+      return setParameterInfo(target, index, param);
     }
+    const type = getPropertyType(target, property);
+    defineGetter(target, property, function(this: object) {
+      try {
+        let store = getPropertyStore(this);
+        if (!store.has(property)) {
+          store.set(property, injectionManager.resolve(type, param));
+        }
+        return store.get(property);
+      } catch (ex) {
+        throw new Error(`Decorator "inject" could not resolve property "${property}": ${ex.message}`);
+      }
+    });
   });
 }
-
 function setParameterInfo(target: any, index: number, injectParam?: string) {
   getParamInfo(target)[index] = {
     injectParam, type: getParameterType(target, index)
   };
-}
-
-function setPropertyInfo(target: any, name: string, injectParam?: string) {
-  getPropertyInfo(target).set(name, {injectParam, type: getPropertyType(target, name)});
 }

@@ -7,7 +7,6 @@ export interface PropertyInfo {
   optional?: boolean;
   converter?: (value: any) => any;
   fallback?: any;
-  injectParam?: string;
 }
 export interface PropertyConfig {
   proto: any;

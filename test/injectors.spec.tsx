@@ -95,6 +95,21 @@ describe('inject', () => {
     expect(instance.autoInjectableClass).to.be.instanceOf(MyInjectableClass);
   });
 
+  it('injected property available in constructor', () => {
+    class ExtenedClientClass extends MyClientClass {
+      public injectedClassCopy: MyServiceClass;
+      constructor() {
+        super();
+        this.injectedClassCopy = this.injectedClass;
+      }
+    }
+
+    let instance2 = create(ExtenedClientClass);
+
+    expect(instance2.injectedClassCopy).to.be.instanceOf(MyServiceClass);
+    expect(instance2.injectedClass).to.equal(instance2.injectedClassCopy);
+  });
+
   it('caches value', () => {
     expect(instance.injectedClass).to.be.equal(instance.injectedClass);
     expect(instance.autoInjectableClass).to.be.equal(instance.autoInjectableClass);
@@ -112,9 +127,10 @@ describe('inject', () => {
 
   it('throws if handler does not exist (yet)', () => {
     class MyUnusedServiceClass { }
-    class InjetingUnusedServiceClass { @inject public service: MyUnusedServiceClass; }
+    class InjectingUnusedServiceClass { @inject public service: MyUnusedServiceClass; }
 
-    expect(() => create(InjetingUnusedServiceClass)).to.throw(
+    // TODO: Should throw in `create` already
+    expect(() => create(InjectingUnusedServiceClass).service).to.throw(
       'Can not inject value of type MyUnusedServiceClass since no injection handler exists for this type.'
     );
   });
