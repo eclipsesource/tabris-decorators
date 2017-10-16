@@ -177,6 +177,14 @@ describe('inject', () => {
       expect(instance2.number).to.equal(0);
     });
 
+    it('create passes explicit construction parameter to super constructor', () => {
+      class ExtendedConstrutorWithInjection extends ConstructorWithInjection {}
+      let instance2 = create(ExtendedConstrutorWithInjection, ['foo3', undefined, 34]);
+      expect(instance2.str).to.equal('foo3');
+      expect(instance2.service).to.be.instanceOf(MyServiceClass);
+      expect(instance2.number).to.equal(0);
+    });
+
     it('injects implicit field', () => {
       let instance2 = create(ConstructorWithInjection);
       expect(instance2.otherService).to.be.instanceOf(MyServiceClass);

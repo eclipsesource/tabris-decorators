@@ -50,12 +50,13 @@ export default class InjectionManager {
 
   public create = <T, U, V, W>(
     type: {new(arg1?: U, arg2?: V, arg3?: W, ...args: any[]): T; },
-    args: {0?: U, 1?: V, 2?: W, [index: number]: any} = []
+    args: {0?: U, 1?: V, 2?: W, [index: number]: any, length: number} = []
   ) => {
     let finalArgs: any[] = [];
     let paramInfo = getParamInfo(type) || [];
     let propertyInfo = getPropertyInfo(type.prototype);
-    for (let i = 0; i < type.length; i++) {
+    let paramCount = Math.max(type.length, args.length, paramInfo.length);
+    for (let i = 0; i < paramCount; i++) {
       finalArgs[i] = paramInfo[i] ? this.resolve(paramInfo[i].type, paramInfo[i].injectParam) : args[i];
     }
     let result: T =  new type(...finalArgs);
