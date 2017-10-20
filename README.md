@@ -6,6 +6,12 @@ This module provides [TypeScript decorators](http://www.typescriptlang.org/docs/
 
 TODOC
 
+## property modifiers
+
+### @property
+
+Makes the decorated widget property a "real" Tabris.js property, meaning it can be set via constructor or `set` method, and it fires change events.
+
 ## widget finders
 
 These decorators are meant to be attached to properties of custom UI components and will make them return specific descendants of that widget. For example:
