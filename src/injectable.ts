@@ -1,4 +1,4 @@
-import {instance as injectionManager} from './InjectionManager';
+import {instance as injectionManager} from './Injector';
 import {Constructor, applyClassDecorator, ClassDecoratorFactory, areStaticClassDecoratorArgs} from './utils';
 
 export default function injectable(shared: boolean): ClassDecoratorFactory;

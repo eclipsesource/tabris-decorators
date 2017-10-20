@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { instance as injectionManager } from './InjectionManager';
+import { instance as injectionManager } from './Injector';
 import {
   DecoratorFactory,
   getPropertyType,

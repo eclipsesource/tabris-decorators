@@ -1,7 +1,7 @@
 /* tslint:disable:no-unused-expression max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import InjectionManager from '../src/InjectionManager';
+import Injector from '../src/Injector';
 import {restoreSandbox, expect} from './test';
 
 class MyClass {
@@ -12,12 +12,12 @@ class MyClass {
 
 describe('InjectionManager', () => {
 
-  let instance: InjectionManager;
+  let instance: Injector;
   let numberHandler = () => 23;
   let stringHandler = () => 'foo';
 
   beforeEach(() => {
-    instance = new InjectionManager();
+    instance = new Injector();
   });
 
   afterEach(() => {

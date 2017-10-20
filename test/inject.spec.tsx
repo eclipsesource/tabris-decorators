@@ -3,10 +3,10 @@ import 'mocha';
 import 'sinon';
 import {Composite, CompositeProperties} from 'tabris';
 import {restoreSandbox, expect} from './test';
-import {injectionManager, inject, injectable} from '../src';
+import {injector, inject, injectable} from '../src';
 import * as tabrisMock from './tabris-mock';
 
-const create = injectionManager.create;
+const create = injector.create;
 
 class MyServiceClass {
   constructor(readonly param: string | undefined) { }
@@ -57,10 +57,10 @@ describe('inject', () => {
   let stringHandler: (param: any) => string | String;
   let booleanHandler: (param: any) => boolean | Boolean;
 
-  injectionManager.addHandler(MyServiceClass, (param) => serviceHandler(param));
-  injectionManager.addHandler(Number, (param) => numberHandler(param));
-  injectionManager.addHandler(String, (param) => stringHandler(param));
-  injectionManager.addHandler(Boolean, (param) => booleanHandler(param));
+  injector.addHandler(MyServiceClass, (param) => serviceHandler(param));
+  injector.addHandler(Number, (param) => numberHandler(param));
+  injector.addHandler(String, (param) => stringHandler(param));
+  injector.addHandler(Boolean, (param) => booleanHandler(param));
 
   beforeEach(() => {
     serviceHandler = (param) => new MyServiceClass(param);

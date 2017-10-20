@@ -2,7 +2,7 @@ import {Constructor, getParamInfo} from './utils';
 
 export type InjectionHandler<T> = (parameter: string | undefined) => T;
 
-export default class InjectionManager {
+export default class Injector {
 
   private handlers: HandlersMap = new Map<Constructor<any>, HandlerEntry>();
 
@@ -63,7 +63,7 @@ export default class InjectionManager {
 
 }
 
-export const instance = new InjectionManager();
+export const instance = new Injector();
 
 interface HandlerEntry {handler: InjectionHandler<any>; used: boolean; }
 type HandlersMap = Map<Constructor<any>, HandlerEntry>;

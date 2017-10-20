@@ -182,20 +182,20 @@ Class Bar() {
 
 ```
 
-The injectable class (`Foo2`) may also have injection dependencies itself. For every injection a new instance will be created. If you want to share a single instance for all injections, use `@injectable(shared)` instead. If you want to inject an instance of another (compatible) class other than the one requested by the injection, use `injectionManager.addHandler` instead.
+The injectable class (`Foo2`) may also have injection dependencies itself. For every injection a new instance will be created. If you want to share a single instance for all injections, use `@injectable(shared)` instead. If you want to inject an instance of another (compatible) class other than the one requested by the injection, use `injector.addHandler` instead.
 
 ### @injectable(shared)
 
 Like `@injectable`, but if `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton.
 
-### injectionManager.addHandler
+### injector.addHandler
 
 Allows you to register custom injection handlers, and alternative to using `@injectable`. You do that like this:
 
 ```js
-import {injectionManager} from 'tabris-decorators';
+import {injector} from 'tabris-decorators';
 
-injectionManager.addHandler(TypeToInject, (param: string | undefined) => {
+injector.addHandler(TypeToInject, (param: string | undefined) => {
   return new ExtendingTypeToInject();
 });
 ```
@@ -203,10 +203,10 @@ injectionManager.addHandler(TypeToInject, (param: string | undefined) => {
 Or, if the class that is created uses injection itself, like this:
 
 ```js
-import {injectionManager} from 'tabris-decorators';
+import {injector} from 'tabris-decorators';
 
-injectionManager.addHandler(TypeToInject, (param: string | undefined) => {
-  return injectionManager.create(ExtendingTypeToInject);
+injector.addHandler(TypeToInject, (param: string | undefined) => {
+  return injector.create(ExtendingTypeToInject);
 });
 ```
 
@@ -214,7 +214,7 @@ Where `ExtendingTypeToInject` needs to be compatible to TypeToInject. This is gu
 
 A  `param` will be given to the injection handler only if the `@inject(param)` decorator is used, or if `inject(type, param)` is called.
 
-Primitives can also be injected. They are represented by their boxed Types, e.g. `injectionManager.addHandler(Number, () => 23);`.
+Primitives can also be injected. They are represented by their boxed Types, e.g. `injector.addHandler(Number, () => 23);`.
 
 Whether the return value is always the same (i.e. singleton), always different, or depending on `param` is not relevant to the framework. The value is not checked at runtime in any way.
 
@@ -222,7 +222,7 @@ Already registered injection handler can be removed/replaced if they have not be
 
 Like `inject(type)`, only that `param` will be passed to the injection handler.
 
-### injectionManager.create(type)
+### injector.create(type)
 
 Creates an instance of the given type and fulfills all this injection it defines. The type itself does not have to be injectable (have a handler registered), and typical use of `create` is to *make* it injectable via injection handler:
 
@@ -232,7 +232,7 @@ injectionHandlers.add(TypeToInject, () => create(SomeType));
 
 Used in these manner, `SomeType` can be injected while also having injections itself.
 
-### injectionManager.create(type, param[])
+### injector.create(type, param[])
 
 Like `create(type)`, but any parameters not decorated with `inject` will be taken from the given array, with the index in the array matching that of the parameter. For example:
 
