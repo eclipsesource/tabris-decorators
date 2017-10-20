@@ -7,7 +7,6 @@ import {injectionManager, inject, injectable} from '../src';
 import * as tabrisMock from './tabris-mock';
 
 const create = injectionManager.create;
-const resolve = injectionManager.resolve;
 
 class MyServiceClass {
   constructor(readonly param: string | undefined) { }
@@ -153,6 +152,24 @@ describe('inject', () => {
     expect(instance.aNumber).not.to.be.instanceof(Number);
     expect(instance.aNumber).not.to.be.instanceof(String);
     expect(instance.aNumber).not.to.be.instanceof(Boolean);
+  });
+
+  it('direct use', () => {
+    class MyExternalClass {
+      public readonly service: MyServiceClass;
+      public readonly num: Number;
+      constructor(props: {service: MyServiceClass, num: Number}) {
+        Object.assign(this, props);
+      }
+    }
+
+    let special = new MyExternalClass({
+      service: inject(MyServiceClass, 'foo'),
+      num: inject(Number)
+    });
+
+    expect(special.service.param).to.equal('foo');
+    expect(special.num).to.equal(0);
   });
 
   it('default param is undefined', () => {

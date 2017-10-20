@@ -159,6 +159,11 @@ class Foo {
 
 Like `inject`, but the `param` string will be passed to the injection handler.
 
+### inject(type, param?)
+
+You can call `inject` directly to resolve a given type programmatically.
+
+
 ### @injectable
 
 Apply this to a class to register it for injection. This causes a one-to-one relationship between dependency and injection:
@@ -214,6 +219,8 @@ Primitives can also be injected. They are represented by their boxed Types, e.g.
 Whether the return value is always the same (i.e. singleton), always different, or depending on `param` is not relevant to the framework. The value is not checked at runtime in any way.
 
 Already registered injection handler can be removed/replaced if they have not be used yet be the framework.
+
+Like `inject(type)`, only that `param` will be passed to the injection handler.
 
 ### injectionManager.create(type)
 
