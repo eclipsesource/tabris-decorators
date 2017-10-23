@@ -5,7 +5,6 @@ import {
   WidgetInterface,
   postAppendHandlers,
   getPropertyType,
-  defineGetter,
   wasAppended,
   checkType,
   getPropertyStore,

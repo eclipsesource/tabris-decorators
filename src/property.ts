@@ -1,5 +1,5 @@
 import {Widget} from 'tabris';
-import {applyDecorator, defineProperty, WidgetInterface, getPropertyStore, ChangeEvent} from './utils';
+import {applyDecorator, WidgetInterface, getPropertyStore, ChangeEvent} from './utils';
 
 export default function property(targetProto: Widget, property: string): void;
 export default function property(...args: any[]): void {
