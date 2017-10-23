@@ -165,9 +165,9 @@ export function postAppendHandlers(widget: WidgetInterface) {
 /**
  * Gets map for the prupose of string property values of the given instance.
  */
-export function getPropertyStore(instance: any): Map<string, any> {
+export function getPropertyStore(instance: any): Map<string | symbol, any> {
   if (!instance[propertyStoreKey]) {
-    instance[propertyStoreKey] = new Map<string, any>();
+    instance[propertyStoreKey] = new Map<string | symbol, any>();
   }
   return instance[propertyStoreKey];
 }
@@ -261,6 +261,24 @@ export function isPrimitiveValue(value: any) {
  */
 export function isPrimitiveType(type: Constructor<any>) {
   return type === Boolean || type === Number || type === String;
+}
+
+export class ChangeEvent<T> {
+
+  public target: T;
+
+  public type: string;
+
+  public value: any;
+
+  public timeStamp: number = Date.now();
+
+  constructor(target: T, type: string, value: any) {
+    this.target = target;
+    this.type = type;
+    this.value = value;
+  }
+
 }
 
 /* Internals */

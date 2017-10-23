@@ -133,6 +133,14 @@ Lets the property return the descendant with the same id as the property name. U
 
 Like `@getById`, but ignored the id and looks by return type only. Useful if there is only one widget of a specific type in your widget tree anyway, so you don't have to assign it an id.
 
+## Data Binding
+
+### @bind("\<id\>.\<property\>")
+
+Binds the decorated property of a widget to the property of a child. As with `@getById`, the binding is established after `append` is called the first time on the widget, there needs to be exactly one child with the given id, and it has to have a property of the same type.
+
+`@bind` creates a bi-directional binding, meaning changes to the source (child) property are not just reflected on the target property, but also the other way around. (If you do not want that, simply mark the property as `readonly`.) Change events are fired on the target widget if (and only if) the source widget fires change events.
+
 ## Injectors
 
 The `inject` decorators allow for simple dependency injection. A significant difference to some other dependency injection libraries in high-level languages is that here we use classes to define the type of the injection, not interfaces. However, since classes can be used like interfaces in TypeScript, nothing really changes.

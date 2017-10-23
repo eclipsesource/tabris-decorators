@@ -1,5 +1,5 @@
 import {Widget} from 'tabris';
-import {applyDecorator, defineProperty, WidgetInterface, getPropertyStore} from './utils';
+import {applyDecorator, defineProperty, WidgetInterface, getPropertyStore, ChangeEvent} from './utils';
 
 export default function property(targetProto: Widget, property: string): void;
 export default function property(...args: any[]): void {
@@ -20,22 +20,4 @@ export default function property(...args: any[]): void {
       configurable: true
     });
   });
-}
-
-class ChangeEvent<T> {
-
-  public target: T;
-
-  public type: string;
-
-  public value: any;
-
-  public timeStamp: number = Date.now();
-
-  constructor(target: T, type: string, value: any) {
-    this.target = target;
-    this.type = type;
-    this.value = value;
-  }
-
 }
