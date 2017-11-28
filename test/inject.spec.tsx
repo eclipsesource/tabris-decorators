@@ -154,24 +154,6 @@ describe('inject', () => {
     expect(instance.aNumber).not.to.be.instanceof(Boolean);
   });
 
-  it('direct use', () => {
-    class MyExternalClass {
-      public readonly service: MyServiceClass;
-      public readonly num: Number;
-      constructor(props: {service: MyServiceClass, num: Number}) {
-        Object.assign(this, props);
-      }
-    }
-
-    let special = new MyExternalClass({
-      service: inject(MyServiceClass, 'foo'),
-      num: inject(Number)
-    });
-
-    expect(special.service.param).to.equal('foo');
-    expect(special.num).to.equal(0);
-  });
-
   it('default param is undefined', () => {
     expect(instance.injectedClass.param).to.be.undefined;
   });

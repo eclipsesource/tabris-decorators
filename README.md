@@ -49,7 +49,7 @@ get someChild(): WidgetType {
 
 ### @findFirst(selector)
 
-Decorating a widget property declaration with this will make it return the _current_ first descendant matching the given selector, or null. The type of the property is also be part of the matcher, so the result is guarenteed to be of the correct type.
+Decorating a widget property declaration with this will make it return the _current_ first descendant matching the given selector, or null. The type of the property is also be part of the matcher, so the result is guaranteed to be of the correct type.
 
 This is the equivalent of:
 
@@ -143,7 +143,7 @@ Binds the decorated property of a widget to the property of a child. As with `@g
 
 ## Injectors
 
-The `inject` decorators allow for simple dependency injection. A significant difference to some other dependency injection libraries in high-level languages is that here we use classes to define the type of the injection, not interfaces. However, since classes can be used like interfaces in TypeScript, nothing really changes.
+The `inject` decorators allow for simple dependency injection. The type of the injection has to be a class, interfaces are not supported. However, classes can be used like interfaces in TypeScript, so most cases should be covered.
 
 ### @inject
 
@@ -173,11 +173,6 @@ class Foo {
 
 Like `inject`, but the `param` string will be passed to the injection handler.
 
-### inject(type, param?)
-
-You can call `inject` directly to resolve a given type programmatically.
-
-
 ### @injectable
 
 Apply this to a class to register it for injection. This causes a one-to-one relationship between dependency and injection:
@@ -202,9 +197,9 @@ The injectable class (`Foo2`) may also have injection dependencies itself. For e
 
 Like `@injectable`, but if `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton.
 
-### injector.addHandler
+### injector.addHandler(targetType, handler)
 
-Allows you to register custom injection handlers, and alternative to using `@injectable`. You do that like this:
+Allows you to register custom injection handlers, an alternative to using `@injectable`. You do that like this:
 
 ```js
 import {injector} from 'tabris-decorators';
@@ -224,7 +219,7 @@ injector.addHandler(TypeToInject, (param: string | undefined) => {
 });
 ```
 
-Where `ExtendingTypeToInject` needs to be compatible to TypeToInject. This is guarenteed to be the case if `SomeType` IS `TypeToInject`, extends `TypeToInject`, implements it as an interface, or simply has the same structure. The IDE will warn you if they aren't compatible.
+Where `ExtendingTypeToInject` needs to be compatible to TypeToInject. This is guaranteed to be the case if `SomeType` IS `TypeToInject`, extends `TypeToInject`, implements it as an interface, or simply has the same structure. The IDE will warn you if they aren't compatible.
 
 A  `param` will be given to the injection handler only if the `@inject(param)` decorator is used, or if `inject(type, param)` is called.
 
@@ -234,17 +229,23 @@ Whether the return value is always the same (i.e. singleton), always different, 
 
 Already registered injection handler can be removed/replaced if they have not be used yet be the framework.
 
-Like `inject(type)`, only that `param` will be passed to the injection handler.
+### injector.resolve(type)
+
+Returns an instance of the given type, just like using the `@inject` decorator would do. Useful in cases where a decorator can not be used, e.g. outside of classes. Note that `type` *has to be injectable*.
+
+### injector.resolve(type, param)
+
+Like `injector.resolve(type)`, but the `param` string will be passed to the injection handler.
 
 ### injector.create(type)
 
-Creates an instance of the given type and fulfills all this injection it defines. The type itself does not have to be injectable (have a handler registered), and typical use of `create` is to *make* it injectable via injection handler:
+Creates an instance of the given type and fulfils all this injection it defines. *The type itself does not have to be injectable*. You can use this to *make* the type  injectable via injection handler:
 
 ```js
 injectionHandlers.add(TypeToInject, () => create(SomeType));
 ```
 
-Used in these manner, `SomeType` can be injected while also having injections itself.
+Used in these manner, `SomeType` can be injected while also having injections itself. If `TypeToInject` is identical to `SomeType`, this is the same as using `@injectable`.
 
 ### injector.create(type, param[])
 
