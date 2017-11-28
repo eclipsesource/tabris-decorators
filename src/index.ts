@@ -6,5 +6,5 @@ export {default as injectable} from './injectable';
 export {instance as injector} from './Injector';
 export {default as initialize, optional, required} from './initialize';
 export {default as property} from './property';
-export {default as bind} from './bind';
+export * from './binders';
 export {default as Image} from './Image';

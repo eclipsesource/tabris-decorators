@@ -10,7 +10,12 @@ import {
   Constructor
 } from './utils';
 
-export function createBinding(targetProto: WidgetInterface, targetProperty: string, bindingPath: string) {
+export function createBinding(
+  targetProto: WidgetInterface,
+  targetProperty: string,
+  bindingPath: string,
+  readOnly: boolean = false
+) {
   const [sourceId, sourceProperty] = parsePath(bindingPath);
   const targetPropertySource = Symbol(targetProperty + 'Source');
   const targetType = getPropertyType(targetProto, targetProperty);
@@ -22,6 +27,9 @@ export function createBinding(targetProto: WidgetInterface, targetProperty: stri
       return value;
     },
     set(this: WidgetInterface, value: any) {
+      if (readOnly) {
+        return;
+      }
       accessCheck(this, targetProperty, bindingPath);
       bindingTypeCheck(bindingPath, value, targetType);
       getPropertyStore(this).get(targetPropertySource)[sourceProperty] = value;
