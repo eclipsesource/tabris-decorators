@@ -5,6 +5,7 @@ import {Composite, TextInput, TextView} from 'tabris';
 import {bind} from '../src';
 import * as tabrisMock from './tabris-mock';
 import {restoreSandbox, expect, stub} from './test';
+import property from '../src/property';
 
 describe('bind', () => {
 
@@ -126,7 +127,7 @@ describe('bind', () => {
     );
   });
 
-  it('Applies changes to source', () => {
+  it('applies changes to source', () => {
     widget.append(textInput1);
 
     widget.myText = 'bar';
@@ -134,7 +135,7 @@ describe('bind', () => {
     expect(textInput1.text).to.equal('bar');
   });
 
-  it('Fires change event when source changes', () => {
+  it('fires change event when source changes', () => {
     widget.append(textInput1);
     let listener = stub();
     widget.on('myTextChanged', listener);
@@ -146,7 +147,7 @@ describe('bind', () => {
     });
   });
 
-  it('Fires change event when target changes', () => {
+  it('fires change event when target changes', () => {
     widget.append(textInput1);
     let listener = stub();
     widget.on('myTextChanged', listener);
@@ -158,7 +159,42 @@ describe('bind', () => {
     });
   });
 
-  it('Fires change event when binding is initialized', () => {
+  it('throws if target value changes to wrong type', () => {
+    class CustomChild extends Composite { @property public text: string | number; }
+    let child = new CustomChild({id: 'textInput1'});
+    child.text = 'foo';
+    widget.append(child);
+
+    expect(() => child.text = 23).to.throw(
+        'Binding "textInput1.text" failed: '
+      + 'Expected value to be of type "string", but found "number".'
+    );
+  });
+
+  it('throws if target value has changed to wrong type', () => {
+    class CustomChild extends Composite { public text: string | number; }
+    let child = new CustomChild({id: 'textInput1'});
+    child.text = 'foo';
+    widget.append(child);
+
+    child.text = 23;
+
+    expect(() => widget.myText).to.throw(
+        'Binding "textInput1.text" failed: '
+      + 'Expected value to be of type "string", but found "number".'
+    );
+  });
+
+  it('throws own value changes to wrong type', () => {
+    widget.append(textInput1);
+
+    expect(() => (widget as any).myText = 23).to.throw(
+        'Binding "textInput1.text" failed: '
+      + 'Expected value to be of type "string", but found "number".'
+    );
+  });
+
+  it('fires change event when binding is initialized', () => {
     textInput1.text = 'foo';
     let listener = stub();
     widget.on('myTextChanged', listener);

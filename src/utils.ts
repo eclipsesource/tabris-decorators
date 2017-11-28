@@ -144,7 +144,7 @@ export function getParameterType(fn: any, index: number): Constructor<any> {
  * Throws if the given value is not of the given type. Primitives are represented by their boxed type.
  */
 export function checkType<T>(value: T, type: Constructor<any>): T {
-  if (value instanceof type || (typeof value === getTypeName(type))) {
+  if (value === null || value === undefined || value instanceof type || (typeof value === getTypeName(type))) {
     return value;
   }
   throw new Error(`Expected value to be of type "${getTypeName(type)}", but found "${getValueTypeName(value)}".`);

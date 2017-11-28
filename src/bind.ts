@@ -8,7 +8,8 @@ import {
   wasAppended,
   checkType,
   getPropertyStore,
-  ChangeEvent
+  ChangeEvent,
+  Constructor
 } from './utils';
 
 export default function bind(bindingPath: string): (target: Composite, property: string) => void;
@@ -21,10 +22,13 @@ export default function bind(...args: any[]): any {
     Object.defineProperty(targetProto, targetProperty, {
       get(this: WidgetInterface) {
         accessCheck(this, targetProperty, bindingPath);
-        return getPropertyStore(this).get(targetPropertySource)[sourceProperty];
+        let value = getPropertyStore(this).get(targetPropertySource)[sourceProperty];
+        bindingTypeCheck(bindingPath, value, targetType);
+        return value;
       },
       set(this: WidgetInterface, value: any) {
         accessCheck(this, targetProperty, bindingPath);
+        bindingTypeCheck(bindingPath, value, targetType);
         getPropertyStore(this).get(targetPropertySource)[sourceProperty] = value;
       },
       enumerable: true,
@@ -38,8 +42,9 @@ export default function bind(...args: any[]): any {
         checkPropertyExists(sourceInstance, sourceProperty);
         checkType(sourceInstance[sourceProperty], targetType);
         getPropertyStore(targetInstance).set(targetPropertySource, sourceInstance);
-        sourceInstance.on(sourceChangeEvent, (ev) => {
-          targetInstance.trigger(targetChangeEvent, new ChangeEvent(targetInstance, targetChangeEvent, ev.value));
+        sourceInstance.on(sourceChangeEvent, ({value}) => {
+          bindingTypeCheck(bindingPath, value, targetType);
+          targetInstance.trigger(targetChangeEvent, new ChangeEvent(targetInstance, targetChangeEvent, value));
         });
         targetInstance.trigger(
           targetChangeEvent, new ChangeEvent(targetInstance, targetChangeEvent, sourceInstance[sourceProperty])
@@ -61,6 +66,14 @@ function accessCheck(targetInstance: WidgetInterface, targetProperty: string, bi
   if (!wasAppended(targetInstance)) {
     throw new Error(`Can not access property "${targetProperty}": `
     + `Binding "${bindingPath}" is not ready because no widgets have been appended yet.`);
+  }
+}
+
+function bindingTypeCheck(bindingDesc: string, value: any, targetType: Constructor<any>) {
+  try {
+    checkType(value, targetType);
+  } catch (ex) {
+    throw new Error(`Binding "${bindingDesc}" failed: ${ex.message}`);
   }
 }
 
