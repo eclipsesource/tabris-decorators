@@ -1,4 +1,5 @@
 import {Widget} from 'tabris';
+import {instance as typeGuards} from './TypeGuards';
 
 export interface Constructor<T> {new(...args: any[]): T; }
 export interface ParamInfo {type: Constructor<any>; injectParam?: string; }
@@ -145,6 +146,10 @@ export function getParameterType(fn: any, index: number): Constructor<any> {
  */
 export function checkType<T>(value: T, type: Constructor<any>): T {
   if (value === null || value === undefined || value instanceof type || (typeof value === getTypeName(type))) {
+    return value;
+  }
+  let guard = typeGuards.get(type);
+  if (guard && guard(value)) {
     return value;
   }
   throw new Error(`Expected value to be of type "${getTypeName(type)}", but found "${getValueTypeName(value)}".`);

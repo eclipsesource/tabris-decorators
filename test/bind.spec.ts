@@ -2,10 +2,11 @@
 import 'mocha';
 import 'sinon';
 import {Composite, TextInput, TextView} from 'tabris';
-import {bind} from '../src';
+import {bind, Image} from '../src';
 import * as tabrisMock from './tabris-mock';
 import {restoreSandbox, expect, stub} from './test';
 import property from '../src/property';
+import { ImageView } from 'tabris';
 
 describe('bind', () => {
 
@@ -18,10 +19,6 @@ describe('bind', () => {
 
     @bind('textInput1.text')
     public myText: string;
-
-    constructor() {
-      super();
-    }
 
   }
 
@@ -204,6 +201,51 @@ describe('bind', () => {
     expect(listener).to.have.been.calledWithMatch({
       target: widget, value: 'foo', type: 'myTextChanged'
     });
+  });
+
+  describe('with type Image', () => {
+
+    class CustomComponent2 extends Composite {
+
+      @bind('imageView1.image')
+      public myImage: Image;
+
+    }
+
+    let widget2: CustomComponent2;
+    let imageView: ImageView;
+
+    beforeEach(() => {
+      widget2 = new CustomComponent2();
+      imageView = new ImageView({id: 'imageView1'});
+      widget2.append(imageView);
+    });
+
+    it('accepts strings', () => {
+      widget2.myImage = '/foo.img';
+
+      expect(imageView.image).to.deep.equal({src: '/foo.img'});
+      expect(widget2.myImage).to.deep.equal({src: '/foo.img'});
+    });
+
+    it('accepts empty string', () => {
+      widget2.myImage = '';
+
+      expect(imageView.image).to.be.null;
+      expect(widget2.myImage).to.be.null;
+    });
+
+    it('accepts object with src', () => {
+      widget2.myImage = {src: '/foo.img'};
+
+      expect(imageView.image).to.deep.equal({src: '/foo.img'});
+      expect(widget2.myImage).to.deep.equal({src: '/foo.img'});
+    });
+
+    it('rejects empty objects at runtime', () => {
+      expect(() => widget2.myImage = {}).to.throw;
+    });
+
   });
 
 });
