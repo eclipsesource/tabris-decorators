@@ -17,7 +17,7 @@ describe('bindTo', () => {
 
   class CustomComponent extends Composite {
 
-    @bindTo('textInput1.text')
+    @bindTo('#textInput1.text')
     public myText: string;
 
   }
@@ -55,7 +55,7 @@ describe('bindTo', () => {
   it('fails to decorate unknown type', () => {
     expect(() => {
       class FailedComponent extends Composite {
-        @bindTo('foo.bar') public readonly value: string | boolean;
+        @bindTo('#foo.bar') public readonly value: string | boolean;
       }
     }).to.throw(
         'Could not apply decorator "bindTo" to "value": '
@@ -66,19 +66,19 @@ describe('bindTo', () => {
   it('throws if property is accessed before first append', () => {
     expect(() => widget.myText).to.throw(
         'Can not access property "myText": '
-      + 'Binding "textInput1.text" is not ready because no widgets have been appended yet.'
+      + 'Binding "#textInput1.text" is not ready because no widgets have been appended yet.'
     );
   });
 
   it('throws if a binding source can not be resolved after first append', () => {
     expect(() => widget.append(new TextInput({id: 'textInput2'}))).to.throw(
-      'Could not bind property "myText" to "textInput1.text": No widget with id "textInput1" appended.'
+      'Could not bind property "myText" to "#textInput1.text": No widget with id "textInput1" appended.'
     );
   });
 
   it('throws if binding to misssing property', () => {
     expect(() => widget.append(new Composite({id: 'textInput1'}))).to.throw(
-      'Could not bind property "myText" to "textInput1.text": Source does not have a property "text".'
+      'Could not bind property "myText" to "#textInput1.text": Source does not have a property "text".'
     );
   });
 
@@ -86,14 +86,14 @@ describe('bindTo', () => {
     let source = new Composite({id: 'textInput1'});
     (source as any).text = 23;
     expect(() => widget.append(source)).to.throw(
-        'Could not bind property "myText" to "textInput1.text": '
+        'Could not bind property "myText" to "#textInput1.text": '
       + 'Expected value to be of type "string", but found "number".'
     );
   });
 
   it('throws if binding finds multiple sources', () => {
     expect(() => widget.append(new TextInput({id: 'textInput1'}), new TextInput({id: 'textInput1'}))).to.throw(
-      'Could not bind property "myText" to "textInput1.text": Multiple widgets with id "textInput1" appended.'
+      'Could not bind property "myText" to "#textInput1.text": Multiple widgets with id "textInput1" appended.'
     );
   });
 

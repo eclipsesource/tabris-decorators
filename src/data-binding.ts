@@ -93,10 +93,13 @@ function parsePath(path: string) {
   if (/\s|\[|\]|\(|\)|\<|\>/.test(path)) {
     throw new Error('Binding path contains invalid characters.');
   }
+  if (!path.startsWith('#')) {
+    throw new Error('Binding path needs to start with "#".');
+  }
   if (/this/.test(path)) {
     throw new Error('Binding path contains reserved word "this".');
   }
-  let result = path.split('.');
+  let result = path.slice(1).split('.');
   if (result.length < 2) {
     throw new Error('Binding path needs at least two segements.');
   } else if (result.length > 2) {

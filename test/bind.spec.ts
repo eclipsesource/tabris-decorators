@@ -17,7 +17,7 @@ describe('bind', () => {
 
   class CustomComponent extends Composite {
 
-    @bind('textInput1.text')
+    @bind('#textInput1.text')
     public myText: string;
 
   }
@@ -64,7 +64,7 @@ describe('bind', () => {
   it('fails to decorate unknown type', () => {
     expect(() => {
       class FailedComponent extends Composite {
-        @bind('foo.bar') public readonly value: string | boolean;
+        @bind('#foo.bar') public readonly value: string | boolean;
       }
     }).to.throw(
         'Could not apply decorator "bind" to "value": '
@@ -74,12 +74,13 @@ describe('bind', () => {
 
   it('fails to decorate with invalid binding path', () => {
     const badPaths: {[path: string]: string} = {
-      'foo.bar.baz': 'Binding path has too many segments.',
-      'foo': 'Binding path needs at least two segements.',
-      'fo o.bar': 'Binding path contains invalid characters.',
-      'foo.bar[]': 'Binding path contains invalid characters.',
-      'foo.bar<>': 'Binding path contains invalid characters.',
-      'this.foo': 'Binding path contains reserved word "this".'
+      'foo.bar': 'Binding path needs to start with "#".',
+      '#foo.bar.baz': 'Binding path has too many segments.',
+      '#foo': 'Binding path needs at least two segements.',
+      '#fo o.bar': 'Binding path contains invalid characters.',
+      '#foo.bar[]': 'Binding path contains invalid characters.',
+      '#foo.bar<>': 'Binding path contains invalid characters.',
+      '#this.foo': 'Binding path contains reserved word "this".'
     };
     for (let path in badPaths) {
       expect(() => {
@@ -93,19 +94,19 @@ describe('bind', () => {
   it('throws if property is accessed before first append', () => {
     expect(() => widget.myText).to.throw(
         'Can not access property "myText": '
-      + 'Binding "textInput1.text" is not ready because no widgets have been appended yet.'
+      + 'Binding "#textInput1.text" is not ready because no widgets have been appended yet.'
     );
   });
 
   it('throws if a binding source can not be resolved after first append', () => {
     expect(() => widget.append(new TextInput({id: 'textInput2'}))).to.throw(
-      'Could not bind property "myText" to "textInput1.text": No widget with id "textInput1" appended.'
+      'Could not bind property "myText" to "#textInput1.text": No widget with id "textInput1" appended.'
     );
   });
 
   it('throws if binding to misssing property', () => {
     expect(() => widget.append(new Composite({id: 'textInput1'}))).to.throw(
-      'Could not bind property "myText" to "textInput1.text": Source does not have a property "text".'
+      'Could not bind property "myText" to "#textInput1.text": Source does not have a property "text".'
     );
   });
 
@@ -113,14 +114,14 @@ describe('bind', () => {
     let source = new Composite({id: 'textInput1'});
     (source as any).text = 23;
     expect(() => widget.append(source)).to.throw(
-        'Could not bind property "myText" to "textInput1.text": '
+        'Could not bind property "myText" to "#textInput1.text": '
       + 'Expected value to be of type "string", but found "number".'
     );
   });
 
   it('throws if binding finds multiple sources', () => {
     expect(() => widget.append(new TextInput({id: 'textInput1'}), new TextInput({id: 'textInput1'}))).to.throw(
-      'Could not bind property "myText" to "textInput1.text": Multiple widgets with id "textInput1" appended.'
+      'Could not bind property "myText" to "#textInput1.text": Multiple widgets with id "textInput1" appended.'
     );
   });
 
@@ -163,7 +164,7 @@ describe('bind', () => {
     widget.append(child);
 
     expect(() => child.text = 23).to.throw(
-        'Binding "textInput1.text" failed: '
+        'Binding "#textInput1.text" failed: '
       + 'Expected value to be of type "string", but found "number".'
     );
   });
@@ -177,7 +178,7 @@ describe('bind', () => {
     child.text = 23;
 
     expect(() => widget.myText).to.throw(
-        'Binding "textInput1.text" failed: '
+        'Binding "#textInput1.text" failed: '
       + 'Expected value to be of type "string", but found "number".'
     );
   });
@@ -186,7 +187,7 @@ describe('bind', () => {
     widget.append(textInput1);
 
     expect(() => (widget as any).myText = 23).to.throw(
-        'Binding "textInput1.text" failed: '
+        'Binding "#textInput1.text" failed: '
       + 'Expected value to be of type "string", but found "number".'
     );
   });
@@ -207,7 +208,7 @@ describe('bind', () => {
 
     class CustomComponent2 extends Composite {
 
-      @bind('imageView1.image')
+      @bind('#imageView1.image')
       public myImage: Image;
 
     }
