@@ -80,9 +80,9 @@ function bindingTypeCheck(bindingDesc: string, value: any, targetType: Construct
 function getSourceWidget(targetInstance: WidgetInterface, sourceId: string) {
   let results = targetInstance.find('#' + sourceId);
   if (results.length === 0) {
-    throw new Error('No widget with id "textInput1" appended.');
+    throw new Error(`No widget with id "${sourceId}" appended.`);
   } else if (results.length > 1) {
-    throw new Error('Multiple widgets with id "textInput1" appended.');
+    throw new Error(`Multiple widgets with id "${sourceId}" appended.`);
   }
   return results.first() as WidgetInterface;
 }
@@ -101,4 +101,5 @@ function parsePath(path: string) {
     throw new Error('Binding path has too many segments.');
   }
   return result;
+
 }
