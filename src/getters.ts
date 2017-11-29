@@ -40,7 +40,7 @@ function defineWidgetGetter(name: string, args: any[], resolver: WidgetResolver)
       if (!wasAppended(this)) {
         throwPropertyResolveError(name, property, 'No widgets have been appended yet.');
       }
-      return getPropertyStore(this).get (property);
+      return getPropertyStore(this).get(property);
     });
   });
 }
