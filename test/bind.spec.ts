@@ -68,7 +68,8 @@ describe('bind', () => {
       }
     }).to.throw(
         'Could not apply decorator "bind" to "value": '
-      + 'Property type could not be inferred. Only classes and primitive types are supported.'
+      + 'Property type could not be inferred. '
+      + 'Only classes and primitive types can be bound to TypeScript properties.'
     );
   });
 

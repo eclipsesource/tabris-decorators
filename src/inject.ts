@@ -21,6 +21,9 @@ export default function inject(...args: any[]): any {
       return setParameterInfo(target, index, param);
     }
     const type = getPropertyType(target, property);
+    if (type === Object) {
+      throw new Error('Property type could not be inferred. Only classes and primitive types are supported.');
+    }
     defineGetter(target, property, function(this: object) {
       try {
         let store = getPropertyStore(this);

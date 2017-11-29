@@ -59,7 +59,7 @@ describe('getters', () => {
         }
       }).to.throw(
           'Could not apply decorator "getById" to "button1": '
-        + 'Property type could not be inferred. Only classes and primitive types are supported.'
+        + 'Property type could not be inferred.'
       );
     });
 

@@ -19,6 +19,12 @@ export function createBinding(
   const [sourceId, sourceProperty] = parsePath(bindingPath);
   const targetPropertySource = Symbol(targetProperty + 'Source');
   const targetType = getPropertyType(targetProto, targetProperty);
+  if (targetType === Object) {
+    throw new Error(
+        'Property type could not be inferred. '
+      + 'Only classes and primitive types can be bound to TypeScript properties.'
+    );
+  }
   Object.defineProperty(targetProto, targetProperty, {
     get(this: WidgetInterface) {
       accessCheck(this, targetProperty, bindingPath);

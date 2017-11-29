@@ -8,7 +8,8 @@ import {
   postAppendHandlers,
   wasAppended,
   getPropertyStore,
-  WidgetResolver
+  WidgetResolver,
+  Constructor
 } from './utils';
 
 export function getById(targetProto: Composite, property: string): void;
@@ -26,12 +27,12 @@ export function getByType(...args: any[]): void {
 function defineWidgetGetter(name: string, args: any[], resolver: WidgetResolver): void {
   applyDecorator(name, args, (widgetProto: any, property: string) => {
     let type = getPropertyType(widgetProto, property);
-    if (!type) {
-      throw new Error('Type could not be inferred.');
+    if (type === Object) {
+      throw new Error('Property type could not be inferred.');
     }
     postAppendHandlers(widgetProto).push((widget) => {
       try {
-        getPropertyStore(widget).set(property, resolver(widget, property, type));
+        getPropertyStore(widget).set(property, resolver(widget, property, type as Constructor<any>));
       } catch (ex) {
         throwPropertyResolveError(name, property, ex.message);
       }

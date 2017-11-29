@@ -88,14 +88,11 @@ export function defineGetter(proto: any, property: string, get: () => any): void
 }
 
 /**
- * Gets the type of the property. If the type can not be represented properly at runtime this throw an error.
+ * Gets the type of the property. If the type can not be represented properly at runtime
+ * it returs the Object constructor.
  */
 export function getPropertyType(proto: any, property: string): Constructor<any> {
-  let result = Reflect.getMetadata('design:type', proto, property);
-  if (result === Object) {
-    throw new Error('Property type could not be inferred. Only classes and primitive types are supported.');
-  }
-  return result;
+  return Reflect.getMetadata('design:type', proto, property);
 }
 
 /**

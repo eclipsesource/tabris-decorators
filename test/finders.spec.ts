@@ -120,7 +120,8 @@ describe('finders', () => {
           }
       }).to.throw(
           'Could not apply decorator "findFirst" to "unknownType": '
-        + 'Property type could not be inferred. Only classes and primitive types are supported');
+        + 'Property type could not be inferred. Only classes and primitive types are supported'
+      );
     });
 
   });

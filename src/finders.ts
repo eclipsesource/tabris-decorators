@@ -52,6 +52,9 @@ function getReturnTypeWidget(widgetProto: WidgetInterface, property: string, fin
   let type = finderArgs[0] instanceof Function ? finderArgs[0] : null;
   if (type === null) {
     type = getPropertyType(widgetProto, property);
+    if (type === Object) {
+      throw new Error('Property type could not be inferred. Only classes and primitive types are supported.');
+    }
   }
   return type;
 }
