@@ -123,17 +123,6 @@ describe('finders', () => {
         + 'Property type could not be inferred. Only classes and primitive types are supported');
     });
 
-    it('fails if a getter has already been defined', () => {
-      expect(() => {
-        class FailingComponent extends Composite {
-          @findFirst('.foo')
-          public get aGetter(): Composite { return new Composite(); }
-        }
-      }).to.throw(
-          'Could not apply decorator "findFirst" to "aGetter": '
-        + 'A getter or setter was already defined.');
-    });
-
   });
 
   describe('findLast', () => {
