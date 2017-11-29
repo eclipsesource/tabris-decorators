@@ -3,18 +3,6 @@ import {instance as typeGuards} from './TypeGuards';
 
 export interface Constructor<T> {new(...args: any[]): T; }
 export interface ParamInfo {type: Constructor<any>; injectParam?: string; }
-export interface PropertyInfo {
-  type: Constructor<any>;
-  optional?: boolean;
-  converter?: (value: any) => any;
-  fallback?: any;
-}
-export interface PropertyConfig {
-  proto: any;
-  property: string;
-  processGet: (target: any, value: any) => any;
-  processSet: (target: any, value: any) => any;
-}
 export type WidgetConstructor = Constructor<Widget>;
 export type DecoratorFactory = (target: any, property: string, index?: number) => void;
 export type ClassDecoratorFactory = (type: Constructor<any>) => void;
@@ -100,26 +88,6 @@ export function defineGetter(proto: any, property: string, get: () => any): void
 }
 
 /**
- * Defines a setter/getter on the given prototype. If the prototype already has a getter or setter of that name the
- * function throws. The value is automatically stored in the propertyStore
- */
-export function defineProperty({proto, property, processSet, processGet}: PropertyConfig): void {
-  if (Object.getOwnPropertyDescriptor(proto, property)) {
-    throw new Error('A getter or setter was already defined.');
-  }
-  Object.defineProperty(proto, property, {
-    get(this: any) {
-      return processGet(this, getPropertyStore(this).get(property));
-    },
-    set(this: any, value: any) {
-      getPropertyStore(this).set(property, processSet(this, value));
-    },
-    enumerable: true,
-    configurable: true
-  });
-}
-
-/**
  * Gets the type of the property. If the type can not be represented properly at runtime this throw an error.
  */
 export function getPropertyType(proto: any, property: string): Constructor<any> {
@@ -168,7 +136,7 @@ export function postAppendHandlers(widget: WidgetInterface) {
 }
 
 /**
- * Gets map for the prupose of string property values of the given instance.
+ * Gets map for the purpose of string property values of the given instance.
  */
 export function getPropertyStore(instance: any): Map<string | symbol, any> {
   if (!instance[propertyStoreKey]) {
@@ -188,16 +156,6 @@ export function getParamInfo(fn: any): ParamInfo[] {
 }
 
 /**
- * Gets map of data for each property
- */
-export function getPropertyInfo(protoOrInstance: any): Map<string, PropertyInfo> {
-  if (!protoOrInstance[propertyInfoKey]) {
-    protoOrInstance[propertyInfoKey] = new Map<string, PropertyInfo>();
-  }
-  return protoOrInstance[propertyInfoKey];
-}
-
-/**
  * Checks if the post append handlers of this widget type have already been executed for the given instance.
  */
 export function wasAppended(widget: WidgetInterface) {
@@ -205,37 +163,9 @@ export function wasAppended(widget: WidgetInterface) {
 }
 
 /**
- * Sets the initialized flag on this instance
- */
-export function markInitialized(target: any) {
-  target[initializedKey] = true;
-}
-
-/**
- * Sets the initialization failed flag on this instance
- */
-export function markInitialionFailed(target: any) {
-  target[initializationFailedKey] = true;
-}
-
-/**
- * Returns true if target has the initialized flag
- */
-export function isInitialized(target: any) {
-  return !!target[initializedKey];
-}
-
-/**
- * Returns true if target has the initialization failed flag
- */
-export function failedToInitialize(target: any) {
-  return !!target[initializationFailedKey];
-}
-
-/**
  * Returns either the "typeof" name of a primitive value, or the constructor name for an instance
  */
-export function getValueTypeName(value: any) {
+function getValueTypeName(value: any) {
   if (value && value.constructor) {
     return getTypeName(value.constructor);
   }
@@ -245,7 +175,7 @@ export function getValueTypeName(value: any) {
 /**
  * Returns either the "typeof" name of a boxed primitive type, or the constructor name for any other class
  */
-export function getTypeName(type: Constructor<any>) {
+function getTypeName(type: Constructor<any>) {
   let name = type.name;
   if (isPrimitiveType(type)) {
     return name.toLowerCase();
@@ -254,17 +184,9 @@ export function getTypeName(type: Constructor<any>) {
 }
 
 /**
- * Return true if `value` is a number, string, or boolean.
- */
-export function isPrimitiveValue(value: any) {
-  let type = typeof value;
-  return type === 'boolean' || type === 'number' || type === 'string';
-}
-
-/**
  * Return true if `type` is `Number`, `Boolean` or `String`.
  */
-export function isPrimitiveType(type: Constructor<any>) {
+function isPrimitiveType(type: Constructor<any>) {
   return type === Boolean || type === Number || type === String;
 }
 
@@ -315,7 +237,4 @@ const postAppendHandlersKey = Symbol();
 const wasAppendedKey = Symbol();
 const originalAppendKey = Symbol();
 const propertyStoreKey = Symbol();
-const propertyInfoKey = Symbol();
-const initializedKey = Symbol();
-const initializationFailedKey = Symbol();
 const paramInfoKey = Symbol();

@@ -4,7 +4,6 @@ export {getById, getByType} from './getters';
 export {default as inject} from './inject';
 export {default as injectable} from './injectable';
 export {instance as injector} from './Injector';
-export {default as initialize, optional, required} from './initialize';
 export {default as property} from './property';
 export * from './binders';
 export {default as Image} from './Image';
