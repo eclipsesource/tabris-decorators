@@ -16,6 +16,8 @@ describe('property', () => {
 
     @property public bar: number;
 
+    @property public baz: number | boolean = true;
+
     constructor(properties?: CustomComponentProperties) {
       super(properties);
     }
@@ -64,6 +66,26 @@ describe('property', () => {
     component.foo = 'foo2';
 
     expect(listener).to.not.have.been.called;
+  });
+
+  it('throws if type check fails on checkable type', () => {
+    let component = new CustomComponent({foo: 'foo', bar: 23}) as any;
+    expect(() => component.foo = 24).to.throw(
+      'Failed to set property "foo": Expected value to be of type "string", but found "number"'
+    );
+    expect(() => component.bar = 'foo2').to.throw(
+      'Failed to set property "bar": Expected value to be of type "number", but found "string"'
+    );
+    expect(component.foo).to.equal('foo');
+    expect(component.bar).to.equal(23);
+  });
+
+  it('does no type check on uncheckable type', () => {
+    let component = new CustomComponent() as any;
+
+    component.baz = 'foo';
+
+    expect(component.baz).to.equal('foo');
   });
 
 });

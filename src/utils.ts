@@ -108,8 +108,12 @@ export function getParameterType(fn: any, index: number): Constructor<any> {
 
 /**
  * Throws if the given value is not of the given type. Primitives are represented by their boxed type.
+ * As with the TypeScript type system, all values are treated as compatible to "Object" even primitives.
  */
 export function checkType<T>(value: T, type: Constructor<any>): T {
+  if (type === Object) {
+    return value;
+  }
   if (value === null || value === undefined || value instanceof type || (typeof value === getTypeName(type))) {
     return value;
   }
