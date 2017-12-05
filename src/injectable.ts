@@ -8,10 +8,8 @@ const injectableKey = Symbol('injectable');
 export default function injectable(type: Constructor<any>): void;
 export default function injectable(...args: any[]): ClassDecoratorFactory | void {
   return applyClassDecorator('injectable', args, (type: Constructor<any>) => {
-    console.log(type);
     Reflect.defineMetadata(injectableKey, true, type);
     let isShared = Reflect.getOwnMetadata(sharedKey, type);
-    console.log('is shared ' + isShared);
     let injectionHandler = isShared ? createSharedInjectionHandler(type) : createDefaultInjectionHandler(type);
     injectionManager.addHandler(type, injectionHandler);
   });

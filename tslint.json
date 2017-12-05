@@ -20,7 +20,7 @@
     "quotemark": [true, "single"],
     "indent": [true, "spaces"],
     "max-line-length": [true, 120],
-    "no-console": false,
+    "no-console": true,
     "no-bitwise": false,
     "variable-name" : false,
     "no-unused-variable": true
