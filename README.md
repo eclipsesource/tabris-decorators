@@ -195,11 +195,19 @@ Class Bar() {
 
 ```
 
-The injectable class (`Foo2`) may also have injection dependencies itself. For every injection a new instance will be created. If you want to share a single instance for all injections, use `@injectable(shared)` instead. If you want to inject an instance of another (compatible) class other than the one requested by the injection, use `injector.addHandler` instead.
+The injectable class (`Foo2`) may also have injection dependencies itself. For every injection a new instance will be created. If you want to share a single instance for all injections, use `@shared`. If you want to inject an instance of another (compatible) class other than the one requested by the injection, use `injector.addHandler` instead.
 
-### @injectable(shared)
+### @shared
 
-Like `@injectable`, but if `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton.
+To be used in addition to `@injectable`. It causes all injections of the class to be the same instance. This makes the class effectively a singleton.
+
+```js
+@injectable @shared
+class MySingletonClass {
+  // ...
+}
+```
+
 
 ### injector.addHandler(targetType, handler)
 

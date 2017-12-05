@@ -3,7 +3,7 @@ import 'mocha';
 import 'sinon';
 import {Composite, CompositeProperties} from 'tabris';
 import {restoreSandbox, expect} from './test';
-import {injector, inject, injectable} from '../src';
+import {injector, inject, injectable, shared} from '../src';
 import * as tabrisMock from './tabris-mock';
 
 const create = injector.create;
@@ -12,7 +12,7 @@ class MyServiceClass {
   constructor(readonly param: string | undefined) { }
 }
 
-@injectable(true) class MySingletonClass {}
+@injectable @shared class MySingletonClass {}
 
 @injectable class MyInjectableClass {
 
@@ -119,9 +119,19 @@ describe('inject', () => {
     expect(create(MyClientClass).autoInjectableClass).not.to.equal(instance.autoInjectableClass);
   });
 
-  it('caches shared @injectable classes globally', () => {
-    expect(create(MyClientClass).singleton).to.equal(instance.singleton);
-    expect(create(MyClientClass).autoInjectableClass.singleton).to.equal(instance.singleton);
+  describe('shared service', () => {
+
+    it('caches shared @injectable classes globally', () => {
+      expect(create(MyClientClass).singleton).to.equal(instance.singleton);
+      expect(create(MyClientClass).autoInjectableClass.singleton).to.equal(instance.singleton);
+    });
+
+    it('throws if shared is placed incorrectly', () => {
+      expect(() => {
+        @shared @injectable class MySingletonClass2 {}
+      }).to.throw('@shared must be defined before @injectable');
+    });
+
   });
 
   it('throws if handler does not exist (yet)', () => {
