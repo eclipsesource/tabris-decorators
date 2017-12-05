@@ -2,9 +2,11 @@
 import 'mocha';
 import 'sinon';
 import {Composite, CompositeProperties} from 'tabris';
-import {restoreSandbox, expect} from './test';
+import {restoreSandbox, expect, spy} from './test';
 import {injector, inject, injectable, shared} from '../src';
 import * as tabrisMock from './tabris-mock';
+import { InjectionHandler, Injection } from '../src/Injector';
+import { SinonSpy } from 'sinon';
 
 const create = injector.create;
 
@@ -52,21 +54,23 @@ class ConstructorWithInjection {
 describe('inject', () => {
 
   let instance: MyClientClass;
-  let serviceHandler: (param: any) => MyServiceClass;
-  let numberHandler: (param: any) => number | Number;
-  let stringHandler: (param: any) => string | String;
-  let booleanHandler: (param: any) => boolean | Boolean;
+  let serviceHandler: InjectionHandler<MyServiceClass>;
+  let numberHandler: InjectionHandler<number | Number>;
+  let stringHandler: InjectionHandler<string | String>;
+  let booleanHandler: InjectionHandler<boolean | Boolean>;
 
-  injector.addHandler(MyServiceClass, (param) => serviceHandler(param));
-  injector.addHandler(Number, (param) => numberHandler(param));
-  injector.addHandler(String, (param) => stringHandler(param));
-  injector.addHandler(Boolean, (param) => booleanHandler(param));
+  injector.addHandler(MyServiceClass, (injection) => {
+    return serviceHandler(injection);
+  });
+  injector.addHandler(Number, (injection) => numberHandler(injection));
+  injector.addHandler(String, (injection) => stringHandler(injection));
+  injector.addHandler(Boolean, (injection) => booleanHandler(injection));
 
   beforeEach(() => {
-    serviceHandler = (param) => new MyServiceClass(param);
-    numberHandler = (param: any) => 0;
-    stringHandler = (param: any) => '';
-    booleanHandler = (param: any) => false;
+    serviceHandler = spy(({param}) => new MyServiceClass(param));
+    numberHandler = (injection) => 0;
+    stringHandler = (injection) => '';
+    booleanHandler = (injection) => false;
     instance = create(MyClientClass);
   });
 
@@ -86,7 +90,7 @@ describe('inject', () => {
     );
   });
 
-  it('inject by type', () => {
+  it('inject proper by type', () => {
     expect(instance.injectedClass).to.be.instanceOf(MyServiceClass);
   });
 
@@ -151,9 +155,9 @@ describe('inject', () => {
   });
 
   it('unboxes primitives', () => {
-    numberHandler = (param: any) => new Number(23);
-    stringHandler = (param: any) => new String('foo');
-    booleanHandler = (param: any) => new Boolean('true');
+    numberHandler = (injection) => new Number(23);
+    stringHandler = (injection) => new String('foo');
+    booleanHandler = (injection) => new Boolean('true');
     instance = create(MyClientClass);
 
     expect(instance.aNumber.valueOf()).to.equal(23);
@@ -168,8 +172,22 @@ describe('inject', () => {
     expect(instance.injectedClass.param).to.be.undefined;
   });
 
-  it('passes param', () => {
-    expect(instance.fooClass.param).to.be.equal('foo');
+  it('gives Injection infos to handler', () => {
+    instance.injectedClass;
+    instance.fooClass;
+
+    let injection: Injection = (serviceHandler as SinonSpy).args[0][0];
+    let fooInjection: Injection = (serviceHandler as SinonSpy).args[1][0];
+    expect(injection.name).to.equal('injectedClass');
+    expect(injection.index).to.be.undefined;
+    expect(injection.instance).to.equal(instance);
+    expect(injection.param).to.be.undefined;
+    expect(injection.type).to.be.undefined;
+    expect(fooInjection.name).to.equal('fooClass');
+    expect(fooInjection.index).to.be.undefined;
+    expect(fooInjection.instance).to.equal(instance);
+    expect(fooInjection.param).to.equal('foo');
+    expect(fooInjection.type).to.be.undefined;
   });
 
   describe('on constructor', () => {
@@ -183,7 +201,7 @@ describe('inject', () => {
     });
 
     it('injects when used with create', () => {
-      numberHandler = (param: any) => 44;
+      numberHandler = (injection) => 44;
 
       let instance2 = create(ConstructorWithInjection);
 
@@ -193,6 +211,23 @@ describe('inject', () => {
     it('injects with injection parameter', () => {
       let instance2 = create(ConstructorWithInjection, ['foo']);
       expect(instance2.service.param).to.equal('foo2');
+    });
+
+    it('gives Injection infos to handler', () => {
+      create(ConstructorWithInjection);
+
+      let fooInjection: Injection = (serviceHandler as SinonSpy).args[0][0];
+      let otherInjection: Injection = (serviceHandler as SinonSpy).args[1][0];
+      expect(fooInjection.name).to.be.undefined;
+      expect(fooInjection.index).to.equal(1);
+      expect(fooInjection.instance).to.be.undefined;
+      expect(fooInjection.param).to.equal('foo2');
+      expect(fooInjection.type).to.equal(ConstructorWithInjection);
+      expect(otherInjection.name).to.be.undefined;
+      expect(otherInjection.index).to.equal(3);
+      expect(otherInjection.instance).to.be.undefined;
+      expect(otherInjection.param).to.be.undefined;
+      expect(otherInjection.type).to.equal(ConstructorWithInjection);
     });
 
     it('does not inject when not decorated', () => {
@@ -243,7 +278,7 @@ describe('inject', () => {
       let widget: MyCustomWidget;
 
       beforeEach(() => {
-        stringHandler = (param: any) => new String(param);
+        stringHandler = injection => new String(injection.param);
         widget = (
         <MyCustomWidget left={3} top={4}>
           <composite/>

@@ -1,6 +1,14 @@
 import {Constructor, getParamInfo} from './utils';
 
-export type InjectionHandler<T> = (parameter: string | undefined) => T;
+export interface Injection {
+  type?: Constructor<any>;
+  instance?: object;
+  param?: string;
+  name?: string;
+  index?: number;
+}
+
+export type InjectionHandler<T> = (injection: Injection) => T;
 
 export default class Injector {
 
@@ -38,14 +46,14 @@ export default class Injector {
     this.handlers.clear();
   }
 
-  public resolve = <T>(type: Constructor<T>, param?: string) => {
+  public resolve = <T>(type: Constructor<T>, injection?: Injection) => {
     let handlerEntry = this.handlers.get(type);
     let unbox = getUnboxer(type);
     if (!handlerEntry) {
       throw new Error(`Can not inject value of type ${type.name} since no injection handler exists for this type.`);
     }
     handlerEntry.used = true;
-    return unbox(handlerEntry.handler(param)) as T;
+    return unbox(handlerEntry.handler(injection || {})) as T;
   }
 
   public create = <T, U, V, W>(
@@ -56,7 +64,11 @@ export default class Injector {
     let paramInfo = getParamInfo(type) || [];
     let paramCount = Math.max(type.length, args.length, paramInfo.length);
     for (let i = 0; i < paramCount; i++) {
-      finalArgs[i] = paramInfo[i] ? this.resolve(paramInfo[i].type, paramInfo[i].injectParam) : args[i];
+      finalArgs[i] = args[i];
+      if (paramInfo[i]) {
+        let injection = {type, index: i, param: paramInfo[i].injectParam};
+        finalArgs[i] = this.resolve(paramInfo[i].type, injection);
+      }
     }
     return new type(...finalArgs);
   }

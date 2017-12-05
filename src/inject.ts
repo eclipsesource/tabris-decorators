@@ -16,7 +16,7 @@ export default function inject(constructor: Constructor<any>, property: string, 
 export default function inject(param: string): DecoratorFactory;
 export default function inject(...args: any[]): any {
   return applyDecorator('inject', args, (target, property, index) => {
-    const param = typeof args[0] === 'string' ? args[0] : undefined;
+    const param: string = typeof args[0] === 'string' ? args[0] : undefined;
     if (typeof index === 'number') {
       return setParameterInfo(target, index, param);
     }
@@ -28,7 +28,8 @@ export default function inject(...args: any[]): any {
       try {
         let store = getPropertyStore(this);
         if (!store.has(property)) {
-          store.set(property, injectionManager.resolve(type, param));
+          let injection = {param, name: property, instance: this};
+          store.set(property, injectionManager.resolve(type, injection));
         }
         return store.get(property);
       } catch (ex) {
@@ -37,6 +38,7 @@ export default function inject(...args: any[]): any {
     });
   });
 }
+
 function setParameterInfo(target: any, index: number, injectParam?: string) {
   getParamInfo(target)[index] = {
     injectParam, type: getParameterType(target, index)

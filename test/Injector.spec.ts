@@ -138,9 +138,9 @@ describe('InjectionManager', () => {
 
     it('passes param', () => {
       instance.removeHandler(String);
-      instance.addHandler(String, (param) => param ? param : '');
+      instance.addHandler(String, ({param}) => param ? param : '');
 
-      expect(instance.resolve(String, 'bar')).to.equal('bar');
+      expect(instance.resolve(String, {param: 'bar'})).to.equal('bar');
       expect(instance.resolve(String)).to.equal('');
     });
 
