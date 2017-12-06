@@ -1,6 +1,6 @@
 {
   "name": "tabris-decorators",
-  "version": "0.1.0-test7",
+  "version": "0.1.0-test8",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
@@ -11,7 +11,7 @@
     "safePublish": "npm test && npm run build && npm publish"
   },
   "peerDependencies": {
-    "tabris": "^2.0.0"
+    "tabris": "^2.2.0"
   },
   "devDependencies": {
     "@types/chai": "^3.5.0",
@@ -23,7 +23,7 @@
     "mocha": "^3.2.0",
     "sinon": "^1.16.0",
     "sinon-chai": "^2.7.0",
-    "tabris": "^2.1.1",
+    "tabris": "^2.2.0",
     "ts-mocha": "^1.0.3",
     "tslint": "^5.3.2",
     "typescript": "^2.6.2"
