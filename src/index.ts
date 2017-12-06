@@ -3,7 +3,7 @@ export {default as inject} from './inject';
 export {default as injectable} from './injectable';
 export {default as property} from './property';
 export {default as Image} from './Image';
-export {instance as injector, provides, InjectionHandler} from './Injector';
+export {instance as injector, InjectionHandler} from './Injector';
 export * from './finders';
 export * from './getters';
 export * from './injectable';

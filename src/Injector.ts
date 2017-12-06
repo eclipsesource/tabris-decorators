@@ -98,9 +98,9 @@ export default class Injector {
 
 export const instance = new Injector();
 
-type IHFunction<T> = (injection: Injection) => T;
-type IHDescriptor<T> = TypedPropertyDescriptor<IHFunction<T>>;
-type InjectionHandlerDeco<T> = (target: object, propertyName: string, descriptor: IHDescriptor<T>) => void;
+export type IHFunction<T> = (injection: Injection) => T;
+export type IHDescriptor<T> = TypedPropertyDescriptor<IHFunction<T>>;
+export type InjectionHandlerDeco<T> = (target: object, propertyName: string, descriptor: IHDescriptor<T>) => void;
 
 export function injectionHandler<T>(targetType: Constructor<T>): InjectionHandlerDeco<T>;
 export function injectionHandler(...args: any[]): any {
