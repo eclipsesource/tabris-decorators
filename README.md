@@ -175,7 +175,7 @@ class Foo {
 
 ### @injectable
 
-Apply this to a class to register it for injection. This causes a one-to-one relationship between dependency and injection:
+Apply this to a class to register it for injection. It can be injected as itself or as any of it's super-classes (except "Object").
 
 ```js
 class Foo {}

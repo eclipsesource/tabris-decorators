@@ -22,9 +22,19 @@ class MyServiceClass {
 
 }
 
+class BaseClass {
+  public saySomething() { return 'baz1'; }
+}
+
+@injectable
+class SubClass extends BaseClass {
+  public saySomething() { return 'baz2'; }
+}
+
 class MyClientClass {
   @inject public readonly injectedClass: MyServiceClass;
   @inject public readonly autoInjectableClass: MyInjectableClass;
+  @inject public readonly subClass: BaseClass;
   @inject public readonly singleton: MySingletonClass;
   @inject('foo') public readonly fooClass: MyServiceClass;
   @inject public readonly aNumber: number;
@@ -144,7 +154,7 @@ describe('inject', () => {
 
     // TODO: Should throw in `create` already
     expect(() => create(InjectingUnusedServiceClass).service).to.throw(
-      'Can not inject value of type MyUnusedServiceClass since no injection handler exists for this type.'
+      'Can not inject value of type MyUnusedServiceClass since no compatible injection handler exists for this type.'
     );
   });
 
@@ -188,6 +198,11 @@ describe('inject', () => {
     expect(fooInjection.instance).to.equal(instance);
     expect(fooInjection.param).to.equal('foo');
     expect(fooInjection.type).to.be.undefined;
+  });
+
+  it('injects by superclass', () => {
+    expect(instance.subClass).to.be.instanceOf(BaseClass);
+    expect(instance.subClass.saySomething()).to.equal('baz2');
   });
 
   describe('on constructor', () => {

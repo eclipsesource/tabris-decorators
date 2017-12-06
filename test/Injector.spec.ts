@@ -10,7 +10,7 @@ class MyClass {
 
 }
 
-describe('InjectionManager', () => {
+describe('Injector', () => {
 
   let instance: Injector;
   let numberHandler = () => 23;
@@ -44,7 +44,7 @@ describe('InjectionManager', () => {
       instance.addHandler(Number, numberHandler);
 
       expect(() => instance.addHandler(Number, numberHandler)).to.throw(
-        'InjectionManager already has a handler for Number'
+        'Injector already has a handler for Number'
       );
     });
 
@@ -111,7 +111,7 @@ describe('InjectionManager', () => {
       instance.resolve(String);
 
       expect(() => instance.clearHandlers()).to.throw(
-        'Can not clear InjectionManager because InjectionHandler for type String was already used.'
+        'Can not clear Injector because InjectionHandler for type String was already used.'
       );
     });
 
@@ -127,7 +127,7 @@ describe('InjectionManager', () => {
     it('throws in no handler exists', () => {
       instance.removeHandler(Number);
       expect(() => instance.resolve(Number)).to.throw(
-        'Can not inject value of type Number since no injection handler exists for this type.'
+        'Can not inject value of type Number since no compatible injection handler exists for this type.'
       );
     });
 

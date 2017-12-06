@@ -10,6 +10,10 @@ export interface Injection {
 
 export type InjectionHandler<T> = (injection: Injection) => T;
 
+interface HandlerEntry {handler: InjectionHandler<any>; used: boolean; }
+
+type HandlersMap = Map<Constructor<any>, HandlerEntry>;
+
 export default class Injector {
 
   private handlers: HandlersMap = new Map<Constructor<any>, HandlerEntry>();
@@ -21,9 +25,9 @@ export default class Injector {
 
   public addHandler<T, U extends T>(targetType: Constructor<T>, handler: InjectionHandler<U>): void {
     if (this.handlers.has(targetType)) {
-      throw new Error(`InjectionManager already has a handler for ${targetType.name}`);
+      throw new Error(`Injector already has a handler for ${targetType.name}`);
     }
-    this.handlers.set(targetType, {handler, used: false});
+    this.handlers.set(targetType, {handler, used: false });
   }
 
   public removeHandler(targetType: Constructor<any>) {
@@ -35,11 +39,11 @@ export default class Injector {
   }
 
   public clearHandlers() {
-    for (let entry of this.handlers) {
-      if (entry[1].used) {
+    for (let [type, entry] of this.handlers) {
+      if (entry.used) {
         throw new Error(
-            'Can not clear InjectionManager because InjectionHandler '
-          + `for type ${entry[0].name} was already used.`
+            'Can not clear Injector because InjectionHandler '
+          + `for type ${type.name} was already used.`
         );
       }
     }
@@ -47,11 +51,13 @@ export default class Injector {
   }
 
   public resolve = <T>(type: Constructor<T>, injection?: Injection) => {
-    let handlerEntry = this.handlers.get(type);
-    let unbox = getUnboxer(type);
+    let handlerEntry = this.findCompatibleHandler(type);
     if (!handlerEntry) {
-      throw new Error(`Can not inject value of type ${type.name} since no injection handler exists for this type.`);
+      throw new Error(
+        `Can not inject value of type ${type.name} since no compatible injection handler exists for this type.`
+      );
     }
+    let unbox = getUnboxer(type);
     handlerEntry.used = true;
     return unbox(handlerEntry.handler(injection || {})) as T;
   }
@@ -73,12 +79,22 @@ export default class Injector {
     return new type(...finalArgs);
   }
 
+  private findCompatibleHandler(type: Constructor<any>): HandlerEntry | undefined {
+    let result = this.handlers.get(type);
+    if (!result) {
+      for (let [registeredType, entry] of this.handlers) {
+        if (registeredType.prototype instanceof type) {
+          result = entry;
+          break;
+        }
+      }
+    }
+    return result;
+  }
+
 }
 
 export const instance = new Injector();
-
-interface HandlerEntry {handler: InjectionHandler<any>; used: boolean; }
-type HandlersMap = Map<Constructor<any>, HandlerEntry>;
 
 function getUnboxer(type: any) {
   if (type === Number || type === String || type === Boolean) {
