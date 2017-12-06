@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import {instance as injectionManager} from './Injector';
+import {instance as injectionManager, InjectionHandler, Injection} from './Injector';
 import {Constructor, applyClassDecorator, ClassDecoratorFactory} from './utils';
 
 const sharedKey = Symbol('shared');
@@ -10,8 +10,7 @@ export default function injectable(...args: any[]): ClassDecoratorFactory | void
   return applyClassDecorator('injectable', args, (type: Constructor<any>) => {
     Reflect.defineMetadata(injectableKey, true, type);
     let isShared = Reflect.getOwnMetadata(sharedKey, type);
-    let injectionHandler = isShared ? createSharedInjectionHandler(type) : createDefaultInjectionHandler(type);
-    injectionManager.addHandler(type, injectionHandler);
+    injectionManager.addHandler(type, new DefaultInjectionHandler(type, isShared));
   });
 }
 
@@ -22,16 +21,20 @@ export function shared(type: Constructor<any>): void {
   Reflect.defineMetadata(sharedKey, true, type);
 }
 
-function createSharedInjectionHandler<T>(type: Constructor<T>) {
-  let instance: T;
-  return () => {
-    if (instance === undefined) {
-      instance = injectionManager.create(type);
-    }
-    return instance;
-  };
-}
+class DefaultInjectionHandler<T> implements InjectionHandler<T> {
 
-function createDefaultInjectionHandler(type: Constructor<any>) {
-  return () => injectionManager.create(type);
+  private instance: T;
+
+  constructor(private type: Constructor<T>, private isShared: boolean) { }
+
+  public handleInjection(injection: Injection) {
+    if (!this.isShared) {
+      return injectionManager.create(this.type);
+    }
+    if (!this.instance) {
+      this.instance = injectionManager.create(this.type);
+    }
+    return this.instance;
+  }
+
 }

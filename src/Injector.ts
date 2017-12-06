@@ -8,7 +8,9 @@ export interface Injection {
   index?: number;
 }
 
-export type InjectionHandler<T> = (injection: Injection) => T;
+export interface InjectionHandler<T> {
+  handleInjection(injection: Injection): T;
+}
 
 interface HandlerEntry {handler: InjectionHandler<any>; used: boolean; }
 
@@ -59,7 +61,7 @@ export default class Injector {
     }
     let unbox = getUnboxer(type);
     handlerEntry.used = true;
-    return unbox(handlerEntry.handler(injection || {})) as T;
+    return unbox(handlerEntry.handler.handleInjection(injection || {})) as T;
   }
 
   public create = <T, U, V, W>(

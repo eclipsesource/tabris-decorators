@@ -64,17 +64,15 @@ class ConstructorWithInjection {
 describe('inject', () => {
 
   let instance: MyClientClass;
-  let serviceHandler: InjectionHandler<MyServiceClass>;
-  let numberHandler: InjectionHandler<number | Number>;
-  let stringHandler: InjectionHandler<string | String>;
-  let booleanHandler: InjectionHandler<boolean | Boolean>;
+  let serviceHandler: (injection: Injection) => MyServiceClass;
+  let numberHandler: (injection: Injection) => number | Number;
+  let stringHandler: (injection: Injection) => string | String;
+  let booleanHandler: (injection: Injection) => boolean | Boolean;
 
-  injector.addHandler(MyServiceClass, (injection) => {
-    return serviceHandler(injection);
-  });
-  injector.addHandler(Number, (injection) => numberHandler(injection));
-  injector.addHandler(String, (injection) => stringHandler(injection));
-  injector.addHandler(Boolean, (injection) => booleanHandler(injection));
+  injector.addHandler(MyServiceClass, {handleInjection: (injection: Injection) => serviceHandler(injection)});
+  injector.addHandler(Number, {handleInjection: (injection: Injection) => numberHandler(injection)});
+  injector.addHandler(String, {handleInjection: (injection: Injection) => stringHandler(injection)});
+  injector.addHandler(Boolean, {handleInjection: (injection: Injection) => booleanHandler(injection)});
 
   beforeEach(() => {
     serviceHandler = spy(({param}) => new MyServiceClass(param));

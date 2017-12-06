@@ -1,7 +1,7 @@
 /* tslint:disable:no-unused-expression max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import Injector from '../src/Injector';
+import Injector, { InjectionHandler } from '../src/Injector';
 import {restoreSandbox, expect} from './test';
 
 class MyClass {
@@ -13,8 +13,8 @@ class MyClass {
 describe('Injector', () => {
 
   let instance: Injector;
-  let numberHandler = () => 23;
-  let stringHandler = () => 'foo';
+  let numberHandler: InjectionHandler<number> = {handleInjection: () => 23};
+  let stringHandler: InjectionHandler<string> = {handleInjection: () => 'foo'};
 
   beforeEach(() => {
     instance = new Injector();
@@ -49,7 +49,7 @@ describe('Injector', () => {
     });
 
     it('does allow to add again after removing previous handler', () => {
-      let numberHandler2 = () => 24;
+      let numberHandler2 = {handleInjection: () => 24};
       instance.addHandler(Number, numberHandler);
       instance.removeHandler(Number);
 
@@ -138,7 +138,7 @@ describe('Injector', () => {
 
     it('passes param', () => {
       instance.removeHandler(String);
-      instance.addHandler(String, ({param}) => param ? param : '');
+      instance.addHandler(String, {handleInjection: ({param}) => param ? param : ''});
 
       expect(instance.resolve(String, {param: 'bar'})).to.equal('bar');
       expect(instance.resolve(String)).to.equal('');
@@ -147,7 +147,7 @@ describe('Injector', () => {
     it('does not cache', () => {
       let i = 0;
       instance.removeHandler(Number);
-      instance.addHandler(Number, () => i++);
+      instance.addHandler(Number, {handleInjection: () => i++});
 
       expect(instance.resolve(Number)).to.equal(0);
       expect(instance.resolve(Number)).to.equal(1);
@@ -156,7 +156,7 @@ describe('Injector', () => {
 
     it('supports singleton pattern', () => {
       let serviceObject = new MyClass('foo');
-      instance.addHandler(MyClass, () => serviceObject);
+      instance.addHandler(MyClass, {handleInjection: () => serviceObject});
 
       expect(instance.resolve(MyClass)).to.equal(serviceObject);
       expect(instance.resolve(MyClass)).to.equal(instance.resolve(MyClass));
@@ -168,7 +168,7 @@ describe('Injector', () => {
           super('foo');
         }
       }
-      instance.addHandler(MyClass, () => new MyClass2('bar'));
+      instance.addHandler(MyClass, {handleInjection: () => new MyClass2('bar')});
 
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
     });
@@ -178,7 +178,7 @@ describe('Injector', () => {
         public bar: string = 'bar';
         constructor(readonly value: any) {}
       }
-      instance.addHandler(MyClass, () => new MyClass2('foo'));
+      instance.addHandler(MyClass, {handleInjection: () => new MyClass2('foo')});
 
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
     });
