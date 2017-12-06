@@ -130,10 +130,10 @@ export function checkType<T>(value: T, type: Constructor<any>): T {
  */
 export function postAppendHandlers(widget: WidgetInterface) {
   patchAppend(widget);
-  if (!widget[postAppendHandlersKey]) {
-    widget[postAppendHandlersKey] = [];
+  if (!Reflect.getMetadata(postAppendHandlersKey, widget)) {
+    Reflect.defineMetadata(postAppendHandlersKey, [], widget);
   }
-  return widget[postAppendHandlersKey] as PostAppendHandler[];
+  return Reflect.getMetadata(postAppendHandlersKey, widget) as PostAppendHandler[];
 }
 
 /**
@@ -150,10 +150,10 @@ export function getPropertyStore(instance: any): Map<string | symbol, any> {
  * Gets array of injection data for each parameter of the given function
  */
 export function getParamInfo(fn: any): ParamInfo[] {
-  if (!fn[paramInfoKey]) {
-    fn[paramInfoKey] = [];
+  if (!Reflect.getMetadata(paramInfoKey, fn)) {
+    Reflect.defineMetadata(paramInfoKey, [], fn);
   }
-  return fn[paramInfoKey];
+  return Reflect.getMetadata(paramInfoKey, fn);
 }
 
 /**
