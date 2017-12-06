@@ -3,9 +3,9 @@ import 'mocha';
 import 'sinon';
 import {Composite, CompositeProperties} from 'tabris';
 import {restoreSandbox, expect, spy} from './test';
-import {injector, inject, injectable, shared} from '../src';
+import {injector, inject, injectable, shared, provides} from '../src';
 import * as tabrisMock from './tabris-mock';
-import { InjectionHandler, Injection } from '../src/Injector';
+import { InjectionHandler, Injection, injectionHandler } from '../src/Injector';
 import { SinonSpy } from 'sinon';
 
 const create = injector.create;
@@ -31,10 +31,15 @@ class SubClass extends BaseClass {
   public saySomething() { return 'baz2'; }
 }
 
+class CompatibleClass {
+  public saySomething() { return 'baz3'; }
+}
+
 class MyClientClass {
   @inject public readonly injectedClass: MyServiceClass;
   @inject public readonly autoInjectableClass: MyInjectableClass;
   @inject public readonly subClass: BaseClass;
+  @inject public readonly compatibleClass: CompatibleClass;
   @inject public readonly singleton: MySingletonClass;
   @inject('foo') public readonly fooClass: MyServiceClass;
   @inject public readonly aNumber: number;
@@ -69,7 +74,20 @@ describe('inject', () => {
   let stringHandler: (injection: Injection) => string | String;
   let booleanHandler: (injection: Injection) => boolean | Boolean;
 
-  injector.addHandler(MyServiceClass, {handleInjection: (injection: Injection) => serviceHandler(injection)});
+  class MyServiceClassInjectionHandler {
+
+    @injectionHandler(MyServiceClass)
+    public static createMyServiceClass(injection: Injection) {
+      return serviceHandler(injection);
+    }
+
+    @injectionHandler(CompatibleClass)
+    public createMyServiceClass(injection: Injection) {
+      return {saySomething: () => 'baz4'};
+    }
+
+  }
+
   injector.addHandler(Number, {handleInjection: (injection: Injection) => numberHandler(injection)});
   injector.addHandler(String, {handleInjection: (injection: Injection) => stringHandler(injection)});
   injector.addHandler(Boolean, {handleInjection: (injection: Injection) => booleanHandler(injection)});
@@ -98,8 +116,12 @@ describe('inject', () => {
     );
   });
 
-  it('inject proper by type', () => {
+  it('injects property by type via @injectionHandler', () => {
     expect(instance.injectedClass).to.be.instanceOf(MyServiceClass);
+  });
+
+  it('injects compatible type via @injectionHandler', () => {
+    expect(instance.compatibleClass.saySomething()).to.equal('baz4')
   });
 
   it('injects @injectable class', () => {

@@ -5,7 +5,7 @@ export interface Constructor<T> {new(...args: any[]): T; }
 export interface ParamInfo {type: Constructor<any>; injectParam?: string; }
 export type WidgetConstructor = Constructor<Widget>;
 export type DecoratorFactory = (target: any, property: string, index?: number) => void;
-export type ClassDecoratorFactory = (type: Constructor<any>) => void;
+export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
 export type WidgetInterface = {[prop: string]: any} & Widget;
 export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
 export type WidgetResolver = (widget: WidgetInterface, param: string, type: WidgetConstructor) => any;
@@ -35,11 +35,11 @@ export function applyDecorator(name: string, args: any[], factory: DecoratorFact
  * or returns it so it can be can be called later. Rethrows exceptions by the factory with an
  * apropriate error message.
  */
-export function applyClassDecorator(
+export function applyClassDecorator<T>(
   name: string,
   args: any[],
-  factory: ClassDecoratorFactory
-): ClassDecoratorFactory | void {
+  factory: ClassDecoratorFactory<T>
+): ClassDecoratorFactory<T> | void {
   let impl = (type: Constructor<any>) => {
     try {
       factory(type);

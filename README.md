@@ -204,6 +204,14 @@ class MySingletonClass {
 }
 ```
 
+### @injectionHandler(type)
+
+Registers the decorated method to handle injections for the given type directly. The method must return a value compatible to the given type.
+
+// TDB: Injection parameter object
+
+If the method is an instance method this will implicitly create a new instance of the class. In that case the constructor should only have injected parameters. If the method is static no instance will be created and no such limitation applies.
+
 ### injector.resolve(type)
 
 Returns an instance of the given type, just like using the `@inject` decorator would do. Useful in cases where a decorator can not be used, e.g. outside of classes. Note that `type` *has to be an injectable*.

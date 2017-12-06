@@ -1,4 +1,4 @@
-import {Constructor, getParamInfo} from './utils';
+import {Constructor, getParamInfo, applyDecorator} from './utils';
 
 export interface Injection {
   type?: Constructor<any>;
@@ -97,6 +97,29 @@ export default class Injector {
 }
 
 export const instance = new Injector();
+
+type IHFunction<T> = (injection: Injection) => T;
+type IHDescriptor<T> = TypedPropertyDescriptor<IHFunction<T>>;
+type InjectionHandlerDeco<T> = (target: object, propertyName: string, descriptor: IHDescriptor<T>) => void;
+
+export function injectionHandler<T>(targetType: Constructor<T>): InjectionHandlerDeco<T>;
+export function injectionHandler(...args: any[]): any {
+  return applyDecorator('injectionHandler', args, (target: object, targetProperty: string) => {
+    let type = args[0] as Constructor<any>;
+    if (target instanceof Function) {
+      instance.addHandler(type, {handleInjection: (injection) => target[targetProperty](injection)});
+    } else if (isPrototype(target)) {
+      let targetInstance = instance.create(target.constructor);
+      instance.addHandler(type, {handleInjection: (injection) => targetInstance[targetProperty](injection)});
+    } else {
+      throw new Error('Decorator must be applied to a method');
+    }
+  });
+}
+
+function isPrototype(target: any): target is {constructor: Constructor<any>} {
+  return target.constructor instanceof Function;
+}
 
 function getUnboxer(type: any) {
   if (type === Number || type === String || type === Boolean) {

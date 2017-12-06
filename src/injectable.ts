@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import {instance as injectionManager, InjectionHandler, Injection} from './Injector';
-import {Constructor, applyClassDecorator, ClassDecoratorFactory} from './utils';
+import {Constructor, applyClassDecorator} from './utils';
 
 const sharedKey = Symbol('shared');
 const injectableKey = Symbol('injectable');
 
 export default function injectable(type: Constructor<any>): void;
-export default function injectable(...args: any[]): ClassDecoratorFactory | void {
+export default function injectable(...args: any[]): void {
   return applyClassDecorator('injectable', args, (type: Constructor<any>) => {
     Reflect.defineMetadata(injectableKey, true, type);
     let isShared = Reflect.getOwnMetadata(sharedKey, type);
