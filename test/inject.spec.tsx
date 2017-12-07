@@ -14,7 +14,7 @@ class MyServiceClass {
   constructor(readonly param: string | undefined) { }
 }
 
-@injectable(true) class MySingletonClass {}
+@injectable({shared: true}) class MySingletonClass {}
 
 @injectable class MyInjectableClass {
 

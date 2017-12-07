@@ -193,9 +193,11 @@ Class Bar() {
 
 The injectable class (`Foo2`) may also have injection dependencies itself. For every injection a new instance will be created. If you want to share a single instance for all injections, use `@injectable(shared)` instead.
 
-### @injectable(shared)
+### @injectable({shared?: boolean})
 
 Like `@injectable`, but if `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton.
+
+### @injectionHandler
 
 Registers the decorated method to handle injections for the given type directly. The method must return a value compatible to the given type.
 
