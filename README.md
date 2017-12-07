@@ -185,7 +185,7 @@ class Foo {}
 Class Bar() {
 
   @inject foo2: Foo2; // This will be an instance of `Foo2`
-  @inject foo: Foo; // This will fail, even though `Foo2` would be a valid injection.
+  @inject foo: Foo; // This will also be an instance of `Foo2`
 
 }
 
@@ -211,7 +211,7 @@ Returns an instance of the given type, just like using the `@inject` decorator w
 
 ### injector.create(type)
 
-Creates an instance of the given type and fulfils all this injection it defines. *The type itself does not have to be (and typically isn't) injectable*.
+Creates an instance of the given type and fulfils all the constructor injections. *The type itself does not have to be (and typically isn't) injectable*.
 
 ### injector.create(type, param[])
 

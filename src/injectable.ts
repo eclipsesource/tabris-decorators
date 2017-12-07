@@ -2,11 +2,11 @@ import 'reflect-metadata';
 import {instance as injectionManager, InjectionHandler, Injection} from './Injector';
 import {Constructor, applyClassDecorator, areStaticClassDecoratorArgs, ClassDecoratorFactory} from './utils';
 
-interface Config {
+export interface Config {
   shared?: boolean;
 }
 
-export default function injectable(conifg: Config): ClassDecoratorFactory<any>;
+export default function injectable(config: Config): ClassDecoratorFactory<any>;
 export default function injectable(type: Constructor<any>): void;
 export default function injectable(...args: any[]): void | ClassDecoratorFactory<any> {
   return applyClassDecorator('injectable', args, (type: Constructor<any>) => {
