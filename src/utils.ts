@@ -1,10 +1,13 @@
 import {Widget} from 'tabris';
 import {instance as typeGuards} from './TypeGuards';
 
-export interface Constructor<T> {new(...args: any[]): T; }
 export interface ParamInfo {type: Constructor<any>; injectParam?: string; }
+export interface Constructor<T> {new(...args: any[]): T; }
+// tslint:disable-next-line:ban-types
+export type BaseConstructor<T> = Function & { prototype: T };
 export type WidgetConstructor = Constructor<Widget>;
 export type DecoratorFactory = (target: any, property: string, index?: number) => void;
+export type ParameterDecoratorFactory = (target: Constructor<any>, property: string, index: number) => void;
 export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
 export type WidgetInterface = {[prop: string]: any} & Widget;
 export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
@@ -13,7 +16,7 @@ export type WidgetResolver = (widget: WidgetInterface, param: string, type: Widg
 /**
  * Takes a callback a decorator factory and when possible calls it with the appropriate arguments,
  * or returns it so it can be can be called later. Rethrows exceptions by the factory with an
- * apropriate error message.
+ * appropriate error message.
  */
 export function applyDecorator(name: string, args: any[], factory: DecoratorFactory): DecoratorFactory | void {
   let impl = (widgetProto: any, property: string, index: number) => {
@@ -33,7 +36,7 @@ export function applyDecorator(name: string, args: any[], factory: DecoratorFact
 /**
  * Takes a callback a class decorator factory and when possible calls it with the appropriate arguments,
  * or returns it so it can be can be called later. Rethrows exceptions by the factory with an
- * apropriate error message.
+ * appropriate error message.
  */
 export function applyClassDecorator<T>(
   name: string,
@@ -55,7 +58,7 @@ export function applyClassDecorator<T>(
 }
 
 /**
- * Determines wheter a decorator was applied with arguments (dynamic, e.g. "@foo(1,2,2)")
+ * Determines whether a decorator was applied with arguments (dynamic, e.g. "@foo(1,2,2)")
  * or without (static, e.g. "@foo").
  */
 export function areStaticDecoratorArgs(args: any[]): boolean {
@@ -65,7 +68,7 @@ export function areStaticDecoratorArgs(args: any[]): boolean {
 }
 
 /**
- * Determines wheter a decorator was applied with arguments (dynamic, e.g. "@foo(1,2,2)")
+ * Determines whether a decorator was applied with arguments (dynamic, e.g. "@foo(1,2,2)")
  * or without (static, e.g. "@foo").
  */
 export function areStaticClassDecoratorArgs(args: any[]): boolean {
@@ -89,7 +92,7 @@ export function defineGetter(proto: any, property: string, get: () => any): void
 
 /**
  * Gets the type of the property. If the type can not be represented properly at runtime
- * it returs the Object constructor.
+ * it returns the Object constructor.
  */
 export function getPropertyType(proto: any, property: string): Constructor<any> {
   return Reflect.getMetadata('design:type', proto, property);

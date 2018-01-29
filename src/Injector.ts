@@ -1,4 +1,4 @@
-import {Constructor, getParamInfo, applyDecorator} from './utils';
+import {Constructor, getParamInfo, applyDecorator, BaseConstructor} from './utils';
 
 export interface Injection {
   type?: Constructor<any>;
@@ -14,25 +14,26 @@ export interface InjectionHandler<T> {
 
 interface HandlerEntry {handler: InjectionHandler<any>; used: boolean; }
 
-type HandlersMap = Map<Constructor<any>, HandlerEntry>;
+type HandlersMap = Map<BaseConstructor<any>, HandlerEntry>;
 
 export default class Injector {
 
   private handlers: HandlersMap = new Map<Constructor<any>, HandlerEntry>();
 
-  public getHandler<T>(targetType: Constructor<T>): InjectionHandler<T> | null {
+  public getHandler<T>(targetType: BaseConstructor<T>): InjectionHandler<T> | null {
     let handlerEntry = this.handlers.get(targetType);
     return handlerEntry ? handlerEntry.handler : null;
   }
 
-  public addHandler<T, U extends T>(targetType: Constructor<T>, handler: InjectionHandler<U>): void {
+  // TODO check targetType
+  public addHandler<T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandler<U>): void {
     if (this.handlers.has(targetType)) {
       throw new Error(`Injector already has a handler for ${targetType.name}`);
     }
     this.handlers.set(targetType, {handler, used: false });
   }
 
-  public removeHandler(targetType: Constructor<any>) {
+  public removeHandler(targetType: BaseConstructor<any>) {
     let handlerEntry = this.handlers.get(targetType);
     if (handlerEntry && handlerEntry.used) {
       throw new Error(`Can not remove InjectionHandler for type ${targetType.name} because it was already used.`);

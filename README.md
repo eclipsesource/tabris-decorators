@@ -147,21 +147,11 @@ Like `@bind`, but creates a one-way binding, meaning changes to the source/child
 
 ## Injectors
 
-`inject` and other related decorators allow for simple dependency injection. The type of the injection has to be a class, interfaces are not supported. However, classes can be used like interfaces in TypeScript, so most cases should be covered.
+`inject` and other related decorators allow for simple dependency injection. The type of the injection has to be a class, interfaces are not supported. However, abstract classes work, and classes can be used like interfaces in TypeScript, so most cases should be covered.
 
 ### @inject
 
-Decorate a property to inject a value based on the type of the property, e.g.:
-
-```js
-class Foo {
-
-  @inject public readonly propA: classA;
-
-}
-```
-
-You can also decorate a constructor parameter, like this:
+Decorate a constructor parameter to inject a value based on the type of the parameter, e.g.:
 
 ```js
 class Foo {
@@ -191,7 +181,7 @@ Class Bar() {
 
 ```
 
-The injectable class (`Foo2`) may also have injection dependencies itself. For every injection a new instance will be created. If you want to share a single instance for all injections, use `@injectable(shared)` instead.
+The injectable class (`Foo2`) may also have injection dependencies itself. For every injection a new instance will be created. If you want to share a single instance for all injections, use `@injectable({shared: true})` instead.
 
 ### @injectable({shared?: boolean})
 
