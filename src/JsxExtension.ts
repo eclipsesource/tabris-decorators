@@ -1,4 +1,5 @@
 /* tslint:disable no-namespace ban-types only-arrow-functions */
+import 'tabris';
 import {Constructor} from './utils';
 import {instance as injector} from './Injector';
 

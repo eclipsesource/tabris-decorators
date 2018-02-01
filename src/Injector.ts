@@ -1,4 +1,5 @@
-import {Constructor, getParamInfo, applyDecorator, BaseConstructor} from './utils';
+import { Constructor, getParamInfo, applyDecorator, BaseConstructor } from './utils';
+import DefaultInjectionHandler, { InjectableConfig } from './DefaultInjectionHandler';
 
 export interface Injection {
   type?: Constructor<any>;
@@ -23,6 +24,10 @@ export default class Injector {
   public getHandler<T>(targetType: BaseConstructor<T>): InjectionHandler<T> | null {
     let handlerEntry = this.handlers.get(targetType);
     return handlerEntry ? handlerEntry.handler : null;
+  }
+
+  public addInjectable(type: Constructor<any>, config: InjectableConfig) {
+    this.addHandler(type, new DefaultInjectionHandler(type, config));
   }
 
   // TODO check targetType
