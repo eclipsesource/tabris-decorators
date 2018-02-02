@@ -1,6 +1,6 @@
 import './JsxExtension';
 export {default as inject} from './inject';
-export {default as injectable} from './injectable';
+export {default as injectable, shared} from './injectable';
 export {default as property} from './property';
 export {default as Image} from './Image';
 export {instance as injector, InjectionHandler} from './Injector';

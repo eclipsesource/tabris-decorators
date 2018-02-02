@@ -3,7 +3,7 @@ import 'mocha';
 import 'sinon';
 import {Composite, CompositeProperties} from 'tabris';
 import {restoreSandbox, expect, spy} from './test';
-import {injector, inject, injectable} from '../src';
+import {injector, inject, injectable, shared} from '../src';
 import * as tabrisMock from './tabris-mock';
 import { InjectionHandler, Injection, injectionHandler } from '../src/Injector';
 import { SinonSpy } from 'sinon';
@@ -15,6 +15,8 @@ class MyServiceClass {
 }
 
 @injectable({shared: true}) class MySingletonClass {}
+
+@shared class MyOtherSingletonClass {}
 
 class BaseClass {
   public saySomething() { return 'baz1'; }
@@ -39,7 +41,9 @@ class ConstructorWithInjection {
     str: string | undefined,
     @inject('foo2') service: MyServiceClass,
     @inject number: number,
-    @inject public otherService: MyServiceClass
+    @inject public otherService: MyServiceClass,
+    @inject public singleton1?: MySingletonClass,
+    @inject public singleton2?: MyOtherSingletonClass
   ) {
     this.str = str || '';
     this.number = number || 0;
@@ -54,6 +58,7 @@ describe('inject', () => {
   let numberHandler: (injection: Injection) => number | Number;
   let stringHandler: (injection: Injection) => string | String;
   let booleanHandler: (injection: Injection) => boolean | Boolean;
+  let instance: ConstructorWithInjection;
 
   class MyServiceClassInjectionHandler {
 
@@ -78,6 +83,7 @@ describe('inject', () => {
     numberHandler = (injection) => 0;
     stringHandler = (injection) => '';
     booleanHandler = (injection) => false;
+    instance = injector.create(ConstructorWithInjection);
   });
 
   afterEach(() => {
@@ -106,8 +112,6 @@ describe('inject', () => {
   });
 
   it('gives Injection infos to handler', () => {
-    create(ConstructorWithInjection);
-
     let fooInjection: Injection = (serviceHandler as SinonSpy).args[0][0];
     let otherInjection: Injection = (serviceHandler as SinonSpy).args[1][0];
     expect(fooInjection.name).to.be.undefined;
@@ -138,8 +142,18 @@ describe('inject', () => {
   });
 
   it('injects implicit field', () => {
+    expect(instance.otherService).to.be.instanceOf(MyServiceClass);
+  });
+
+  it('does not share non-singletons', () => {
     let instance2 = create(ConstructorWithInjection);
-    expect(instance2.otherService).to.be.instanceOf(MyServiceClass);
+    expect(instance2.otherService).not.to.equal(instance.otherService);
+  });
+
+  it('shares singletons', () => {
+    let instance2 = create(ConstructorWithInjection);
+    expect(instance2.singleton1).to.equal(instance.singleton1);
+    expect(instance2.singleton2).to.equal(instance.singleton2);
   });
 
   describe('via JSX', () => {

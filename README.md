@@ -187,6 +187,10 @@ The injectable class (`Foo2`) may also have injection dependencies itself. For e
 
 Like `@injectable`, but if `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton.
 
+### @shared
+
+Shorthand for `@injectable({shared: true})`.
+
 ### @injectionHandler
 
 Registers the decorated method to handle injections for the given type directly. The method must return a value compatible to the given type.

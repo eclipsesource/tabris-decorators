@@ -12,6 +12,10 @@ export default function injectable(...args: any[]): void | ClassDecoratorFactory
   });
 }
 
+export function shared(type: Constructor<any>): void {
+  injectable({shared: true})(type);
+}
+
 function getInjectableConfig(args: any[]): InjectableConfig {
   if (!areStaticClassDecoratorArgs(args)) {
     return args[0] as InjectableConfig;
