@@ -51,40 +51,11 @@ describe('Injector', () => {
     it('does allow to add again after removing previous handler', () => {
       let numberHandler2 = {handleInjection: () => 24};
       instance.addHandler(Number, numberHandler);
-      instance.removeHandler(Number);
+      instance.clearHandlers();
 
       instance.addHandler(Number, numberHandler2);
 
       expect(instance.getHandler(Number)).to.equal(numberHandler2);
-    });
-
-  });
-
-  describe('remove', () => {
-
-    it('removes handler', () => {
-      let originalEntry = instance.getHandler(Number);
-      instance.addHandler(Number, numberHandler);
-
-      instance.removeHandler(Number);
-
-      expect(originalEntry).to.be.null;
-      expect(instance.getHandler(Number)).to.be.null;
-    });
-
-    it('is ignored if entry does not exists', () => {
-      expect(instance.removeHandler(Number)).not.throw;
-    });
-
-    it('throws if handler was alrady used', () => {
-      instance.addHandler(Number, numberHandler);
-      instance.addHandler(String, stringHandler);
-      instance.resolve(String);
-
-      expect(() => instance.removeHandler(Number)).not.to.throw;
-      expect(() => instance.removeHandler(String)).to.throw(
-        'Can not remove InjectionHandler for type String because it was already used.'
-      );
     });
 
   });
@@ -101,11 +72,7 @@ describe('Injector', () => {
       expect(instance.getHandler(String)).to.be.null;
     });
 
-    it('ignored if entry does not exists', () => {
-      expect(instance.removeHandler(Number)).not.throw;
-    });
-
-    it('throws if handler was alrady used', () => {
+    it('throws if handler was already used', () => {
       instance.addHandler(Number, numberHandler);
       instance.addHandler(String, stringHandler);
       instance.resolve(String);
@@ -125,7 +92,7 @@ describe('Injector', () => {
     });
 
     it('throws in no handler exists', () => {
-      instance.removeHandler(Number);
+      instance.clearHandlers();
       expect(() => instance.resolve(Number)).to.throw(
         'Can not inject value of type Number since no compatible injection handler exists for this type.'
       );
@@ -137,7 +104,7 @@ describe('Injector', () => {
     });
 
     it('passes param', () => {
-      instance.removeHandler(String);
+      instance.clearHandlers();
       instance.addHandler(String, {handleInjection: ({param}) => param ? param : ''});
 
       expect(instance.resolve(String, {param: 'bar'})).to.equal('bar');
@@ -146,7 +113,7 @@ describe('Injector', () => {
 
     it('does not cache', () => {
       let i = 0;
-      instance.removeHandler(Number);
+      instance.clearHandlers();
       instance.addHandler(Number, {handleInjection: () => i++});
 
       expect(instance.resolve(Number)).to.equal(0);

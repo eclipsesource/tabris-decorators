@@ -38,14 +38,6 @@ export default class Injector {
     this.handlers.set(targetType, {handler, used: false });
   }
 
-  public removeHandler(targetType: BaseConstructor<any>) {
-    let handlerEntry = this.handlers.get(targetType);
-    if (handlerEntry && handlerEntry.used) {
-      throw new Error(`Can not remove InjectionHandler for type ${targetType.name} because it was already used.`);
-    }
-    this.handlers.delete(targetType);
-  }
-
   public clearHandlers() {
     for (let [type, entry] of this.handlers) {
       if (entry.used) {
