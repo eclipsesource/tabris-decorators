@@ -24,21 +24,7 @@ describe('Injector', () => {
     restoreSandbox();
   });
 
-  describe('add', () => {
-
-    it('stores handler', () => {
-      instance.addHandler(Number, numberHandler);
-
-      expect(instance.getHandler(Number)).to.equal(numberHandler);
-    });
-
-    it('allows to add again for different type', () => {
-      instance.addHandler(Number, numberHandler);
-      instance.addHandler(String, stringHandler);
-
-      expect(instance.getHandler(Number)).to.equal(numberHandler);
-      expect(instance.getHandler(String)).to.equal(stringHandler);
-    });
+  describe('addHandler', () => {
 
     it('does not allow to add again for same type', () => {
       instance.addHandler(Number, numberHandler);
@@ -54,22 +40,6 @@ describe('Injector', () => {
       instance.reset();
 
       instance.addHandler(Number, numberHandler2);
-
-      expect(instance.getHandler(Number)).to.equal(numberHandler2);
-    });
-
-  });
-
-  describe('clear', () => {
-
-    it('removes all handlers', () => {
-      instance.addHandler(Number, numberHandler);
-      instance.addHandler(String, stringHandler);
-
-      instance.reset();
-
-      expect(instance.getHandler(Number)).to.be.null;
-      expect(instance.getHandler(String)).to.be.null;
     });
 
   });

@@ -19,11 +19,7 @@ export default class Injector {
 
   private handlers: HandlersMap = new Map<Constructor<any>, InjectionHandler<any>>();
 
-  public getHandler<T>(targetType: BaseConstructor<T>): InjectionHandler<T> | null {
-    return this.handlers.get(targetType) || null;
-  }
-
-  public addInjectable(type: Constructor<any>, config: InjectableConfig) {
+  public addInjectable(type: Constructor<any>, config: InjectableConfig = {}) {
     this.addHandler(type, new DefaultInjectionHandler(type, config));
   }
 
