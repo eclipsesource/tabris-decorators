@@ -9,7 +9,7 @@ export interface Injection {
   index?: number;
 }
 
-export type InjectionHandlerFunction<T> = (injection: Injection) => T;
+export type InjectionHandlerFunction<T> = (injection: Injection) => T | null | undefined;
 
 export interface InjectionHandlerObject<T> {
   handleInjection: InjectionHandlerFunction<T>;
@@ -17,11 +17,11 @@ export interface InjectionHandlerObject<T> {
 
 export type InjectionHandler<T> = InjectionHandlerFunction<T> | InjectionHandlerObject<T>;
 
-type HandlersMap = Map<BaseConstructor<any>, InjectionHandlerObject<any>>;
+type HandlersMap = Map<BaseConstructor<any>, Array<InjectionHandlerObject<any>>>;
 
 export default class Injector {
 
-  private handlers: HandlersMap = new Map<Constructor<any>, InjectionHandlerObject<any>>();
+  private handlers: HandlersMap = new Map();
 
   public addInjectable(type: Constructor<any>, config: InjectableConfig = {}) {
     this.addHandler(type, new DefaultInjectionHandler(type, config));
@@ -29,14 +29,13 @@ export default class Injector {
 
   // TODO check targetType
   public addHandler<T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandler<U>): void {
-    if (this.handlers.has(targetType)) {
-      throw new Error(`Injector already has a handler for ${targetType.name}`);
+    let targetTypeHandlers = this.handlers.get(targetType);
+    if (!targetTypeHandlers) {
+      this.handlers.set(targetType, targetTypeHandlers = []);
     }
-    if (handler instanceof Function) {
-      this.handlers.set(targetType, {handleInjection: handler});
-    } else {
-      this.handlers.set(targetType, handler);
-    }
+    let handlerObject: InjectionHandlerObject<T>
+      = handler instanceof Function ? {handleInjection: handler} : handler;
+    targetTypeHandlers.unshift(handlerObject);
   }
 
   public reset() {
@@ -44,14 +43,22 @@ export default class Injector {
   }
 
   public resolve = <T>(type: Constructor<T>, injection?: Injection) => {
-    let handler = this.findCompatibleHandler(type);
-    if (!handler) {
+    let handlers = this.findCompatibleHandlers(type);
+    if (!handlers.length) {
       throw new Error(
         `Can not inject value of type ${type.name} since no compatible injection handler exists for this type.`
       );
     }
     let unbox = getUnboxer(type);
-    return unbox(handler.handleInjection(injection || {}));
+    for (let handler of handlers) {
+      let result = unbox(handler.handleInjection(injection || {}));
+      if (result !== null && result !== undefined) {
+        return result;
+      }
+    }
+    throw new Error(
+      `Can not inject value of type ${type.name} since no compatible injection handler returned a value.`
+    );
   }
 
   public create = <T, U, V, W>(
@@ -71,7 +78,7 @@ export default class Injector {
     return new type(...finalArgs);
   }
 
-  private findCompatibleHandler<T>(type: Constructor<T>): InjectionHandlerObject<T> | undefined {
+  private findCompatibleHandlers<T>(type: Constructor<T>): Array<InjectionHandlerObject<T>> {
     let result = this.handlers.get(type);
     if (!result) {
       for (let [registeredType, entry] of this.handlers) {
@@ -80,6 +87,7 @@ export default class Injector {
           break;
         }
       }
+      return [];
     }
     return result;
   }
@@ -123,5 +131,5 @@ function passValue(value: any) {
 }
 
 function unboxValue(box: any) {
-  return box.valueOf();
+  return box !== null && box !== undefined ? box.valueOf() : box;
 }

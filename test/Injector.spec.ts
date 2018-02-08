@@ -26,23 +26,6 @@ describe('Injector', () => {
 
   describe('addHandler', () => {
 
-    it('does not allow to add again for same type', () => {
-      instance.addHandler(Number, numberHandler);
-
-      expect(() => instance.addHandler(Number, numberHandler)).to.throw(
-        'Injector already has a handler for Number'
-      );
-    });
-
-    it('does allow to add again after removing previous handler', () => {
-      let numberHandler2 = {handleInjection: () => 24};
-      instance.addHandler(Number, numberHandler);
-      instance.reset();
-
-      instance.addHandler(Number, numberHandler2);
-      expect(instance.resolve(Number)).to.equal(24);
-    });
-
     it('allows to add as function', () => {
       instance.addHandler(Number, () => 24);
       expect(instance.resolve(Number)).to.equal(24);
@@ -75,6 +58,16 @@ describe('Injector', () => {
 
       expect(instance.resolve(String, {param: 'bar'})).to.equal('bar');
       expect(instance.resolve(String)).to.equal('');
+    });
+
+    it('last added handler returning a non-null, non-undefined value wins', () => {
+      let numberHandler2 = {handleInjection: () => 24};
+      instance.addHandler(Number, numberHandler);
+      instance.addHandler(Number, numberHandler2);
+      instance.addHandler(Number, {handleInjection: () => null});
+      instance.addHandler(Number, {handleInjection: () => undefined});
+
+      expect(instance.resolve(Number)).to.equal(24);
     });
 
     it('does not cache', () => {
