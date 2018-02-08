@@ -9,15 +9,19 @@ export interface Injection {
   index?: number;
 }
 
-export interface InjectionHandler<T> {
-  handleInjection(injection: Injection): T;
+export type InjectionHandlerFunction<T> = (injection: Injection) => T;
+
+export interface InjectionHandlerObject<T> {
+  handleInjection: InjectionHandlerFunction<T>;
 }
 
-type HandlersMap = Map<BaseConstructor<any>, InjectionHandler<any>>;
+export type InjectionHandler<T> = InjectionHandlerFunction<T> | InjectionHandlerObject<T>;
+
+type HandlersMap = Map<BaseConstructor<any>, InjectionHandlerObject<any>>;
 
 export default class Injector {
 
-  private handlers: HandlersMap = new Map<Constructor<any>, InjectionHandler<any>>();
+  private handlers: HandlersMap = new Map<Constructor<any>, InjectionHandlerObject<any>>();
 
   public addInjectable(type: Constructor<any>, config: InjectableConfig = {}) {
     this.addHandler(type, new DefaultInjectionHandler(type, config));
@@ -28,7 +32,11 @@ export default class Injector {
     if (this.handlers.has(targetType)) {
       throw new Error(`Injector already has a handler for ${targetType.name}`);
     }
-    this.handlers.set(targetType, handler);
+    if (handler instanceof Function) {
+      this.handlers.set(targetType, {handleInjection: handler});
+    } else {
+      this.handlers.set(targetType, handler);
+    }
   }
 
   public reset() {
@@ -63,7 +71,7 @@ export default class Injector {
     return new type(...finalArgs);
   }
 
-  private findCompatibleHandler<T>(type: Constructor<T>): InjectionHandler<T> | undefined {
+  private findCompatibleHandler<T>(type: Constructor<T>): InjectionHandlerObject<T> | undefined {
     let result = this.handlers.get(type);
     if (!result) {
       for (let [registeredType, entry] of this.handlers) {

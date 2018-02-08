@@ -40,6 +40,12 @@ describe('Injector', () => {
       instance.reset();
 
       instance.addHandler(Number, numberHandler2);
+      expect(instance.resolve(Number)).to.equal(24);
+    });
+
+    it('allows to add as function', () => {
+      instance.addHandler(Number, () => 24);
+      expect(instance.resolve(Number)).to.equal(24);
     });
 
   });
