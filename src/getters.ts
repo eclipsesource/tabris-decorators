@@ -11,6 +11,7 @@ import {
   WidgetResolver,
   Constructor
 } from './utils';
+import { Widget } from 'tabris';
 
 export function getById(targetProto: Composite, property: string): void;
 export function getById(...args: any[]): void {
@@ -46,8 +47,8 @@ function defineWidgetGetter(name: string, args: any[], resolver: WidgetResolver)
   });
 }
 
-function getByIdImpl(widgetInstance: WidgetInterface, property: string): WidgetInterface {
-  let results = widgetInstance.find('#' + property);
+function getByIdImpl(widgetInstance: WidgetInterface, property: string): Widget {
+  let results = widgetInstance._find('#' + property);
   if (results.length === 0) {
     throw new Error(`No widget with id "${property}" appended.`);
   }
@@ -61,7 +62,7 @@ function getByIdImpl(widgetInstance: WidgetInterface, property: string): WidgetI
 }
 
 function getByTypeImpl(widgetInstance: WidgetInterface, property: string): WidgetInterface {
-  let results = widgetInstance.find(getPropertyType(widgetInstance, property));
+  let results = widgetInstance._find(getPropertyType(widgetInstance, property));
   if (results.length === 0) {
     throw new Error('No widget of expected type appended.');
   }

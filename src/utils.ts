@@ -1,17 +1,22 @@
 import {Widget} from 'tabris';
 import {instance as typeGuards} from './TypeGuards';
+import { WidgetCollection } from 'tabris';
 
 export interface ParamInfo {type: Constructor<any>; injectParam?: string; }
 export interface Constructor<T> {new(...args: any[]): T; }
+export interface WidgetProtected {
+  _find(selector?: Selector): WidgetCollection<Widget>;
+  _find<U extends Widget>(constructor: { new (...args: any[]): U }): WidgetCollection<U>;
+}
 // tslint:disable-next-line:ban-types
 export type BaseConstructor<T> = Function & { prototype: T };
 export type WidgetConstructor = Constructor<Widget>;
 export type DecoratorFactory = (target: any, property: string, index?: number) => void;
 export type ParameterDecoratorFactory = (target: Constructor<any>, property: string, index: number) => void;
 export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
-export type WidgetInterface = {[prop: string]: any} & Widget;
 export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
 export type WidgetResolver = (widget: WidgetInterface, param: string, type: WidgetConstructor) => any;
+export type WidgetInterface = {[prop: string]: any} & Widget & WidgetProtected;
 
 /**
  * Takes a callback a decorator factory and when possible calls it with the appropriate arguments,

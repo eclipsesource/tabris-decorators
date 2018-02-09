@@ -39,7 +39,7 @@ function defineWidgetFinder(name: string, args: any[], widgetTypeParser: TypePar
     const selector = getSelector(args);
     const type = widgetTypeParser(widgetProto, property, args);
     defineGetter(widgetProto, property, function(this: Widget) {
-      return finder(this, selector, type);
+      return finder(this as WidgetInterface, selector, type);
     });
   });
 }
@@ -67,13 +67,13 @@ function getReturnTypeCollection(widgetProto: WidgetInterface, property: string,
 }
 
 function findFirstImpl(widget: WidgetInterface, selector: string, type: WidgetConstructor) {
-    return widget.find(selector).first(type) || null;
+    return widget._find(selector).first(type) || null;
 }
 
 function findLastImpl(widget: WidgetInterface, selector: string, type: WidgetConstructor) {
-  return widget.find(selector).last(type) || null;
+  return widget._find(selector).last(type) || null;
 }
 
 function findAllImpl(widget: WidgetInterface, selector: string, type: WidgetConstructor) {
-  return widget.find(selector).filter(type) || null;
+  return widget._find(selector).filter(type) || null;
 }

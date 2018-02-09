@@ -12,7 +12,7 @@ TODOC
 
 Makes the decorated widget property a "real" Tabris.js property, meaning it can be set via constructor or `set` method, and it fires change events.
 
-## widget finders
+## Child selection
 
 These decorators are meant to be attached to properties of custom UI components and will make them return specific descendants of that widget. For example:
 
@@ -33,7 +33,7 @@ class CustomComponent extends Composite {
 
 }
 ```
-> :exclamation: The finder  decorators that do not take a widget type as the first argument will infer the type from the property type. If the property type can not be inferred, the  decorator will throw an error when parsing the class. This may be the case for for a type like "`Composite | null`", which you may want to use  if the TypeScript [compiler option "strictNullChecks"](https://www.typescriptlang.org/docs/handbook/basic-types.html#null-and-undefined) (or "strict") is enabled. In this case you should use the decorators that do take the widget type as an argument.
+> :exclamation: The finder decorators that do not take a widget type as the first argument will infer the type from the property type. If the property type can not be inferred, the  decorator will throw an error when parsing the class. This may be the case for for a type like "`Composite | null`", which you may want to use  if the TypeScript [compiler option "strictNullChecks"](https://www.typescriptlang.org/docs/handbook/basic-types.html#null-and-undefined) (or "strict") is enabled. In this case you should use the decorators that do take the widget type as an argument.
 
 ### @findFirst
 
@@ -118,6 +118,10 @@ get someChildren(): any {
 }
 ```
 
+### @isolated
+
+A widget class decorated with `@isolated` will be not allow its own children to be selected by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using the finder/getter decorators above.
+
 ## widget getters
 
 ### @getById
@@ -145,9 +149,9 @@ Binds the decorated property of a widget to the property of a child. As with `@g
 
 Like `@bind`, but creates a one-way binding, meaning changes to the source/child widget property are reflected on the decorated property, but setting the decorated property has no effect. This should be used on `readOnly` properties.
 
-## Injectors
+## Dependency Injection
 
-`inject` and other related decorators allow for simple dependency injection. The type of the injection has to be a class, interfaces are not supported. However, abstract classes work, and classes can be used like interfaces in TypeScript, so most cases should be covered.
+`@inject` together with `@injectable` and others allow for simple dependency injection. The type of the injection has to be a class, interfaces are not supported. However, abstract classes work, and classes can be used like interfaces in TypeScript, so most cases should be covered.
 
 ### @inject
 

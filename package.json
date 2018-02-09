@@ -11,7 +11,7 @@
     "safePublish": "npm test && npm run build && npm publish"
   },
   "peerDependencies": {
-    "tabris": "^2.2.0"
+    "tabris": "^2.3.0"
   },
   "devDependencies": {
     "@types/chai": "^3.5.0",
