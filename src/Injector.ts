@@ -17,7 +17,7 @@ export interface InjectionHandlerObject<T> {
 
 export type InjectionHandler<T> = InjectionHandlerFunction<T> | InjectionHandlerObject<T>;
 
-type HandlersMap = Map<BaseConstructor<any>, Array<InjectionHandlerObject<any>>>;
+type HandlersMap = Map<object, Array<InjectionHandlerObject<any>>>;
 
 export default class Injector {
 
@@ -29,9 +29,9 @@ export default class Injector {
 
   // TODO check targetType
   public addHandler<T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandler<U>): void {
-    let targetTypeHandlers = this.handlers.get(targetType);
+    let targetTypeHandlers = this.handlers.get(targetType.prototype);
     if (!targetTypeHandlers) {
-      this.handlers.set(targetType, targetTypeHandlers = []);
+      this.handlers.set(targetType.prototype, targetTypeHandlers = []);
     }
     let handlerObject: InjectionHandlerObject<T>
       = handler instanceof Function ? {handleInjection: handler} : handler;
@@ -79,10 +79,10 @@ export default class Injector {
   }
 
   private findCompatibleHandlers<T>(type: Constructor<T>): Array<InjectionHandlerObject<T>> {
-    let result = this.handlers.get(type);
+    let result = this.handlers.get(type.prototype);
     if (!result) {
       for (let [registeredType, entry] of this.handlers) {
-        if (registeredType.prototype instanceof type) {
+        if (registeredType instanceof type) {
           result = entry;
           break;
         }

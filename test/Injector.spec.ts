@@ -109,6 +109,15 @@ describe('Injector', () => {
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
     });
 
+    it('supports identical prototype pattern', () => {
+      function MyClass2() { /* no explicit API */ }
+      MyClass2.prototype = MyClass.prototype;
+      type MyClass2 = MyClass;
+      instance.addHandler(MyClass2, {handleInjection: () => new MyClass2()});
+
+      expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
+    });
+
   });
 
 });
