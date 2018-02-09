@@ -29,13 +29,15 @@ export default class Injector {
 
   // TODO check targetType
   public addHandler<T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandler<U>): void {
-    let targetTypeHandlers = this.handlers.get(targetType.prototype);
-    if (!targetTypeHandlers) {
-      this.handlers.set(targetType.prototype, targetTypeHandlers = []);
-    }
-    let handlerObject: InjectionHandlerObject<T>
-      = handler instanceof Function ? {handleInjection: handler} : handler;
-    targetTypeHandlers.unshift(handlerObject);
+    forEachPrototype(targetType, (prototype: object) => {
+      let targetTypeHandlers = this.handlers.get(prototype);
+      if (!targetTypeHandlers) {
+        this.handlers.set(prototype, targetTypeHandlers = []);
+      }
+      let handlerObject: InjectionHandlerObject<T>
+        = handler instanceof Function ? {handleInjection: handler} : handler;
+      targetTypeHandlers.unshift(handlerObject);
+    });
   }
 
   public reset() {
@@ -79,17 +81,7 @@ export default class Injector {
   }
 
   private findCompatibleHandlers<T>(type: Constructor<T>): Array<InjectionHandlerObject<T>> {
-    let result = this.handlers.get(type.prototype);
-    if (!result) {
-      for (let [registeredType, entry] of this.handlers) {
-        if (registeredType instanceof type) {
-          result = entry;
-          break;
-        }
-      }
-      return [];
-    }
-    return result;
+    return this.handlers.get(type.prototype) || [];
   }
 
 }
@@ -132,4 +124,12 @@ function passValue(value: any) {
 
 function unboxValue(box: any) {
   return box !== null && box !== undefined ? box.valueOf() : box;
+}
+
+function forEachPrototype(type: BaseConstructor<any>, cb: (prototype: object) => void) {
+  let currentProto = type.prototype;
+  while (currentProto !== Object.prototype) {
+    cb(currentProto);
+    currentProto = Object.getPrototypeOf(currentProto);
+  }
 }

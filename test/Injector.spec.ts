@@ -118,6 +118,43 @@ describe('Injector', () => {
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
     });
 
+    it('supports implicit subclasses pattern', () => {
+      class MyClass2 extends MyClass {
+        constructor(readonly bar: string) {
+          super('foo');
+        }
+      }
+      instance.addHandler(MyClass2, {handleInjection: () => new MyClass2('bar')});
+
+      expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
+    });
+
+    it('supports multiple implicit subclasses pattern', () => {
+      class MyClass2 extends MyClass {
+        constructor() { super('foo'); }
+      }
+      class MyClass3 extends MyClass {
+        constructor() { super('bar'); }
+      }
+      instance.addHandler(MyClass2, {handleInjection: () => new MyClass2()});
+      instance.addHandler(MyClass3, {handleInjection: () => new MyClass3()});
+
+      expect(instance.resolve(MyClass)).to.be.instanceof(MyClass3);
+    });
+
+    it('supports mixed implicit/explicit subclasses pattern', () => {
+      class MyClass2 extends MyClass {
+        constructor() { super('foo'); }
+      }
+      class MyClass3 extends MyClass {
+        constructor() { super('bar'); }
+      }
+      instance.addHandler(MyClass, {handleInjection: () => new MyClass2()});
+      instance.addHandler(MyClass3, {handleInjection: () => new MyClass3()});
+
+      expect(instance.resolve(MyClass)).to.be.instanceof(MyClass3);
+    });
+
   });
 
 });
