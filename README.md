@@ -167,6 +167,10 @@ Makes the decorated widget class the base reference for JSX-based databinding. T
 
 This makes changes to `myText` be applied to the `text` property of the `textView` element. The source must be a proper Tabris.js style property (not simply a field) that fires change events. This can be achieved by simply adding a `@property` decorator. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the target property implementation is also using a decorator (e.g. `@property`), type checks are performed before applying the new value.
 
+### @component
+
+Combines `@isolated` and `@bindingBase`.
+
 ## Dependency Injection
 
 `@inject` together with `@injectable` and others allow for simple dependency injection. The type of the injection has to be a class, interfaces are not supported. However, abstract classes work, and classes can be used like interfaces in TypeScript, so most cases should be covered.

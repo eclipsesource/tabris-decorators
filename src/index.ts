@@ -5,6 +5,7 @@ export {default as property} from './property';
 export {default as isolated} from './isolated';
 export {default as bind} from './bind';
 export {default as bindingBase} from './bindingBase';
+export {default as component} from './component';
 export {default as Image} from './Image';
 export {instance as injector, InjectionHandler} from './Injector';
 export * from './finders';

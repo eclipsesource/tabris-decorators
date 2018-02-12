@@ -20,8 +20,10 @@ export default function bindingBase(...args: any[]): void | ClassDecoratorFactor
 }
 
 function processBindings(base: Widget, target: Widget, bindings: OneWayBinding[]) {
-  for (let binding of bindings) {
-    initOneWayBinding(base, binding);
+  if (bindings) {
+    for (let binding of bindings) {
+      initOneWayBinding(base, binding);
+    }
   }
 }
 

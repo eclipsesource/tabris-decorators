@@ -5,6 +5,7 @@ import { Composite, TextInput, TextView, ImageView } from 'tabris';
 import { bind, Image, property, bindingBase } from '../src';
 import * as tabrisMock from './tabris-mock';
 import { restoreSandbox, expect, stub } from './test';
+import component from '../src/component';
 
 describe('bindingBase', () => {
 
@@ -52,6 +53,18 @@ describe('bindingBase', () => {
     it('applies changes of source property value', () => {
       widget.append(textInput = <textInput bind-text='myText'/>);
 
+      widget.myText = 'bar';
+
+      expect(textInput.text).to.equal('bar');
+    });
+
+    it('also enabled by @component', () => {
+      @component
+      class MyComponent extends Composite {
+        @property public myText: string = 'foo';
+      }
+      widget = new MyComponent();
+      widget.append(textInput = <textInput bind-text='myText'/>);
       widget.myText = 'bar';
 
       expect(textInput.text).to.equal('bar');

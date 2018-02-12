@@ -1,10 +1,10 @@
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import {Composite, Button, WidgetCollection, Widget} from 'tabris';
-import {findFirst, findLast, findAll, getById, getByType, isolated} from '../src';
+import { Composite, Button, WidgetCollection, Widget } from 'tabris';
+import { findFirst, findLast, findAll, getById, getByType, isolated, component } from '../src';
 import * as tabrisMock from './tabris-mock';
-import {restoreSandbox, expect} from './test';
+import { restoreSandbox, expect } from './test';
 
 @isolated
 class CustomComponent extends Composite {
@@ -77,6 +77,18 @@ describe('isolated', () => {
     expect(widget.find().length).to.equal(0);
     expect(parent.find().length).to.equal(1);
     expect(parent.find()[0]).to.equal(widget);
+  });
+
+  it('is aliased by @component', () => {
+    @component
+    class MyComponent extends Composite {
+      constructor() {
+        super();
+        this.append(new Composite());
+      }
+    }
+    let myWidget = new MyComponent();
+    expect(myWidget.children().length).to.equal(0);
   });
 
   it('prevents direct apply call to work', () => {
