@@ -1,14 +1,15 @@
 {
   "name": "tabris-decorators",
-  "version": "0.1.0-test12",
+  "version": "0.1.0-test14",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
+    "clean": "rm -rf ./dist",
     "build": "tsc -p ./tsconfig-pack.json",
     "test": "npm run lint && ts-mocha -p . ./test/*.spec.ts ./test/*.spec.tsx",
     "test:file": "ts-mocha -p .",
     "lint": "tslint --project . 'src/**/*.ts' 'test/**/*.ts'",
-    "safePublish": "npm test && npm run build && npm publish"
+    "safePublish": "npm test && npm run clean && npm run build && npm publish"
   },
   "peerDependencies": {
     "tabris": "^2.3.0"
