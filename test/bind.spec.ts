@@ -68,8 +68,8 @@ describe('bind', () => {
       }
     }).to.throw(
         'Could not apply decorator "bind" to "value": '
-      + 'Property type could not be inferred. '
-      + 'Only classes and primitive types can be bound to TypeScript properties.'
+      + 'Type of "value" could not be inferred. '
+      + 'Only classes and primitive types are supported.'
     );
   });
 
@@ -77,7 +77,7 @@ describe('bind', () => {
     const badPaths: {[path: string]: string} = {
       'foo.bar': 'Binding path needs to start with "#".',
       '#foo.bar.baz': 'Binding path has too many segments.',
-      '#foo': 'Binding path needs at least two segements.',
+      '#foo': 'Binding path needs at least two segments.',
       '#fo o.bar': 'Binding path contains invalid characters.',
       '#foo.bar[]': 'Binding path contains invalid characters.',
       '#foo.bar<>': 'Binding path contains invalid characters.',
@@ -101,13 +101,13 @@ describe('bind', () => {
 
   it('throws if a binding source can not be resolved after first append', () => {
     expect(() => widget.append(new TextInput({id: 'textInput2'}))).to.throw(
-      'Could not bind property "myText" to "#textInput1.text": No widget with id "textInput1" appended.'
+      'Could not bind property "myText" to "#textInput1.text": No widget matching "#textInput1" was appended.'
     );
   });
 
   it('throws if binding to misssing property', () => {
     expect(() => widget.append(new Composite({id: 'textInput1'}))).to.throw(
-      'Could not bind property "myText" to "#textInput1.text": Source does not have a property "text".'
+      'Could not bind property "myText" to "#textInput1.text": Target does not have a property "text".'
     );
   });
 
@@ -122,7 +122,7 @@ describe('bind', () => {
 
   it('throws if binding finds multiple sources', () => {
     expect(() => widget.append(new TextInput({id: 'textInput1'}), new TextInput({id: 'textInput1'}))).to.throw(
-      'Could not bind property "myText" to "#textInput1.text": Multiple widgets with id "textInput1" appended.'
+      'Could not bind property "myText" to "#textInput1.text": Multiple widgets matching "#textInput1" were appended.'
     );
   });
 

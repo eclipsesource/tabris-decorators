@@ -118,8 +118,8 @@ export function getParameterType(fn: any, index: number): Constructor<any> {
  * Throws if the given value is not of the given type. Primitives are represented by their boxed type.
  * As with the TypeScript type system, all values are treated as compatible to "Object" even primitives.
  */
-export function checkType<T>(value: T, type: Constructor<any>): T {
-  if (type === Object) {
+export function checkType<T>(value: T, type: BaseConstructor<any>): T {
+  if (type === Object || !type) {
     return value;
   }
   if (value === null || value === undefined || value instanceof type || (typeof value === getTypeName(type))) {
@@ -145,7 +145,7 @@ export function postAppendHandlers(widget: WidgetInterface) {
 }
 
 /**
- * Gets map for the purpose of string property values of the given instance.
+ * Gets map for the purpose of storing property values of the given instance.
  */
 export function getPropertyStore(instance: any): Map<string | symbol, any> {
   if (!instance[propertyStoreKey]) {
@@ -184,7 +184,7 @@ function getValueTypeName(value: any) {
 /**
  * Returns either the "typeof" name of a boxed primitive type, or the constructor name for any other class
  */
-function getTypeName(type: Constructor<any>) {
+function getTypeName(type: BaseConstructor<any>) {
   let name = type.name;
   if (isPrimitiveType(type)) {
     return name.toLowerCase();
@@ -195,7 +195,7 @@ function getTypeName(type: Constructor<any>) {
 /**
  * Return true if `type` is `Number`, `Boolean` or `String`.
  */
-function isPrimitiveType(type: Constructor<any>) {
+function isPrimitiveType(type: BaseConstructor<any>) {
   return type === Boolean || type === Number || type === String;
 }
 

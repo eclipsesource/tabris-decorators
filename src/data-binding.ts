@@ -1,116 +1,139 @@
 import 'reflect-metadata';
+import { Widget } from 'tabris';
 import {
   WidgetInterface,
-  postAppendHandlers,
   getPropertyType,
   wasAppended,
   checkType,
-  getPropertyStore,
-  ChangeEvent,
-  Constructor
+  Constructor,
+  BaseConstructor
 } from './utils';
 
-export function createBinding(
-  targetProto: WidgetInterface,
-  targetProperty: string,
-  bindingPath: string,
-  readOnly: boolean = false
-) {
-  const [sourceId, sourceProperty] = parsePath(bindingPath);
-  const targetPropertySource = Symbol(targetProperty + 'Source');
-  const targetType = getPropertyType(targetProto, targetProperty);
-  if (targetType === Object) {
-    throw new Error(
-        'Property type could not be inferred. '
-      + 'Only classes and primitive types can be bound to TypeScript properties.'
-    );
-  }
-  Object.defineProperty(targetProto, targetProperty, {
-    get(this: WidgetInterface) {
-      accessCheck(this, targetProperty, bindingPath);
-      let value = getPropertyStore(this).get(targetPropertySource)[sourceProperty];
-      bindingTypeCheck(bindingPath, value, targetType);
-      return value;
-    },
-    set(this: WidgetInterface, value: any) {
-      if (readOnly) {
-        return;
-      }
-      accessCheck(this, targetProperty, bindingPath);
-      bindingTypeCheck(bindingPath, value, targetType);
-      getPropertyStore(this).get(targetPropertySource)[sourceProperty] = value;
-    },
-    enumerable: true,
-    configurable: true
-  });
-  postAppendHandlers(targetProto).push((targetInstance) => {
+export interface JsxBindings { [targetProperty: string]: string; }
+
+export interface OneWayBinding {
+  path: string;
+  target: Widget;
+  targetProperty: string;
+  targetPropertyType: BaseConstructor<any>;
+  sourceProperty: string;
+  sourceChangeEvent: string;
+}
+
+export interface TwoWayBinding {
+  path: string;
+  baseProperty: string;
+  selector: string;
+  targetProperty: string;
+  targetKey: symbol;
+  targetChangeEvent: string;
+  baseChangeEvent: string;
+}
+
+export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings) {
+  let oneWayBindings: OneWayBinding[] = [];
+  for (let targetProperty in bindings) {
     try {
-      const sourceChangeEvent = sourceProperty + 'Changed';
-      const targetChangeEvent = targetProperty + 'Changed';
-      let sourceInstance = getSourceWidget(targetInstance, sourceId);
-      checkPropertyExists(sourceInstance, sourceProperty);
-      checkType(sourceInstance[sourceProperty], targetType);
-      getPropertyStore(targetInstance).set(targetPropertySource, sourceInstance);
-      sourceInstance.on(sourceChangeEvent, ({value}) => {
-        bindingTypeCheck(bindingPath, value, targetType);
-        targetInstance.trigger(targetChangeEvent, new ChangeEvent(targetInstance, targetChangeEvent, value));
-      });
-      targetInstance.trigger(
-        targetChangeEvent, new ChangeEvent(targetInstance, targetChangeEvent, sourceInstance[sourceProperty])
+      oneWayBindings.push(
+        createOneWayBindingDesc(targetInstance, targetProperty, bindings[targetProperty])
       );
     } catch (ex) {
-      throw new Error(`Could not bind property "${targetProperty}" to "${bindingPath}": ${ex.message}`);
+      throw new Error(`Could not bind property "${targetProperty}" to "${bindings[targetProperty]}": ${ex.message}`);
     }
-  });
+  }
+  targetInstance[oneWayBindingsKey] = oneWayBindings;
 }
 
-function checkPropertyExists(sourceWidget: any, sourceProperty: string) {
-  if (!(sourceProperty in sourceWidget)) {
-    throw new Error(`Source does not have a property "${sourceProperty}".`);
+export function getOneWayBindings(instance: Widget): OneWayBinding[] {
+  return instance[oneWayBindingsKey];
+}
+
+export function checkAccess(base: WidgetInterface, binding: TwoWayBinding) {
+  if (!wasAppended(base)) {
+    throw new Error(`Can not access property "${binding.baseProperty}": `
+    + `Binding "${binding.path}" is not ready because no widgets have been appended yet.`);
   }
 }
 
-function accessCheck(targetInstance: WidgetInterface, targetProperty: string, bindingPath: string) {
-  if (!wasAppended(targetInstance)) {
-    throw new Error(`Can not access property "${targetProperty}": `
-    + `Binding "${bindingPath}" is not ready because no widgets have been appended yet.`);
-  }
-}
-
-function bindingTypeCheck(bindingDesc: string, value: any, targetType: Constructor<any>) {
+export function checkBindingType(bindingPath: string, value: any, targetType: BaseConstructor<any>) {
   try {
     checkType(value, targetType);
   } catch (ex) {
-    throw new Error(`Binding "${bindingDesc}" failed: ${ex.message}`);
+    throw new Error(`Binding "${bindingPath}" failed: ${ex.message}`);
   }
 }
 
-function getSourceWidget(targetInstance: WidgetInterface, sourceId: string) {
-  let results = targetInstance.find('#' + sourceId);
+export function getChild(base: WidgetInterface, selector: string) {
+  let results = base.find(selector);
   if (results.length === 0) {
-    throw new Error(`No widget with id "${sourceId}" appended.`);
+    throw new Error(`No widget matching "${selector}" was appended.`);
   } else if (results.length > 1) {
-    throw new Error(`Multiple widgets with id "${sourceId}" appended.`);
+    throw new Error(`Multiple widgets matching "${selector}" were appended.`);
   }
   return results.first() as WidgetInterface;
 }
 
-function parsePath(path: string) {
-  if (/\s|\[|\]|\(|\)|\<|\>/.test(path)) {
-    throw new Error('Binding path contains invalid characters.');
-  }
+export function createTwoWayBindingDesc(path: string, baseProperty: string): TwoWayBinding {
+  checkPathSyntax(path);
   if (!path.startsWith('#')) {
     throw new Error('Binding path needs to start with "#".');
   }
-  if (/this/.test(path)) {
-    throw new Error('Binding path contains reserved word "this".');
-  }
-  let result = path.slice(1).split('.');
-  if (result.length < 2) {
-    throw new Error('Binding path needs at least two segements.');
-  } else if (result.length > 2) {
+  let segments = path.split('.');
+  if (segments.length < 2) {
+    throw new Error('Binding path needs at least two segments.');
+  } else if (segments.length > 2) {
     throw new Error('Binding path has too many segments.');
   }
-  return result;
-
+  let [selector, targetProperty] = segments;
+  return {
+    path,
+    selector,
+    targetProperty,
+    baseProperty,
+    targetKey: Symbol(baseProperty + 'Target'),
+    targetChangeEvent: targetProperty + 'Changed',
+    baseChangeEvent: baseProperty + 'Changed'
+  };
 }
+
+function createOneWayBindingDesc(target: Widget, targetProperty: string, path: string): OneWayBinding {
+  checkPathSyntax(path);
+  if (path.startsWith('.') || path.startsWith('#')) {
+    throw new Error('JSX binding path can currently not contain a selector.');
+  }
+  if (path.split('.').length > 1) {
+    throw new Error('JSX binding path can currently only have one segment.');
+  }
+  let sourceProperty = path; // TODO: support other sources than base
+  let sourceChangeEvent = sourceProperty + 'Changed';
+  let targetPropertyType = getPropertyType(target, targetProperty);
+  checkPropertyExists(target, targetProperty);
+  checkBindableType(targetProperty, targetPropertyType);
+  return {
+    target, targetProperty, path, sourceProperty, sourceChangeEvent, targetPropertyType
+  };
+}
+
+export function checkBindableType(property: string, type: Constructor<any>) {
+  if (type === Object) {
+    throw new Error(`Type of "${property}" could not be inferred. `
+      + 'Only classes and primitive types are supported.');
+  }
+}
+
+export function checkPropertyExists(targetWidget: any, targetProperty: string, targetName: string = 'Target') {
+  if (!(targetProperty in targetWidget)) {
+    throw new Error(`${targetName} does not have a property "${targetProperty}".`);
+  }
+}
+
+function checkPathSyntax(targetPath: string) {
+  if (/\s|\[|\]|\(|\)|\<|\>/.test(targetPath)) {
+    throw new Error('Binding path contains invalid characters.');
+  }
+  if (/this/.test(targetPath)) {
+    throw new Error('Binding path contains reserved word "this".');
+  }
+}
+
+const oneWayBindingsKey = Symbol();

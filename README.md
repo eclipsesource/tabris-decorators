@@ -8,10 +8,6 @@ TODOC
 
 ## property modifiers
 
-### @property
-
-Makes the decorated widget property a "real" Tabris.js property, meaning it can be set via constructor or `set` method, and it fires change events.
-
 ## Child selection
 
 These decorators are meant to be attached to properties of custom UI components and will make them return specific descendants of that widget. For example:
@@ -139,15 +135,37 @@ Like `@getById`, but ignored the id and looks by return type only. Useful if the
 
 ## Data Binding
 
+### @property
+
+Makes the decorated widget property a "real" Tabris.js property, meaning it can be set via constructor or `set` method, and it fires change events. This is especially useful when the property is supposed to be the source of a one-way data binding.
+
 ### @bind("#\<id\>.\<property\>")
 
 Binds the decorated property of a widget to the property of a child. As with `@getById`, the binding is established after `append` is called the first time on the widget, there needs to be exactly one child with the given id, and it has to have a property of the same type.
 
-`@bind` creates a bi-directional binding, meaning changes to the source/child widget property are not just reflected on the decorated property, but also the other way around. Change events are fired for the decorated property if (and only if) the source/child widget fires change events.
+`@bind` creates a TWO-WAY binding, meaning changes to the source/child widget property are not just reflected on the decorated property, but also the other way around. Change events are fired for the decorated property if (and only if) the source/child widget fires change events. Only one `@bind` decorator can be applied to any given property. It also implies `@property`.
 
-### @bindTo("#\<id\>.\<property\>")
+### @bindingBase
 
-Like `@bind`, but creates a one-way binding, meaning changes to the source/child widget property are reflected on the decorated property, but setting the decorated property has no effect. This should be used on `readOnly` properties.
+Makes the decorated widget class the base reference for JSX-based databinding. Tabris.js already supports JSX (in `.tsx` files) to create widgets, `@bindingBase` only enables a new attribute prefix 'bind' that allows to create ONE-WAY bindings FROM the decorated widget TO the JSX element. Example:
+
+```js
+  @bindingBase
+  class CustomComponent extends Composite {
+
+    @property public myText: string = 'foo';
+
+    constructor(properties: CompositeProperties) {
+      super(properties);
+      this.append(
+        <textView bind-text='myText'/>
+      );
+    }
+
+  }
+```
+
+This makes changes to `myText` be applied to the `text` property of the `textView` element. The source must be a proper Tabris.js style property (not simply a field) that fires change events. This can be achieved by simply adding a `@property` decorator. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the target property implementation is also using a decorator (e.g. `@property`), type checks are performed before applying the new value.
 
 ## Dependency Injection
 
