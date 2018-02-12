@@ -1,7 +1,7 @@
-import { instance as injector, InjectionHandler, Injection } from './Injector';
+import { instance as injector, InjectionHandlerObject, Injection } from './Injector';
 import { Constructor } from './utils';
 
-export default class DefaultInjectionHandler<T> implements InjectionHandler<T> {
+export default class DefaultInjectionHandler<T> implements InjectionHandlerObject<T> {
 
   private instance: T;
 
