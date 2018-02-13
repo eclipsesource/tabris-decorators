@@ -70,6 +70,13 @@ describe('bindingBase', () => {
       expect(textInput.text).to.equal('bar');
     });
 
+    it('works with <widgetCollection>', () => {
+      widget.append(<widgetCollection><textInput bind-text='myText'/></widgetCollection>);
+      widget.myText = 'bar';
+
+      expect(widget.find().first(TextInput).text).to.equal('bar');
+    });
+
     it('ignores detaching the source', () => {
       widget.append(textInput = <textInput bind-text='myText'/>);
 

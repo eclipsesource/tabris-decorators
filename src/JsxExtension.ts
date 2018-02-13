@@ -14,20 +14,28 @@ interface Properties { [property: string]: any; }
     type: string|Constructor<any>, jsxProperties: Properties, ...children: tabris.Widget[]
   ) {
     let { properties, bindings } = extractBindings(jsxProperties);
-    let result = originalJSX.createElement(convertType(type), properties, ...children);
-    applyJsxBindings(result, bindings);
+    let result = originalJSX.createElement(convertType(type), properties as Object, ...children);
+    if (bindings) {
+      applyJsxBindings(result, bindings);
+    }
     return result;
   }
 
 };
 
 function extractBindings(attributes: Properties) {
-  let properties: Properties = {};
-  let bindings: JsxBindings = {};
+  let properties: Properties | void;
+  let bindings: JsxBindings | void;
   for (let attribute in attributes) {
     if (attribute.startsWith('bind-')) {
+      if (!bindings) {
+        bindings = {};
+      }
       bindings[attribute.slice(5)] = attributes[attribute];
     } else {
+      if (!properties) {
+        properties = {};
+      }
       properties[attribute] = attributes[attribute];
     }
   }
