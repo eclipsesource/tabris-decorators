@@ -7,7 +7,7 @@ export {default as bind} from './bind';
 export {default as bindingBase} from './bindingBase';
 export {default as component} from './component';
 export {default as Image} from './Image';
-export {instance as injector, InjectionHandler} from './Injector';
+export {instance as injector, InjectionHandler, injectionHandler} from './Injector';
 export * from './finders';
 export * from './getters';
 export * from './injectable';
