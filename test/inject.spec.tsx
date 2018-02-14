@@ -7,6 +7,7 @@ import {injector, inject, injectable, shared} from '../src';
 import * as tabrisMock from './tabris-mock';
 import { InjectionHandler, Injection, injectionHandler } from '../src/Injector';
 import { SinonSpy } from 'sinon';
+import { Constructor } from '../src/utils';
 
 const create = injector.create;
 
@@ -104,6 +105,38 @@ describe('inject', () => {
     let instance2 = create(ConstructorWithInjection);
 
     expect(instance2.number).to.equal(44);
+  });
+
+  it('fails for unsupported type', () => {
+    // tslint:disable-next-line:no-empty-interface
+    interface UndefinedService { }
+    const UndefinedService: Constructor<UndefinedService> = undefined as any;
+    expect(() => {
+      class HasMissingType {
+        constructor(
+          @inject service: UndefinedService
+        ) { /* should not go here */ }
+      }
+    }).to.throw(
+        'Could not apply decorator "inject" to parameter 0 of HasMissingType constructor: '
+      + 'Parameter type could not be inferred. Only classes and primitive types are supported.'
+    );
+  });
+
+  it('fails for undefined type', () => {
+    // tslint:disable-next-line:no-empty-interface
+    class UndefinedService {}
+    (UndefinedService as any) = null;
+    expect(() => {
+      class HasMissingType {
+        constructor(
+          @inject service: UndefinedService
+        ) { /* should not go here */ }
+      }
+    }).to.throw(
+        'Could not apply decorator "inject" to parameter 0 of HasMissingType constructor: '
+      + 'Parameter type is undefined: Do you have circular dependency issues?'
+    );
   });
 
   it('injects with injection parameter', () => {

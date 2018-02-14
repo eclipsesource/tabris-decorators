@@ -28,7 +28,8 @@ export function applyDecorator(name: string, args: any[], factory: DecoratorFact
     try {
       factory(widgetProto, property, index);
     } catch (error) {
-      throw new Error(`Could not apply decorator "${name}" to "${property}": ${error.message}`);
+      let target = property ? `"${property}"` : `parameter ${index} of ${widgetProto.name} constructor`;
+      throw new Error(`Could not apply decorator "${name}" to ${target}: ${error.message}`);
     }
   };
   if (areStaticDecoratorArgs(args)) {
@@ -110,6 +111,9 @@ export function getParameterType(fn: any, index: number): Constructor<any> {
   let result = Reflect.getMetadata('design:paramtypes', fn)[index];
   if (result === Object) {
     throw new Error('Parameter type could not be inferred. Only classes and primitive types are supported.');
+  }
+  if (!result) {
+    throw new Error('Parameter type is undefined: Do you have circular dependency issues?');
   }
   return result;
 }

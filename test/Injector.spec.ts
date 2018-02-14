@@ -43,7 +43,7 @@ describe('Injector', () => {
     it('throws in no handler exists', () => {
       instance.reset();
       expect(() => instance.resolve(Number)).to.throw(
-        'Can not inject value of type Number since no compatible injection handler exists for this type.'
+        'Could not inject value of type Number since no compatible injection handler exists for this type.'
       );
     });
 
@@ -78,6 +78,12 @@ describe('Injector', () => {
       expect(instance.resolve(Number)).to.equal(0);
       expect(instance.resolve(Number)).to.equal(1);
       expect(instance.resolve(Number)).to.equal(2);
+    });
+
+    it('throws for undefined type', () => {
+      expect(() => instance.resolve(null as any)).to.throw(
+        `Could not inject value since type is null. Do you have circular module dependencies?`
+      );
     });
 
     it('supports singleton pattern', () => {
