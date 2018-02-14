@@ -3,6 +3,7 @@ import 'mocha';
 import 'sinon';
 import Injector, { InjectionHandler } from '../src/Injector';
 import {restoreSandbox, expect} from './test';
+import inject from '../src/inject';
 
 class MyClass {
 
@@ -29,6 +30,34 @@ describe('Injector', () => {
     it('allows to add as function', () => {
       instance.addHandler(Number, () => 24);
       expect(instance.resolve(Number)).to.equal(24);
+    });
+
+  });
+
+  describe('addInjectable', () => {
+
+    it('makes a class injectable', () => {
+      instance.addInjectable(MyClass);
+      expect(instance.resolve(MyClass)).to.be.instanceof(MyClass);
+    });
+
+    it('honors shared flag', () => {
+      instance.addInjectable(MyClass, {shared: true});
+
+      let a = instance.resolve(MyClass);
+      let b = instance.resolve(MyClass);
+
+      expect(a).to.equal(b);
+    });
+
+    it('uses own injector for dependencies', () => {
+      class WithDependencies {
+        constructor(@inject public value: MyClass) { }
+      }
+      instance.addInjectable(MyClass);
+      instance.addInjectable(WithDependencies);
+
+      expect(instance.resolve(WithDependencies).value).to.be.instanceof(MyClass);
     });
 
   });

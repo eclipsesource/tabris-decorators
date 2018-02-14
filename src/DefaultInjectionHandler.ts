@@ -1,4 +1,4 @@
-import { instance as injector, InjectionHandlerObject, Injection } from './Injector';
+import Injector, { InjectionHandlerObject, Injection } from './Injector';
 import { Constructor } from './utils';
 
 export default class DefaultInjectionHandler<T> implements InjectionHandlerObject<T> {
@@ -7,7 +7,7 @@ export default class DefaultInjectionHandler<T> implements InjectionHandlerObjec
 
   constructor(private type: Constructor<T>, private config: InjectableConfig = {}) { }
 
-  public handleInjection(injection: Injection) {
+  public handleInjection(injection: Injection, injector: Injector) {
     if (!this.config.shared) {
       return injector.create(this.type);
     }

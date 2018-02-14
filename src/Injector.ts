@@ -9,7 +9,7 @@ export interface Injection {
   index?: number;
 }
 
-export type InjectionHandlerFunction<T> = (injection: Injection) => T | null | undefined;
+export type InjectionHandlerFunction<T> = (injection: Injection, injector: Injector) => T | null | undefined;
 
 export interface InjectionHandlerObject<T> {
   handleInjection: InjectionHandlerFunction<T>;
@@ -53,7 +53,7 @@ export default class Injector {
     }
     let unbox = getUnboxer(type);
     for (let handler of handlers) {
-      let result = unbox(handler.handleInjection(injection || {}));
+      let result = unbox(handler.handleInjection(injection || {}, this));
       if (result !== null && result !== undefined) {
         return result;
       }
