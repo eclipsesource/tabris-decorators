@@ -9,7 +9,8 @@ import {
   wasAppended,
   getPropertyStore,
   WidgetResolver,
-  Constructor
+  Constructor,
+  checkType
 } from './utils';
 import { Widget } from 'tabris';
 
@@ -55,9 +56,7 @@ function getByIdImpl(widgetInstance: WidgetInterface, property: string): Widget 
   if (results.length > 1) {
     throw new Error(`More than one widget with id "${property}" appended.`);
   }
-  if (!(results[0] instanceof getPropertyType(widgetInstance, property))) {
-    throw new Error(`Type mismatch.`);
-  }
+  checkType(results[0], getPropertyType(widgetInstance, property));
   return results[0];
 }
 

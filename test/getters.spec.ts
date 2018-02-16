@@ -5,6 +5,7 @@ import {Composite, Button} from 'tabris';
 import {getById, getByType} from '../src';
 import * as tabrisMock from './tabris-mock';
 import {restoreSandbox, expect} from './test';
+import {instance as typeGuards} from '../src/TypeGuards';
 
 describe('getters', () => {
 
@@ -77,8 +78,18 @@ describe('getters', () => {
 
     it('throws if getters finds wrong type after first append', () => {
       expect(() => widget.append(composite1, new Composite({id: 'button1'}))).to.throw(
-        'Decorator "getById" could not resolve property "button1": Type mismatch.'
+          'Decorator "getById" could not resolve property "button1": '
+        + 'Expected value to be of type "Button", but found "Composite'
       );
+    });
+
+    it('accepts compatible types when typeGuard is set', () => {
+      let notReallyAButton = new Composite({id: 'button1'});
+      typeGuards.set(Button, (value): value is Button => value instanceof Composite);
+
+      widget.append(composite1, notReallyAButton);
+
+      expect(widget.button1).to.equal(notReallyAButton);
     });
 
     it('throws if getters finds multiple matches', () => {
