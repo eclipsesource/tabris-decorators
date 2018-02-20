@@ -8,6 +8,7 @@ import {
   Constructor,
   BaseConstructor
 } from './utils';
+import { WidgetCollection } from 'tabris';
 
 export interface JsxBindings { [targetProperty: string]: string; }
 
@@ -64,7 +65,7 @@ export function checkBindingType(bindingPath: string, value: any, targetType: Ba
 }
 
 export function getChild(base: WidgetInterface, selector: string) {
-  let results = base.find(selector);
+  let results = (base as any)._find(selector) as WidgetCollection<Widget>;
   if (results.length === 0) {
     throw new Error(`No widget matching "${selector}" was appended.`);
   } else if (results.length > 1) {

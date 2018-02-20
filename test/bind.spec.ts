@@ -7,6 +7,7 @@ import * as tabrisMock from './tabris-mock';
 import {restoreSandbox, expect, stub} from './test';
 import property from '../src/property';
 import { ImageView } from 'tabris';
+import isolated from '../src/isolated';
 
 describe('bind', () => {
 
@@ -15,7 +16,7 @@ describe('bind', () => {
     restoreSandbox();
   });
 
-  class CustomComponent extends Composite {
+  @isolated class CustomComponent extends Composite {
 
     @bind('#textInput1.text')
     public myText: string;
