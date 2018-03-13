@@ -5,6 +5,7 @@ import { Composite, Button, WidgetCollection, Widget } from 'tabris';
 import { findFirst, findLast, findAll, getById, getByType, isolated, component } from '../src';
 import * as tabrisMock from './tabris-mock';
 import { restoreSandbox, expect } from './test';
+import { CompositeProperties } from 'tabris';
 
 @isolated
 class CustomComponent extends Composite {
@@ -24,13 +25,17 @@ class CustomComponent extends Composite {
   @getByType
   public readonly button: Button;
 
-  constructor() {
+  @findFirst
+  public readonly myBuddy: CustomComponent;
+
+  constructor(properties: CompositeProperties, containSelf: boolean) {
     super();
     this.append(
       new Composite({class: 'foo', id: 'foo1'}),
       new Composite({class: 'foo', id: 'foo2'}),
       new Composite({class: 'foo', id: 'foo3'}),
-      new Button({class: 'bar', id: 'foo4'})
+      new Button({class: 'bar', id: 'foo4'}),
+      (containSelf ? new CustomComponent({id: 'foo5'}, false) : new Composite())
     );
   }
 
@@ -55,7 +60,7 @@ describe('isolated', () => {
 
   beforeEach(() => {
     parent = new Composite();
-    widget = new CustomComponent();
+    widget = new CustomComponent({}, true);
     parent.append(widget);
   });
 
@@ -67,9 +72,10 @@ describe('isolated', () => {
   it('does not interfere with finders and getters', () => {
     expect(widget.firstFoo.id).to.equal('foo1');
     expect(widget.lastFoo.id).to.equal('foo3');
-    expect(widget.allComposites.length).to.equal(3);
+    expect(widget.allComposites.length).to.equal(4);
     expect(widget.foo3.id).to.equal('foo3');
     expect(widget.button.id).to.equal('foo4');
+    expect(widget.myBuddy.id).to.equal('foo5');
   });
 
   it('prevents child selection', () => {
@@ -103,8 +109,8 @@ describe('isolated', () => {
   });
 
   it('allows child selection via _children', () => {
-    expect(widget.protectedChildren().length).to.equal(4);
-    expect(widget.protectedFind().length).to.equal(4);
+    expect(widget.protectedChildren().length).to.equal(5);
+    expect(widget.protectedFind().length).to.equal(5);
   });
 
   it('allows _apply call to work', () => {
