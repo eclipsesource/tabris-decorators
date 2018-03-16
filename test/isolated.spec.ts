@@ -26,10 +26,10 @@ class CustomComponent extends Composite {
   public readonly button: Button;
 
   @findFirst
-  public readonly myBuddy: CustomComponent;
+  public readonly childCustomComponent: CustomComponent;
 
   constructor(properties: CompositeProperties, containSelf: boolean) {
-    super();
+    super(properties);
     this.append(
       new Composite({class: 'foo', id: 'foo1'}),
       new Composite({class: 'foo', id: 'foo2'}),
@@ -75,10 +75,34 @@ describe('isolated', () => {
     expect(widget.allComposites.length).to.equal(4);
     expect(widget.foo3.id).to.equal('foo3');
     expect(widget.button.id).to.equal('foo4');
-    expect(widget.myBuddy.id).to.equal('foo5');
+    expect(widget.childCustomComponent.id).to.equal('foo5');
   });
 
   it('prevents child selection', () => {
+    expect(widget.children().length).to.equal(0);
+    expect(widget.find().length).to.equal(0);
+    expect(parent.find().length).to.equal(1);
+    expect(parent.find()[0]).to.equal(widget);
+  });
+
+  it('prevents child selection when applied to super class', () => {
+    class CustomComponent2 extends CustomComponent {}
+    parent = new Composite();
+    widget = new CustomComponent2({}, true);
+    parent.append(widget);
+
+    expect(widget.children().length).to.equal(0);
+    expect(widget.find().length).to.equal(0);
+    expect(parent.find().length).to.equal(1);
+    expect(parent.find()[0]).to.equal(widget);
+  });
+
+  it('prevents child selection when applied to super class and self', () => {
+    @isolated class CustomComponent2 extends CustomComponent {}
+    parent = new Composite();
+    widget = new CustomComponent2({}, true);
+    parent.append(widget);
+
     expect(widget.children().length).to.equal(0);
     expect(widget.find().length).to.equal(0);
     expect(parent.find().length).to.equal(1);
