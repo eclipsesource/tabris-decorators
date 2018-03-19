@@ -4,7 +4,7 @@ import 'sinon';
 import { Composite, CompositeProperties } from 'tabris';
 import { restoreSandbox, expect, spy } from './test';
 import { InjectionHandler, Injection, injector as orgInjector } from '../src';
-import { injector, inject, injectable, shared, injectionHandler, create, resolve } from './customInjector';
+import { injector, inject, injectable, shared, injectionHandler, create, resolve, JSX } from './customInjector';
 import * as tabrisMock from './tabris-mock';
 import { SinonSpy } from 'sinon';
 import { Constructor } from '../src/utils';
@@ -60,6 +60,38 @@ describe('custom injector inject', () => {
     expect(() => {
       orgInjector.create(ConstructorWithInjection);
     }).to.throw('Could not create instance of ConstructorWithInjection:\n@inject belongs to a different injector');
+  });
+
+  describe('via JSX', () => {
+
+    class MyCustomWidget extends Composite {
+
+      constructor(
+        properties: CompositeProperties,
+        @inject public service: MyServiceClass
+      ) {
+        super(properties);
+      }
+
+    }
+
+    afterEach(() => {
+      tabrisMock.reset();
+    });
+
+    it('fails with default JSX object', () => {
+      // tslint:disable-next-line:no-shadowed-variable
+      let JSX = orgInjector.JSX;
+      expect(() => {
+        <MyCustomWidget/>;
+      }).to.throw('Could not create instance of MyCustomWidget:\n@inject belongs to a different injector');
+    });
+
+    it('works with custom JSX object', () => {
+      let widget: MyCustomWidget = <MyCustomWidget/>;
+      expect(widget.service).to.be.instanceOf(MyServiceClass);
+    });
+
   });
 
 });

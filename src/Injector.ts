@@ -3,6 +3,7 @@ import DefaultInjectionHandler, { InjectableConfig } from './DefaultInjectionHan
 import { injectionHandler as unboundInjectionHandler } from './injectionHandler';
 import { inject as unboundInject } from './inject';
 import { injectable as unboundInjectable, shared as unboundShared } from './injectable';
+import { ExtendedJSX } from './ExtendedJSX';
 
 export class Injector {
 
@@ -12,6 +13,7 @@ export class Injector {
   public readonly injectable = unboundInjectable;
   public readonly shared = unboundShared;
   // tslint:enable:typedef
+  public readonly JSX: ExtendedJSX = new ExtendedJSX(this);
   private handlers: HandlersMap = new Map();
 
   constructor() {
@@ -124,6 +126,7 @@ export class Injector {
 
 export const injector = new Injector();
 export const { inject, injectable, shared, injectionHandler } = injector;
+(JSX as any) = injector.JSX;
 
 export interface Injection {
   type?: Constructor<any>;

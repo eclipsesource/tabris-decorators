@@ -1,4 +1,3 @@
-import './JsxExtension';
 export {default as property} from './property';
 export {default as isolated} from './isolated';
 export {default as bind} from './bind';
