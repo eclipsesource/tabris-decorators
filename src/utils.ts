@@ -1,8 +1,9 @@
 import {Widget} from 'tabris';
 import {instance as typeGuards} from './TypeGuards';
 import { WidgetCollection } from 'tabris';
+import { Injector } from './Injector';
 
-export interface ParamInfo {type: Constructor<any>; injectParam?: string; }
+export interface ParamInfo {type: Constructor<any>; injectParam?: string; injector: Injector; }
 export interface Constructor<T> {new(...args: any[]): T; }
 export interface WidgetProtected {
   _find(selector?: Selector): WidgetCollection<Widget>;

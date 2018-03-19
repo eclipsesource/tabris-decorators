@@ -43,6 +43,9 @@ export class Injector {
   }
 
   public resolve = <T>(type: BaseConstructor<T>, injection?: Injection) => {
+    if (injection && injection.injector !== this) {
+      throw new Error('@inject belongs to a different injector');
+    }
     let handlers = this.findCompatibleHandlers(type);
     if (!handlers.length) {
       throw new Error(
@@ -51,7 +54,7 @@ export class Injector {
     }
     let unbox = this.getUnboxer(type);
     for (let handler of handlers) {
-      let result = unbox(handler.handleInjection(injection || {}, this));
+      let result = unbox(handler.handleInjection(injection || {injector: this}, this));
       if (result !== null && result !== undefined) {
         return result;
       }
@@ -75,7 +78,7 @@ export class Injector {
       for (let i = 0; i < paramCount; i++) {
         finalArgs[i] = args[i];
         if (paramInfo[i]) {
-          let injection = {type, index: i, param: paramInfo[i].injectParam};
+          let injection = {type, index: i, param: paramInfo[i].injectParam, injector: paramInfo[i].injector};
           finalArgs[i] = this.resolve(paramInfo[i].type, injection);
         }
       }
@@ -128,6 +131,7 @@ export interface Injection {
   param?: string;
   name?: string;
   index?: number;
+  injector: Injector;
 }
 
 export type InjectionHandlerFunction<T> = (injection: Injection, injector: Injector) => T | null | undefined;

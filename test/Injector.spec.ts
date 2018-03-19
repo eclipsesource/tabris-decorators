@@ -1,7 +1,7 @@
 /* tslint:disable:no-unused-expression max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import { Injector, InjectionHandler, inject } from '../src';
+import { Injector, InjectionHandler } from '../src';
 import { restoreSandbox, expect } from './test';
 
 class MyClass {
@@ -51,7 +51,7 @@ describe('Injector', () => {
 
     it('uses own injector for dependencies', () => {
       class WithDependencies {
-        constructor(@inject public value: MyClass) { }
+        constructor(@instance.inject public value: MyClass) { }
       }
       instance.addInjectable(MyClass);
       instance.addInjectable(WithDependencies);
@@ -84,7 +84,7 @@ describe('Injector', () => {
       instance.reset();
       instance.addHandler(String, {handleInjection: ({param}) => param ? param : ''});
 
-      expect(instance.resolve(String, {param: 'bar'})).to.equal('bar');
+      expect(instance.resolve(String, {param: 'bar', injector: instance})).to.equal('bar');
       expect(instance.resolve(String)).to.equal('');
     });
 
