@@ -1,6 +1,5 @@
-import { Constructor, getParamInfo, applyDecorator, BaseConstructor } from './utils';
+import { Constructor, applyDecorator, BaseConstructor } from './utils';
 import { Injector, Injection } from './Injector';
-import DefaultInjectionHandler, { InjectableConfig } from './DefaultInjectionHandler';
 
 export type IHFunction<T> = (injection: Injection) => T | void;
 export type IHDescriptor<T> = TypedPropertyDescriptor<IHFunction<T>>;

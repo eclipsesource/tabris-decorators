@@ -8,11 +8,11 @@
     "build": "tsc -p ./tsconfig-pack.json",
     "test": "npm run lint && ts-mocha -p . ./test/*.spec.ts ./test/*.spec.tsx",
     "test:file": "ts-mocha -p .",
-    "lint": "tslint --project . 'src/**/*.ts' 'test/**/*.ts'",
+    "lint": "tslint --project . src/**/*.ts test/**/*.ts test/**/*.tsx",
     "safePublish": "npm test && npm run clean && npm run build && npm publish"
   },
   "peerDependencies": {
-    "tabris": "^2.3.0"
+    "tabris": "^2.5.0"
   },
   "devDependencies": {
     "@types/chai": "^3.5.0",
@@ -24,7 +24,7 @@
     "mocha": "^3.2.0",
     "sinon": "^1.16.0",
     "sinon-chai": "^2.7.0",
-    "tabris": "^2.2.0",
+    "tabris": "nightly",
     "ts-mocha": "^1.0.3",
     "tslint": "^5.3.2",
     "typescript": "^2.6.2"

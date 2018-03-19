@@ -10,7 +10,6 @@
     "only-arrow-functions": [true, "allow-declarations", "allow-named-functions"],
     "arrow-parens":false,
     "prefer-const": false,
-    "no-unbound-method": true,
     "typedef": [
       true,
       "member-variable-declaration",

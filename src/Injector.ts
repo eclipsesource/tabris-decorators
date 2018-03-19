@@ -1,4 +1,4 @@
-import { Constructor, getParamInfo, applyDecorator, BaseConstructor } from './utils';
+import { Constructor, getParamInfo, BaseConstructor } from './utils';
 import DefaultInjectionHandler, { InjectableConfig } from './DefaultInjectionHandler';
 import { injectionHandler as unboundInjectionHandler } from './injectionHandler';
 import { inject as unboundInject } from './inject';
