@@ -1,11 +1,10 @@
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
 import 'mocha';
 import 'sinon';
-import {Composite, CompositeProperties} from 'tabris';
-import {restoreSandbox, expect, spy} from './test';
-import {injector, inject, injectable, shared} from '../src';
+import { Composite, CompositeProperties } from 'tabris';
+import { restoreSandbox, expect, spy } from './test';
+import { injector, inject, injectable, shared,  InjectionHandler, Injection, injectionHandler } from '../src';
 import * as tabrisMock from './tabris-mock';
-import { InjectionHandler, Injection, injectionHandler } from '../src/Injector';
 import { SinonSpy } from 'sinon';
 import { Constructor } from '../src/utils';
 

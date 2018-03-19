@@ -7,9 +7,9 @@ import {
   ParameterDecoratorFactory
 } from './utils';
 
-export default function inject(constructor: Constructor<any>, property: string, index: number): void;
-export default function inject(param: string): ParameterDecoratorFactory;
-export default function inject(...args: any[]): any {
+export function inject(constructor: Constructor<any>, property: string, index: number): void;
+export function inject(param: string): ParameterDecoratorFactory;
+export function inject(...args: any[]): any {
   return applyDecorator('inject', args, (target, property, index) => {
     const param: string = typeof args[0] === 'string' ? args[0] : undefined;
     if (typeof index === 'number') {

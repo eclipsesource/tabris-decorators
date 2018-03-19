@@ -1,35 +1,33 @@
 import { Constructor, getParamInfo, applyDecorator, BaseConstructor } from './utils';
 import DefaultInjectionHandler, { InjectableConfig } from './DefaultInjectionHandler';
+import { injectionHandler as unboundInjectionHandler } from './injectionHandler';
+import { inject as unboundInject } from './inject';
+import { injectable as unboundInjectable, shared as unboundShared } from './injectable';
 
-export interface Injection {
-  type?: Constructor<any>;
-  instance?: object;
-  param?: string;
-  name?: string;
-  index?: number;
-}
+export class Injector {
 
-export type InjectionHandlerFunction<T> = (injection: Injection, injector: Injector) => T | null | undefined;
-
-export interface InjectionHandlerObject<T> {
-  handleInjection: InjectionHandlerFunction<T>;
-}
-
-export type InjectionHandler<T> = InjectionHandlerFunction<T> | InjectionHandlerObject<T>;
-
-type HandlersMap = Map<object, Array<InjectionHandlerObject<any>>>;
-
-export default class Injector {
-
+  // tslint:disable:typedef
+  public readonly injectionHandler = unboundInjectionHandler;
+  public readonly inject = unboundInject;
+  public readonly injectable = unboundInjectable;
+  public readonly shared = unboundShared;
+  // tslint:enable:typedef
   private handlers: HandlersMap = new Map();
 
-  public addInjectable(type: Constructor<any>, config: InjectableConfig = {}) {
+  constructor() {
+    this.injectionHandler = this.injectionHandler.bind(this);
+    this.injectable = this.injectable.bind(this);
+    this.shared = this.shared.bind(this);
+    this.inject = this.inject.bind(this);
+  }
+
+  public addInjectable = (type: Constructor<any>, config: InjectableConfig = {}) => {
     this.addHandler(type, new DefaultInjectionHandler(type, config));
   }
 
   // TODO check targetType
-  public addHandler<T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandler<U>): void {
-    forEachPrototype(targetType, (prototype: object) => {
+  public addHandler = <T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandler<U>) => {
+    this.forEachPrototype(targetType, (prototype: object) => {
       let targetTypeHandlers = this.handlers.get(prototype);
       if (!targetTypeHandlers) {
         this.handlers.set(prototype, targetTypeHandlers = []);
@@ -51,7 +49,7 @@ export default class Injector {
         `Could not inject value of type ${type.name} since no compatible injection handler exists for this type.`
       );
     }
-    let unbox = getUnboxer(type);
+    let unbox = this.getUnboxer(type);
     for (let handler of handlers) {
       let result = unbox(handler.handleInjection(injection || {}, this));
       if (result !== null && result !== undefined) {
@@ -96,52 +94,48 @@ export default class Injector {
     return this.handlers.get(type.prototype) || [];
   }
 
-}
-
-export const instance = new Injector();
-
-export type IHFunction<T> = (injection: Injection) => T | void;
-export type IHDescriptor<T> = TypedPropertyDescriptor<IHFunction<T>>;
-export type InjectionHandlerDeco<T> = (target: object, propertyName: string, descriptor: IHDescriptor<T>) => void;
-
-export function injectionHandler<T>(targetType: BaseConstructor<T>): InjectionHandlerDeco<T>;
-export function injectionHandler(...args: any[]): any {
-  return applyDecorator('injectionHandler', args, (target: object, targetProperty: string) => {
-    let type = args[0] as Constructor<any>;
-    if (target instanceof Function) {
-      instance.addHandler(type, {handleInjection: (injection) => target[targetProperty](injection)});
-    } else if (isPrototype(target)) {
-      let targetInstance = instance.create(target.constructor);
-      instance.addHandler(type, {handleInjection: (injection) => targetInstance[targetProperty](injection)});
-    } else {
-      throw new Error('Decorator must be applied to a method');
+  private getUnboxer(type: any) {
+    if (type === Number || type === String || type === Boolean) {
+      return this.unboxValue;
     }
-  });
-}
-
-function isPrototype(target: any): target is {constructor: Constructor<any>} {
-  return target.constructor instanceof Function;
-}
-
-function getUnboxer(type: any) {
-  if (type === Number || type === String || type === Boolean) {
-    return unboxValue;
+    return this.passValue;
   }
-  return passValue;
-}
 
-function passValue(value: any) {
-  return value;
-}
-
-function unboxValue(box: any) {
-  return box !== null && box !== undefined ? box.valueOf() : box;
-}
-
-function forEachPrototype(type: BaseConstructor<any>, cb: (prototype: object) => void) {
-  let currentProto = type.prototype;
-  while (currentProto !== Object.prototype) {
-    cb(currentProto);
-    currentProto = Object.getPrototypeOf(currentProto);
+  private passValue(value: any) {
+    return value;
   }
+
+  private unboxValue(box: any) {
+    return box !== null && box !== undefined ? box.valueOf() : box;
+  }
+
+  private forEachPrototype(type: BaseConstructor<any>, cb: (prototype: object) => void) {
+    let currentProto = type.prototype;
+    while (currentProto !== Object.prototype) {
+      cb(currentProto);
+      currentProto = Object.getPrototypeOf(currentProto);
+    }
+  }
+
 }
+
+export const injector = new Injector();
+export const { inject, injectable, shared, injectionHandler } = injector;
+
+export interface Injection {
+  type?: Constructor<any>;
+  instance?: object;
+  param?: string;
+  name?: string;
+  index?: number;
+}
+
+export type InjectionHandlerFunction<T> = (injection: Injection, injector: Injector) => T | null | undefined;
+
+export interface InjectionHandlerObject<T> {
+  handleInjection: InjectionHandlerFunction<T>;
+}
+
+export type InjectionHandler<T> = InjectionHandlerFunction<T> | InjectionHandlerObject<T>;
+
+type HandlersMap = Map<object, Array<InjectionHandlerObject<any>>>;

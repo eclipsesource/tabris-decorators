@@ -1,19 +1,19 @@
 import 'reflect-metadata';
-import { instance as injector } from './Injector';
+import { Injector } from './Injector';
 import { InjectableConfig } from './DefaultInjectionHandler';
 import { Constructor, applyClassDecorator, areStaticClassDecoratorArgs, ClassDecoratorFactory } from './utils';
 
-export default function injectable(config: InjectableConfig): ClassDecoratorFactory<any>;
-export default function injectable(type: Constructor<any>): void;
-export default function injectable(...args: any[]): void | ClassDecoratorFactory<any> {
+export function injectable(config: InjectableConfig): ClassDecoratorFactory<any>;
+export function injectable(type: Constructor<any>): void;
+export function injectable(this: Injector, ...args: any[]): void | ClassDecoratorFactory<any> {
   return applyClassDecorator('injectable', args, (type: Constructor<any>) => {
     Reflect.defineMetadata(injectableKey, true, type);
-    injector.addInjectable(type, getInjectableConfig(args));
+    this.addInjectable(type, getInjectableConfig(args));
   });
 }
 
-export function shared(type: Constructor<any>): void {
-  injectable({shared: true})(type);
+export function shared(this: Injector, type: Constructor<any>): void {
+  this.injectable({shared: true})(type);
 }
 
 function getInjectableConfig(args: any[]): InjectableConfig {

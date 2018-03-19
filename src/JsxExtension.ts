@@ -2,7 +2,7 @@
 import 'tabris';
 import { applyJsxBindings, JsxBindings } from './data-binding';
 import { Constructor } from './utils';
-import { instance as injector } from './Injector';
+import { injector } from './Injector';
 
 const originalJSX = JSX;
 
@@ -13,7 +13,7 @@ interface Properties { [property: string]: any; }
   createElement(
     type: string|Constructor<any>, jsxProperties: Properties, ...children: tabris.Widget[]
   ) {
-    let { properties, bindings } = extractBindings(jsxProperties);
+    let {properties, bindings} = extractBindings(jsxProperties);
     let result = originalJSX.createElement(convertType(type), properties as Object, ...children);
     if (bindings) {
       applyJsxBindings(result, bindings);

@@ -1,6 +1,4 @@
 import './JsxExtension';
-export {default as inject} from './inject';
-export {default as injectable, shared} from './injectable';
 export {default as property} from './property';
 export {default as isolated} from './isolated';
 export {default as bind} from './bind';
@@ -8,7 +6,6 @@ export {default as bindingBase} from './bindingBase';
 export {default as component} from './component';
 export {default as Image} from './Image';
 export {instance as typeGuards} from './TypeGuards';
-export {instance as injector, InjectionHandler, injectionHandler} from './Injector';
+export * from './Injector';
 export * from './finders';
 export * from './getters';
-export * from './injectable';
