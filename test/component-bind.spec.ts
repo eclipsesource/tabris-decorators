@@ -60,9 +60,21 @@ describe('bind', () => {
     expect(widget.myText).to.be.undefined;
   });
 
-  it('fails to decorate unknown type', () => {
+  it('fails to resolve on non-component', () => {
     expect(() => {
       class FailedComponent extends Composite {
+        @bind('#textInput1.text')
+        public myText: string;
+      }
+      new FailedComponent().append(new TextInput({id: 'textInput1'}));
+    }).to.throw(
+      'Could not bind property "myText" to "#textInput1.text": FailedComponent is not a @component'
+    );
+  });
+
+  it('fails to decorate unknown type', () => {
+    expect(() => {
+      @component class FailedComponent extends Composite {
         @bind('#foo.bar') public readonly value: string | boolean;
       }
     }).to.throw(
@@ -84,7 +96,7 @@ describe('bind', () => {
     };
     for (let path in badPaths) {
       expect(() => {
-        class FailedComponent extends Composite {
+        @component class FailedComponent extends Composite {
           @bind(path) public readonly value: string;
         }
       }).to.throw('Could not apply decorator "bind" to "value": ' + badPaths[path]);
@@ -158,7 +170,7 @@ describe('bind', () => {
   });
 
   it('throws if target value changes to wrong type', () => {
-    class CustomChild extends Composite { @property public text: string | number; }
+    @component class CustomChild extends Composite { @property public text: string | number; }
     let child = new CustomChild({id: 'textInput1'});
     child.text = 'foo';
     widget.append(child);
@@ -206,7 +218,7 @@ describe('bind', () => {
 
   describe('with type Image', () => {
 
-    class CustomComponent2 extends Composite {
+    @component class CustomComponent2 extends Composite {
 
       @bind('#imageView1.image')
       public myImage: Image;

@@ -176,6 +176,16 @@ export function wasAppended(widget: WidgetInterface) {
   return !!widget[wasAppendedKey];
 }
 
+export function markAsComponent(type: BaseConstructor<Widget>) {
+  Reflect.defineMetadata(componentKey, true, type.prototype);
+}
+
+export function checkIsComponent(widget: Widget) {
+  if (!Reflect.getMetadata(componentKey, widget)) {
+    throw new Error(`${widget.constructor.name} is not a @component`);
+  }
+}
+
 /**
  * Returns either the "typeof" name of a primitive value, or the constructor name for an instance
  */
@@ -252,3 +262,4 @@ const wasAppendedKey = Symbol();
 const originalAppendKey = Symbol();
 const propertyStoreKey = Symbol();
 const paramInfoKey = Symbol();
+const componentKey = Symbol();

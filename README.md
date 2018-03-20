@@ -135,17 +135,11 @@ Like `@getById`, but ignored the id and looks by return type only. Useful if the
 
 Makes the decorated widget property a "real" Tabris.js property, meaning it can be set via constructor or `set` method, and it fires change events. This is especially useful when the property is supposed to be the source of a one-way data binding.
 
-### @bind("#\<id\>.\<property\>")
-
-Binds the decorated property of a widget to the property of a child. As with `@getById`, the binding is established after `append` is called the first time on the widget, there needs to be exactly one child with the given id, and it has to have a property of the same type.
-
-`@bind` creates a TWO-WAY binding, meaning changes to the source/child widget property are not just reflected on the decorated property, but also the other way around. Change events are fired for the decorated property if (and only if) the source/child widget fires change events. Only one `@bind` decorator can be applied to any given property. It also implies `@property`.
-
 ### @component
 
-Makes the decorated widget class the base reference for JSX-based databinding. Tabris.js already supports JSX (in `.tsx` files) to create widgets, `@component` only enables a new attribute prefix 'bind' that allows to create ONE-WAY bindings, copying values FROM the decorated widget TO the JSX element.
+Makes the decorated widget class the base reference for databinding. Also, a widget class decorated with `@component` will not allow its own children to be selected by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using the finder/getter decorators above.
 
-Also, a widget class decorated with `@component` will not allow its own children to be selected by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using the finder/getter decorators above.
+For ONE-WAY bindings, `@component` enables a new JSX attribute prefix 'bind, which actively copies values FROM the decorated widget TO the JSX element.
 
 Example:
 
@@ -165,7 +159,15 @@ Example:
   }
 ```
 
-This makes changes to `myText` be applied to the `text` property of the `textView` element. The source must be a proper Tabris.js style property (not simply a field) that fires change events. This can be achieved by simply adding a `@property` decorator. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the target property implementation is also using a decorator (e.g. `@property`), type checks are performed before applying the new value.
+This makes changes to `myText` be applied to the `text` property of the `textView` element. The source must be a proper Tabris.js style property, not just a field. This can be achieved simply by adding a `@property` decorator, but a custom implementation also works as long as appropriate change events are fired. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the target property is implemented in TypeScript it should also be using  `@property`, otherwise type safety can not be guarenteed.
+
+### @bind("#\<id\>.\<property\>")
+
+Binds the decorated property of a widget to the property of a child. As with `@getById`, the binding is established after `append` is called the first time on the widget, there needs to be exactly one child with the given id, and it has to have a property of the same type.
+
+`@bind` creates a TWO-WAY binding, meaning changes to the source/child widget property are not just reflected on the decorated property, but also the other way around. Change events are fired for the decorated property if (and only if) the source/child widget fires change events. Only one `@bind` decorator can be applied to any given property. It also implies `@property`.
+
+`@bind` only works on classes decorated with `@component`.
 
 ## Dependency Injection
 

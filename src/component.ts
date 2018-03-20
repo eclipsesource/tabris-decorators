@@ -2,9 +2,10 @@ import 'reflect-metadata';
 import { Widget } from 'tabris';
 import { WidgetCollection } from 'tabris';
 import { checkBindingType, checkPropertyExists, getOneWayBindings, OneWayBinding } from './data-binding';
-import { applyClassDecorator, BaseConstructor, checkType, ClassDecoratorFactory, postAppendHandlers } from './utils';
+import { applyClassDecorator, BaseConstructor, checkType, ClassDecoratorFactory, markAsComponent, postAppendHandlers } from './utils';
 
 export function component(type: BaseConstructor<Widget>) {
+  markAsComponent(type);
   isolate(type);
   addBindingProcessor(type);
 }
