@@ -1,7 +1,7 @@
-/* tslint:disable no-namespace */
+import { expect, use } from 'chai';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
-import {use, expect} from 'chai';
+/* tslint:disable no-namespace */
 
 use(sinonChai);
 

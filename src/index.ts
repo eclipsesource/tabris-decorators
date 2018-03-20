@@ -1,10 +1,10 @@
-export {default as property} from './property';
-export {default as isolated} from './isolated';
-export {default as bind} from './bind';
-export {default as bindingBase} from './bindingBase';
-export {default as component} from './component';
-export {default as Image} from './Image';
-export {instance as typeGuards} from './TypeGuards';
+export * from './property';
+export * from './isolated';
+export * from './bind';
+export * from './bindingBase';
+export * from './component';
+export * from './Image';
+export * from './TypeGuards';
 export * from './Injector';
 export * from './finders';
 export * from './getters';

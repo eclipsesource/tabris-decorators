@@ -1,5 +1,5 @@
-/* tslint:disable */
 import * as tabris from 'tabris';
+/* tslint:disable */
 
 // polyfill installs fetch on self
 declare namespace global {

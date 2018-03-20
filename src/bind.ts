@@ -1,25 +1,9 @@
 import { Composite } from 'tabris';
-import {
-  createTwoWayBindingDesc,
-  checkBindableType,
-  checkAccess,
-  checkBindingType,
-  getChild,
-  checkPropertyExists,
-  TwoWayBinding
-} from './data-binding';
-import {
-  getPropertyType,
-  checkType,
-  applyDecorator,
-  WidgetInterface,
-  getPropertyStore,
-  postAppendHandlers,
-  ChangeEvent
-} from './utils';
+import { checkAccess, checkBindableType, checkBindingType, checkPropertyExists, createTwoWayBindingDesc, getChild, TwoWayBinding } from './data-binding';
+import { applyDecorator, ChangeEvent, checkType, getPropertyStore, getPropertyType, postAppendHandlers, WidgetInterface } from './utils';
 
-export default function bind(targetPath: string): (target: Composite, property: string) => void;
-export default function bind(...args: any[]): any {
+export function bind(targetPath: string): (target: Composite, property: string) => void;
+export function bind(...args: any[]): any {
   return applyDecorator('bind', args, (baseProto: WidgetInterface, baseProperty: string) => {
     const targetPath = args[0] as string;
     createBoundProperty(baseProto, baseProperty, targetPath);

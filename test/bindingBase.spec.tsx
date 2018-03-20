@@ -1,11 +1,11 @@
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import { Composite, TextInput, TextView, ImageView } from 'tabris';
-import { bind, Image, property, bindingBase } from '../src';
+import { Composite, TextInput, TextView } from 'tabris';
 import * as tabrisMock from './tabris-mock';
-import { restoreSandbox, expect, stub } from './test';
-import component from '../src/component';
+import { expect, restoreSandbox } from './test';
+import { bindingBase, property } from '../src';
+import { component } from '../src/component';
+/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 describe('bindingBase', () => {
 

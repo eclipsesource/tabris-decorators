@@ -1,11 +1,11 @@
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import { Composite, Button, WidgetCollection, Widget } from 'tabris';
-import { findFirst, findLast, findAll, getById, getByType, isolated, component } from '../src';
-import * as tabrisMock from './tabris-mock';
-import { restoreSandbox, expect } from './test';
+import { Button, Composite, Widget, WidgetCollection } from 'tabris';
 import { CompositeProperties } from 'tabris';
+import * as tabrisMock from './tabris-mock';
+import { expect, restoreSandbox } from './test';
+import { component, findAll, findFirst, findLast, getById, getByType, isolated } from '../src';
+/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 @isolated
 class CustomComponent extends Composite {

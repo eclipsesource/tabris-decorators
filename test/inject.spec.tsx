@@ -1,12 +1,12 @@
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
 import 'mocha';
 import 'sinon';
-import { Composite, CompositeProperties } from 'tabris';
-import { restoreSandbox, expect, spy } from './test';
-import { injector, inject, injectable, shared,  InjectionHandler, Injection, injectionHandler } from '../src';
-import * as tabrisMock from './tabris-mock';
 import { SinonSpy } from 'sinon';
+import { Composite, CompositeProperties } from 'tabris';
+import * as tabrisMock from './tabris-mock';
+import { expect, restoreSandbox, spy } from './test';
+import { inject, injectable, Injection, injectionHandler, injector, shared } from '../src';
 import { Constructor } from '../src/utils';
+/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
 
 const create = injector.create;
 
@@ -40,13 +40,13 @@ class ConstructorWithInjection {
   constructor(
     str: string | undefined,
     @inject('foo2') service: MyServiceClass,
-    @inject number: number,
+    @inject num: number,
     @inject public otherService: MyServiceClass,
     @inject public singleton1?: MySingletonClass,
     @inject public singleton2?: MyOtherSingletonClass
   ) {
     this.str = str || '';
-    this.number = number || 0;
+    this.number = num || 0;
     this.service = service;
   }
 

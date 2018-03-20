@@ -1,6 +1,6 @@
-import {instance as typeGuards} from './TypeGuards';
+import { instance as typeGuards } from './TypeGuards';
 
-export default class Image {
+export class Image {
 
   public src?: string;
   public width?: number;

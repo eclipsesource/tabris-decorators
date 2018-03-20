@@ -1,17 +1,11 @@
 import 'reflect-metadata';
 import { Widget } from 'tabris';
-import { OneWayBinding, checkBindingType, checkPropertyExists } from './data-binding';
+import { checkBindingType, checkPropertyExists, OneWayBinding } from './data-binding';
 import { getOneWayBindings } from './data-binding';
-import {
-  BaseConstructor,
-  applyClassDecorator,
-  ClassDecoratorFactory,
-  postAppendHandlers,
-  checkType
-} from './utils';
+import { applyClassDecorator, BaseConstructor, checkType, ClassDecoratorFactory, postAppendHandlers } from './utils';
 
-export default function bindingBase(type: BaseConstructor<Widget>): void;
-export default function bindingBase(...args: any[]): void | ClassDecoratorFactory<Widget> {
+export function bindingBase(type: BaseConstructor<Widget>): void;
+export function bindingBase(...args: any[]): void | ClassDecoratorFactory<Widget> {
   return applyClassDecorator('bindingBase', args, (type: BaseConstructor<Widget>) => {
     postAppendHandlers(type.prototype).push(base => {
       base._find().forEach(child => processBindings(base, child, getOneWayBindings(child)));

@@ -1,9 +1,9 @@
-import { Constructor, getParamInfo, BaseConstructor } from './utils';
-import DefaultInjectionHandler, { InjectableConfig } from './DefaultInjectionHandler';
-import { injectionHandler as unboundInjectionHandler } from './injectionHandler';
+import { DefaultInjectionHandler, InjectableConfig } from './DefaultInjectionHandler';
+import { ExtendedJSX } from './ExtendedJSX';
 import { inject as unboundInject } from './inject';
 import { injectable as unboundInjectable, shared as unboundShared } from './injectable';
-import { ExtendedJSX } from './ExtendedJSX';
+import { injectionHandler as unboundInjectionHandler } from './injectionHandler';
+import { BaseConstructor, Constructor, getParamInfo } from './utils';
 
 export class Injector {
 

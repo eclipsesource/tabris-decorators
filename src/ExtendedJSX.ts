@@ -1,8 +1,8 @@
-/* tslint:disable no-namespace ban-types only-arrow-functions */
 import 'tabris';
 import { applyJsxBindings, JsxBindings } from './data-binding';
-import { Constructor } from './utils';
 import { Injector } from './Injector';
+import { Constructor } from './utils';
+/* tslint:disable no-namespace ban-types only-arrow-functions */
 
 interface Properties { [property: string]: any; }
 

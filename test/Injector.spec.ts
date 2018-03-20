@@ -1,8 +1,8 @@
-/* tslint:disable:no-unused-expression max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import { Injector, InjectionHandler } from '../src';
-import { restoreSandbox, expect } from './test';
+import { expect, restoreSandbox } from './test';
+import { InjectionHandler, Injector } from '../src';
+/* tslint:disable:no-unused-expression max-classes-per-file */
 
 class MyClass {
 

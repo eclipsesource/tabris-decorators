@@ -1,14 +1,7 @@
 import 'reflect-metadata';
 import { Widget } from 'tabris';
-import {
-  WidgetInterface,
-  getPropertyType,
-  wasAppended,
-  checkType,
-  Constructor,
-  BaseConstructor
-} from './utils';
 import { WidgetCollection } from 'tabris';
+import { BaseConstructor, checkType, Constructor, getPropertyType, wasAppended, WidgetInterface } from './utils';
 
 export interface JsxBindings { [targetProperty: string]: string; }
 

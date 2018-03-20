@@ -1,11 +1,11 @@
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import {Composite, Button} from 'tabris';
-import {getById, getByType} from '../src';
+import { Button, Composite } from 'tabris';
 import * as tabrisMock from './tabris-mock';
-import {restoreSandbox, expect} from './test';
-import {instance as typeGuards} from '../src/TypeGuards';
+import { expect, restoreSandbox } from './test';
+import { getById, getByType } from '../src';
+import { instance as typeGuards } from '../src/TypeGuards';
+/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 describe('getters', () => {
 

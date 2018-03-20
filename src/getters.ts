@@ -1,18 +1,7 @@
 import 'reflect-metadata';
-import {Composite} from 'tabris';
-import {
-  defineGetter,
-  getPropertyType,
-  applyDecorator,
-  WidgetInterface,
-  postAppendHandlers,
-  wasAppended,
-  getPropertyStore,
-  WidgetResolver,
-  Constructor,
-  checkType
-} from './utils';
+import { Composite } from 'tabris';
 import { Widget } from 'tabris';
+import { applyDecorator, checkType, Constructor, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, wasAppended, WidgetInterface, WidgetResolver } from './utils';
 
 export function getById(targetProto: Composite, property: string): void;
 export function getById(...args: any[]): void {

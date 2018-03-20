@@ -1,10 +1,10 @@
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 import 'mocha';
 import 'sinon';
-import {Composite, CompositeProperties} from 'tabris';
-import {property} from '../src';
+import { Composite, CompositeProperties } from 'tabris';
 import * as tabrisMock from './tabris-mock';
-import {restoreSandbox, expect, stub} from './test';
+import { expect, restoreSandbox, stub } from './test';
+import { property } from '../src';
+/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 describe('property', () => {
 

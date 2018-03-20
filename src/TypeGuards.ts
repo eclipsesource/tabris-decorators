@@ -2,7 +2,7 @@ import { BaseConstructor } from './utils';
 
 export type Guard<T> = (value: any) => value is T;
 
-export default class TypeGuards {
+export class TypeGuards {
 
   private map: Map<BaseConstructor<any>, Guard<any>> = new Map();
 

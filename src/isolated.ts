@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { BaseConstructor, applyClassDecorator, ClassDecoratorFactory } from './utils';
-import { WidgetCollection, Widget } from 'tabris';
+import { Widget, WidgetCollection } from 'tabris';
+import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory } from './utils';
 
-export default function isolated(type: BaseConstructor<Widget>): void;
-export default function isolated(...args: any[]): void | ClassDecoratorFactory<Widget> {
+export function isolated(type: BaseConstructor<Widget>): void;
+export function isolated(...args: any[]): void | ClassDecoratorFactory<Widget> {
   return applyClassDecorator('isolated', args, (type: BaseConstructor<Widget>) => {
     if (type.prototype.children !== returnEmptyCollection) {
       type.prototype.children = returnEmptyCollection;

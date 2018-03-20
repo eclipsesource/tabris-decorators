@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import { Injector } from './Injector';
 import { InjectableConfig } from './DefaultInjectionHandler';
-import { Constructor, applyClassDecorator, areStaticClassDecoratorArgs, ClassDecoratorFactory } from './utils';
+import { Injector } from './Injector';
+import { applyClassDecorator, areStaticClassDecoratorArgs, ClassDecoratorFactory, Constructor } from './utils';
 
 export function injectable(config: InjectableConfig): ClassDecoratorFactory<any>;
 export function injectable(type: Constructor<any>): void;

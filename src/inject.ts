@@ -1,12 +1,6 @@
 import 'reflect-metadata';
 import { Injector } from './Injector';
-import {
-  getParameterType,
-  applyDecorator,
-  getParamInfo,
-  Constructor,
-  ParameterDecoratorFactory
-} from './utils';
+import { applyDecorator, Constructor, getParameterType, getParamInfo, ParameterDecoratorFactory } from './utils';
 
 export function inject(constructor: Constructor<any>, property: string, index: number): void;
 export function inject(param: string): ParameterDecoratorFactory;
