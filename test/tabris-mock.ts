@@ -13,8 +13,8 @@ declare namespace window {
 }
 
 declare module 'tabris' {
-  export function  trigger(event: string): void;
-  export function  _notify(cid: string, event: string, props?: Properties);
+  export function trigger(event: string): void;
+  export function _notify(cid: string, event: string, props?: {[key: string]: any});
   export function _init(clientMock: ClientMock);
 }
 
@@ -150,7 +150,7 @@ export function reset() {
   initTabris();
   localStorage = storageBackup;
   localStorage.clear();
-  delete localStorage._rwtId;
+  delete (localStorage as any)._rwtId;
 }
 
 function initTabris() {

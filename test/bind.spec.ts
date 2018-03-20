@@ -4,9 +4,7 @@ import { Composite, TextInput } from 'tabris';
 import { ImageView } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox, stub } from './test';
-import { bind, Image } from '../src';
-import { isolated } from '../src/isolated';
-import { property } from '../src/property';
+import { bind, component, Image, property } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 describe('bind', () => {
@@ -16,7 +14,7 @@ describe('bind', () => {
     restoreSandbox();
   });
 
-  @isolated class CustomComponent extends Composite {
+  @component class CustomComponent extends Composite {
 
     @bind('#textInput1.text')
     public myText: string;

@@ -1,29 +1,30 @@
 import 'mocha';
 import 'sinon';
-import { Composite, TextInput, TextView } from 'tabris';
+import { Composite, CompositeProperties, TextInput, TextView } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox } from './test';
-import { bindingBase, property } from '../src';
-import { component } from '../src/component';
+import { component, property } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
-describe('bindingBase', () => {
+describe('component', () => {
 
   afterEach(() => {
     tabrisMock.reset();
     restoreSandbox();
   });
 
-  @bindingBase
+  @component
   class CustomComponent extends Composite {
     @property public myText: string = 'foo';
+    private readonly jsxProperties: CompositeProperties;
   }
 
-  @bindingBase
+  @component
   class CustomComponent2 extends Composite {
     @property public someProperty: string | boolean;
     public someField: string;
     @property public numberProperty: number;
+    private readonly jsxProperties: CompositeProperties;
   }
 
   let widget: CustomComponent;
@@ -58,23 +59,11 @@ describe('bindingBase', () => {
       expect(textInput.text).to.equal('bar');
     });
 
-    it('also enabled by @component', () => {
-      @component
-      class MyComponent extends Composite {
-        @property public myText: string = 'foo';
-      }
-      widget = new MyComponent();
-      widget.append(textInput = <textInput bind-text='myText'/>);
-      widget.myText = 'bar';
-
-      expect(textInput.text).to.equal('bar');
-    });
-
     it('works with <widgetCollection>', () => {
       widget.append(<widgetCollection><textInput bind-text='myText'/></widgetCollection>);
       widget.myText = 'bar';
 
-      expect(widget.find().first(TextInput).text).to.equal('bar');
+      expect((widget as any)._find().first(TextInput).text).to.equal('bar');
     });
 
     it('ignores detaching the source', () => {

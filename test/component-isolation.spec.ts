@@ -4,10 +4,10 @@ import { Button, Composite, Widget, WidgetCollection } from 'tabris';
 import { CompositeProperties } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox } from './test';
-import { component, findAll, findFirst, findLast, getById, getByType, isolated } from '../src';
+import { component, findAll, findFirst, findLast, getById, getByType } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
-@isolated
+@component
 class CustomComponent extends Composite {
 
   @findFirst('.foo')
@@ -53,7 +53,7 @@ class CustomComponent extends Composite {
 
 }
 
-describe('isolated', () => {
+describe('component', () => {
 
   let widget: CustomComponent;
   let parent: Composite;
@@ -98,7 +98,7 @@ describe('isolated', () => {
   });
 
   it('prevents child selection when applied to super class and self', () => {
-    @isolated class CustomComponent2 extends CustomComponent {}
+    @component class CustomComponent2 extends CustomComponent {}
     parent = new Composite();
     widget = new CustomComponent2({}, true);
     parent.append(widget);
