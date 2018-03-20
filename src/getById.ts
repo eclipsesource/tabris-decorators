@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Composite } from 'tabris';
 import { Widget } from 'tabris';
-import { applyDecorator, checkType, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, wasAppended, WidgetInterface } from './utils';
+import { applyDecorator, checkIsComponent, checkType, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, wasAppended, WidgetInterface } from './utils';
 
 export function getById(targetProto: Composite, property: string): void;
 export function getById(...args: any[]): void {
@@ -12,6 +12,7 @@ export function getById(...args: any[]): void {
     }
     postAppendHandlers(widgetProto).push((widget) => {
       try {
+        checkIsComponent(widgetProto);
         getPropertyStore(widget).set(property, getByIdImpl(widget, property));
       } catch (ex) {
         throwPropertyResolveError('getById', property, ex.message);

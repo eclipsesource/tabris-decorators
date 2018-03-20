@@ -6,22 +6,7 @@ This module provides [TypeScript decorators](http://www.typescriptlang.org/docs/
 
 TODOC
 
-## property modifiers
-
-### @getById
-
-Lets the property return the descendant with the same id as the property name. The following rules apply:
-
- * It can only be applied on widget classes that (directly or indirectly) extend `Composite`.
- * It will search for a matching child exactly once, after `append` is called the first time on the widget instance.
- * It will always return the same child, even if it is disposed or removed.
- * It will throw if there is no match, more than one, or if the type is not correct.
-
 ## Data Binding
-
-### @property
-
-Makes the decorated widget property a "real" Tabris.js property, meaning it can be set via constructor or `set` method, and it fires change events. This is especially useful when the property is supposed to be the source of a one-way data binding.
 
 ### @component
 
@@ -49,13 +34,28 @@ Example:
 
 This makes changes to `myText` be applied to the `text` property of the `textView` element. The source must be a proper Tabris.js style property, not just a field. This can be achieved simply by adding a `@property` decorator, but a custom implementation also works as long as appropriate change events are fired. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the target property is implemented in TypeScript it should also be using  `@property`, otherwise type safety can not be guarenteed.
 
+### @property
+
+Makes the decorated widget property a "real" Tabris.js property, meaning it can be set via constructor or `set` method (proper type declarations assumed), and it fires change events. This is especially useful when the property is supposed to be the source of a one-way data binding.
+
 ### @bind("#\<id\>.\<property\>")
 
 Binds the decorated property of a widget to the property of a child. As with `@getById`, the binding is established after `append` is called the first time on the widget, there needs to be exactly one child with the given id, and it has to have a property of the same type.
 
-`@bind` creates a TWO-WAY binding, meaning changes to the source/child widget property are not just reflected on the decorated property, but also the other way around. Change events are fired for the decorated property if (and only if) the source/child widget fires change events. Only one `@bind` decorator can be applied to any given property. It also implies `@property`.
+`@bind` creates a TWO-WAY binding, meaning changes to the source/child widget property are not just reflected on the decorated property, but also the other way around. Change events are fired for the decorated property if (and only if) the source/child widget fires change events. Only one `@bind` decorator can be applied to any given property. It also implies `@property`, only one of the two can be applied to the same property.
 
 `@bind` only works on classes decorated with `@component`.
+
+### @getById
+
+Lets the property return the descendant with the same id as the property name. The following rules apply:
+
+ * It can only be applied on widget classes that (directly or indirectly) extend `Composite`.
+ * It will search for a matching child exactly once, after `append` is called the first time on the widget instance.
+ * It will always return the same child, even if it is disposed or removed.
+ * It will throw if there is no match, more than one, or if the type is not correct.
+
+`getById` only works on classes decorated with `@component`.
 
 ## Dependency Injection
 

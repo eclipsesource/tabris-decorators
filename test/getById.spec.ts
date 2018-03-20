@@ -3,8 +3,7 @@ import 'sinon';
 import { Button, Composite } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox } from './test';
-import { getById } from '../src';
-import { instance as typeGuards } from '../src/TypeGuards';
+import { component, getById, instance as typeGuards } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 describe('getById', () => {
@@ -14,7 +13,7 @@ describe('getById', () => {
     restoreSandbox();
   });
 
-  class CustomComponent extends Composite {
+  @component class CustomComponent extends Composite {
 
     @getById
     public readonly button1: Button;
@@ -53,12 +52,23 @@ describe('getById', () => {
 
   it('fails to decorate unknown type', () => {
     expect(() => {
-      class FailedComponent extends Composite {
+      @component class FailedComponent extends Composite {
         @getById public readonly button1: Button | null;
       }
     }).to.throw(
         'Could not apply decorator "getById" to "button1": '
       + 'Property type could not be inferred.'
+    );
+  });
+
+  it('fails to resolve on none-@component', () => {
+    expect(() => {
+      class FailedComponent extends Composite {
+        @getById public readonly button1: Button;
+      }
+      new FailedComponent().append(new Button({id: 'button1'}));
+    }).to.throw(
+      'Decorator "getById" could not resolve property "button1": FailedComponent is not a @component'
     );
   });
 
