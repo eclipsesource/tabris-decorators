@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Widget } from 'tabris';
 import { WidgetCollection } from 'tabris';
-import { checkBindingType, checkPropertyExists, getOneWayBindings, OneWayBinding } from './data-binding';
+import { checkBindingType, checkPropertyExists, clearOneWayBindings, getOneWayBindings, OneWayBinding } from './binding-utils';
 import { applyClassDecorator, BaseConstructor, checkType, ClassDecoratorFactory, markAsComponent, postAppendHandlers } from './utils';
 
 export function component(type: BaseConstructor<Widget>) {
@@ -20,16 +20,18 @@ export function addBindingProcessor(type: BaseConstructor<Widget>): void;
 export function addBindingProcessor(...args: any[]): void | ClassDecoratorFactory<Widget> {
   return applyClassDecorator('bindingBase', args, (type: BaseConstructor<Widget>) => {
     postAppendHandlers(type.prototype).push(base => {
-      base._find().forEach(child => processBindings(base, child, getOneWayBindings(child)));
+      base._find().forEach(child => processBindings(base, child));
     });
   });
 }
 
-function processBindings(base: Widget, target: Widget, bindings: OneWayBinding[]) {
+function processBindings(base: Widget, target: Widget) {
+  let bindings = getOneWayBindings(target);
   if (bindings) {
     for (let binding of bindings) {
       initOneWayBinding(base, binding);
     }
+    clearOneWayBindings(target);
   }
 }
 

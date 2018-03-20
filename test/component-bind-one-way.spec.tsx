@@ -136,6 +136,28 @@ describe('component', () => {
       }
     });
 
+    it('throws on appear when applied to an non-@component', () => {
+      class NotAComponent extends Composite {
+        @property public myText: string = 'foo';
+      }
+      let widget3 = new NotAComponent();
+      let widget4 = <textView bind-text='myText' /> as TextView;
+      widget3.append(widget4);
+      expect(() => {
+        widget4.trigger('resize', {target: widget4});
+      }).to.throw(
+        'Could not resolve one-way binding on CustomComponent: Not appanded to a @component'
+      );
+    });
+
+    it('does not throw on appear when applied to a @component', () => {
+      let widget4 = <textView bind-text='myText' /> as TextView;
+      widget.append(widget4);
+      expect(() => {
+        widget4.trigger('resize', {target: widget4});
+      }).not.to.throw;
+    });
+
   });
 
 });

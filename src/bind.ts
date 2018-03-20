@@ -1,5 +1,5 @@
 import { Composite } from 'tabris';
-import { checkAccess, checkBindableType, checkBindingType, checkPropertyExists, createTwoWayBindingDesc, getChild, TwoWayBinding } from './data-binding';
+import { checkAccess, checkBindableType, checkBindingType, checkPropertyExists, createTwoWayBindingDesc, getChild, TwoWayBinding } from './binding-utils';
 import { applyDecorator, ChangeEvent, checkIsComponent, checkType, getPropertyStore, getPropertyType, postAppendHandlers, WidgetInterface } from './utils';
 
 export function bind(targetPath: string): (target: Composite, property: string) => void;

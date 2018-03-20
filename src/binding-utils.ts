@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Widget } from 'tabris';
 import { WidgetCollection } from 'tabris';
+import { WidgetResizeEvent } from 'tabris';
 import { BaseConstructor, checkType, Constructor, getPropertyType, wasAppended, WidgetInterface } from './utils';
 
 export interface JsxBindings { [targetProperty: string]: string; }
@@ -36,10 +37,15 @@ export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings) 
     }
   }
   targetInstance[oneWayBindingsKey] = oneWayBindings;
+  targetInstance.once({resize: checkBindingsApplied});
 }
 
 export function getOneWayBindings(instance: Widget): OneWayBinding[] {
   return instance[oneWayBindingsKey];
+}
+
+export function clearOneWayBindings(instance: Widget) {
+  delete instance[oneWayBindingsKey];
 }
 
 export function checkAccess(base: WidgetInterface, binding: TwoWayBinding) {
@@ -118,6 +124,12 @@ export function checkBindableType(property: string, type: Constructor<any>) {
 export function checkPropertyExists(targetWidget: any, targetProperty: string, targetName: string = 'Target') {
   if (!(targetProperty in targetWidget)) {
     throw new Error(`${targetName} does not have a property "${targetProperty}".`);
+  }
+}
+
+function checkBindingsApplied(ev: WidgetResizeEvent) {
+  if (getOneWayBindings(ev.target)) {
+    throw new Error('Could not resolve one-way binding on CustomComponent: Not appanded to a @component');
   }
 }
 

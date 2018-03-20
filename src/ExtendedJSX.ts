@@ -1,5 +1,5 @@
 import 'tabris';
-import { applyJsxBindings, JsxBindings } from './data-binding';
+import { applyJsxBindings, JsxBindings } from './binding-utils';
 import { Injector } from './Injector';
 import { Constructor } from './utils';
 /* tslint:disable no-namespace ban-types only-arrow-functions */
