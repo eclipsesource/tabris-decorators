@@ -16,7 +16,6 @@ export type DecoratorFactory = (target: any, property: string, index?: number) =
 export type ParameterDecoratorFactory = (target: Constructor<any>, property: string, index: number) => void;
 export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
 export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
-export type WidgetResolver = (widget: WidgetInterface, param: string, type: WidgetConstructor) => any;
 export type WidgetInterface = {[prop: string]: any} & Widget & WidgetProtected;
 
 /**

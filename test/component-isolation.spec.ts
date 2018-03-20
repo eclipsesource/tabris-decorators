@@ -1,32 +1,17 @@
 import 'mocha';
 import 'sinon';
-import { Button, Composite, Widget, WidgetCollection } from 'tabris';
+import { Button, Composite, Widget } from 'tabris';
 import { CompositeProperties } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox } from './test';
-import { component, findAll, findFirst, findLast, getById, getByType } from '../src';
+import { component, getById } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 @component
 class CustomComponent extends Composite {
 
-  @findFirst('.foo')
-  public readonly firstFoo: Widget;
-
-  @findLast('.foo')
-  public readonly lastFoo: Widget;
-
-  @findAll(Composite)
-  public readonly allComposites: WidgetCollection<Composite>;
-
   @getById
   public readonly foo3: Widget;
-
-  @getByType
-  public readonly button: Button;
-
-  @findFirst
-  public readonly childCustomComponent: CustomComponent;
 
   constructor(properties: CompositeProperties, containSelf: boolean) {
     super(properties);
@@ -69,13 +54,8 @@ describe('component', () => {
     restoreSandbox();
   });
 
-  it('does not interfere with finders and getters', () => {
-    expect(widget.firstFoo.id).to.equal('foo1');
-    expect(widget.lastFoo.id).to.equal('foo3');
-    expect(widget.allComposites.length).to.equal(4);
+  it('does not interfere with getById', () => {
     expect(widget.foo3.id).to.equal('foo3');
-    expect(widget.button.id).to.equal('foo4');
-    expect(widget.childCustomComponent.id).to.equal('foo5');
   });
 
   it('prevents child selection', () => {
@@ -123,13 +103,13 @@ describe('component', () => {
 
   it('prevents direct apply call to work', () => {
     widget.apply({'*': {enabled: false}});
-    expect(widget.button.enabled).to.be.true;
+    expect(widget.foo3.enabled).to.be.true;
   });
 
   it('limits apply on parent to widget itself', () => {
     parent.apply({'*': {enabled: false}});
     expect(widget.enabled).to.be.false;
-    expect(widget.button.enabled).to.be.true;
+    expect(widget.foo3.enabled).to.be.true;
   });
 
   it('allows child selection via _children', () => {
@@ -139,13 +119,13 @@ describe('component', () => {
 
   it('allows _apply call to work', () => {
     widget.protectedApply({'*': {enabled: false}});
-    expect(widget.button.enabled).to.be.false;
+    expect(widget.foo3.enabled).to.be.false;
   });
 
   it('limits _apply on parent to widget itself', () => {
     (parent as any)._apply({'*': {enabled: false}});
     expect(widget.enabled).to.be.false;
-    expect(widget.button.enabled).to.be.true;
+    expect(widget.foo3.enabled).to.be.true;
   });
 
   it('limits _find on parent to widget itself', () => {

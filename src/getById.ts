@@ -1,36 +1,25 @@
 import 'reflect-metadata';
 import { Composite } from 'tabris';
 import { Widget } from 'tabris';
-import { applyDecorator, checkType, Constructor, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, wasAppended, WidgetInterface, WidgetResolver } from './utils';
+import { applyDecorator, checkType, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, wasAppended, WidgetInterface } from './utils';
 
 export function getById(targetProto: Composite, property: string): void;
 export function getById(...args: any[]): void {
-  defineWidgetGetter('getById', args, getByIdImpl);
-}
-
-export function getByType(targetProto: Composite, property: string): void;
-export function getByType(...args: any[]): void {
-  defineWidgetGetter('getByType', args, getByTypeImpl);
-}
-
-/* Internals */
-
-function defineWidgetGetter(name: string, args: any[], resolver: WidgetResolver): void {
-  applyDecorator(name, args, (widgetProto: any, property: string) => {
+  applyDecorator('getById', args, (widgetProto: any, property: string) => {
     let type = getPropertyType(widgetProto, property);
     if (type === Object) {
       throw new Error('Property type could not be inferred.');
     }
     postAppendHandlers(widgetProto).push((widget) => {
       try {
-        getPropertyStore(widget).set(property, resolver(widget, property, type as Constructor<any>));
+        getPropertyStore(widget).set(property, getByIdImpl(widget, property));
       } catch (ex) {
-        throwPropertyResolveError(name, property, ex.message);
+        throwPropertyResolveError('getById', property, ex.message);
       }
     });
     defineGetter(widgetProto, property, function(this: WidgetInterface) {
       if (!wasAppended(this)) {
-        throwPropertyResolveError(name, property, 'No widgets have been appended yet.');
+        throwPropertyResolveError('getById', property, 'No widgets have been appended yet.');
       }
       return getPropertyStore(this).get(property);
     });
@@ -46,17 +35,6 @@ function getByIdImpl(widgetInstance: WidgetInterface, property: string): Widget 
     throw new Error(`More than one widget with id "${property}" appended.`);
   }
   checkType(results[0], getPropertyType(widgetInstance, property));
-  return results[0];
-}
-
-function getByTypeImpl(widgetInstance: WidgetInterface, property: string): WidgetInterface {
-  let results = widgetInstance._find(getPropertyType(widgetInstance, property));
-  if (results.length === 0) {
-    throw new Error('No widget of expected type appended.');
-  }
-  if (results.length > 1) {
-    throw new Error('More than one widget of expected type appended.');
-  }
   return results[0];
 }
 
