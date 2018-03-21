@@ -67,11 +67,6 @@ describe('inject', () => {
       return serviceHandler(injection);
     }
 
-    @injectionHandler(CompatibleClass)
-    public createMyServiceClass(injection: Injection) {
-      return {saySomething: () => 'baz4'};
-    }
-
   }
 
   injector.addHandler(Number, {handleInjection: (injection: Injection) => numberHandler(injection)});

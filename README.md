@@ -32,7 +32,7 @@ Example:
   }
 ```
 
-This makes changes to `myText` be applied to the `text` property of the `textView` element. The source must be a proper Tabris.js style property, not just a field. This can be achieved simply by adding a `@property` decorator, but a custom implementation also works as long as appropriate change events are fired. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the target property is implemented in TypeScript it should also be using  `@property`, otherwise type safety can not be guarenteed.
+This makes changes to `myText` be applied to the `text` property of the `textView` element. The source must be a proper Tabris.js style property, not just a field. This can be achieved simply by adding a `@property` decorator, but a custom implementation also works as long as appropriate change events are fired. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the target property is implemented in TypeScript it should also be using  `@property`, otherwise type safety can not be guaranteed.
 
 ### @property
 
@@ -105,11 +105,9 @@ Shorthand for `@injectable({shared: true})`.
 
 ### @injectionHandler
 
-Registers the decorated method to handle injections for the given type directly. The method must return a value compatible to the given type.
+Registers the decorated static method to handle injections for the given type directly. The method must return a value compatible to the given type.
 
 // TDB: Injection parameter object
-
-If the method is an instance method this will implicitly create a new instance of the class. In that case the constructor should only have injected parameters. If the method is static no instance will be created and no such limitation applies.
 
 ### injector.addInjectable(type, config?);
 
