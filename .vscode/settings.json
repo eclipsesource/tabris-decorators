@@ -6,11 +6,7 @@
   "files.exclude": {
     "node_modules": true,
     "package-lock.json": true,
-    ".project": true,
-    "src/**/*.js": true,
-    "src/**/*.map": true,
-    "test/**/*.js": true,
-    "test/**/*.map": true
+    ".project": true
   },
   "typescript.extension.sortImports.sortMethod": "path",
   "typescript.extension.sortImports.pathSortOrder": [

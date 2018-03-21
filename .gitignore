@@ -5,7 +5,3 @@ node_modules/
 .rpt2_cache
 tabris-js-remote*.tgz
 package-lock.json
-src/**/*.js
-src/**/*.map
-test/**/*.js
-test/**/*.map

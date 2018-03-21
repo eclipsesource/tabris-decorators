@@ -3,7 +3,7 @@ import 'sinon';
 import { Button, Composite } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox } from './test';
-import { component, getById, instance as typeGuards } from '../src';
+import { component, getById, typeGuards } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 describe('getById', () => {

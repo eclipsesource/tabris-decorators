@@ -16,4 +16,4 @@ export class TypeGuards {
 
 }
 
-export const instance = new TypeGuards();
+export const typeGuards = new TypeGuards();

@@ -1,4 +1,4 @@
-import { instance as typeGuards } from './TypeGuards';
+import { typeGuards } from './TypeGuards';
 
 export class Image {
 
