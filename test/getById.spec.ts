@@ -91,9 +91,9 @@ describe('getById', () => {
     );
   });
 
-  it('accepts compatible types when typeGuard is set', () => {
+  it('accepts incompatible types when typeGuard allows it', () => {
     let notReallyAButton = new Composite({id: 'button1'});
-    typeGuards.set(Button, (value): value is Button => value instanceof Composite);
+    typeGuards.add(Button, (value): value is Button => value.id === 'button1');
 
     widget.append(composite1, notReallyAButton);
 

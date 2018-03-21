@@ -2,7 +2,8 @@ import 'reflect-metadata';
 import { Widget } from 'tabris';
 import { WidgetCollection } from 'tabris';
 import { WidgetResizeEvent } from 'tabris';
-import { BaseConstructor, checkType, Constructor, getPropertyType, wasAppended, WidgetInterface } from './utils';
+import { typeGuards } from './TypeGuards';
+import { BaseConstructor, Constructor, getPropertyType, wasAppended, WidgetInterface } from './utils';
 
 export interface JsxBindings { [targetProperty: string]: string; }
 
@@ -57,7 +58,7 @@ export function checkAccess(base: WidgetInterface, binding: TwoWayBinding) {
 
 export function checkBindingType(bindingPath: string, value: any, targetType: BaseConstructor<any>) {
   try {
-    checkType(value, targetType);
+    typeGuards.checkType(value, targetType);
   } catch (ex) {
     throw new Error(`Binding "${bindingPath}" failed: ${ex.message}`);
   }

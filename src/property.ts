@@ -1,5 +1,6 @@
 import { Widget } from 'tabris';
-import { applyDecorator, ChangeEvent, checkType, Constructor, getPropertyStore, getPropertyType, WidgetInterface } from './utils';
+import { typeGuards } from './TypeGuards';
+import { applyDecorator, ChangeEvent, Constructor, getPropertyStore, getPropertyType, WidgetInterface } from './utils';
 
 export function property(targetProto: Widget, property: string): void;
 export function property(...args: any[]): void {
@@ -26,7 +27,7 @@ export function property(...args: any[]): void {
 
 function setterTypeCheck(propertyName: string, value: any, targetType: Constructor<any>) {
   try {
-    checkType(value, targetType);
+    typeGuards.checkType(value, targetType);
   } catch (ex) {
     throw new Error(`Failed to set property "${propertyName}": ${ex.message}`);
   }

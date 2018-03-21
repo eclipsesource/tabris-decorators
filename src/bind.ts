@@ -1,6 +1,7 @@
 import { Composite } from 'tabris';
 import { checkAccess, checkBindableType, checkBindingType, checkPropertyExists, createTwoWayBindingDesc, getChild, TwoWayBinding } from './binding-utils';
-import { applyDecorator, ChangeEvent, checkIsComponent, checkType, getPropertyStore, getPropertyType, postAppendHandlers, WidgetInterface } from './utils';
+import { typeGuards } from './TypeGuards';
+import { applyDecorator, ChangeEvent, checkIsComponent, getPropertyStore, getPropertyType, postAppendHandlers, WidgetInterface } from './utils';
 
 export function bind(targetPath: string): (target: Composite, property: string) => void;
 export function bind(...args: any[]): any {
@@ -36,7 +37,7 @@ function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
     const basePropertyType = getPropertyType(base, binding.baseProperty);
     let child = getChild(base, binding.selector);
     checkPropertyExists(child, binding.targetProperty);
-    checkType(child[binding.targetProperty], basePropertyType);
+    typeGuards.checkType(child[binding.targetProperty], basePropertyType);
     getPropertyStore(base).set(binding.targetKey, child);
     child.on(binding.targetChangeEvent, ({ value }) => {
       checkBindingType(binding.path, value, basePropertyType);

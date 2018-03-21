@@ -2,7 +2,8 @@ import 'reflect-metadata';
 import { Widget } from 'tabris';
 import { WidgetCollection } from 'tabris';
 import { checkBindingType, checkPropertyExists, clearOneWayBindings, getOneWayBindings, OneWayBinding } from './binding-utils';
-import { applyClassDecorator, BaseConstructor, checkType, ClassDecoratorFactory, markAsComponent, postAppendHandlers } from './utils';
+import { typeGuards } from './TypeGuards';
+import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory, markAsComponent, postAppendHandlers } from './utils';
 
 export function component(type: BaseConstructor<Widget>) {
   markAsComponent(type);
@@ -38,7 +39,7 @@ function processBindings(base: Widget, target: Widget) {
 function initOneWayBinding(base: Widget, binding: OneWayBinding) {
   try {
     checkPropertyExists(base, binding.sourceProperty, 'Base');
-    checkType(base[binding.sourceProperty], binding.targetPropertyType);
+    typeGuards.checkType(base[binding.sourceProperty], binding.targetPropertyType);
     base.on(binding.sourceChangeEvent, ({value}) => {
       checkBindingType(binding.path, value, binding.targetPropertyType);
       binding.target[binding.targetProperty] = value;

@@ -10,7 +10,7 @@ export class Image {
 
 }
 
-typeGuards.set(Image, (v: any): v is Image => {
+typeGuards.add(Image, v => {
   if (!v || typeof v === 'string') {
     return true;
   }

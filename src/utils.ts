@@ -1,7 +1,6 @@
 import { Widget } from 'tabris';
 import { WidgetCollection } from 'tabris';
 import { Injector } from './Injector';
-import { typeGuards } from './TypeGuards';
 
 export interface ParamInfo {type: Constructor<any>; injectParam?: string; injector: Injector; }
 export interface Constructor<T> {new(...args: any[]): T; }
@@ -119,24 +118,6 @@ export function getParameterType(fn: any, index: number): Constructor<any> {
 }
 
 /**
- * Throws if the given value is not of the given type. Primitives are represented by their boxed type.
- * As with the TypeScript type system, all values are treated as compatible to "Object" even primitives.
- */
-export function checkType<T>(value: T, type: BaseConstructor<any>): T {
-  if (type === Object || !type) {
-    return value;
-  }
-  if (value === null || value === undefined || value instanceof type || (typeof value === getTypeName(type))) {
-    return value;
-  }
-  let guard = typeGuards.get(type);
-  if (guard && guard(value)) {
-    return value;
-  }
-  throw new Error(`Expected value to be of type "${getTypeName(type)}", but found "${getValueTypeName(value)}".`);
-}
-
-/**
  * Gets list of functions to be executed after first time append is called on instances of the given
  * widget prototype or instance.
  */
@@ -183,34 +164,6 @@ export function checkIsComponent(widget: Widget) {
   if (!Reflect.getMetadata(componentKey, widget)) {
     throw new Error(`${widget.constructor.name} is not a @component`);
   }
-}
-
-/**
- * Returns either the "typeof" name of a primitive value, or the constructor name for an instance
- */
-function getValueTypeName(value: any) {
-  if (value && value.constructor) {
-    return getTypeName(value.constructor);
-  }
-  return typeof value;
-}
-
-/**
- * Returns either the "typeof" name of a boxed primitive type, or the constructor name for any other class
- */
-function getTypeName(type: BaseConstructor<any>) {
-  let name = type.name;
-  if (isPrimitiveType(type)) {
-    return name.toLowerCase();
-  }
-  return name;
-}
-
-/**
- * Return true if `type` is `Number`, `Boolean` or `String`.
- */
-function isPrimitiveType(type: BaseConstructor<any>) {
-  return type === Boolean || type === Number || type === String;
 }
 
 export class ChangeEvent<T> {

@@ -116,7 +116,7 @@ describe('bind', () => {
     );
   });
 
-  it('throws if binding to misssing property', () => {
+  it('throws if binding to missing property', () => {
     expect(() => widget.append(new Composite({id: 'textInput1'}))).to.throw(
       'Could not bind property "myText" to "#textInput1.text": Target does not have a property "text".'
     );

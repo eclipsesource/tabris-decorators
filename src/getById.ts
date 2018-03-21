@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import { Composite } from 'tabris';
 import { Widget } from 'tabris';
-import { applyDecorator, checkIsComponent, checkType, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, wasAppended, WidgetInterface } from './utils';
+import { typeGuards } from './TypeGuards';
+import { applyDecorator, checkIsComponent, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, wasAppended, WidgetInterface } from './utils';
 
 export function getById(targetProto: Composite, property: string): void;
 export function getById(...args: any[]): void {
@@ -35,7 +36,7 @@ function getByIdImpl(widgetInstance: WidgetInterface, property: string): Widget 
   if (results.length > 1) {
     throw new Error(`More than one widget with id "${property}" appended.`);
   }
-  checkType(results[0], getPropertyType(widgetInstance, property));
+  typeGuards.checkType(results[0], getPropertyType(widgetInstance, property));
   return results[0];
 }
 
