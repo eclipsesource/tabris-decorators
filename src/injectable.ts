@@ -1,13 +1,19 @@
 import 'reflect-metadata';
 import { Injection, InjectionHandlerObject, Injector } from './Injector';
-import { applyClassDecorator, areStaticClassDecoratorArgs, ClassDecoratorFactory, Constructor } from './utils';
+import { applyClassDecorator, areStaticClassDecoratorArgs, BaseConstructor, ClassDecoratorFactory, Constructor } from './utils';
 
-export function injectable(config: InjectableConfig): ClassDecoratorFactory<any>;
-export function injectable(type: Constructor<any>): void;
+export function injectable<T>(config: InjectableConfig<T>): ClassDecoratorFactory<T>;
+export function injectable<T>(type: Constructor<T>): void;
 export function injectable(this: Injector, ...args: any[]): void | ClassDecoratorFactory<any> {
   return applyClassDecorator('injectable', args, (type: Constructor<any>) => {
     Reflect.defineMetadata(injectableKey, true, type);
-    this.addHandler(type, new DefaultInjectionHandler(type, getInjectableConfig(args)));  });
+    let config = getInjectableConfig(args);
+    let handler = new DefaultInjectionHandler(type, config);
+    this.addHandler(type, handler);
+    if (config.implements) {
+      this.addHandler(config.implements, handler);
+    }
+  });
 }
 
 export function shared(type: Constructor<any>): void;
@@ -15,9 +21,9 @@ export function shared(this: Injector, type: Constructor<any>): void {
   this.injectable({shared: true})(type);
 }
 
-function getInjectableConfig(args: any[]): InjectableConfig {
+function getInjectableConfig(args: any[]): InjectableConfig<any> {
   if (!areStaticClassDecoratorArgs(args)) {
-    return args[0] as InjectableConfig;
+    return args[0] as InjectableConfig<any>;
   }
   return {};
 }
@@ -26,7 +32,7 @@ class DefaultInjectionHandler<T> implements InjectionHandlerObject<T> {
 
   private instance: T;
 
-  constructor(private type: Constructor<T>, private config: InjectableConfig = {}) { }
+  constructor(private type: Constructor<T>, private config: InjectableConfig<T> = {}) { }
 
   public handleInjection({injector}: Injection) {
     if (!this.config.shared) {
@@ -40,8 +46,9 @@ class DefaultInjectionHandler<T> implements InjectionHandlerObject<T> {
 
 }
 
-export interface InjectableConfig {
+export interface InjectableConfig<T> {
   shared?: boolean;
+  implements?: BaseConstructor<T>;
 }
 
 const injectableKey = Symbol('injectable');

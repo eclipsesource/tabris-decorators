@@ -8,58 +8,50 @@ import { inject, injectable, Injection, injectionHandler, injector, shared } fro
 import { Constructor } from '../src/utils';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
 
-const create = injector.create;
-
-class MyServiceClass {
-  constructor(readonly param: string | undefined) { }
-}
-
-@injectable({shared: true}) class MySingletonClass {}
-
-@shared class MyOtherSingletonClass {}
-
-class BaseClass {
-  public saySomething() { return 'baz1'; }
-}
-
-@injectable
-class SubClass extends BaseClass {
-  public saySomething() { return 'baz2'; }
-}
-
-class CompatibleClass {
-  public saySomething() { return 'baz3'; }
-}
-
-class ConstructorWithInjection {
-
-  public service: MyServiceClass;
-  public number: number;
-  public str: string;
-
-  constructor(
-    str: string | undefined,
-    @inject('foo2') service: MyServiceClass,
-    @inject num: number,
-    @inject public otherService: MyServiceClass,
-    @inject public singleton1?: MySingletonClass,
-    @inject public singleton2?: MyOtherSingletonClass
-  ) {
-    this.str = str || '';
-    this.number = num || 0;
-    this.service = service;
-  }
-
-}
-
 describe('inject', () => {
 
-  let serviceHandler: (injection: Injection) => MyServiceClass;
-  let numberHandler: (injection: Injection) => number | Number;
-  let stringHandler: (injection: Injection) => string | String;
-  let booleanHandler: (injection: Injection) => boolean | Boolean;
-  let instance: ConstructorWithInjection;
+  const create = injector.create;
 
+  class MyServiceClass {
+    constructor(readonly param: string | undefined) { }
+  }
+
+  @injectable({shared: true}) class MySingletonClass {
+    public saySomething() { return 'baz1'; }
+  }
+
+  @shared class MyOtherSingletonClass {}
+
+  class BaseClass {
+    public saySomething() { return 'baz1'; }
+  }
+
+  @injectable({implements: BaseClass})
+  class CompatibleClass {
+    public saySomething() { return 'baz3'; }
+  }
+
+  class ConstructorWithInjection {
+
+    public service: MyServiceClass;
+    public number: number;
+    public str: string;
+
+    constructor(
+      str: string | undefined,
+      @inject('foo2') service: MyServiceClass,
+      @inject num: number,
+      @inject public otherService: MyServiceClass,
+      @inject public singleton1?: MySingletonClass,
+      @inject public singleton2?: MyOtherSingletonClass,
+      @inject public baseClass?: BaseClass
+    ) {
+      this.str = str || '';
+      this.number = num || 0;
+      this.service = service;
+    }
+
+  }
   class MyServiceClassInjectionHandler {
 
     @injectionHandler(MyServiceClass)
@@ -68,6 +60,12 @@ describe('inject', () => {
     }
 
   }
+
+  let serviceHandler: (injection: Injection) => MyServiceClass;
+  let numberHandler: (injection: Injection) => number | Number;
+  let stringHandler: (injection: Injection) => string | String;
+  let booleanHandler: (injection: Injection) => boolean | Boolean;
+  let instance: ConstructorWithInjection;
 
   injector.addHandler(Number, {handleInjection: (injection: Injection) => numberHandler(injection)});
   injector.addHandler(String, {handleInjection: (injection: Injection) => stringHandler(injection)});
@@ -181,6 +179,10 @@ describe('inject', () => {
     let instance2 = create(ConstructorWithInjection);
     expect(instance2.singleton1).to.equal(instance.singleton1);
     expect(instance2.singleton2).to.equal(instance.singleton2);
+  });
+
+  it('injects with compatible type', () => {
+    expect(instance.baseClass).to.be.instanceOf(CompatibleClass);
   });
 
   describe('via JSX', () => {

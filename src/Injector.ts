@@ -22,7 +22,6 @@ export class Injector {
     this.inject = this.inject.bind(this);
   }
 
-  // TODO check targetType
   public addHandler = <T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandler<U>) => {
     this.forEachPrototype(targetType, (prototype: object) => {
       let targetTypeHandlers = this.handlers.get(prototype);

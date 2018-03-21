@@ -95,9 +95,13 @@ Class Bar() {
 
 The injectable class (`Foo2`) may also have injection dependencies itself. For every injection a new instance will be created. If you want to share a single instance for all injections, use `@injectable({shared: true})` instead.
 
-### @injectable({shared?: boolean})
+### @injectable({shared?: boolean, implements?: Class})
 
-Like `@injectable`, but if `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton.
+Like `@injectable`, but with more options:
+
+If `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton.
+
+If `implements` is a (compatible) class, the decorated class can be injected as an instance of that class, even though it's using a different constructor/prototype. That allows, for example, using abstract classes to define an interface to be injected - without the fulfilling class having to inherit from that abstract class.
 
 ### @shared
 
@@ -108,10 +112,6 @@ Shorthand for `@injectable({shared: true})`.
 Registers the decorated static method to handle injections for the given type directly. The method must return a value compatible to the given type.
 
 // TDB: Injection parameter object
-
-### injector.addInjectable(type, config?);
-
-Registers the given class for injection, just like `@injectable`.
 
 ### injector.resolve(type)
 
