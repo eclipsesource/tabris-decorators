@@ -15,6 +15,12 @@
       "args": ["test"]
     },
     {
+      "taskName": "Watch",
+      "args": ["run", "watch"],
+      "isBackground": true,
+      "problemMatcher": ["$tsc-watch"]
+    },
+    {
       "taskName": "Publish",
       "args": ["run", "safePublish"]
     }

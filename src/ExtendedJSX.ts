@@ -1,4 +1,4 @@
-import 'tabris';
+import { Widget } from 'tabris';
 import { applyJsxBindings, JsxBindings } from './binding-utils';
 import { Injector } from './Injector';
 import { Constructor } from './utils';
@@ -13,7 +13,7 @@ export class ExtendedJSX {
   constructor(private readonly injector: Injector) { }
 
   public createElement = (
-    type: string|Constructor<any>, jsxProperties: Properties, ...children: tabris.Widget[]
+    type: string|Constructor<any>, jsxProperties: Properties, ...children: Widget[]
   ) => {
     let {properties, bindings} = this.extractBindings(jsxProperties);
     let result = originalJSX.createElement(this.convertType(type), properties as Object, ...children);
