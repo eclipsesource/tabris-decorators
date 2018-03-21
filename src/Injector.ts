@@ -1,4 +1,3 @@
-import { DefaultInjectionHandler, InjectableConfig } from './DefaultInjectionHandler';
 import { ExtendedJSX } from './ExtendedJSX';
 import { inject as unboundInject } from './inject';
 import { injectable as unboundInjectable, shared as unboundShared } from './injectable';
@@ -23,10 +22,6 @@ export class Injector {
     this.inject = this.inject.bind(this);
   }
 
-  public addInjectable = (type: Constructor<any>, config: InjectableConfig = {}) => {
-    this.addHandler(type, new DefaultInjectionHandler(type, config));
-  }
-
   // TODO check targetType
   public addHandler = <T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandler<U>) => {
     this.forEachPrototype(targetType, (prototype: object) => {
@@ -38,10 +33,6 @@ export class Injector {
         = handler instanceof Function ? {handleInjection: handler} : handler;
       targetTypeHandlers.unshift(handlerObject);
     });
-  }
-
-  public reset() {
-    this.handlers.clear();
   }
 
   public resolve = <T>(type: BaseConstructor<T>, injection?: Injection) => {

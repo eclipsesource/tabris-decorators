@@ -33,34 +33,6 @@ describe('Injector', () => {
 
   });
 
-  describe('addInjectable', () => {
-
-    it('makes a class injectable', () => {
-      instance.addInjectable(MyClass);
-      expect(instance.resolve(MyClass)).to.be.instanceof(MyClass);
-    });
-
-    it('honors shared flag', () => {
-      instance.addInjectable(MyClass, {shared: true});
-
-      let a = instance.resolve(MyClass);
-      let b = instance.resolve(MyClass);
-
-      expect(a).to.equal(b);
-    });
-
-    it('uses own injector for dependencies', () => {
-      class WithDependencies {
-        constructor(@instance.inject public value: MyClass) { }
-      }
-      instance.addInjectable(MyClass);
-      instance.addInjectable(WithDependencies);
-
-      expect(instance.resolve(WithDependencies).value).to.be.instanceof(MyClass);
-    });
-
-  });
-
   describe('resolve', () => {
 
     beforeEach(() => {
@@ -69,7 +41,7 @@ describe('Injector', () => {
     });
 
     it('throws in no handler exists', () => {
-      instance.reset();
+      instance = new Injector();
       expect(() => instance.resolve(Number)).to.throw(
         'Could not inject value of type Number since no compatible injection handler exists for this type.'
       );
@@ -81,7 +53,7 @@ describe('Injector', () => {
     });
 
     it('passes param', () => {
-      instance.reset();
+      instance = new Injector();
       instance.addHandler(String, {handleInjection: ({param}) => param ? param : ''});
 
       expect(instance.resolve(String, {param: 'bar', injector: instance})).to.equal('bar');
@@ -100,7 +72,7 @@ describe('Injector', () => {
 
     it('does not cache', () => {
       let i = 0;
-      instance.reset();
+      instance = new Injector();
       instance.addHandler(Number, {handleInjection: () => i++});
 
       expect(instance.resolve(Number)).to.equal(0);
