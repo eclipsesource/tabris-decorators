@@ -88,8 +88,7 @@ describe('component', () => {
       expect(() => {
         widget.append(textInput = <textInput bind-text='doesNotExist'/>);
       }).to.throw(
-          'Could not bind property "text" to "doesNotExist": '
-        + 'Base does not have a property "doesNotExist"'
+        'Binding "text" -> "doesNotExist" failed: CustomComponent does not have a property "doesNotExist"'
       );
     });
 
@@ -106,8 +105,7 @@ describe('component', () => {
       expect(() => {
         widget.append(<CustomComponent2 bind-numberProperty='myText' />);
       }).to.throw(
-          'Could not bind property "numberProperty" to "myText": '
-        + 'Expected value to be of type "number", but found "string".'
+        'Binding "numberProperty" -> "myText" failed: Expected value to be of type "number", but found "string".'
       );
     });
 
@@ -117,8 +115,7 @@ describe('component', () => {
       expect(() => {
         widget2.someProperty = false;
       }).to.throw(
-          'Binding "someProperty" failed: '
-        + 'Expected value to be of type "string", but found "boolean".'
+        'Binding "myText" -> "someProperty" failed: Expected value to be of type "string", but found "boolean".'
       );
     });
 

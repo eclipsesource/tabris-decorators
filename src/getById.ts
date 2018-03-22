@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Composite } from 'tabris';
 import { Widget } from 'tabris';
 import { typeGuards } from './TypeGuards';
-import { applyDecorator, checkIsComponent, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, wasAppended, WidgetInterface } from './utils';
+import { applyDecorator, checkAppended, checkIsComponent, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, WidgetInterface } from './utils';
 
 export function getById(targetProto: Composite, property: string): void;
 export function getById(...args: any[]): void {
@@ -13,17 +13,27 @@ export function getById(...args: any[]): void {
     }
     postAppendHandlers(widgetProto).push((widget) => {
       try {
-        checkIsComponent(widgetProto);
         getPropertyStore(widget).set(property, getByIdImpl(widget, property));
       } catch (ex) {
         throwPropertyResolveError('getById', property, ex.message);
       }
     });
     defineGetter(widgetProto, property, function(this: WidgetInterface) {
-      if (!wasAppended(this)) {
-        throwPropertyResolveError('getById', property, 'No widgets have been appended yet.');
+      try {
+        checkIsComponent(this);
+        checkAppended(this);
+      } catch (ex) {
+        throwPropertyResolveError('getById', property, ex.message);
       }
       return getPropertyStore(this).get(property);
+    });
+    setTimeout(() => {
+      try {
+        checkIsComponent(widgetProto);
+      } catch (ex) {
+        // tslint:disable-next-line:no-console
+        console.error(getErrorMessage('getById', property, ex.message));
+      }
     });
   });
 }
@@ -41,5 +51,9 @@ function getByIdImpl(widgetInstance: WidgetInterface, property: string): Widget 
 }
 
 function throwPropertyResolveError(decorator: string, property: string, message: string): never {
-  throw new Error(`Decorator "${decorator}" could not resolve property "${property}": ${message}`);
+  throw new Error(getErrorMessage(decorator, property, message));
+}
+
+function getErrorMessage(decorator: string, property: string, message: string): string {
+  return `Decorator "${decorator}" could not resolve property "${property}": ${message}`;
 }

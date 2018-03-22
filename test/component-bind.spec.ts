@@ -1,11 +1,12 @@
 import 'mocha';
 import 'sinon';
+import { useFakeTimers } from 'sinon';
 import { Composite, TextInput } from 'tabris';
 import { ImageView } from 'tabris';
 import * as tabrisMock from './tabris-mock';
-import { expect, restoreSandbox, stub } from './test';
+import { expect, restoreSandbox, spy, stub } from './test';
 import { bind, component, Image, property } from '../src';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
+/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
 
 describe('bind', () => {
 
@@ -60,16 +61,49 @@ describe('bind', () => {
     expect(widget.myText).to.be.undefined;
   });
 
-  it('fails to resolve on non-component', () => {
-    expect(() => {
+  describe('on a Widget that is not a @component', () => {
+
+    let clock;
+    let now;
+
+    beforeEach(() => {
+      now = Date.now();
+      clock = useFakeTimers(now);
+    });
+
+    afterEach(() => {
+      clock.restore();
+    });
+
+    it('prints an error', () => {
+      spy(console, 'error');
       class FailedComponent extends Composite {
+        @bind('#textInput1.text') public myText: string;
+      }
+      clock.tick(now + 100);
+      expect(console.error).to.have.been.calledWith(
+        'Binding "myText" <-> "#textInput1.text" failed to initialize: FailedComponent is not a @component'
+      );
+    });
+
+    it('throws on access', () => {
+      class FailedComponent extends Composite {
+
         @bind('#textInput1.text')
         public myText: string;
+
+        constructor() {
+          super({});
+          this.append(new TextInput({id: 'textInput1'}));
+        }
+
       }
-      new FailedComponent().append(new TextInput({id: 'textInput1'}));
-    }).to.throw(
-      'Could not bind property "myText" to "#textInput1.text": FailedComponent is not a @component'
-    );
+      expect(() => new FailedComponent().myText).to.throw(
+          'Binding "myText" <-> "#textInput1.text" failed to provide FailedComponent property "myText": '
+        + 'FailedComponent is not a @component'
+      );
+    });
+
   });
 
   it('fails to decorate unknown type', () => {
@@ -105,20 +139,21 @@ describe('bind', () => {
 
   it('throws if property is accessed before first append', () => {
     expect(() => widget.myText).to.throw(
-        'Can not access property "myText": '
-      + 'Binding "#textInput1.text" is not ready because no widgets have been appended yet.'
+        'Binding "myText" <-> "#textInput1.text" failed to provide CustomComponent property "myText": '
+      + 'No widgets have been appended yet.'
     );
   });
 
   it('throws if a binding source can not be resolved after first append', () => {
     expect(() => widget.append(new TextInput({id: 'textInput2'}))).to.throw(
-      'Could not bind property "myText" to "#textInput1.text": No widget matching "#textInput1" was appended.'
+      'Binding "myText" <-> "#textInput1.text" failed to initialize: No widget matching "#textInput1" was appended.'
     );
   });
 
   it('throws if binding to missing property', () => {
     expect(() => widget.append(new Composite({id: 'textInput1'}))).to.throw(
-      'Could not bind property "myText" to "#textInput1.text": Target does not have a property "text".'
+        'Binding "myText" <-> "#textInput1.text" failed to initialize: '
+      + 'Target does not have a property "text".'
     );
   });
 
@@ -126,14 +161,15 @@ describe('bind', () => {
     let source = new Composite({id: 'textInput1'});
     (source as any).text = 23;
     expect(() => widget.append(source)).to.throw(
-        'Could not bind property "myText" to "#textInput1.text": '
+        'Binding "myText" <-> "#textInput1.text" failed to initialize: '
       + 'Expected value to be of type "string", but found "number".'
     );
   });
 
   it('throws if binding finds multiple sources', () => {
     expect(() => widget.append(new TextInput({id: 'textInput1'}), new TextInput({id: 'textInput1'}))).to.throw(
-      'Could not bind property "myText" to "#textInput1.text": Multiple widgets matching "#textInput1" were appended.'
+        'Binding "myText" <-> "#textInput1.text" failed to initialize: '
+      + 'Multiple widgets matching "#textInput1" were appended.'
     );
   });
 
@@ -176,7 +212,7 @@ describe('bind', () => {
     widget.append(child);
 
     expect(() => child.text = 23).to.throw(
-        'Binding "#textInput1.text" failed: '
+        'Binding "myText" <-> "#textInput1.text" failed to update CustomChild property "text": '
       + 'Expected value to be of type "string", but found "number".'
     );
   });
@@ -190,7 +226,7 @@ describe('bind', () => {
     child.text = 23;
 
     expect(() => widget.myText).to.throw(
-        'Binding "#textInput1.text" failed: '
+        'Binding "myText" <-> "#textInput1.text" failed to provide CustomComponent property "myText": '
       + 'Expected value to be of type "string", but found "number".'
     );
   });
@@ -199,8 +235,8 @@ describe('bind', () => {
     widget.append(textInput1);
 
     expect(() => (widget as any).myText = 23).to.throw(
-        'Binding "#textInput1.text" failed: '
-      + 'Expected value to be of type "string", but found "number".'
+       'Binding "myText" <-> "#textInput1.text" failed to update target value: '
+     + 'Expected value to be of type "string", but found "number".'
     );
   });
 

@@ -122,7 +122,6 @@ export function getParameterType(fn: any, index: number): Constructor<any> {
  * widget prototype or instance.
  */
 export function postAppendHandlers(widget: WidgetInterface) {
-  patchAppend(widget);
   if (!Reflect.getMetadata(postAppendHandlersKey, widget)) {
     Reflect.defineMetadata(postAppendHandlersKey, [], widget);
   }
@@ -149,10 +148,39 @@ export function getParamInfo(fn: any): ParamInfo[] {
   return Reflect.getMetadata(paramInfoKey, fn);
 }
 
-/**
- * Checks if the post append handlers of this widget type have already been executed for the given instance.
- */
-export function wasAppended(widget: WidgetInterface) {
+export function checkBindableType(property: string, type: Constructor<any>) {
+  if (type === Object) {
+    throw new Error(`Type of "${property}" could not be inferred. `
+      + 'Only classes and primitive types are supported.');
+  }
+}
+
+export function checkPropertyExists(targetWidget: any, targetProperty: string, targetName: string = 'Target') {
+  if (!(targetProperty in targetWidget)) {
+    throw new Error(`${targetName} does not have a property "${targetProperty}".`);
+  }
+}
+
+export function markAsAppended(widget: WidgetInterface) {
+  widget[wasAppendedKey] = true;
+}
+
+export function checkAppended(widget: WidgetInterface) {
+  if (!isAppended(widget)) {
+    throw new Error(`No widgets have been appended yet.`);
+  }
+}
+
+export function checkPathSyntax(targetPath: string) {
+  if (/\s|\[|\]|\(|\)|\<|\>/.test(targetPath)) {
+    throw new Error('Binding path contains invalid characters.');
+  }
+  if (/this/.test(targetPath)) {
+    throw new Error('Binding path contains reserved word "this".');
+  }
+}
+
+export function isAppended(widget: WidgetInterface) {
   return !!widget[wasAppendedKey];
 }
 
@@ -186,32 +214,8 @@ export class ChangeEvent<T> {
 
 /* Internals */
 
-function patchAppend(widgetProto: WidgetInterface) {
-  if (widgetProto.append !== customAppend) {
-    widgetProto[originalAppendKey] = widgetProto.append;
-    widgetProto.append = customAppend;
-  }
-}
-
-function customAppend(this: WidgetInterface): any {
-  let result = this[originalAppendKey].apply(this, arguments);
-  runPostAppendHandler(this);
-  return result;
-}
-
-function runPostAppendHandler(widgetInstance: WidgetInterface) {
-  if (widgetInstance[wasAppendedKey]) {
-    return;
-  }
-  for (let fn of postAppendHandlers(widgetInstance)) {
-    fn(widgetInstance);
-  }
-  widgetInstance[wasAppendedKey] = true;
-}
-
 const postAppendHandlersKey = Symbol();
 const wasAppendedKey = Symbol();
-const originalAppendKey = Symbol();
 const propertyStoreKey = Symbol();
 const paramInfoKey = Symbol();
 const componentKey = Symbol();

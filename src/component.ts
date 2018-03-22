@@ -1,14 +1,13 @@
 import 'reflect-metadata';
-import { Widget } from 'tabris';
-import { WidgetCollection } from 'tabris';
-import { checkBindingType, checkPropertyExists, clearOneWayBindings, getOneWayBindings, OneWayBinding } from './binding-utils';
-import { typeGuards } from './TypeGuards';
-import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory, markAsComponent, postAppendHandlers } from './utils';
+import { Widget, WidgetCollection } from 'tabris';
+import { processOneWayBindings } from './bind-one-way';
+import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory, isAppended, markAsAppended, markAsComponent, postAppendHandlers, WidgetInterface } from './utils';
 
 export function component(type: BaseConstructor<Widget>) {
   markAsComponent(type);
   isolate(type);
-  addBindingProcessor(type);
+  addOneWayBindingsProcessor(type);
+  patchAppend(type);
 }
 
 function isolate(type: BaseConstructor<Widget>) {
@@ -17,39 +16,40 @@ function isolate(type: BaseConstructor<Widget>) {
   }
 }
 
-export function addBindingProcessor(type: BaseConstructor<Widget>): void;
-export function addBindingProcessor(...args: any[]): void | ClassDecoratorFactory<Widget> {
+function addOneWayBindingsProcessor(type: BaseConstructor<Widget>): void;
+function addOneWayBindingsProcessor(...args: any[]): void | ClassDecoratorFactory<Widget> {
   return applyClassDecorator('bindingBase', args, (type: BaseConstructor<Widget>) => {
     postAppendHandlers(type.prototype).push(base => {
-      base._find().forEach(child => processBindings(base, child));
+      base._find().forEach(child => processOneWayBindings(base, child));
     });
   });
-}
-
-function processBindings(base: Widget, target: Widget) {
-  let bindings = getOneWayBindings(target);
-  if (bindings) {
-    for (let binding of bindings) {
-      initOneWayBinding(base, binding);
-    }
-    clearOneWayBindings(target);
-  }
-}
-
-function initOneWayBinding(base: Widget, binding: OneWayBinding) {
-  try {
-    checkPropertyExists(base, binding.sourceProperty, 'Base');
-    typeGuards.checkType(base[binding.sourceProperty], binding.targetPropertyType);
-    base.on(binding.sourceChangeEvent, ({value}) => {
-      checkBindingType(binding.path, value, binding.targetPropertyType);
-      binding.target[binding.targetProperty] = value;
-    });
-    binding.target[binding.targetProperty] = base[binding.sourceProperty];
-  } catch (ex) {
-    throw new Error(`Could not bind property "${binding.targetProperty}" to "${binding.path}": ${ex.message}`);
-  }
 }
 
 function returnEmptyCollection() {
   return new WidgetCollection([]);
 }
+
+function patchAppend(type: BaseConstructor<Widget>) {
+  let widgetProto = type.prototype;
+  if (widgetProto.append !== customAppend) {
+    widgetProto[originalAppendKey] = widgetProto.append;
+    widgetProto.append = customAppend;
+  }
+}
+
+function customAppend(this: WidgetInterface): any {
+  let result = this[originalAppendKey].apply(this, arguments);
+  if (!isAppended(this)) {
+    markAsAppended(this);
+    runPostAppendHandler(this);
+  }
+  return result;
+}
+
+function runPostAppendHandler(widgetInstance: WidgetInterface) {
+  for (let fn of postAppendHandlers(widgetInstance)) {
+    fn(widgetInstance);
+  }
+}
+
+const originalAppendKey = Symbol();

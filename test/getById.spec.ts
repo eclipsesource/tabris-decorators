@@ -1,8 +1,8 @@
 import 'mocha';
-import 'sinon';
+import { useFakeTimers } from 'sinon';
 import { Button, Composite } from 'tabris';
 import * as tabrisMock from './tabris-mock';
-import { expect, restoreSandbox } from './test';
+import { expect, restoreSandbox, spy } from './test';
 import { component, getById, typeGuards } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
@@ -61,15 +61,47 @@ describe('getById', () => {
     );
   });
 
-  it('fails to resolve on none-@component', () => {
-    expect(() => {
+  describe('on a Widget that is not a @component', () => {
+
+    let clock;
+    let now;
+
+    beforeEach(() => {
+      now = Date.now();
+      clock = useFakeTimers(now);
+    });
+
+    afterEach(() => {
+      clock.restore();
+    });
+
+    it('prints an error', () => {
+      spy(console, 'error');
       class FailedComponent extends Composite {
         @getById public readonly button1: Button;
       }
-      new FailedComponent().append(new Button({id: 'button1'}));
-    }).to.throw(
-      'Decorator "getById" could not resolve property "button1": FailedComponent is not a @component'
-    );
+      clock.tick(now + 100);
+      expect(console.error).to.have.been.calledWith(
+       'Decorator "getById" could not resolve property "button1": FailedComponent is not a @component'
+      );
+    });
+
+    it('throws on access', () => {
+      class FailedComponent extends Composite {
+
+        @getById public readonly button1: Button;
+
+        constructor() {
+          super({});
+          this.append(new Button({id: 'button1'}));
+        }
+
+      }
+      expect(() => new FailedComponent().button1).to.throw(
+        'Decorator "getById" could not resolve property "button1": FailedComponent is not a @component'
+      );
+    });
+
   });
 
   it('throws if a getter is accessed before first append', () => {
