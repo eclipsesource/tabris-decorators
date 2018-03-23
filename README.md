@@ -36,7 +36,25 @@ This makes changes to `myText` be applied to the `text` property of the `textVie
 
 ### @property
 
-Makes the decorated widget property a "real" Tabris.js property, meaning it can be set via constructor or `set` method (proper type declarations assumed), and it fires change events. This is especially useful when the property is supposed to be the source of a one-way data binding.
+Makes the decorated widget property a "real" Tabris.js property, meaning it can be set via constructor or `set` method (proper type declarations assumed), and it fires change events. This is especially useful when the property is supposed to be the source of a one-way data binding. It also performs type checks for the databinding system. It works on any class extending `Widget`.
+
+### @property(value => boolean)
+
+Like `@property`, but uses the given function (type guard) to perform type checks. The type guard may be more strict than the TypeScript compiler (e.g. allowing only positive numbers where the compiler allows any number), but should never be less strict, though it is possible.
+
+The function may return either a boolean (`true` indicates the value passes), or throw an error explaining why the value did not pass.
+
+Example:
+
+```js
+  @component
+  class CustomComponent extends Composite {
+
+    @property(v => v instanceof Array || (!isNaN(v) && v >= 0))
+    public mixedType: number[] | number = 0;
+
+  }
+```
 
 ### @bind("#\<id\>.\<property\>")
 
@@ -62,9 +80,9 @@ Lets the property return the descendant with the same id as the property name. T
 Since the databinding system can not rely on IDE tooling to ensure type safety, runtime checks are performed. This causes some limitations:
 
 * For properties that have a class or primitive type, type checks will be performed.
-* If either property type is an interface or [advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html), the binding will fail.
+* Properties that have a pure string or number enum/union type are treated like they are a string or number primitive type. It's therefore possible to bind a string enum or union to another string enum/union or string primitive. Same for number. **This should be avoided** unless it's a one-way binding where the enum/union property is on the base component, and the primitive type on the target component.
+* If either property type is any other [advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html) or an interface, the binding will fail.
 * If both properties are missing type information, no type checks will be performed. Type information are missing if the property is not decorated (e.g. with @property) or implemented in JavaScript. **In this case it is expected that the property setter performs type checks itself.** This is the behavior of all Tabris.js built-in widgets.
-* Properties that have a pure string or number enum type are treated like they are a string or number primitive type. It's therefore possible to bind a string enum to another string enum or string primitive. Same for number. **This should be avoided** unless it's a one-way binding where the enum property is on the base component, and the primitive type on the target component.
 
 
 ## Dependency Injection

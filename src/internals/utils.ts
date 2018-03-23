@@ -67,9 +67,9 @@ export function applyClassDecorator<T>(
  * or without (static, e.g. "@foo").
  */
 export function areStaticDecoratorArgs(args: any[]): boolean {
-  let hasTarget = typeof args[0] === 'object' || typeof args[0] === 'function';
-  let hasParam = typeof args[1] === 'string' || typeof args[2] === 'number';
-  return hasTarget && hasParam && args.length === 3;
+  let hasClassTarget = (typeof args[0] === 'function') && args[0].prototype;
+  let hasProtoTarget = (typeof args[0] === 'object') && args[0].constructor;
+  return (hasClassTarget || hasProtoTarget) && args.length >= 2;
 }
 
 /**

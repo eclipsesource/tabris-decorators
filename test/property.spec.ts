@@ -18,6 +18,15 @@ describe('property', () => {
 
     @property public baz: number | boolean = true;
 
+    @property(v => ['a', 'b', 'c'].indexOf(v) > -1)
+    public specificStrings: string = 'a';
+
+    @property(v => v instanceof Array || (!isNaN(v) && v >= 0))
+    public mixedType: number[] | number = 0;
+
+    @property(v => {if (v !== true) { throw new Error('only true allowed'); } return true;})
+    public trueType: boolean = true;
+
     constructor(properties?: CustomComponentProperties) {
       super(properties);
     }
@@ -86,6 +95,47 @@ describe('property', () => {
     component.baz = 'foo';
 
     expect(component.baz).to.equal('foo');
+  });
+
+  it('throws if type standard check would succeed but type guard fails', () => {
+    let component = new CustomComponent();
+    expect(() => component.specificStrings = 'd').to.throw(
+      'Failed to set property "specificStrings": Type guard check failed'
+    );
+    expect(component.specificStrings).to.equal('a');
+  });
+
+  it('accepts value if type standard check is not possible but type guard succeeds', () => {
+    let component = new CustomComponent();
+
+    component.mixedType = [];
+    component.mixedType = 12;
+
+    expect(component.mixedType).to.equal(12);
+  });
+
+  it('throws if type standard check is not possible but type guard fails', () => {
+    let component = new CustomComponent();
+    expect(() => component.mixedType = -1).to.throw(
+      'Failed to set property "mixedType": Type guard check failed'
+    );
+    expect(component.specificStrings).to.equal('a');
+  });
+
+  it('accepts value if type standard check would fail but type guard succeeds', () => {
+    let component = new CustomComponent();
+
+    (component as any).mixedType = ['a'];
+
+    expect(component.mixedType).to.deep.equal(['a']);
+  });
+
+  it('throws if type type guard throws', () => {
+    let component = new CustomComponent();
+    expect(() => component.trueType = false).to.throw(
+      'Failed to set property "trueType": only true allowed'
+    );
+    expect(component.trueType).to.equal(true);
   });
 
 });
