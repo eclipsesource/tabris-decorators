@@ -22,6 +22,17 @@ describe('bind', () => {
 
   }
 
+  @component class ComponentWithInitialValue extends Composite {
+    @bind('#foo.text') public foo: string = 'foo';
+  }
+
+  @component class ComponentWithImage extends Composite {
+
+    @bind('#imageView1.image')
+    public myImage: Image;
+
+  }
+
   let widget: CustomComponent;
   let textInput1: TextInput;
 
@@ -30,13 +41,13 @@ describe('bind', () => {
     textInput1 = new TextInput({id: 'textInput1', text: 'foo'});
   });
 
-  it('returns the source property value', () => {
+  it('returns the target property value', () => {
     widget.append(textInput1);
 
     expect(widget.myText).to.equal('foo');
   });
 
-  it('returns the changed source property value', () => {
+  it('returns the changed target property value', () => {
     widget.append(textInput1);
 
     textInput1.text = 'bar';
@@ -44,7 +55,7 @@ describe('bind', () => {
     expect(widget.myText).to.equal('bar');
   });
 
-  it('ignores detaching the source', () => {
+  it('ignores detaching the target', () => {
     widget.append(textInput1);
 
     textInput1.detach();
@@ -53,7 +64,7 @@ describe('bind', () => {
     expect(widget.myText).to.equal('bar');
   });
 
-  it('value still linked after disposing the source', () => {
+  it('value still linked after disposing the target', () => {
     widget.append(textInput1);
 
     textInput1.dispose();
@@ -137,14 +148,26 @@ describe('bind', () => {
     }
   });
 
-  it('throws if property is accessed before first append', () => {
-    expect(() => widget.myText).to.throw(
-        'Binding "myText" <-> "#textInput1.text" failed to provide CustomComponent property "myText": '
-      + 'No widgets have been appended yet.'
-    );
+  it('allows to initialize base property on declaration', () => {
+    let component2 = new ComponentWithInitialValue();
+
+    expect(component2.foo).to.equal('foo');
   });
 
-  it('throws if a binding source can not be resolved after first append', () => {
+  it('allows to change base property before first append', () => {
+    let component2 = new ComponentWithInitialValue();
+    let listener = stub();
+    component2.on('fooChanged', listener);
+
+    component2.foo = 'bar';
+
+    expect(component2.foo).to.equal('bar');
+    expect(listener).to.have.been.calledWithMatch({
+      target: component2, value: 'bar', type: 'fooChanged'
+    });
+  });
+
+  it('throws if a binding target can not be resolved after first append', () => {
     expect(() => widget.append(new TextInput({id: 'textInput2'}))).to.throw(
       'Binding "myText" <-> "#textInput1.text" failed to initialize: No widget matching "#textInput1" was appended.'
     );
@@ -158,22 +181,32 @@ describe('bind', () => {
   });
 
   it('throws if binding to wrong value type', () => {
-    let source = new Composite({id: 'textInput1'});
-    (source as any).text = 23;
-    expect(() => widget.append(source)).to.throw(
+    let target = new Composite({id: 'textInput1'});
+    (target as any).text = 23;
+    expect(() => widget.append(target)).to.throw(
         'Binding "myText" <-> "#textInput1.text" failed to initialize: '
       + 'Expected value to be of type "string", but found "number".'
     );
   });
 
-  it('throws if binding finds multiple sources', () => {
+  it('throws if binding finds multiple targets', () => {
     expect(() => widget.append(new TextInput({id: 'textInput1'}), new TextInput({id: 'textInput1'}))).to.throw(
         'Binding "myText" <-> "#textInput1.text" failed to initialize: '
       + 'Multiple widgets matching "#textInput1" were appended.'
     );
   });
 
-  it('applies changes to source', () => {
+  it('applies initial value to target', () => {
+    let foo = new TextInput({id: 'foo'});
+    foo.text = 'bar';
+
+    let component2 = new ComponentWithInitialValue();
+    component2.append(foo);
+
+    expect(foo.text).to.equal('foo');
+  });
+
+  it('applies changes to target', () => {
     widget.append(textInput1);
 
     widget.myText = 'bar';
@@ -181,7 +214,7 @@ describe('bind', () => {
     expect(textInput1.text).to.equal('bar');
   });
 
-  it('fires change event when source changes', () => {
+  it('fires change event when target changes', () => {
     widget.append(textInput1);
     let listener = stub();
     widget.on('myTextChanged', listener);
@@ -254,18 +287,11 @@ describe('bind', () => {
 
   describe('with type Image', () => {
 
-    @component class CustomComponent2 extends Composite {
-
-      @bind('#imageView1.image')
-      public myImage: Image;
-
-    }
-
-    let widget2: CustomComponent2;
+    let widget2: ComponentWithImage;
     let imageView: ImageView;
 
     beforeEach(() => {
-      widget2 = new CustomComponent2();
+      widget2 = new ComponentWithImage();
       imageView = new ImageView({id: 'imageView1'});
       widget2.append(imageView);
     });

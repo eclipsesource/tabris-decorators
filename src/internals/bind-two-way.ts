@@ -1,8 +1,8 @@
 import { Widget, WidgetCollection } from 'tabris';
 import { ChangeEvent } from '../api/ChangeEvent';
 import { typeGuards } from '../api/TypeGuards';
-import { checkPathSyntax } from '../internals/utils';
-import { checkAppended, checkBindableType, checkIsComponent, checkPropertyExists, getPropertyStore, getPropertyType, postAppendHandlers, WidgetInterface } from '../internals/utils';
+import { checkPathSyntax, isAppended } from '../internals/utils';
+import { checkBindableType, checkIsComponent, checkPropertyExists, getPropertyStore, getPropertyType, postAppendHandlers, WidgetInterface } from '../internals/utils';
 
 interface TwoWayBinding {
   path: string;
@@ -21,7 +21,10 @@ export function createBoundProperty(baseProto: WidgetInterface, baseProperty: st
   Object.defineProperty(baseProto, baseProperty, {
     get(this: WidgetInterface) {
       try {
-        checkAccess(this, binding);
+        checkIsComponent(this);
+        if (!isAppended(this)) {
+          return getPropertyStore(this).get(baseProperty);
+        }
         let value = getPropertyStore(this).get(binding.targetKey)[binding.targetProperty];
         typeGuards.checkType(value, basePropertyType);
         return value;
@@ -33,8 +36,13 @@ export function createBoundProperty(baseProto: WidgetInterface, baseProperty: st
     },
     set(this: WidgetInterface, value: any) {
       try {
-        checkAccess(this, binding);
+        checkIsComponent(this);
         typeGuards.checkType(value, basePropertyType);
+        if (!isAppended(this)) {
+          getPropertyStore(this).set(baseProperty, value);
+          this.trigger(binding.baseChangeEvent, new ChangeEvent(this, binding.baseChangeEvent, value));
+          return;
+        }
         getPropertyStore(this).get(binding.targetKey)[binding.targetProperty] = value;
       } catch (ex) {
         throw new Error(getBindingFailedErrorMessage(binding, 'update target value', ex));
@@ -78,10 +86,11 @@ function createTwoWayBindingDesc(path: string, baseProperty: string): TwoWayBind
 function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
   try {
     const basePropertyType = getPropertyType(base, binding.baseProperty);
-    let child = getChild(base, binding.selector);
+    const child = getChild(base, binding.selector);
+    const propertyStore = getPropertyStore(base);
     checkPropertyExists(child, binding.targetProperty);
+    propertyStore.set(binding.targetKey, child);
     typeGuards.checkType(child[binding.targetProperty], basePropertyType);
-    getPropertyStore(base).set(binding.targetKey, child);
     child.on(binding.targetChangeEvent, ({ value }) => {
       try {
         typeGuards.checkType(value, basePropertyType);
@@ -92,18 +101,18 @@ function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
         );
       }
     });
-    base.trigger(
-      binding.baseChangeEvent,
-      new ChangeEvent(base, binding.baseChangeEvent, child[binding.targetProperty])
-    );
+    if (propertyStore.has(binding.baseProperty)) {
+      child[binding.targetProperty] = propertyStore.get(binding.baseProperty);
+      propertyStore.delete(binding.baseProperty);
+    } else {
+      base.trigger(
+        binding.baseChangeEvent,
+        new ChangeEvent(base, binding.baseChangeEvent, child[binding.targetProperty])
+      );
+    }
   } catch (ex) {
     throw new Error(getBindingFailedErrorMessage(binding, 'initialize', ex));
   }
-}
-
-function checkAccess(base: WidgetInterface, binding: TwoWayBinding) {
-  checkIsComponent(base);
-  checkAppended(base);
 }
 
 function getChild(base: WidgetInterface, selector: string) {
