@@ -57,6 +57,16 @@ Lets the property return the descendant with the same id as the property name. T
 
 `getById` only works on classes decorated with `@component`.
 
+### Notes on type safety
+
+Since the databinding system can not rely on IDE tooling to ensure type safety, runtime checks are performed. This causes some limitations:
+
+* For properties that have a class or primitive type, type checks will be performed.
+* If either property type is an interface or [advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html), the binding will fail.
+* If both properties are missing type information, no type checks will be performed. Type information are missing if the property is not decorated (e.g. with @property) or implemented in JavaScript. **In this case it is expected that the property setter performs type checks itself.** This is the behavior of all Tabris.js built-in widgets.
+* Properties that have a pure string or number enum type are treated like they are a string or number primitive type. It's therefore possible to bind a string enum to another string enum or string primitive. Same for number. **This should be avoided** unless it's a one-way binding where the enum property is on the base component, and the primitive type on the target component.
+
+
 ## Dependency Injection
 
 `@inject` together with `@injectable` and others allow for simple dependency injection. The type of the injection has to be a class, interfaces are not supported. However, abstract classes work, and classes can be used like interfaces in TypeScript, so most cases should be covered.
