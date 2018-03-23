@@ -1,6 +1,6 @@
 import { Composite } from 'tabris';
-import { createBoundProperty } from './bind-two-way';
-import { applyDecorator, WidgetInterface } from './utils';
+import { createBoundProperty } from '../internals/bind-two-way';
+import { applyDecorator, WidgetInterface } from '../internals/utils';
 
 export function bind(targetPath: string): (target: Composite, property: string) => void;
 export function bind(...args: any[]): any {

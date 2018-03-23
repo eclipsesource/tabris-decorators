@@ -1,7 +1,8 @@
 import { Widget, WidgetCollection } from 'tabris';
-import { typeGuards } from './TypeGuards';
-import { checkPathSyntax } from './utils';
-import { ChangeEvent, checkAppended, checkBindableType, checkIsComponent, checkPropertyExists, getPropertyStore, getPropertyType, postAppendHandlers, WidgetInterface } from './utils';
+import { ChangeEvent } from '../api/ChangeEvent';
+import { typeGuards } from '../api/TypeGuards';
+import { checkPathSyntax } from '../internals/utils';
+import { checkAppended, checkBindableType, checkIsComponent, checkPropertyExists, getPropertyStore, getPropertyType, postAppendHandlers, WidgetInterface } from '../internals/utils';
 
 interface TwoWayBinding {
   path: string;

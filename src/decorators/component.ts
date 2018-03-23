@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Widget, WidgetCollection } from 'tabris';
-import { processOneWayBindings } from './bind-one-way';
-import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory, isAppended, markAsAppended, markAsComponent, postAppendHandlers, WidgetInterface } from './utils';
+import { processOneWayBindings } from '../internals//bind-one-way';
+import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory, isAppended, markAsAppended, markAsComponent, postAppendHandlers, WidgetInterface } from '../internals//utils';
 
 export function component(type: BaseConstructor<Widget>) {
   markAsComponent(type);

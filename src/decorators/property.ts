@@ -1,6 +1,7 @@
 import { Widget } from 'tabris';
-import { typeGuards } from './TypeGuards';
-import { applyDecorator, ChangeEvent, Constructor, getPropertyStore, getPropertyType, WidgetInterface } from './utils';
+import { ChangeEvent } from '../api/ChangeEvent';
+import { typeGuards } from '../api/TypeGuards';
+import { applyDecorator, Constructor, getPropertyStore, getPropertyType, WidgetInterface } from '../internals/utils';
 
 export function property(targetProto: Widget, property: string): void;
 export function property(...args: any[]): void {

@@ -1,21 +1,21 @@
 import { Widget } from 'tabris';
 import { WidgetCollection } from 'tabris';
-import { Injector } from './Injector';
+import { Injector } from '../api/Injector';
 
-export interface ParamInfo {type: Constructor<any>; injectParam?: string; injector: Injector; }
+// tslint:disable-next-line:ban-types
+export type BaseConstructor<T> = Function & { prototype: T };
 export interface Constructor<T> {new(...args: any[]): T; }
-export interface WidgetProtected {
+export type ParameterDecoratorFactory = (target: Constructor<any>, property: string, index: number) => void;
+export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
+export type WidgetInterface = {[prop: string]: any} & Widget & WidgetProtected;
+
+interface WidgetProtected {
   _find(selector?: Selector): WidgetCollection<Widget>;
   _find<U extends Widget>(constructor: { new (...args: any[]): U }): WidgetCollection<U>;
 }
-// tslint:disable-next-line:ban-types
-export type BaseConstructor<T> = Function & { prototype: T };
-export type WidgetConstructor = Constructor<Widget>;
-export type DecoratorFactory = (target: any, property: string, index?: number) => void;
-export type ParameterDecoratorFactory = (target: Constructor<any>, property: string, index: number) => void;
-export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
-export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
-export type WidgetInterface = {[prop: string]: any} & Widget & WidgetProtected;
+interface ParamInfo {type: Constructor<any>; injectParam?: string; injector: Injector; }
+type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
+type DecoratorFactory = (target: any, property: string, index?: number) => void;
 
 /**
  * Takes a callback a decorator factory and when possible calls it with the appropriate arguments,
@@ -192,24 +192,6 @@ export function checkIsComponent(widget: Widget) {
   if (!Reflect.getMetadata(componentKey, widget)) {
     throw new Error(`${widget.constructor.name} is not a @component`);
   }
-}
-
-export class ChangeEvent<T> {
-
-  public target: T;
-
-  public type: string;
-
-  public value: any;
-
-  public timeStamp: number = Date.now();
-
-  constructor(target: T, type: string, value: any) {
-    this.target = target;
-    this.type = type;
-    this.value = value;
-  }
-
 }
 
 /* Internals */

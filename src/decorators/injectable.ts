@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { Injection, InjectionHandlerObject, Injector } from './Injector';
-import { applyClassDecorator, areStaticClassDecoratorArgs, BaseConstructor, ClassDecoratorFactory, Constructor } from './utils';
+import { Injection, InjectionHandlerObject, Injector } from '../api/Injector';
+import { applyClassDecorator, areStaticClassDecoratorArgs, BaseConstructor, ClassDecoratorFactory, Constructor } from '../internals/utils';
 
 export function injectable<T>(config: InjectableConfig<T>): ClassDecoratorFactory<T>;
 export function injectable<T>(type: Constructor<T>): void;
@@ -14,11 +14,6 @@ export function injectable(this: Injector, ...args: any[]): void | ClassDecorato
       this.addHandler(config.implements, handler);
     }
   });
-}
-
-export function shared(type: Constructor<any>): void;
-export function shared(this: Injector, type: Constructor<any>): void {
-  this.injectable({shared: true})(type);
 }
 
 function getInjectableConfig(args: any[]): InjectableConfig<any> {

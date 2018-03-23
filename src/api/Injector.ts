@@ -1,8 +1,9 @@
-import { ExtendedJSX } from './ExtendedJSX';
-import { inject as unboundInject } from './inject';
-import { injectable as unboundInjectable, shared as unboundShared } from './injectable';
-import { injectionHandler as unboundInjectionHandler } from './injectionHandler';
-import { BaseConstructor, Constructor, getParamInfo } from './utils';
+import { inject as unboundInject } from '../decorators/inject';
+import { injectable as unboundInjectable } from '../decorators/injectable';
+import { injectionHandler as unboundInjectionHandler } from '../decorators/injectionHandler';
+import { shared as unboundShared } from '../decorators/shared';
+import { ExtendedJSX } from '../internals/ExtendedJSX';
+import { BaseConstructor, Constructor, getParamInfo } from '../internals/utils';
 
 export class Injector {
 

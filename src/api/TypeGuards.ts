@@ -1,4 +1,4 @@
-import { BaseConstructor } from './utils';
+import { BaseConstructor } from '../internals/utils';
 
 export type Guard<T> = (value: T) => boolean;
 
@@ -15,7 +15,7 @@ export class TypeGuards {
 
   /**
    * Checks if the given value is of the given type while respecting the registered type guards.
-   * Throws if the check fails. Otherwise returns the given value.
+   * Throws if the check fails. Otherwise returns the given value (unmodified) .
    * Primitives are represented by their boxed type, e.g. `Number`.
    * All values are treated as compatible to "Object", even primitives.
    * If no type is given no check is performed.

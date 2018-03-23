@@ -5,7 +5,7 @@ import { Composite, CompositeProperties } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox, spy } from './test';
 import { inject, injectable, Injection, injectionHandler, injector, shared } from '../src';
-import { Constructor } from '../src/utils';
+import { Constructor } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
 
 describe('inject', () => {

@@ -15,7 +15,7 @@ typeGuards.add(Image, v => {
     return true;
   }
   if (typeof v === 'object') {
-    return typeof v.src === 'string';
+    return typeof (v as any).src === 'string';
   }
   return false;
 });

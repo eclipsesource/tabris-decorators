@@ -1,7 +1,7 @@
 import { Widget } from 'tabris';
 import { applyJsxBindings, JsxBindings } from './bind-one-way';
-import { Injector } from './Injector';
-import { Constructor } from './utils';
+import { Injector } from '../api/Injector';
+import { Constructor } from '../internals/utils';
 /* tslint:disable no-namespace ban-types only-arrow-functions */
 
 interface Properties { [property: string]: any; }

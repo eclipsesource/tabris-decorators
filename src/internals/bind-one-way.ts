@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Widget, WidgetResizeEvent } from 'tabris';
-import { typeGuards } from './TypeGuards';
 import { BaseConstructor, checkBindableType, checkPathSyntax, checkPropertyExists, getPropertyType } from './utils';
+import { typeGuards } from '../api/TypeGuards';
 
 export interface JsxBindings { [targetProperty: string]: string; }
 
