@@ -10,9 +10,9 @@ TODOC
 
 ### @component
 
-Makes the decorated widget class the base reference for databinding. Also, a widget class decorated with `@component` will not allow its own children to be selected by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using the finder/getter decorators above.
+Makes the decorated widget class the base reference for databinding. Also, a widget class decorated with `@component` will not allow its own children to be selected by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using `@getById` on a private/protected property.
 
-For ONE-WAY bindings, `@component` enables a new JSX attribute prefix 'bind, which actively copies values FROM the decorated widget TO the JSX element.
+For ONE-WAY bindings, `@component` enables a new JSX attribute prefix 'bind', which actively copies values FROM the base component TO the JSX element.
 
 Example:
 
@@ -32,7 +32,7 @@ Example:
   }
 ```
 
-This makes changes to `myText` be applied to the `text` property of the `textView` element. The source must be a proper Tabris.js style property, not just a field. This can be achieved simply by adding a `@property` decorator, but a custom implementation also works as long as appropriate change events are fired. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the target property is implemented in TypeScript it should also be using  `@property`, otherwise type safety can not be guaranteed.
+This makes changes to `myText` be applied to the `text` property of the `textView` element. The source must be a proper Tabris.js style property, not just a field. This can be achieved simply by adding a `@property` decorator, but a custom implementation also works as long as appropriate change events are fired. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the target property is implemented in TypeScript it should ideally also be using `@property`, otherwise type safety can not be guaranteed (see below).
 
 ### @property
 
@@ -50,12 +50,12 @@ Binds the decorated property of a widget to the property of a child. As with `@g
 
 Lets the property return the descendant with the same id as the property name. The following rules apply:
 
- * It can only be applied on widget classes that (directly or indirectly) extend `Composite`.
+ * It only works on classes decorated with `@component`.
+ * It is read-only at runtime. Attempts to set the property fill fail silently.
  * It will search for a matching child exactly once, after `append` is called the first time on the widget instance.
+ * If accessed before children have been appended it will throw an error.
  * It will always return the same child, even if it is disposed or removed.
  * It will throw if there is no match, more than one, or if the type is not correct.
-
-`getById` only works on classes decorated with `@component`.
 
 ### Notes on type safety
 
@@ -69,7 +69,7 @@ Since the databinding system can not rely on IDE tooling to ensure type safety, 
 
 ## Dependency Injection
 
-`@inject` together with `@injectable` and others allow for simple dependency injection. The type of the injection has to be a class, interfaces are not supported. However, abstract classes work, and classes can be used like interfaces in TypeScript, so most cases should be covered.
+`@inject` together with `@injectable` allow for simple dependency injection. The type of the injection has to be a class, interfaces are not supported. However, abstract classes and classes merged with interfaces work. Since classes can be used like interfaces in TypeScript most cases should be covered.
 
 ### @inject
 
@@ -119,13 +119,13 @@ Shorthand for `@injectable({shared: true})`.
 
 ### @injectionHandler
 
-Registers the decorated static method to handle injections for the given type directly. The method must return a value compatible to the given type.
+Registers the decorated static method to handle injections for the given type directly. The method must return a value compatible to the given type or `null`/`undefined`. If no compatible value is returned the next injection handler is called. If no injection handler returns a compatible value the injection fails. (`@injectable` counts as an injection handler.)
 
 // TDB: Injection parameter object
 
 ### injector.resolve(type)
 
-Returns an instance of the given type, just like using the `@inject` decorator would do. Useful in cases where a decorator can not be used, e.g. outside of classes. Note that `type` *has to be an injectable*.
+Returns an instance of the given type, just like using the `@inject` decorator would do. Useful in cases where a decorator can not be used, e.g. outside of classes. Note that `type` *has to be injectable*.
 
 ### injector.create(type)
 
