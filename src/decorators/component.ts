@@ -1,9 +1,10 @@
 import 'reflect-metadata';
 import { Widget, WidgetCollection } from 'tabris';
+import { Composite } from 'tabris';
 import { processOneWayBindings } from '../internals//bind-one-way';
 import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory, isAppended, markAsAppended, markAsComponent, postAppendHandlers, WidgetInterface } from '../internals//utils';
 
-export function component(type: BaseConstructor<Widget>) {
+export function component(type: BaseConstructor<Composite>) {
   markAsComponent(type);
   isolate(type);
   addOneWayBindingsProcessor(type);
