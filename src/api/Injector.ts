@@ -116,8 +116,6 @@ export class Injector {
 }
 
 export const injector = new Injector();
-export const { inject, injectable, shared, injectionHandler } = injector;
-(JSX as any) = injector.JSX;
 
 export interface Injection {
   type?: Constructor<any>;
