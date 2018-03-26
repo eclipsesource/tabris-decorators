@@ -132,8 +132,7 @@ describe('bind', () => {
       }
     }).to.throw(
         'Could not apply decorator "bind" to "value": '
-      + 'Type of "value" could not be inferred. '
-      + 'Only classes and primitive types are supported.'
+      + 'Can not bind to property "value" without type guard.'
     );
   });
 
@@ -213,7 +212,7 @@ describe('bind', () => {
     let target = new TargetComponent({id: 'textInput1'});
     expect(() => widget.append(target)).to.throw(
         'Binding "myText" <-> "#textInput1.text" failed to initialize: '
-      + 'Can not bind to advanced type without type guard.'
+      + 'Can not bind to property "text" without type guard.'
     );
   });
 

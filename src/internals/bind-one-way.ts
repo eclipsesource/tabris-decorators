@@ -1,25 +1,15 @@
 import 'reflect-metadata';
 import { Widget, WidgetResizeEvent } from 'tabris';
-import { BaseConstructor, checkBindableType, checkPathSyntax, checkPropertyExists, getPropertyType } from './utils';
-import { typeGuards } from '../api/TypeGuards';
+import { BaseConstructor, checkPathSyntax, checkPropertyExists, getPropertyType, isUnchecked, WidgetInterface } from './utils';
 
 export interface JsxBindings { [targetProperty: string]: string; }
-
-interface OneWayBinding {
-  path: string;
-  target: Widget;
-  targetProperty: string;
-  targetPropertyType: BaseConstructor<any>;
-  sourceProperty: string;
-  sourceChangeEvent: string;
-}
 
 export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings) {
   let oneWayBindings: OneWayBinding[] = [];
   for (let targetProperty in bindings) {
     try {
       oneWayBindings.push(
-        createOneWayBindingDesc(targetInstance, targetProperty, bindings[targetProperty])
+        createOneWayBindingDesc(targetInstance as WidgetInterface, targetProperty, bindings[targetProperty])
       );
     } catch (ex) {
       throw new Error(`Could not bind property "${targetProperty}" to "${bindings[targetProperty]}": ${ex.message}`);
@@ -29,7 +19,7 @@ export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings) 
   targetInstance.once({resize: checkBindingsApplied});
 }
 
-export function processOneWayBindings(base: Widget, target: Widget) {
+export function processOneWayBindings(base: WidgetInterface, target: Widget) {
   let bindings = getOneWayBindings(target);
   if (bindings) {
     for (let binding of bindings) {
@@ -39,13 +29,11 @@ export function processOneWayBindings(base: Widget, target: Widget) {
   }
 }
 
-function initOneWayBinding(base: Widget, binding: OneWayBinding) {
+function initOneWayBinding(base: WidgetInterface, binding: OneWayBinding) {
   try {
     checkPropertyExists(base, binding.sourceProperty, base.constructor.name);
-    typeGuards.checkType(base[binding.sourceProperty], binding.targetPropertyType);
     base.on(binding.sourceChangeEvent, ({value}) => {
       try {
-        typeGuards.checkType(base[binding.sourceProperty], binding.targetPropertyType);
         binding.target[binding.targetProperty] = value;
       } catch (ex) {
         throwBindingFailedError(binding, ex);
@@ -61,7 +49,7 @@ function throwBindingFailedError(binding: OneWayBinding, ex: Error): never {
   throw new Error(`Binding "${binding.targetProperty}" -> "${binding.path}" failed: ${ex.message}`);
 }
 
-function createOneWayBindingDesc(target: Widget, targetProperty: string, path: string): OneWayBinding {
+function createOneWayBindingDesc(target: WidgetInterface, targetProperty: string, path: string): OneWayBinding {
   checkPathSyntax(path);
   if (path.startsWith('.') || path.startsWith('#')) {
     throw new Error('JSX binding path can currently not contain a selector.');
@@ -73,7 +61,9 @@ function createOneWayBindingDesc(target: Widget, targetProperty: string, path: s
   let sourceChangeEvent = sourceProperty + 'Changed';
   let targetPropertyType = getPropertyType(target, targetProperty);
   checkPropertyExists(target, targetProperty);
-  checkBindableType(targetProperty, targetPropertyType);
+  if (isUnchecked(target, targetProperty)) {
+    throw new Error(`Can not bind to property "${targetProperty}" without type guard.`);
+  }
   return {
     target, targetProperty, path, sourceProperty, sourceChangeEvent, targetPropertyType
   };
@@ -94,3 +84,12 @@ function clearOneWayBindings(instance: Widget) {
 }
 
 const oneWayBindingsKey = Symbol();
+
+interface OneWayBinding {
+  path: string;
+  target: Widget;
+  targetProperty: string;
+  targetPropertyType: BaseConstructor<any>;
+  sourceProperty: string;
+  sourceChangeEvent: string;
+}

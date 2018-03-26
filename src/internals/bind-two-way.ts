@@ -2,7 +2,7 @@ import { Widget, WidgetCollection } from 'tabris';
 import { ChangeEvent } from '../api/ChangeEvent';
 import { typeGuards } from '../api/TypeGuards';
 import { BaseConstructor, checkPathSyntax, isAppended } from '../internals/utils';
-import { checkBindableType, checkIsComponent, checkPropertyExists, getPropertyStore, getPropertyType, isUnchecked, postAppendHandlers, WidgetInterface } from '../internals/utils';
+import { checkIsComponent, checkPropertyExists, getPropertyStore, getPropertyType, isUnchecked, postAppendHandlers, WidgetInterface } from '../internals/utils';
 
 export function createBoundProperty(
   baseProto: WidgetInterface,
@@ -11,8 +11,8 @@ export function createBoundProperty(
   typeGuard: (v: any) => boolean
 ) {
   const basePropertyType = getPropertyType(baseProto, baseProperty);
-  if (!typeGuard) {
-    checkBindableType(baseProperty, basePropertyType);
+  if (!typeGuard && basePropertyType === Object) {
+    throw new Error(`Can not bind to property "${baseProperty}" without type guard.`);
   }
   let typeChecker = createTypeChecker(basePropertyType, typeGuard);
   const binding = createTwoWayBindingDesc(targetPath, baseProperty, typeChecker);
@@ -94,7 +94,7 @@ function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
     const propertyStore = getPropertyStore(base);
     checkPropertyExists(child, binding.targetProperty);
     if (isUnchecked(child, binding.targetProperty)) {
-      throw new Error('Can not bind to advanced type without type guard.');
+      throw new Error(`Can not bind to property "${binding.targetProperty}" without type guard.`);
     }
     propertyStore.set(binding.targetKey, child);
     binding.basePropertyChecker(child[binding.targetProperty]);

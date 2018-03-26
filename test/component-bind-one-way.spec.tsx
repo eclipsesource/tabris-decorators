@@ -22,6 +22,8 @@ describe('component', () => {
   @component
   class CustomComponent2 extends Composite {
     @property public someProperty: string | boolean;
+    @property(v => (typeof v === 'string' && v !== 'rejectMe') || typeof v === 'boolean' || v === undefined)
+    public checkedSomeProperty: string | boolean;
     public someField: string;
     @property public numberProperty: number;
     private readonly jsxProperties: CompositeProperties;
@@ -92,12 +94,33 @@ describe('component', () => {
       );
     });
 
-    it('fails to bind with unserializable property type', () => {
+    it('fails to bind to unserializable child property type without type guard', () => {
       expect(() => {
         widget.append(<CustomComponent2 bind-someProperty='myText' />);
       }).to.throw(
           'Could not bind property "someProperty" to "myText": '
-        + 'Type of "someProperty" could not be inferred. Only classes and primitive types are supported.'
+        + 'Can not bind to property "someProperty" without type guard.'
+      );
+    });
+
+    it('allows to bind to unserializable child property type with type guard', () => {
+      let target: CustomComponent2 = <CustomComponent2 bind-checkedSomeProperty='myText' />;
+      widget.append(target);
+      widget.myText = 'foo';
+
+      expect(target.checkedSomeProperty).to.equal('foo');
+    });
+
+    it('fails if child type guard rejects', () => {
+      let target: CustomComponent2 = <CustomComponent2 bind-checkedSomeProperty='myText' />;
+      widget.append(target);
+      widget.myText = 'foo';
+
+      expect(() => {
+        widget.myText = 'rejectMe';
+      }).to.throw(
+          'Binding "checkedSomeProperty" -> "myText" failed: Failed to set property "checkedSomeProperty": '
+        + 'Type guard check failed'
       );
     });
 
@@ -105,7 +128,8 @@ describe('component', () => {
       expect(() => {
         widget.append(<CustomComponent2 bind-numberProperty='myText' />);
       }).to.throw(
-        'Binding "numberProperty" -> "myText" failed: Expected value to be of type "number", but found "string".'
+          'Binding "numberProperty" -> "myText" failed: Failed to set property "numberProperty": '
+        + 'Expected value to be of type "number", but found "string".'
       );
     });
 
@@ -115,7 +139,8 @@ describe('component', () => {
       expect(() => {
         widget2.someProperty = false;
       }).to.throw(
-        'Binding "myText" -> "someProperty" failed: Expected value to be of type "string", but found "boolean".'
+        'Binding "myText" -> "someProperty" failed: Failed to set property "myText": '
+      + 'Expected value to be of type "string", but found "boolean".'
       );
     });
 

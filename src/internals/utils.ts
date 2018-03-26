@@ -148,13 +148,6 @@ export function getParamInfo(fn: any): ParamInfo[] {
   return Reflect.getMetadata(paramInfoKey, fn);
 }
 
-export function checkBindableType(property: string, type: Constructor<any>) {
-  if (type === Object) {
-    throw new Error(`Type of "${property}" could not be inferred. `
-      + 'Only classes and primitive types are supported.');
-  }
-}
-
 export function checkPropertyExists(targetWidget: any, targetProperty: string, targetName: string = 'Target') {
   if (!(targetProperty in targetWidget)) {
     throw new Error(`${targetName} does not have a property "${targetProperty}".`);
@@ -162,11 +155,14 @@ export function checkPropertyExists(targetWidget: any, targetProperty: string, t
 }
 
 export function markAsUnchecked(widget: WidgetInterface, targetProperty: string) {
-  widget[uncheckedProperty] = true;
+  if (!widget[uncheckedProperty]) {
+    widget[uncheckedProperty] = {};
+  }
+  widget[uncheckedProperty][targetProperty] = true;
 }
 
 export function isUnchecked(widget: WidgetInterface, targetProperty: string) {
-  return !!widget[uncheckedProperty];
+  return widget[uncheckedProperty] && widget[uncheckedProperty][targetProperty];
 }
 
 export function markAsAppended(widget: WidgetInterface) {
