@@ -1,32 +1,32 @@
 import { Widget, WidgetCollection } from 'tabris';
 import { ChangeEvent } from '../api/ChangeEvent';
 import { typeGuards } from '../api/TypeGuards';
-import { checkPathSyntax, isAppended } from '../internals/utils';
+import { BaseConstructor, checkPathSyntax, isAppended } from '../internals/utils';
 import { checkBindableType, checkIsComponent, checkPropertyExists, getPropertyStore, getPropertyType, isUnchecked, postAppendHandlers, WidgetInterface } from '../internals/utils';
 
-interface TwoWayBinding {
-  path: string;
-  baseProperty: string;
-  selector: string;
-  targetProperty: string;
-  targetKey: symbol;
-  targetChangeEvent: string;
-  baseChangeEvent: string;
-}
-
-export function createBoundProperty(baseProto: WidgetInterface, baseProperty: string, targetPath: string) {
-  const binding = createTwoWayBindingDesc(targetPath, baseProperty);
+export function createBoundProperty(
+  baseProto: WidgetInterface,
+  baseProperty: string,
+  targetPath: string,
+  typeGuard: (v: any) => boolean
+) {
   const basePropertyType = getPropertyType(baseProto, baseProperty);
-  checkBindableType(binding.baseProperty, basePropertyType);
+  if (!typeGuard) {
+    checkBindableType(baseProperty, basePropertyType);
+  }
+  let typeChecker = createTypeChecker(basePropertyType, typeGuard);
+  const binding = createTwoWayBindingDesc(targetPath, baseProperty, typeChecker);
   Object.defineProperty(baseProto, baseProperty, {
     get(this: WidgetInterface) {
       try {
         checkIsComponent(this);
+        let value: any;
         if (!isAppended(this)) {
-          return getPropertyStore(this).get(baseProperty);
+          value = getPropertyStore(this).get(baseProperty);
+        } else {
+          value = getPropertyStore(this).get(binding.targetKey)[binding.targetProperty];
         }
-        let value = getPropertyStore(this).get(binding.targetKey)[binding.targetProperty];
-        typeGuards.checkType(value, basePropertyType);
+        typeChecker(value);
         return value;
       } catch (ex) {
         throw new Error(
@@ -37,7 +37,7 @@ export function createBoundProperty(baseProto: WidgetInterface, baseProperty: st
     set(this: WidgetInterface, value: any) {
       try {
         checkIsComponent(this);
-        typeGuards.checkType(value, basePropertyType);
+        typeChecker(value);
         if (!isAppended(this)) {
           getPropertyStore(this).set(baseProperty, value);
           this.trigger(binding.baseChangeEvent, new ChangeEvent(this, binding.baseChangeEvent, value));
@@ -60,7 +60,11 @@ export function createBoundProperty(baseProto: WidgetInterface, baseProperty: st
   });
 }
 
-function createTwoWayBindingDesc(path: string, baseProperty: string): TwoWayBinding {
+function createTwoWayBindingDesc(
+  path: string,
+  baseProperty: string,
+  basePropertyChecker: (value: any) => void
+): TwoWayBinding {
   checkPathSyntax(path);
   if (!path.startsWith('#')) {
     throw new Error('Binding path needs to start with "#".');
@@ -77,6 +81,7 @@ function createTwoWayBindingDesc(path: string, baseProperty: string): TwoWayBind
     selector,
     targetProperty,
     baseProperty,
+    basePropertyChecker,
     targetKey: Symbol(baseProperty + 'Target'),
     targetChangeEvent: targetProperty + 'Changed',
     baseChangeEvent: baseProperty + 'Changed'
@@ -85,7 +90,6 @@ function createTwoWayBindingDesc(path: string, baseProperty: string): TwoWayBind
 
 function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
   try {
-    const basePropertyType = getPropertyType(base, binding.baseProperty);
     const child = getChild(base, binding.selector);
     const propertyStore = getPropertyStore(base);
     checkPropertyExists(child, binding.targetProperty);
@@ -93,10 +97,10 @@ function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
       throw new Error('Can not bind to advanced type without type guard.');
     }
     propertyStore.set(binding.targetKey, child);
-    typeGuards.checkType(child[binding.targetProperty], basePropertyType);
-    child.on(binding.targetChangeEvent, ({ value }) => {
+    binding.basePropertyChecker(child[binding.targetProperty]);
+    child.on(binding.targetChangeEvent, ({value}) => {
       try {
-        typeGuards.checkType(value, basePropertyType);
+        binding.basePropertyChecker(value);
         base.trigger(binding.baseChangeEvent, new ChangeEvent(base, binding.baseChangeEvent, value));
       } catch (ex) {
         let action = `update ${child.constructor.name} property "${binding.targetProperty}"`;
@@ -130,4 +134,28 @@ function getChild(base: WidgetInterface, selector: string) {
 
 function getBindingFailedErrorMessage(binding: TwoWayBinding, action: string, ex: Error) {
   return `Binding "${binding.baseProperty}" <-> "${binding.path}" failed to ${action}: ${ex.message}`;
+}
+
+function createTypeChecker(type: BaseConstructor<any>, typeGuard: (v: any) => void) {
+  if (typeGuard) {
+    return (value: any) => {
+      if (!typeGuard(value)) {
+        throw new Error(`Type guard rejected value "${value}".`);
+      }
+    };
+  }
+  return (value: any) => {
+    typeGuards.checkType(value, type);
+  };
+}
+
+interface TwoWayBinding {
+  path: string;
+  baseProperty: string;
+  selector: string;
+  targetProperty: string;
+  targetKey: symbol;
+  targetChangeEvent: string;
+  baseChangeEvent: string;
+  basePropertyChecker: (value: any) => void;
 }

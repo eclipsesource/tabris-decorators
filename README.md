@@ -56,13 +56,17 @@ Example:
   }
 ```
 
-### @bind("#\<id\>.\<property\>")
+### @bind({path: "#\<id\>.\<property\>", typeGuard?: value => boolean})
 
 Binds the decorated property of a widget to the property of a child. As with `@getById`, the binding is established after `append` is called the first time on the widget, there needs to be exactly one child with the given id, and it has to have a property of the same type.
 
-`@bind` creates a TWO-WAY binding, meaning changes to the source/child widget property are not just reflected on the decorated property, but also the other way around. Change events are fired for the decorated property if (and only if) the source/child widget fires change events. Only one `@bind` decorator can be applied to any given property. It also implies `@property`, only one of the two can be applied to the same property.
+`@bind` creates a TWO-WAY binding, meaning changes to the source/child widget property are not just reflected on the decorated property, but also the other way around. Change events are fired for the decorated property if (and only if) the source/child widget fires change events. Only one `@bind` decorator can be applied to any given property. It also implies `@property` and includes it's typeGuard feature. Only one of the two can be applied to the same property.
 
 `@bind` only works on classes decorated with `@component`.
+
+### @bind(path: string)
+
+Shorthand for `@bind({path: path})`
 
 ### @getById
 

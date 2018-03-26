@@ -26,6 +26,14 @@ describe('bind', () => {
     @bind('#foo.text') public foo: string = 'foo';
   }
 
+  @component class ComponentWithTypeGuard extends Composite {
+    @bind({
+      path: '#foo.bar',
+      typeGuard: v => (typeof v === 'string') || v === undefined
+    })
+    public value: string | number;
+  }
+
   @component class ComponentWithImage extends Composite {
 
     @bind('#imageView1.image')
@@ -189,6 +197,15 @@ describe('bind', () => {
     );
   });
 
+  it('throws if binding to value failing type guard', () => {
+    let target = new Composite({id: 'textInput1'});
+    (target as any).text = 23;
+    expect(() => widget.append(target)).to.throw(
+        'Binding "myText" <-> "#textInput1.text" failed to initialize: '
+      + 'Expected value to be of type "string", but found "number".'
+    );
+  });
+
   it('throws if binding to advanced type without type guard', () => {
     class TargetComponent extends Composite {
       @property public text: string | number;
@@ -290,12 +307,68 @@ describe('bind', () => {
     );
   });
 
-  it('throws own value changes to wrong type', () => {
+  it('throws if target value has changed to value rejected by type guard', () => {
+    let value: number;
+    class CustomChild extends Composite {
+      public set bar(v: number) { value = v; }
+      public get bar() { return value; }
+    }
+    let guarded = new ComponentWithTypeGuard();
+    let child = new CustomChild({id: 'foo'});
+    guarded.append(child);
+
+    child.bar = 12;
+
+    expect(() => guarded.value).to.throw(
+        'Binding "value" <-> "#foo.bar" failed to provide ComponentWithTypeGuard property "value": '
+      + 'Type guard rejected value "12".'
+    );
+  });
+
+  it('throws if own value changes to wrong type', () => {
     widget.append(textInput1);
 
     expect(() => (widget as any).myText = 23).to.throw(
        'Binding "myText" <-> "#textInput1.text" failed to update target value: '
      + 'Expected value to be of type "string", but found "number".'
+    );
+  });
+
+  it('throws if target value changes to value rejected by type guard', () => {
+    let value: number;
+    class CustomChild extends Composite {
+      @property public bar: number;
+    }
+    let guarded = new ComponentWithTypeGuard();
+    let child = new CustomChild({id: 'foo'});
+    guarded.append(child);
+
+    expect(() => child.bar = 12).to.throw(
+        'Binding "value" <-> "#foo.bar" failed to update CustomChild property "bar": '
+      + 'Type guard rejected value "12".'
+    );
+  });
+
+  it('throws if initial target value is rejected by type guard', () => {
+    let value: number;
+    class CustomChild extends Composite {
+      @property public bar: number;
+    }
+    let guarded = new ComponentWithTypeGuard();
+    let child = new CustomChild({id: 'foo'});
+
+    child.bar = 12;
+
+    expect(() => guarded.append(child)).to.throw(
+        'Binding "value" <-> "#foo.bar" failed to initialize: '
+      + 'Type guard rejected value "12".'
+    );
+  });
+
+  it('throws if own value is rejected by type guard', () => {
+    expect(() => (new ComponentWithTypeGuard()).value = 12).to.throw(
+       'Binding "value" <-> "#foo.bar" failed to update target value: '
+     + 'Type guard rejected value "12"'
     );
   });
 
