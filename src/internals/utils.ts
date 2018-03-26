@@ -161,8 +161,20 @@ export function checkPropertyExists(targetWidget: any, targetProperty: string, t
   }
 }
 
+export function markAsUnchecked(widget: WidgetInterface, targetProperty: string) {
+  widget[uncheckedProperty] = true;
+}
+
+export function isUnchecked(widget: WidgetInterface, targetProperty: string) {
+  return !!widget[uncheckedProperty];
+}
+
 export function markAsAppended(widget: WidgetInterface) {
   widget[wasAppendedKey] = true;
+}
+
+export function isAppended(widget: WidgetInterface) {
+  return !!widget[wasAppendedKey];
 }
 
 export function checkAppended(widget: WidgetInterface) {
@@ -180,10 +192,6 @@ export function checkPathSyntax(targetPath: string) {
   }
 }
 
-export function isAppended(widget: WidgetInterface) {
-  return !!widget[wasAppendedKey];
-}
-
 export function markAsComponent(type: BaseConstructor<Widget>) {
   Reflect.defineMetadata(componentKey, true, type.prototype);
 }
@@ -198,6 +206,7 @@ export function checkIsComponent(widget: Widget) {
 
 const postAppendHandlersKey = Symbol();
 const wasAppendedKey = Symbol();
+const uncheckedProperty = Symbol();
 const propertyStoreKey = Symbol();
 const paramInfoKey = Symbol();
 const componentKey = Symbol();

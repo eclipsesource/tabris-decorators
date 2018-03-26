@@ -1,7 +1,7 @@
 import { Widget } from 'tabris';
 import { ChangeEvent } from '../api/ChangeEvent';
 import { typeGuards } from '../api/TypeGuards';
-import { applyDecorator, Constructor, getPropertyStore, getPropertyType, WidgetInterface } from '../internals/utils';
+import { applyDecorator, Constructor, getPropertyStore, getPropertyType, markAsUnchecked, WidgetInterface } from '../internals/utils';
 
 export type CustomPropertyDecorator = (target: Widget, property: string | symbol) => void;
 
@@ -12,6 +12,9 @@ export function property(...args: any[]): PropertyDecorator | void {
     const changeEvent = propertyName + 'Changed';
     const targetType = getPropertyType(widgetProto, propertyName);
     const check = args[0] instanceof Function ? args[0] : null;
+    if (targetType === Object && !check) {
+      markAsUnchecked(widgetProto, propertyName);
+    }
     Object.defineProperty(widgetProto, propertyName, {
       get(this: WidgetInterface) {
         return getPropertyStore(this).get(propertyName);

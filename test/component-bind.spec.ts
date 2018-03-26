@@ -189,6 +189,30 @@ describe('bind', () => {
     );
   });
 
+  it('throws if binding to advanced type without type guard', () => {
+    class TargetComponent extends Composite {
+      @property public text: string | number;
+    }
+    let target = new TargetComponent({id: 'textInput1'});
+    expect(() => widget.append(target)).to.throw(
+        'Binding "myText" <-> "#textInput1.text" failed to initialize: '
+      + 'Can not bind to advanced type without type guard.'
+    );
+  });
+
+  it('allows binding to advanced type with type guard', () => {
+    class TargetComponent extends Composite {
+      @property(v => typeof v === 'string' || typeof v === 'number')
+      public text: string | number;
+    }
+    let target = new TargetComponent({id: 'textInput1'});
+
+    widget.append(target);
+    widget.myText = 'foo';
+
+    expect(target.text).to.equal('foo');
+  });
+
   it('throws if binding finds multiple targets', () => {
     expect(() => widget.append(new TextInput({id: 'textInput1'}), new TextInput({id: 'textInput1'}))).to.throw(
         'Binding "myText" <-> "#textInput1.text" failed to initialize: '
@@ -239,7 +263,9 @@ describe('bind', () => {
   });
 
   it('throws if target value changes to wrong type', () => {
-    @component class CustomChild extends Composite { @property public text: string | number; }
+    @component class CustomChild extends Composite {
+      @property(v => true) public text: string | number;
+    }
     let child = new CustomChild({id: 'textInput1'});
     child.text = 'foo';
     widget.append(child);
