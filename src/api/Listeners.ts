@@ -1,4 +1,5 @@
 import { EventObject, NativeObject, PropertyChangedEvent, Widget } from 'tabris';
+import { Constructor } from '../index';
 
 export type Listener<T> = (ev: CustomEvent<T>) => object | void;
 
@@ -27,7 +28,7 @@ export class Listeners<T extends object = {}> {
     return delegate;
   }
 
-  public async reject<U>(value?: U): Promise<never> {
+  public async reject(value?: Error | Constructor<Error> | string | object): Promise<never> {
     let event = await this.resolve();
     let error: Error | null = null;
     if (value instanceof Error) {
