@@ -131,6 +131,7 @@ describe('ListenerCollection', () => {
     } catch (ex) {
       result = ex;
     }
+    expect(result).to.be.instanceof(Error);
     expect(result.message).to.equal('foo');
   });
 
@@ -151,10 +152,12 @@ describe('ListenerCollection', () => {
     } catch (ex) {
       result = ex;
     }
+
+    expect(result).to.be.instanceof(Error);
     expect(result.message).to.equal('foo');
   });
 
-  it('rejects promises with given value wrapped in Error', async () => {
+  it('rejects promises with given string value as error message', async () => {
     let promise: Promise<string> = myEventListeners.reject('foo');
 
     myEventListeners.trigger({foo: 'bar'});
@@ -166,10 +169,30 @@ describe('ListenerCollection', () => {
     } catch (ex) {
       result = ex;
     }
+
+    expect(result).to.be.instanceof(Error);
     expect(result.message).to.equal('foo');
   });
 
-  it('rejects promises with generic Error', async () => {
+  it('rejects promises with given object merged in to error', async () => {
+    let promise: Promise<string> = myEventListeners.reject({foo2: 'bar2'});
+
+    myEventListeners.trigger({foo: 'bar'});
+
+    let result;
+    try {
+      await promise;
+      fail('Promise should not resolve');
+    } catch (ex) {
+      result = ex;
+    }
+
+    expect(result).to.be.instanceof(Error);
+    expect(result.message).to.equal('myEventType fired');
+    expect(result.foo2).to.equal('bar2');
+  });
+
+  it('rejects promises with Error/Event merge', async () => {
     let promise: Promise<string> = myEventListeners.reject();
 
     myEventListeners.trigger({foo: 'bar'});
@@ -181,7 +204,10 @@ describe('ListenerCollection', () => {
     } catch (ex) {
       result = ex;
     }
+
+    expect(result).to.be.instanceof(Error);
     expect(result.message).to.equal('myEventType fired');
+    expect(result.foo).to.equal('bar');
   });
 
   it('does not resolve new promise', done => {

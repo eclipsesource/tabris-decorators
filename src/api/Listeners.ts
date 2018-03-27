@@ -25,7 +25,7 @@ export class Listeners<T extends object = {}> {
   }
 
   public reject = async <U>(value?: U): Promise<never> => {
-    await this.resolve();
+    let event = await this.resolve();
     let error: Error | null = null;
     if (value instanceof Error) {
       error = value;
@@ -35,11 +35,12 @@ export class Listeners<T extends object = {}> {
         error = new (value as any)();
       } catch { /* that's OK, try something else */ }
     }
-    if (!error && value !== undefined) {
-      error = new Error(value + '');
+    if (!error && (!value || value instanceof Object)) {
+      error = new Error(`${this.type} fired`);
+      Object.assign(error, value || event);
     }
     if (!error) {
-      error = new Error(`${this.type} fired`);
+      error = new Error(value + '');
     }
     throw error;
   }
@@ -70,12 +71,7 @@ export class Listeners<T extends object = {}> {
 
   public trigger(eventObject?: T) {
     let dispatchObject = new EventObject() as Partial<CustomEvent<T>>;
-    if (eventObject) {
-      for (let key in eventObject) {
-        if (key in dispatchObject) { continue; }
-        dispatchObject[key] = eventObject[key];
-      }
-    }
+    Object.assign(dispatchObject, eventObject || {});
     this.store.trigger(this.type, dispatchObject);
   }
 
