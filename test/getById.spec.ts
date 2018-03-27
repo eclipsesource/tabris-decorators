@@ -3,7 +3,7 @@ import { useFakeTimers } from 'sinon';
 import { Button, Composite } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox, spy } from './test';
-import { component, getById, typeGuards } from '../src';
+import { component, getById } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 describe('getById', () => {
@@ -123,14 +123,15 @@ describe('getById', () => {
     );
   });
 
-  it('accepts incompatible types when typeGuard allows it', () => {
-    let notReallyAButton = new Composite({id: 'button1'});
-    typeGuards.add(Button, (value): value is Button => value.id === 'button1');
+  // TODO: Re-enable when type guards are supported
+  // it('accepts incompatible types when typeGuard allows it', () => {
+  //   let notReallyAButton = new Composite({id: 'button1'});
+  //   typeGuards.add(Button, (value): value is Button => value.id === 'button1');
 
-    widget.append(composite1, notReallyAButton);
+  //   widget.append(composite1, notReallyAButton);
 
-    expect(widget.button1).to.equal(notReallyAButton);
-  });
+  //   expect(widget.button1).to.equal(notReallyAButton);
+  // });
 
   it('throws if getters finds multiple matches', () => {
     expect(() => widget.append(composite1, button1, new Button({id: 'button1'}))).to.throw(

@@ -1,6 +1,6 @@
 import { Widget, WidgetCollection } from 'tabris';
 import { ChangeEvent } from '../api/ChangeEvent';
-import { typeGuards } from '../api/TypeGuards';
+import { checkType } from '../api/checkType';
 import { BaseConstructor, checkPathSyntax, isAppended } from '../internals/utils';
 import { checkIsComponent, checkPropertyExists, getPropertyStore, getPropertyType, isUnchecked, postAppendHandlers, WidgetInterface } from '../internals/utils';
 
@@ -145,7 +145,7 @@ function createTypeChecker(type: BaseConstructor<any>, typeGuard: (v: any) => vo
     };
   }
   return (value: any) => {
-    typeGuards.checkType(value, type);
+    checkType(value, type);
   };
 }
 

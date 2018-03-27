@@ -1,6 +1,6 @@
 import { Widget } from 'tabris';
 import { ChangeEvent } from '../api/ChangeEvent';
-import { typeGuards } from '../api/TypeGuards';
+import { checkType } from '../api/checkType';
 import { applyDecorator, Constructor, getPropertyStore, getPropertyType, markAsUnchecked, WidgetInterface } from '../internals/utils';
 
 export type CustomPropertyDecorator = (target: Widget, property: string | symbol) => void;
@@ -42,7 +42,7 @@ function setterTypeCheck(
         throw new Error(`Type guard check failed`);
       }
     } else {
-      typeGuards.checkType(value, targetType);
+      checkType(value, targetType);
     }
   } catch (ex) {
     throw new Error(`Failed to set property "${propertyName}": ${ex.message}`);
