@@ -101,6 +101,15 @@ describe('ListenerCollection', () => {
     expect(listener).not.to.have.been.called;
   });
 
+  it('notifies listeners once ', async () => {
+    voidListeners.once(listener);
+
+    voidListeners.trigger();
+    voidListeners.trigger();
+
+    expect(listener).to.have.been.calledOnce;
+  });
+
   it('resolves previous promises', async () => {
     let promise1 = voidListeners.resolve();
     let promise2 = voidListeners.resolve();

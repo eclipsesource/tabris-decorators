@@ -7,6 +7,8 @@ export interface Listeners<T extends object = {}> {
   (listener: Listener<CustomEvent<T>>): void;
 }
 
+const DELEGATE_FIELDS = ['reject', 'resolve', 'addListener', 'removeListener', 'once', 'trigger'];
+
 export class Listeners<T extends object = {}> {
 
   private store: UntypedListenerStore;
@@ -19,15 +21,13 @@ export class Listeners<T extends object = {}> {
     let delegate: Listeners<T> = this.addListener.bind(this);
     (delegate as any).target = this.target;
     (delegate as any).type = this.type;
-    delegate.addListener = this.addListener = this.addListener.bind(this);
-    delegate.removeListener = this.removeListener = this.removeListener.bind(this);
-    delegate.trigger = this.trigger = this.trigger.bind(this);
-    delegate.resolve = this.resolve = this.resolve.bind(this);
-    delegate.reject = this.reject = this.reject.bind(this);
+    for (let key of DELEGATE_FIELDS) {
+      delegate[key] = this[key] = this[key].bind(this);
+    }
     return delegate;
   }
 
-  public reject = async <U>(value?: U): Promise<never> => {
+  public async reject<U>(value?: U): Promise<never> {
     let event = await this.resolve();
     let error: Error | null = null;
     if (value instanceof Error) {
@@ -52,16 +52,22 @@ export class Listeners<T extends object = {}> {
   public async resolve(): Promise<T>;
   public async resolve(value?: object): Promise<object> {
     return new Promise(resolve => {
-      let callback = (ev: CustomEvent<T>) => {
-        this.removeListener(callback);
+      this.once(ev => {
         if (value) {
           resolve(value);
         } else {
           resolve(ev);
         }
-      };
-      this.addListener(callback);
+      });
     });
+  }
+
+  public once(listener: Listener<T>) {
+    let callback = (ev: CustomEvent<T>) => {
+      this.removeListener(callback);
+      listener(ev);
+    };
+    this.addListener(callback);
   }
 
   public addListener(listener: Listener<T>) {
