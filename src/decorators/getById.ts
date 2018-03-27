@@ -2,18 +2,20 @@ import 'reflect-metadata';
 import { Composite } from 'tabris';
 import { Widget } from 'tabris';
 import { checkType } from '../api/checkType';
-import { applyDecorator, checkAppended, checkIsComponent, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, WidgetInterface } from '../internals//utils';
+import { applyDecorator, checkAppended, checkIsComponent, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, TypeGuard, WidgetInterface } from '../internals//utils';
 
 export function getById(targetProto: Composite, property: string): void;
-export function getById(...args: any[]): void {
-  applyDecorator('getById', args, (widgetProto: any, property: string) => {
+export function getById(check: TypeGuard): PropertyDecorator;
+export function getById(...args: any[]): void | PropertyDecorator{
+  return applyDecorator('getById', args, (widgetProto: any, property: string) => {
+    const check = args[0] instanceof Function ? args[0] : null;
     let type = getPropertyType(widgetProto, property);
-    if (type === Object) {
-      throw new Error('Property type could not be inferred.');
+    if (type === Object && !check) {
+      throw new Error(`Property ${property} can not be resolved without a type guard.`);
     }
     postAppendHandlers(widgetProto).push((widget) => {
       try {
-        getPropertyStore(widget).set(property, getByIdImpl(widget, property));
+        getPropertyStore(widget).set(property, getByIdImpl(widget, property, check));
       } catch (ex) {
         throwPropertyResolveError('getById', property, ex.message);
       }
@@ -38,7 +40,7 @@ export function getById(...args: any[]): void {
   });
 }
 
-function getByIdImpl(widgetInstance: WidgetInterface, property: string): Widget {
+function getByIdImpl(widgetInstance: WidgetInterface, property: string, typeGuard: TypeGuard): Widget {
   let results = widgetInstance._find('#' + property);
   if (results.length === 0) {
     throw new Error(`No widget with id "${property}" appended.`);
@@ -46,7 +48,13 @@ function getByIdImpl(widgetInstance: WidgetInterface, property: string): Widget 
   if (results.length > 1) {
     throw new Error(`More than one widget with id "${property}" appended.`);
   }
-  checkType(results[0], getPropertyType(widgetInstance, property));
+  if (typeGuard) {
+    if (!typeGuard(results[0])) {
+      throw new Error('Type guard rejected widget');
+    }
+  } else {
+    checkType(results[0], getPropertyType(widgetInstance, property));
+  }
   return results[0];
 }
 

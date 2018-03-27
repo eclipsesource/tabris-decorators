@@ -1,6 +1,7 @@
 import { Widget, WidgetCollection } from 'tabris';
 import { ChangeEvent } from '../api/ChangeEvent';
 import { checkType } from '../api/checkType';
+import { TypeGuard } from '../index';
 import { BaseConstructor, checkPathSyntax, isAppended } from '../internals/utils';
 import { checkIsComponent, checkPropertyExists, getPropertyStore, getPropertyType, isUnchecked, postAppendHandlers, WidgetInterface } from '../internals/utils';
 
@@ -8,7 +9,7 @@ export function createBoundProperty(
   baseProto: WidgetInterface,
   baseProperty: string,
   targetPath: string,
-  typeGuard: (v: any) => boolean
+  typeGuard: TypeGuard
 ) {
   const basePropertyType = getPropertyType(baseProto, baseProperty);
   if (!typeGuard && basePropertyType === Object) {

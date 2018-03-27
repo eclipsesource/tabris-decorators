@@ -1,6 +1,6 @@
 import { Composite } from 'tabris';
 import { createBoundProperty } from '../internals/bind-two-way';
-import { applyDecorator, WidgetInterface } from '../internals/utils';
+import { applyDecorator, TypeGuard, WidgetInterface } from '../internals/utils';
 
 export function bind(arg: BindConfig | string): (target: Composite, property: string) => void;
 export function bind(...args: any[]): any {
@@ -13,5 +13,5 @@ export function bind(...args: any[]): any {
 
 export interface BindConfig {
   path: string;
-  typeGuard: (v: any) => boolean;
+  typeGuard: TypeGuard;
 }

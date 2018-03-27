@@ -18,6 +18,9 @@ describe('getById', () => {
     @getById
     public readonly button1: Button;
 
+    @getById(v => v instanceof Button || v.class === 'button')
+    public readonly button2: Button;
+
     @getById
     public readonly composite1: Composite;
 
@@ -25,23 +28,25 @@ describe('getById', () => {
 
   let widget: CustomComponent;
   let button1: Button;
+  let button2: Button;
   let composite1: Composite;
 
   beforeEach(() => {
     widget = new CustomComponent();
     button1 = new Button({id: 'button1'});
+    button2 = new Button({id: 'button2', class: 'button'});
     composite1 = new Composite({id: 'composite1'});
   });
 
   it('returns widget by type and id', () => {
-    widget.append(composite1, button1);
+    widget.append(composite1, button1, button2);
 
     expect(widget.button1).to.equal(button1);
     expect(widget.composite1).to.equal(composite1);
   });
 
   it('caches after append', () => {
-    widget.append(composite1, button1);
+    widget.append(composite1, button1, button2);
     let button1_2 = new Button({id: 'button1'});
     button1.dispose();
     widget.append(button1_2);
@@ -57,7 +62,7 @@ describe('getById', () => {
       }
     }).to.throw(
         'Could not apply decorator "getById" to "button1": '
-      + 'Property type could not be inferred.'
+      + 'Property button1 can not be resolved without a type guard.'
     );
   });
 
@@ -111,27 +116,35 @@ describe('getById', () => {
   });
 
   it('throws if a getter can not be resolved after first append', () => {
-    expect(() => widget.append(composite1, new Button({id: 'button2'}))).to.throw(
+    expect(() => widget.append(composite1, button2, new Button({id: 'button3'}))).to.throw(
       'Decorator "getById" could not resolve property "button1": No widget with id "button1" appended.'
     );
   });
 
   it('throws if getters finds wrong type after first append', () => {
-    expect(() => widget.append(composite1, new Composite({id: 'button1'}))).to.throw(
+    expect(() => widget.append(composite1, button2, new Composite({id: 'button1'}))).to.throw(
         'Decorator "getById" could not resolve property "button1": '
       + 'Expected value to be of type "Button", but found "Composite'
     );
   });
 
-  // TODO: Re-enable when type guards are supported
-  // it('accepts incompatible types when typeGuard allows it', () => {
-  //   let notReallyAButton = new Composite({id: 'button1'});
-  //   typeGuards.add(Button, (value): value is Button => value.id === 'button1');
+  it('reject value when typeGuard rejects', () => {
+    let notReallyAButton = new Composite({id: 'button1'});
 
-  //   widget.append(composite1, notReallyAButton);
+    expect(() => {
+      widget.append(composite1, button1, notReallyAButton);
+    }).to.throw(
+      'Decorator "getById" could not resolve property "button1": More than one widget with id "button1" appended.'
+    );
+  });
 
-  //   expect(widget.button1).to.equal(notReallyAButton);
-  // });
+  it('accepts incompatible types when typeGuard allows it', () => {
+    let notReallyAButton = new Composite({id: 'button2', class: 'button'});
+
+    widget.append(composite1, button1, notReallyAButton);
+
+    expect(widget.button2).to.equal(notReallyAButton);
+  });
 
   it('throws if getters finds multiple matches', () => {
     expect(() => widget.append(composite1, button1, new Button({id: 'button1'}))).to.throw(

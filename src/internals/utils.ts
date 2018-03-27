@@ -8,6 +8,7 @@ export interface Constructor<T> {new(...args: any[]): T; }
 export type ParameterDecoratorFactory = (target: Constructor<any>, property: string, index: number) => void;
 export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
 export type WidgetInterface = {[prop: string]: any} & Widget & WidgetProtected;
+export type TypeGuard = (v: any) => boolean;
 
 interface WidgetProtected {
   _find(selector?: Selector): WidgetCollection<Widget>;
@@ -67,8 +68,8 @@ export function applyClassDecorator<T>(
  * or without (static, e.g. "@foo").
  */
 export function areStaticDecoratorArgs(args: any[]): boolean {
-  let hasClassTarget = (typeof args[0] === 'function') && args[0].prototype;
-  let hasProtoTarget = (typeof args[0] === 'object') && args[0].constructor;
+  let hasClassTarget = (typeof args[0] === 'function') && !!args[0].prototype;
+  let hasProtoTarget = (typeof args[0] === 'object') && !!args[0].constructor;
   return (hasClassTarget || hasProtoTarget) && args.length >= 2;
 }
 

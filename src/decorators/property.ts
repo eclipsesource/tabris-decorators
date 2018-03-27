@@ -1,12 +1,13 @@
 import { Widget } from 'tabris';
 import { ChangeEvent } from '../api/ChangeEvent';
 import { checkType } from '../api/checkType';
+import { TypeGuard } from '../index';
 import { applyDecorator, Constructor, getPropertyStore, getPropertyType, markAsUnchecked, WidgetInterface } from '../internals/utils';
 
 export type CustomPropertyDecorator = (target: Widget, property: string | symbol) => void;
 
 export function property(targetProto: Widget, property: string | symbol): void;
-export function property(check: (value: any) => boolean): CustomPropertyDecorator;
+export function property(check: TypeGuard): CustomPropertyDecorator;
 export function property(...args: any[]): PropertyDecorator | void {
   return applyDecorator('property', args, (widgetProto: any, propertyName: string) => {
     const changeEvent = propertyName + 'Changed';
@@ -34,7 +35,7 @@ export function property(...args: any[]): PropertyDecorator | void {
 }
 
 function setterTypeCheck(
-  propertyName: string, value: any, targetType: Constructor<any>, check: (value: any) => boolean
+  propertyName: string, value: any, targetType: Constructor<any>, check: TypeGuard
 ) {
   try {
     if (check) {

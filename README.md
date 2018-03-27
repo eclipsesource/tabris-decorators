@@ -79,6 +79,10 @@ Lets the property return the descendant with the same id as the property name. T
  * It will always return the same child, even if it is disposed or removed.
  * It will throw if there is no match, more than one, or if the type is not correct.
 
+### @getById(v => boolean)
+
+Like `@getById`, but uses the given type guard to check the found widget, allowing widgets with compatible but not identical types to be resolved.
+
 ### Notes on type safety
 
 Since the databinding system can not rely on IDE tooling to ensure type safety, runtime checks are performed. This causes some limitations:
