@@ -13,7 +13,7 @@
     "safePublish": "npm test && npm run clean && npm run build && npm publish"
   },
   "peerDependencies": {
-    "tabris": "^2.5.0"
+    "tabris": "^2.4.2"
   },
   "devDependencies": {
     "@types/chai": "^3.5.0",
