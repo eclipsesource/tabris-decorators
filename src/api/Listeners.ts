@@ -16,22 +16,16 @@ export class Listeners<T extends object = {}> {
     this.store = widget || new DefaultListenerStore();
     this.type = name || 'event';
     let delegate: Listeners<T> = this.addListener.bind(this);
-    delegate.addListener = this.addListener;
-    delegate.removeListener = this.removeListener;
-    delegate.trigger = this.trigger;
-    delegate.promise = this.promise;
-    delegate.resolve = this.resolve;
-    delegate.reject = this.reject;
+    delegate.addListener = this.addListener = this.addListener.bind(this);
+    delegate.removeListener = this.removeListener = this.removeListener.bind(this);
+    delegate.trigger = this.trigger = this.trigger.bind(this);
+    delegate.resolve = this.resolve = this.resolve.bind(this);
+    delegate.reject = this.reject = this.reject.bind(this);
     return delegate;
   }
 
-  public resolve = async <U>(value: U): Promise<U> => {
-    await this.promise();
-    return Promise.resolve(value);
-  }
-
   public reject = async <U>(value?: U): Promise<never> => {
-    await this.promise();
+    await this.resolve();
     let error: Error | null = null;
     if (value instanceof Error) {
       error = value;
@@ -50,27 +44,31 @@ export class Listeners<T extends object = {}> {
     throw error;
   }
 
-  public promise = async (): Promise<T> => {
-    // TODO: Must all promises resolve eventually for GC to work?
-    // V8 seems fine, what about JavaScriptCore?
-    return new Promise<T>(resolve => {
-      let callback = (ev: T) => {
+  public async resolve<U>(value: U): Promise<U>;
+  public async resolve(): Promise<T>;
+  public async resolve(value?: object): Promise<object> {
+    return new Promise(resolve => {
+      let callback = (ev: CustomEvent<T>) => {
         this.removeListener(callback);
-        resolve(ev);
+        if (value) {
+          resolve(value);
+        } else {
+          resolve(ev);
+        }
       };
       this.addListener(callback);
     });
   }
 
-  public addListener = (listener: Listener<T>) => {
+  public addListener(listener: Listener<T>) {
     this.store.on(this.type, listener);
   }
 
-  public removeListener = (listener: Listener<T>) => {
+  public removeListener(listener: Listener<T>) {
     this.store.off(this.type, listener);
   }
 
-  public trigger = (eventObject?: T) => {
+  public trigger(eventObject?: T) {
     let dispatchObject = new EventObject() as Partial<CustomEvent<T>>;
     if (eventObject) {
       for (let key in eventObject) {

@@ -89,8 +89,8 @@ describe('ListenerCollection', () => {
   });
 
   it('resolves previous promises', async () => {
-    let promise1 = voidListeners.promise();
-    let promise2 = voidListeners.promise();
+    let promise1 = voidListeners.resolve();
+    let promise2 = voidListeners.resolve();
 
     voidListeners.trigger();
 
@@ -99,8 +99,8 @@ describe('ListenerCollection', () => {
   });
 
   it('resolves previous typed promises', async () => {
-    let promise1 = myEventListeners.promise();
-    let promise2 = myEventListeners.promise();
+    let promise1 = myEventListeners.resolve();
+    let promise2 = myEventListeners.resolve();
 
     myEventListeners.trigger({foo: 'bar'});
 
@@ -187,7 +187,7 @@ describe('ListenerCollection', () => {
   it('does not resolve new promise', done => {
     myEventListeners.trigger({foo: 'bar'});
 
-    myEventListeners.promise().then(
+    myEventListeners.resolve().then(
       () => fail('Should not resolve'),
       () => fail('Should not reject')
     );
