@@ -10,12 +10,15 @@ export interface Listeners<T extends object = {}> {
 export class Listeners<T extends object = {}> {
 
   private store: UntypedListenerStore;
-  private type: string;
 
-  constructor(name?: string, widget?: NativeObject) {
-    this.store = widget || new DefaultListenerStore();
-    this.type = name || 'event';
+  constructor(
+    public readonly target: object,
+    public readonly type: string
+  ) {
+    this.store = this.target instanceof NativeObject ? this.target : new DefaultListenerStore();
     let delegate: Listeners<T> = this.addListener.bind(this);
+    (delegate as any).target = this.target;
+    (delegate as any).type = this.type;
     delegate.addListener = this.addListener = this.addListener.bind(this);
     delegate.removeListener = this.removeListener = this.removeListener.bind(this);
     delegate.trigger = this.trigger = this.trigger.bind(this);
@@ -71,7 +74,13 @@ export class Listeners<T extends object = {}> {
 
   public trigger(eventObject?: T) {
     let dispatchObject = new EventObject() as Partial<CustomEvent<T>>;
-    Object.assign(dispatchObject, eventObject || {});
+    if (eventObject instanceof Object) {
+      let {type, target, ...eventData} = eventObject as EventObject<object>;
+      Object.assign(dispatchObject, eventData);
+    }
+    if ((dispatchObject as any)._initEvent instanceof Function) {
+      (dispatchObject as any)._initEvent(this.type, this.target);
+    }
     this.store.trigger(this.type, dispatchObject);
   }
 

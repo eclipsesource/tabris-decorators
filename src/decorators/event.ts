@@ -1,5 +1,5 @@
-import { NativeObject } from 'tabris';
 import { Listeners } from '../api/Listeners';
+import { getPropertyStore } from '../internals/utils';
 
 interface ListenersStore {[name: string]: Listeners<object>; }
 interface TargetInstance {[key: string]: ListenersStore; }
@@ -15,28 +15,15 @@ export function event(targetProto: object, propertyName: string): void {
   Object.defineProperty(targetProto, propertyName, {
     get() {
       let targetInstance = this as TargetInstance;
-      let collections = getCollections(targetInstance);
-      if (!collections[propertyName]) {
-        if (targetInstance instanceof NativeObject) {
-          let eventType = propertyName.charAt(2).toLowerCase() + propertyName.slice(3);
-          collections[propertyName] = new Listeners<object>(eventType, targetInstance);
-        } else {
-          collections[propertyName] = new Listeners<object>();
-        }
+      let eventType = propertyName.charAt(2).toLowerCase() + propertyName.slice(3);
+      let store = getPropertyStore(targetInstance);
+      if (!store[propertyName]) {
+        store[propertyName] = new Listeners<object>(targetInstance, eventType);
       }
-      return collections[propertyName];
+      return store[propertyName];
     },
     enumerable: true,
     configurable: false
   });
 
 }
-
-function getCollections(instance: TargetInstance): ListenersStore {
-  if (!instance[listenersSymbol]) {
-    instance[listenersSymbol] = {};
-  }
-  return instance[listenersSymbol];
-}
-
-const listenersSymbol = Symbol('Listeners');

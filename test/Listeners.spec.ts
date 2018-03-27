@@ -21,13 +21,18 @@ describe('ListenerCollection', () => {
   let myEventListener: (ev: MyEvent) => void;
 
   beforeEach(() => {
-    voidListeners = new Listeners();
-    myEventListeners = new Listeners(type);
+    voidListeners = new Listeners(target, type);
+    myEventListeners = new Listeners(target, type);
     listener = stub();
     myEventListener = stub();
   });
 
   afterEach(restoreSandbox);
+
+  it('exposes target and type', () => {
+    expect(myEventListeners.type).to.equal(type);
+    expect(myEventListeners.target).to.equal(target);
+  });
 
   it('notifies directly registered listener', () => {
     voidListeners.addListener(listener);
@@ -43,6 +48,14 @@ describe('ListenerCollection', () => {
     myEventListeners.trigger({foo: 'bar'});
 
     expect(myEventListener).to.have.been.calledWithMatch({foo: 'bar'});
+  });
+
+  it('initializes event object with type and target', () => {
+    myEventListeners.addListener(myEventListener);
+
+    myEventListeners.trigger({foo: 'bar'});
+
+    expect(myEventListener).to.have.been.calledWithMatch({foo: 'bar', target, type});
   });
 
   it('notifies listener with unbound trigger', () => {
