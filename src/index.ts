@@ -1,4 +1,6 @@
-import { injector } from './api/Injector';
+import { Injection, injector } from './api/Injector';
+import { InjectableConfig } from './decorators/injectable';
+import { Constructor } from './internals/utils';
 
 export * from './decorators/component';
 export * from './decorators/property';

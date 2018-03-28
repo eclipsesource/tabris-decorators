@@ -9,14 +9,13 @@ export type ParameterDecoratorFactory = (target: Constructor<any>, property: str
 export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
 export type WidgetInterface = {[prop: string]: any} & Widget & WidgetProtected;
 export type TypeGuard = (v: any) => boolean;
-
-interface WidgetProtected {
+export interface WidgetProtected {
   _find(selector?: Selector): WidgetCollection<Widget>;
   _find<U extends Widget>(constructor: { new (...args: any[]): U }): WidgetCollection<U>;
 }
-interface ParamInfo {type: Constructor<any>; injectParam?: string; injector: Injector; }
-type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
-type DecoratorFactory = (target: any, property: string, index?: number) => void;
+export interface ParamInfo {type: Constructor<any>; injectParam?: string; injector: Injector; }
+export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
+export type DecoratorFactory = (target: any, property: string, index?: number) => void;
 
 /**
  * Takes a callback a decorator factory and when possible calls it with the appropriate arguments,

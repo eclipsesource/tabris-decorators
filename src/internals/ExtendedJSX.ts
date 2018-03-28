@@ -4,7 +4,7 @@ import { Injector } from '../api/Injector';
 import { Constructor } from '../internals/utils';
 /* tslint:disable no-namespace ban-types only-arrow-functions */
 
-interface Properties { [property: string]: any; }
+export interface Properties { [property: string]: any; }
 
 const originalJSX = JSX;
 
