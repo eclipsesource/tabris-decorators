@@ -1,7 +1,7 @@
 import { EventObject, NativeObject, PropertyChangedEvent, Widget } from 'tabris';
 import { Constructor } from '../index';
 
-export type Listener<T> = (ev: CustomEvent<T>) => object | void;
+export type Listener<T> = (ev: CustomEvent<T>) => any;
 
 export interface Listeners<T extends object = {}> {
   // tslint:disable-next-line:callable-types
