@@ -13,7 +13,8 @@ export function property(...args: any[]): PropertyDecorator | void {
     const changeEvent = propertyName + 'Changed';
     const targetType = getPropertyType(widgetProto, propertyName);
     const check = args[0] instanceof Function ? args[0] : null;
-    if (targetType === Object && !check) {
+    const unchecked = targetType === Object && !check;
+    if (unchecked) {
       markAsUnchecked(widgetProto, propertyName);
     }
     Object.defineProperty(widgetProto, propertyName, {
@@ -23,7 +24,9 @@ export function property(...args: any[]): PropertyDecorator | void {
       set(this: WidgetInterface, value: any) {
         let currentValue = getPropertyStore(this).get(propertyName);
         if (currentValue !== value) {
-          setterTypeCheck(propertyName, value, targetType, check);
+          if (!unchecked) {
+            setterTypeCheck(propertyName, value, targetType, check);
+          }
           getPropertyStore(this).set(propertyName, value);
           this.trigger(changeEvent, new ChangeEvent(this, changeEvent, value));
         }

@@ -1,11 +1,11 @@
 import { BaseConstructor } from '../internals/utils';
 
-export function checkType<T>(value: T, type: BaseConstructor<any> | null): T {
-  if (type === Object || !type) {
-    return value;
+export function checkType(value: any, type: BaseConstructor<any>) {
+  if (!type) {
+    throw new Error('No type given');
   }
   if (value === null || value === undefined || value instanceof type || isPrimitiveOfType(value, type)) {
-    return value;
+    return;
   }
   throw new Error(
     `Expected value to be of type "${getTypeName(type)}", but found "${getValueTypeName(value)}".`
