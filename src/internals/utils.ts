@@ -1,6 +1,5 @@
 import { Widget } from 'tabris';
 import { WidgetCollection } from 'tabris';
-import { Injector } from '../api/Injector';
 
 // tslint:disable-next-line:ban-types
 export type BaseConstructor<T> = Function & { prototype: T };
@@ -13,7 +12,7 @@ export interface WidgetProtected {
   _find(selector?: Selector): WidgetCollection<Widget>;
   _find<U extends Widget>(constructor: { new (...args: any[]): U }): WidgetCollection<U>;
 }
-export interface ParamInfo {type: Constructor<any>; injectParam?: string; injector: Injector; }
+export interface ParamInfo {type: Constructor<any>; injectParam?: string; }
 export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
 export type DecoratorFactory = (target: any, property: string, index?: number) => void;
 

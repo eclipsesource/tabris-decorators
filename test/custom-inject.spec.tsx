@@ -29,9 +29,6 @@ class ConstructorWithInjection {
 
 }
 
-orgInjector.injectable(MyServiceClass);
-orgInjector.injectable({shared: true})(MySingletonClass);
-
 describe('custom injector inject', () => {
 
   afterEach(() => {
@@ -46,18 +43,26 @@ describe('custom injector inject', () => {
     expect(instance.singleton).to.be.instanceOf(MySingletonClass);
   });
 
-  it('does not share values with default injector', () => {
-    let instance = create(ConstructorWithInjection);
-    let singleton = resolve(MySingletonClass);
-
-    expect(instance.singleton).to.equal(singleton);
-    expect(singleton).to.not.equal(orgInjector.resolve(MySingletonClass));
-  });
-
   it('fails when used with default create', () => {
     expect(() => {
       orgInjector.create(ConstructorWithInjection);
-    }).to.throw('Could not create instance of ConstructorWithInjection:\n@inject belongs to a different injector');
+    }).to.throw(
+        'Could not create instance of ConstructorWithInjection:\n'
+      + 'Could not inject value of type MyServiceClass since no compatible injection handler exists for this type.'
+    );
+  });
+
+  it('resolves when used with matching resolve', () => {
+    expect(resolve(MyServiceClass)).to.be.instanceOf(MyServiceClass);
+    expect(resolve(MySingletonClass)).to.be.instanceOf(MySingletonClass);
+  });
+
+  it('fails when used with default resolve', () => {
+    expect(() => {
+      orgInjector.resolve(MyServiceClass);
+    }).to.throw(
+      'Could not inject value of type MyServiceClass since no compatible injection handler exists for this type.'
+    );
   });
 
   describe('via JSX', () => {
@@ -82,7 +87,10 @@ describe('custom injector inject', () => {
       let JSX = orgInjector.JSX;
       expect(() => {
         <MyCustomWidget/>;
-      }).to.throw('Could not create instance of MyCustomWidget:\n@inject belongs to a different injector');
+      }).to.throw(
+         'Could not create instance of MyCustomWidget:\n'
+       + 'Could not inject value of type MyServiceClass since no compatible injection handler exists for this type.'
+      );
     });
 
     it('works with custom JSX object', () => {

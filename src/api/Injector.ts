@@ -3,7 +3,7 @@ import { injectable as unboundInjectable } from '../decorators/injectable';
 import { injectionHandler as unboundInjectionHandler } from '../decorators/injectionHandler';
 import { shared as unboundShared } from '../decorators/shared';
 import { ExtendedJSX } from '../internals/ExtendedJSX';
-import { BaseConstructor, Constructor, getParamInfo } from '../internals/utils';
+import { BaseConstructor, getParamInfo } from '../internals/utils';
 
 export class Injector {
 
@@ -36,9 +36,8 @@ export class Injector {
   }
 
   public resolve = <T>(type: BaseConstructor<T>, injection?: Injection) => {
-    if (injection && injection.injector !== this) {
-      throw new Error('@inject belongs to a different injector');
-    }
+    let injectionParam = injection || {type, injector: this, target: null, param: null};
+    injectionParam.injector = this;
     let handlers = this.findCompatibleHandlers(type);
     if (!handlers.length) {
       throw new Error(
@@ -47,7 +46,7 @@ export class Injector {
     }
     let unbox = this.getUnboxer(type);
     for (let handler of handlers) {
-      let result = unbox(handler.handleInjection(injection || {injector: this}, this));
+      let result = unbox(handler.handleInjection(injectionParam, this));
       if (result !== null && result !== undefined) {
         return result;
       }
@@ -71,7 +70,12 @@ export class Injector {
       for (let i = 0; i < paramCount; i++) {
         finalArgs[i] = args[i];
         if (paramInfo[i]) {
-          let injection = {type, index: i, param: paramInfo[i].injectParam, injector: paramInfo[i].injector};
+          let injection = {
+            type,
+            param: paramInfo[i].injectParam || null,
+            injector: this,
+            target: null
+          };
           finalArgs[i] = this.resolve(paramInfo[i].type, injection);
         }
       }
@@ -118,11 +122,9 @@ export class Injector {
 export const injector = new Injector();
 
 export interface Injection {
-  type?: Constructor<any>;
-  instance?: object;
-  param?: string;
-  name?: string;
-  index?: number;
+  type: BaseConstructor<any>;
+  target: object | null;
+  param: string | null;
   injector: Injector;
 }
 

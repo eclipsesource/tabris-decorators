@@ -138,15 +138,11 @@ describe('inject', () => {
   it('gives Injection infos to handler', () => {
     let fooInjection: Injection = (serviceHandler as SinonSpy).args[0][0];
     let otherInjection: Injection = (serviceHandler as SinonSpy).args[1][0];
-    expect(fooInjection.name).to.be.undefined;
-    expect(fooInjection.index).to.equal(1);
-    expect(fooInjection.instance).to.be.undefined;
+    expect(fooInjection.target).to.be.null;
     expect(fooInjection.param).to.equal('foo2');
     expect(fooInjection.type).to.equal(ConstructorWithInjection);
-    expect(otherInjection.name).to.be.undefined;
-    expect(otherInjection.index).to.equal(3);
-    expect(otherInjection.instance).to.be.undefined;
-    expect(otherInjection.param).to.be.undefined;
+    expect(otherInjection.target).to.be.null;
+    expect(otherInjection.param).to.be.null;
     expect(otherInjection.type).to.equal(ConstructorWithInjection);
   });
 
