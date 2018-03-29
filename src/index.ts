@@ -8,7 +8,6 @@ export * from './decorators/bind';
 export * from './decorators/getById';
 export * from './decorators/event';
 export * from './api/checkType';
-export * from './api/ChangeEvent';
 export * from './api/Injector';
 export * from './api/interfaces';
 export * from './api/Listeners';
