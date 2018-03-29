@@ -148,8 +148,7 @@ describe('component', () => {
       const badPaths: {[path: string]: string} = {
         'foo.bar': 'JSX binding path can currently only have one segment.',
         '#foo': 'JSX binding path can currently not contain a selector.',
-        '.foo': 'JSX binding path can currently not contain a selector.',
-        'this': 'Binding path contains reserved word "this".'
+        '.foo': 'JSX binding path can currently not contain a selector.'
       };
       for (let path in badPaths) {
         expect(() => {
@@ -168,7 +167,7 @@ describe('component', () => {
       expect(() => {
         widget4.trigger('resize', {target: widget4});
       }).to.throw(
-        'Could not resolve one-way binding on CustomComponent: Not appanded to a @component'
+        'Could not resolve one-way binding on CustomComponent: Not appended to a @component'
       );
     });
 

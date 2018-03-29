@@ -182,9 +182,6 @@ export function checkPathSyntax(targetPath: string) {
   if (/\s|\[|\]|\(|\)|\<|\>/.test(targetPath)) {
     throw new Error('Binding path contains invalid characters.');
   }
-  if (/this/.test(targetPath)) {
-    throw new Error('Binding path contains reserved word "this".');
-  }
 }
 
 export function markAsComponent(type: BaseConstructor<Widget>) {

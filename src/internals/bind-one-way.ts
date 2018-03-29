@@ -71,7 +71,7 @@ function createOneWayBindingDesc(target: WidgetInterface, targetProperty: string
 
 function checkBindingsApplied(ev: WidgetResizeEvent) {
   if (getOneWayBindings(ev.target)) {
-    throw new Error('Could not resolve one-way binding on CustomComponent: Not appanded to a @component');
+    throw new Error('Could not resolve one-way binding on CustomComponent: Not appended to a @component');
   }
 }
 

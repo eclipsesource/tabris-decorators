@@ -135,8 +135,7 @@ describe('bind', () => {
       '#foo': 'Binding path needs at least two segments.',
       '#fo o.bar': 'Binding path contains invalid characters.',
       '#foo.bar[]': 'Binding path contains invalid characters.',
-      '#foo.bar<>': 'Binding path contains invalid characters.',
-      '#this.foo': 'Binding path contains reserved word "this".'
+      '#foo.bar<>': 'Binding path contains invalid characters.'
     };
     for (let path in badPaths) {
       expect(() => {
