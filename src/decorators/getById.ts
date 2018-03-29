@@ -29,6 +29,7 @@ export function getById(...args: any[]): void | PropertyDecorator{
       }
       return getPropertyStore(this).get(property);
     });
+    // class decorators are applied after property decorators, therefore a timeout is needed
     setTimeout(() => {
       try {
         checkIsComponent(widgetProto);
