@@ -67,6 +67,15 @@ describe('ListenerCollection', () => {
     expect(myEventListener).to.have.been.calledWithMatch({foo: 'bar', target, type, timeStamp: match.number});
   });
 
+  it('passes through EventObject', () => {
+    myEventListeners.addListener(myEventListener);
+    let ev = new EventObject();
+
+    (myEventListeners as any).trigger(ev);
+
+    expect(myEventListener).to.have.been.calledWith(ev);
+  });
+
   it('notifies listener with unbound trigger', () => {
     voidListeners.addListener(listener);
     let trigger = voidListeners.trigger;

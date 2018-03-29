@@ -80,8 +80,8 @@ export class Listeners<T extends object = {}> {
   }
 
   public trigger(eventObject?: T) {
-    let dispatchObject = new EventObject() as Partial<CustomEvent<T>>;
-    if (eventObject instanceof Object) {
+    let dispatchObject = eventObject instanceof EventObject ? eventObject : new EventObject();
+    if (eventObject && (eventObject !== dispatchObject)) {
       let {type, target, timeStamp, ...eventData} = eventObject as EventObject<object>;
       Object.assign(dispatchObject, eventData);
     }
