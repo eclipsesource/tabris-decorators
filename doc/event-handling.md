@@ -1,6 +1,6 @@
 # Event Handling
 
-The `@event` decorator together with the `Listeners` class provides an extended event handling API that sits on top of the one built in to Tabris.js. This API is optimized for TypeScript and works very well with the MVP pattern and dependency injection.
+The `@event` decorator together with the `Listeners` class provides an extended event handling API that sits on top of the one built in to [[into!]] Tabris.js. This API is optimized for TypeScript and works very well with the MVP pattern[[Maybe link to Wikipedia or something?]] and dependency injection[[dito]].
 
 More specifically it...
 
@@ -38,10 +38,12 @@ class MyComponent extends Composite {
   @event public readonly onResize: Listeners<WidgetResizeEvent>; // Allows use of the existing resize event
 }
 ```
+[[Maybe examples showing how to trigger and consume the event? If not (since examples follow later), specify *what* this example is supposed to show]]
 
 ## Listeners interface
 
-The `Listeners` property doubles as a function to register listener, and also as an object that offers API to trigger events, de-register listeners and more.
+The `Listeners` property doubles as a function to register listener,[[listener*s* and no comma]] and also as an object that offers API to trigger events, de-register listeners and more.
+[[confusing use of the word "doubles". Correct use: A doubles as B, here it looks like "A doubles as B and C". Maybe "Listeners is an object[...] that also doubles as a function" (or "function[...] that doubles as object") ]]
 
 ```js
 let target = new PlainClass();
@@ -60,7 +62,7 @@ triggerMyEvent();
 
 ### listeners.addListener(listener: Function)
 
-Adds a listener to be notified by new events. A listener can only be added once.
+Adds a listener to be notified by new events. A[[Each?]] listener can only be added once.
 
 Same as calling `listeners` as a function. Therefore this...
 
@@ -88,7 +90,7 @@ The listener will _always_ receive an instance of `EventObject` with `target`, `
 
 Removes a listener, no matter how it was registered.
 
-One widgets this is the same as calling `widget.off('eventType', listener)`
+One[[On!]] widgets this is the same as calling `widget.off('eventType', listener)`
 
 ### listeners.once(listener: Function)
 
@@ -110,7 +112,7 @@ If `eventData` is an instance of `EventObject`, that object will be initialized 
 Returns a promise that resolves the next time an event is issued, with the event object as the resolved value. Example:
 
 ```js
-let selection = await myComponent.onSelection.resolve();
+let selection = await myComponent.onSelection.resolve(); [[That's neat!]]
 await new MyCustomDialog().onContinue.resolve();
 ```
 
@@ -138,7 +140,7 @@ public async confirm() {
 
 Returns a promise that rejects (throws) the next time an event is issued. The thrown value will always be an instance of `Error`, depending on the type on value.
 
-|type of value                      |type of err  or                      |
+|type of value                      |type of err  or   [[error?]]         |
 |-----------------------------------|-------------------------------------|
 | no value                          | `Error` merged with the event object|
 | `Error` or subclass               | the value itself                    |
@@ -149,7 +151,7 @@ Returns a promise that rejects (throws) the next time an event is issued. The th
 
 \*\* The value will be stringified since `message` has to be a string
 
-Also useful with `Promise.race`:
+Also useful with `Promise.race`: [[Make a real senstence: "This is also ..."]]
 
 ```js
 private async enterPassword() {
@@ -170,3 +172,5 @@ In addition to `Listeners<T extends object = {}>` there are a few additional int
 * `type ChangeEvent<Value, Target = {}> = PropertyChangeEvent<Target, Value>;`
 * `type Listener<T = {}> = (ev: CustomEvent<T>) => any;`
 * `type ChangeListener<Value, Target = {}> = Listener<ChangeEvent<Value, Target>>;`
+
+[[Maybe a small but complete real-worldy example would be nice, perhaps even in the beginning rather than the end, even if you need to read the rest to fully understand it, so you can get a better picture of what you're supposed to learn]]
