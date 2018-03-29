@@ -1,4 +1,4 @@
-import { EventObject, NativeObject, PropertyChangedEvent, Widget } from 'tabris';
+import { EventObject, NativeObject, PropertyChangedEvent } from 'tabris';
 import { Constructor } from '../index';
 
 export type Listener<T = {}> = (ev: CustomEvent<T>) => any;
@@ -122,10 +122,10 @@ class DefaultListenerStore implements UntypedListenerStore {
 
 }
 
-export type CustomEvent<T> = EventObject<object> & T;
-export type ChangedEvent<T> = PropertyChangedEvent<Widget, T>;
-export type ChangeListener<T> = Listener<ChangedEvent<T>>;
-export type ChangeListeners<T> = Listeners<ChangedEvent<T>>;
+export type CustomEvent<EventData, Target = {}> = EventObject<Target> & EventData;
+export type ChangedEvent<Value, Target = {}> = PropertyChangedEvent<Target, Value>;
+export type ChangeListener<Value, Target = {}> = Listener<ChangedEvent<Value, Target>>;
+export type ChangeListeners<Value, Target = {}> = Listeners<ChangedEvent<Value, Target>>;
 
 // Ensure @event can check the property type:
 // tslint:disable-next-line:variable-name
