@@ -1,5 +1,6 @@
 import { fail } from 'assert';
 import { expect } from 'chai';
+import { match } from 'sinon';
 import 'tabris';
 import { EventObject } from 'tabris';
 import { restoreSandbox, spy, stub } from './test';
@@ -50,12 +51,20 @@ describe('ListenerCollection', () => {
     expect(myEventListener).to.have.been.calledWithMatch({foo: 'bar'});
   });
 
-  it('initializes event object with type and target', () => {
+  it('initializes event object with type, timeStamp and target', () => {
     myEventListeners.addListener(myEventListener);
 
     myEventListeners.trigger({foo: 'bar'});
 
-    expect(myEventListener).to.have.been.calledWithMatch({foo: 'bar', target, type});
+    expect(myEventListener).to.have.been.calledWithMatch({foo: 'bar', target, type, timeStamp: match.number});
+  });
+
+  it('ignores type, timeStamp and target in event data', () => {
+    myEventListeners.addListener(myEventListener);
+
+    (myEventListeners as any).trigger({foo: 'bar', target: null, type: null, timeStamp: null});
+
+    expect(myEventListener).to.have.been.calledWithMatch({foo: 'bar', target, type, timeStamp: match.number});
   });
 
   it('notifies listener with unbound trigger', () => {
