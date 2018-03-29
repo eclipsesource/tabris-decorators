@@ -158,6 +158,14 @@ describe('ListenerCollection', () => {
     expect(await promise).to.equal('foo');
   });
 
+  it('resolves promises with pre-defined falsy value', async () => {
+    let promise: Promise<boolean> = myEventListeners.resolve(false);
+
+    myEventListeners.trigger({foo: 'bar'});
+
+    expect(await promise).to.equal(false);
+  });
+
   it('rejects promises with pre-defined error value', async () => {
     let value = new Error('foo');
     let promise: Promise<string> = myEventListeners.reject(value);

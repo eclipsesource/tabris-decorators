@@ -52,9 +52,10 @@ export class Listeners<T extends object = {}> {
   public async resolve<U>(value: U): Promise<U>;
   public async resolve(): Promise<T>;
   public async resolve(value?: object): Promise<object> {
+    let hasValue = arguments.length === 1;
     return new Promise(resolve => {
       this.once(ev => {
-        if (value) {
+        if (hasValue) {
           resolve(value);
         } else {
           resolve(ev);
