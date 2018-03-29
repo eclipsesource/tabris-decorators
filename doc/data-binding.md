@@ -30,7 +30,7 @@ This makes changes to `myText` be applied to the `text` property of the `textVie
 
 Makes the decorated widget property a "real" Tabris.js property, meaning it can be set via constructor or `set` method (proper type declarations assumed), and it fires change events. This is especially useful when the property is supposed to be the source of a one-way data binding. It also performs type checks for the databinding system. It works on any class extending `Widget`.
 
-### @property(value => boolean)
+### @property(typeGuard: Function)
 
 Like `@property`, but uses the given function (type guard) to perform type checks. The type guard may be more strict than the TypeScript compiler (e.g. allowing only positive numbers where the compiler allows any number), but should never be less strict, though it is possible.
 
@@ -48,11 +48,11 @@ Example:
   }
 ```
 
-### @bind({path: "#\<id\>.\<property\>", typeGuard?: value => boolean})
+### @bind({path: "#\<id\>.\<property\>", typeGuard?: Function})
 
 Binds the decorated property of a widget to the property of a child. As with `@getById`, the binding is established after `append` is called the first time on the widget, there needs to be exactly one child with the given id, and it has to have a property of the same type.
 
-`@bind` creates a TWO-WAY binding, meaning changes to the source/child widget property are not just reflected on the decorated property, but also the other way around. Change events are fired for the decorated property if (and only if) the source/child widget fires change events. Only one `@bind` decorator can be applied to any given property. It also implies `@property` and includes it's typeGuard feature. Only one of the two can be applied to the same property.
+`@bind` creates a TWO-WAY binding, meaning changes to the source/child widget property are not just reflected on the decorated property, but also the other way around. Change events are fired for the decorated property if (and only if) the source/child widget fires change events. Only one `@bind` decorator can be applied to any given property. It also implies `@property` and includes its typeGuard feature. Only one of the two can be applied to the same property.
 
 `@bind` only works on classes decorated with `@component`.
 
@@ -77,9 +77,8 @@ Like `@getById`, but uses the given type guard to check the found widget, allowi
 
 ### Notes on type safety
 
-Since the databinding system can not rely on IDE tooling to ensure type safety, runtime checks are performed. This causes some limitations:
+The databinding system can not rely on compiler to ensure type safety. Therefore runtime type checks need to be performed.
 
-* For properties that have a class or primitive type, type checks will be performed.
-* Properties that have a pure string or number enum/union type are treated like they are a string or number primitive type. It's therefore possible to bind a string enum or union to another string enum/union or string primitive. Same for number. **This should be avoided** unless it's a one-way binding where the enum/union property is on the base component, and the primitive type on the target component.
-* If either property type is any other [advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html) or an interface, the binding will fail.
-* If both properties are missing type information, no type checks will be performed. Type information are missing if the property is not decorated (e.g. with @property) or implemented in JavaScript. **In this case it is expected that the property setter performs type checks itself.** This is the behavior of all Tabris.js built-in widgets.
+If the properties involved are decorated by `@property` (or `@bind`), this will happen automatically. However, if either property type is an [advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html) or an interface, this is not possible and the binding will fail as a precaution. To fix this you need to use the `@property(typeGuard)` (or `@bind({typeGuard: Function})`) decorator instead. (See above.)
+
+If the properties involved are not decorated they are expected to perform the type check themselves. That is the case for all widgets built in to Tabris.js.
