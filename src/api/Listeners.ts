@@ -124,9 +124,9 @@ class DefaultListenerStore implements UntypedListenerStore {
 }
 
 export type CustomEvent<EventData, Target = {}> = EventObject<Target> & EventData;
-export type ChangedEvent<Value, Target = {}> = PropertyChangedEvent<Target, Value>;
-export type ChangeListener<Value, Target = {}> = Listener<ChangedEvent<Value, Target>>;
-export type ChangeListeners<Value, Target = {}> = Listeners<ChangedEvent<Value, Target>>;
+export type ChangeEvent<Value, Target = {}> = PropertyChangedEvent<Target, Value>;
+export type ChangeListener<Value, Target = {}> = Listener<ChangeEvent<Value, Target>>;
+export type ChangeListeners<Value, Target = {}> = Listeners<ChangeEvent<Value, Target>>;
 
 // Ensure @event can check the property type:
 // tslint:disable-next-line:variable-name
