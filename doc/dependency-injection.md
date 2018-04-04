@@ -57,35 +57,15 @@ Shorthand for `@injectable({shared: true})`.
 
 Registers the decorated static method to handle injections for the given type directly. The method must return a value compatible to the given type or `null`/`undefined`. If no compatible value is returned the next injection handler is called. If no injection handler returns a compatible value the injection fails. (`@injectable` is an injection handler.)
 
-## Injector class
-
-All injection handler created by `@injectable`, `@shared` and `@injectionHandler` are managed in an `Injector` instance. The global decorators exported directly by `tabris-decorators` belong to a global (i.e. singleton) `Injector` instance exported as `injector`. You will need that instance as an entry point to create the very first injection via its `resolve` or `create` methods.
-
-Usually there is no need to create your own instance of `Injector`, but it may be useful for unit testing or when writing libraries targeting Tabris.js. This is explained below.
-
-### injector.resolve(type: Class)
+## resolve(type: Class)
 
 Returns an instance of the given type, just like using the `@inject` decorator would do in a constructor. Especially useful in cases where a `@inject` decorator can not be used, e.g. outside of classes. Note that `type` *has to be injectable*, i.e. have a compatible injection handler registered.
 
-The `resolve` method is permanently bound its `injector`, therefore you can also use it separately like this:
+## create(type)
 
-```ts
-const {resolve} = injector;
+Creates an instance of the given type and fulfils all the constructor injections. *The type itself does not have to be (and typically isn't) injectable*.
 
-let myInstance = resolve(MyType);
-```
-
-### injector.create(type)
-
-Creates an instance of the given type and fulfils all the constructor injections. *The type itself does not have to be (and typically isn't) injectable*. Typically used in injection handler.
-
-Like `resolve`, this method is permanently bound its `injector`:
-
-```ts
-const {resolve, create} = injector;
-```
-
-### injector.create(type, param[])
+## create(type, param[])
 
 Like `create(type)`, but any parameters not decorated with `inject` will be taken from the given array, with the index in the array matching that of the parameter. For example:
 
@@ -117,13 +97,13 @@ let foo = create(Foo, [new ClassA()]);
 
 ## JSX and Dependency Injection
 
-Injections on widgets created via JSX are automatically resolved using the global injector. However, the first constructor parameter can not be used for injection, it will always be the `properties` object defined via the JSX attributes.
+Injections on widgets created via JSX are automatically resolved using the global injector. (This is achieved by replacing the global `JSX` object.) However, the first constructor parameter can not be used for injection, it will always be the `properties` object defined via the JSX attributes.
 
-When using your own `Injector` instance you will need to put its `JSX` object in to the module scope where you use your JSX expressions. See next chapter:
+## Injector class
 
-## Creating your own Injector instance
+All injection handler created by `@injectable`, `@shared` and `@injectionHandler` are managed in an `Injector` instance. The DI related decorators and functions exported directly by `tabris-decorators` belong to a global (i.e. singleton) `Injector` instance exported as `injector`, i.e. `injector.injectable === injectable`. It also has the (modified) global `JSX` object that manages injections for JSX expressions attached.
 
-Create a new module (e.g. `customInjector.ts`) that looks like this:
+Usually there is no need to create your own instance of `Injector`, but it may be useful for unit testing or when writing libraries targeting Tabris.js.  To do so create a new module (e.g. `customInjector.ts`) that looks like this:
 
 ```ts
 import { Injector } from 'tabris-decorators';
@@ -131,11 +111,10 @@ import { Injector } from 'tabris-decorators';
 export const injector = new Injector();
 export const { inject, shared, injectable, injectionHandler, create, resolve, JSX } = new Injector();
 ```
-
-To use the injector instance within another module instead of the global one, import the decorators from `./customInjector` instead of `tabris-decorators`. You also need to import `JSX` if you use JSX expressions.
+To use the custom injector within another module instead of the global one, import the decorators/functions from `./customInjector` instead of `tabris-decorators`. You also need to import `JSX` if you use JSX expressions.
 
 ```ts
 import { injector, inject, injectable, shared, injectionHandler, JSX } from './customInjector';
 ```
 
-Technically `@inject` can be used from the custom injector or from `tabris-decorators`. It's not bound to any specific `Injector` instance and available on `injector` for convenience/consistency.
+The `@inject` decorator - unlike `@injectable`, `@injectionHandler`, etc. - is not bound to any specific injector. Therefore it would technically not need to be available on every `Injector` instance. It is there only for convenience when creating custom injectors as above.

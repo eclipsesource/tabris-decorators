@@ -11,5 +11,5 @@ export * from './api/checkType';
 export * from './api/Injector';
 export * from './api/interfaces';
 export * from './api/Listeners';
-export const { inject, injectable, shared, injectionHandler } = injector;
+export const { inject, injectable, shared, injectionHandler, resolve, create } = injector;
 (JSX as any) = injector.JSX;

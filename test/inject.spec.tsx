@@ -4,12 +4,10 @@ import { SinonSpy } from 'sinon';
 import { Composite, CompositeProperties } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox, spy } from './test';
-import { Constructor, inject, injectable, Injection, injectionHandler, injector, shared } from '../src';
+import { Constructor, create, inject, injectable, Injection, injectionHandler, injector, shared } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
 
 describe('inject', () => {
-
-  const create = injector.create;
 
   class MyServiceClass {
     constructor(readonly param: string | undefined) { }
@@ -75,7 +73,7 @@ describe('inject', () => {
     numberHandler = (injection) => 0;
     stringHandler = (injection) => '';
     booleanHandler = (injection) => false;
-    instance = injector.create(ConstructorWithInjection);
+    instance = create(ConstructorWithInjection);
   });
 
   afterEach(() => {
