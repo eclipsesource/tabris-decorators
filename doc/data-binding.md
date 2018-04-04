@@ -1,14 +1,14 @@
 # Data Binding
 
-### @component
+## @component
 
 Makes the decorated widget class the base reference for databinding. Also, a widget class decorated with `@component` will not allow its own children to be selected by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using `@getById` on a private/protected property.
 
-For ONE-WAY bindings, `@component` enables a new JSX attribute prefix 'bind', which actively copies values FROM the base component TO the JSX element.
+For ONE-WAY bindings, `@component` enables a new JSX attribute prefix `bind-`, which actively copies values FROM the base component TO the JSX element.
 
 Example:
 
-```js
+```tsx
   @component
   class CustomComponent extends Composite {
 
@@ -26,19 +26,19 @@ Example:
 
 This makes changes to `myText` be applied to the `text` property of the `textView` element. The source must be a proper Tabris.js style property, not just a field. This can be achieved simply by adding a `@property` decorator, but a custom implementation also works as long as appropriate change events are fired. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the target property is implemented in TypeScript it should ideally also be using `@property`, otherwise type safety can not be guaranteed (see below).
 
-### @property
+## @property
 
 Makes the decorated widget property a "real" Tabris.js property, meaning it can be set via constructor or `set` method (proper type declarations assumed), and it fires change events. This is especially useful when the property is supposed to be the source of a one-way data binding. It also performs type checks for the databinding system. It works on any class extending `Widget`.
 
-### @property(typeGuard: Function)
+## @property(typeGuard: Function)
 
-Like `@property`, but uses the given function (type guard) to perform type checks. The type guard may be more strict than the TypeScript compiler (e.g. allowing only positive numbers where the compiler allows any number), but should never be less strict, though it is possible.
+Like `@property`, but uses the given function (type guard) to perform type checks. The type guard may be more strict than the TypeScript compiler (e.g. allowing only positive numbers where the compiler allows any number), but should never be less strict, though it is technically possible.
 
 The function may return either a boolean (`true` indicates the value passes), or throw an error explaining why the value did not pass.
 
 Example:
 
-```js
+```ts
   @component
   class CustomComponent extends Composite {
 
@@ -48,7 +48,7 @@ Example:
   }
 ```
 
-### @bind({path: "#\<id\>.\<property\>", typeGuard?: Function})
+## @bind({path: "#\<id\>.\<property\>", typeGuard?: Function})
 
 Binds the decorated property of a widget to the property of a child. As with `@getById`, the binding is established after `append` is called the first time on the widget, there needs to be exactly one child with the given id, and it has to have a property of the same type.
 
@@ -56,11 +56,11 @@ Binds the decorated property of a widget to the property of a child. As with `@g
 
 `@bind` only works on classes decorated with `@component`.
 
-### @bind(path: string)
+## @bind(path: string)
 
-Shorthand for `@bind({path: path})`
+Shorthand for `@bind({path: string})`
 
-### @getById
+## @getById
 
 Lets the property return the descendant with the same id as the property name. The following rules apply:
 
@@ -71,14 +71,14 @@ Lets the property return the descendant with the same id as the property name. T
  * It will always return the same child, even if it is disposed or removed.
  * It will throw if there is no match, more than one, or if the type is not correct.
 
-### @getById(v => boolean)
+## @getById(v => boolean)
 
 Like `@getById`, but uses the given type guard to check the found widget, allowing widgets with compatible but not identical types to be resolved.
 
-### Notes on type safety
+## Notes on type safety
 
-The databinding system can not rely on compiler to ensure type safety. Therefore runtime type checks need to be performed.
+The databinding system can not rely on the compiler to ensure type safety. Therefore runtime type checks need to be performed.
 
-If the properties involved are decorated by `@property` (or `@bind`), this will happen automatically. However, if either property type is an [advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html) or an interface, this is not possible and the binding will fail as a precaution. To fix this you need to use the `@property(typeGuard)` (or `@bind({typeGuard: Function})`) decorator instead. (See above.)
+If the properties involved are decorated by `@property` or `@bind`, this will happen automatically. However, if either property type is an [advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html) or an interface, this is not possible and the binding will fail as a precaution. To fix this you need to set the typeGuard parameter of `@property`/`@bind` to a function that performs the type check explicitly.
 
-If the properties involved are not decorated they are expected to perform the type check themselves. That is the case for all widgets built in to Tabris.js.
+If the properties involved are not decorated by `@property` or `@bind` they are expected to perform the type check in the setter. While that is not enforced, all widgets built directly in to Tabris.js behave like this.
