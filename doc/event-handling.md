@@ -98,10 +98,9 @@ On widgets this is the same as calling `widget.once('eventType', listener)`
 
 Issues an event to all listeners. The type of `eventData` is `T` of `Listeners<T>` and `{}` for `Listeners`. In the latter case the parameter can be omitted: `listener.trigger()` is the same as `listener.trigger({})`.
 
-If `eventData` is an instance of `EventObject`, that object will be initialized and passed directly to the listeners. On widgets this is the same as calling `widget.trigger('eventType', eventObject)`
+If `eventData` is an uninitialized (newly constructed) instance of `EventObject`, that object will be initialized and passed directly to the listeners. On widgets this is the same as calling `widget.trigger('eventType', eventObject)`
 
-If `eventData` is not an instance of `EventObject` (or a class extending it), an new instance of `EventObject` will be created and the values of `eventData` copied to that instance. <b>The listeners will therefore not receive the _same_ object but a _copy_.</b> This should only be relevant for `instanceof` checks.
-
+If `eventData` is an initialized (i.e. previously dispatched) instance of `EventObject` (or a class extending it), an new instance of `EventObject` will be created and the _enumerable own properties_ of `eventData` copied to that instance. <b>The listeners will therefore not receive the _same_ object but a _shallow copy_.</b>
 
 ### listeners.resolve()
 

@@ -67,13 +67,27 @@ describe('ListenerCollection', () => {
     expect(myEventListener).to.have.been.calledWithMatch({foo: 'bar', target, type, timeStamp: match.number});
   });
 
-  it('passes through EventObject', () => {
+  it('passes through uninitialized EventObject', () => {
     myEventListeners.addListener(myEventListener);
-    let ev = new EventObject();
+    let ev = Object.assign(new EventObject(), {foo: 'bar'});
 
-    (myEventListeners as any).trigger(ev);
+    myEventListeners.trigger(ev);
 
     expect(myEventListener).to.have.been.calledWith(ev);
+  });
+
+  it('copies initialized EventObject', () => {
+    let ev = Object.assign(new EventObject(), {foo: 'bar'});
+    let events: Array<MyEvent & EventObject<{}>> = [];
+    myEventListeners.addListener(event => events.push(event));
+
+    myEventListeners.trigger(ev);
+    myEventListeners.trigger(events[0]);
+
+    expect(events.length).to.equal(2);
+    expect(ev).to.equal(events[0]);
+    expect(events[0]).not.to.equal(events[1]);
+    expect(events[1].foo).to.equal('bar');
   });
 
   it('notifies listener with unbound trigger', () => {

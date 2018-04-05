@@ -80,11 +80,12 @@ export class Listeners<T extends object = {}> {
     this.store.off(this.type, listener);
   }
 
-  public trigger(eventObject?: T) {
-    let dispatchObject = eventObject instanceof EventObject ? eventObject : new EventObject();
-    if (eventObject && (eventObject !== dispatchObject)) {
-      let {type, target, timeStamp, ...eventData} = eventObject as EventObject<object>;
-      Object.assign(dispatchObject, eventData);
+  public trigger(eventData?: T) {
+    let uninitialized = (eventData instanceof EventObject) && !eventData.type;
+    let dispatchObject = uninitialized ? eventData : new EventObject();
+    if (eventData && (eventData !== dispatchObject)) {
+      let {type, target, timeStamp, ...copyData} = eventData as EventObject<object>;
+      Object.assign(dispatchObject, copyData);
     }
     if ((dispatchObject as any)._initEvent instanceof Function) {
       (dispatchObject as any)._initEvent(this.type, this.target);
