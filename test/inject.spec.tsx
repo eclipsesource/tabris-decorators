@@ -64,9 +64,9 @@ describe('inject', () => {
   let booleanHandler: (injection: Injection) => boolean | Boolean;
   let instance: ConstructorWithInjection;
 
-  injector.addHandler(Number, {handleInjection: (injection: Injection) => numberHandler(injection)});
-  injector.addHandler(String, {handleInjection: (injection: Injection) => stringHandler(injection)});
-  injector.addHandler(Boolean, {handleInjection: (injection: Injection) => booleanHandler(injection)});
+  injector.addHandler(Number, (injection: Injection) => numberHandler(injection));
+  injector.addHandler(String, (injection: Injection) => stringHandler(injection));
+  injector.addHandler(Boolean, (injection: Injection) => booleanHandler(injection));
 
   beforeEach(() => {
     serviceHandler = spy(({param}) => new MyServiceClass(param));

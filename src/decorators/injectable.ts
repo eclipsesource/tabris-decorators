@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Injection, InjectionHandlerObject, Injector } from '../api/Injector';
+import { Injection, Injector } from '../api/Injector';
 import { applyClassDecorator, areStaticClassDecoratorArgs, BaseConstructor, ClassDecoratorFactory, Constructor } from '../internals/utils';
 
 export function injectable<T>(config: InjectableConfig<T>): ClassDecoratorFactory<T>;
@@ -9,9 +9,9 @@ export function injectable(this: Injector, ...args: any[]): void | ClassDecorato
     Reflect.defineMetadata(injectableKey, true, type);
     let config = getInjectableConfig(args);
     let handler = new DefaultInjectionHandler(type, config);
-    this.addHandler(type, handler);
+    this.addHandler(type, handler.handleInjection);
     if (config.implements) {
-      this.addHandler(config.implements, handler);
+      this.addHandler(config.implements, handler.handleInjection);
     }
   });
 }
@@ -23,13 +23,13 @@ function getInjectableConfig(args: any[]): InjectableConfig<any> {
   return {};
 }
 
-class DefaultInjectionHandler<T> implements InjectionHandlerObject<T> {
+class DefaultInjectionHandler<T> {
 
   private instance: T;
 
   constructor(private type: Constructor<T>, private config: InjectableConfig<T> = {}) { }
 
-  public handleInjection({injector}: Injection) {
+  public handleInjection = ({injector}: Injection) => {
     if (!this.config.shared) {
       return injector.create(this.type);
     }

@@ -1,7 +1,7 @@
 import 'mocha';
 import 'sinon';
 import { expect, restoreSandbox } from './test';
-import { InjectionHandler, Injector } from '../src';
+import { InjectionHandlerFunction, Injector } from '../src';
 /* tslint:disable:no-unused-expression max-classes-per-file */
 
 class MyClass {
@@ -13,8 +13,8 @@ class MyClass {
 describe('Injector', () => {
 
   let instance: Injector;
-  let numberHandler: InjectionHandler<number> = {handleInjection: () => 23};
-  let stringHandler: InjectionHandler<string> = {handleInjection: () => 'foo'};
+  let numberHandler: InjectionHandlerFunction<number> = () => 23;
+  let stringHandler: InjectionHandlerFunction<string> = () => 'foo';
 
   beforeEach(() => {
     instance = new Injector();
@@ -54,18 +54,18 @@ describe('Injector', () => {
 
     it('passes param', () => {
       instance = new Injector();
-      instance.addHandler(String, {handleInjection: ({param}) => typeof param === 'string' ? param : ''});
+      instance.addHandler(String, ({param}) => typeof param === 'string' ? param : '');
 
       expect(instance.resolve(String, 'bar')).to.equal('bar');
       expect(instance.resolve(String)).to.equal('');
     });
 
     it('last added handler returning a non-null, non-undefined value wins', () => {
-      let numberHandler2 = {handleInjection: () => 24};
+      let numberHandler2 = () => 24;
       instance.addHandler(Number, numberHandler);
       instance.addHandler(Number, numberHandler2);
-      instance.addHandler(Number, {handleInjection: () => null});
-      instance.addHandler(Number, {handleInjection: () => undefined});
+      instance.addHandler(Number, () => null);
+      instance.addHandler(Number, () => undefined);
 
       expect(instance.resolve(Number)).to.equal(24);
     });
@@ -73,7 +73,7 @@ describe('Injector', () => {
     it('does not cache', () => {
       let i = 0;
       instance = new Injector();
-      instance.addHandler(Number, {handleInjection: () => i++});
+      instance.addHandler(Number, () => i++);
 
       expect(instance.resolve(Number)).to.equal(0);
       expect(instance.resolve(Number)).to.equal(1);
@@ -88,7 +88,7 @@ describe('Injector', () => {
 
     it('supports singleton pattern', () => {
       let serviceObject = new MyClass('foo');
-      instance.addHandler(MyClass, {handleInjection: () => serviceObject});
+      instance.addHandler(MyClass, () => serviceObject);
 
       expect(instance.resolve(MyClass)).to.equal(serviceObject);
       expect(instance.resolve(MyClass)).to.equal(instance.resolve(MyClass));
@@ -100,7 +100,7 @@ describe('Injector', () => {
           super('foo');
         }
       }
-      instance.addHandler(MyClass, {handleInjection: () => new MyClass2('bar')});
+      instance.addHandler(MyClass, () => new MyClass2('bar'));
 
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
     });
@@ -110,7 +110,7 @@ describe('Injector', () => {
         public bar: string = 'bar';
         constructor(readonly value: any) {}
       }
-      instance.addHandler(MyClass, {handleInjection: () => new MyClass2('foo')});
+      instance.addHandler(MyClass, () => new MyClass2('foo'));
 
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
     });
@@ -119,7 +119,7 @@ describe('Injector', () => {
       function MyClass2() { /* no explicit API */ }
       MyClass2.prototype = MyClass.prototype;
       type MyClass2 = MyClass;
-      instance.addHandler(MyClass2, {handleInjection: () => new MyClass2()});
+      instance.addHandler(MyClass2, () => new MyClass2());
 
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
     });
@@ -130,7 +130,7 @@ describe('Injector', () => {
           super('foo');
         }
       }
-      instance.addHandler(MyClass2, {handleInjection: () => new MyClass2('bar')});
+      instance.addHandler(MyClass2, () => new MyClass2('bar'));
 
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass2);
     });
@@ -142,8 +142,8 @@ describe('Injector', () => {
       class MyClass3 extends MyClass {
         constructor() { super('bar'); }
       }
-      instance.addHandler(MyClass2, {handleInjection: () => new MyClass2()});
-      instance.addHandler(MyClass3, {handleInjection: () => new MyClass3()});
+      instance.addHandler(MyClass2, () => new MyClass2());
+      instance.addHandler(MyClass3, () => new MyClass3());
 
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass3);
     });
@@ -155,8 +155,8 @@ describe('Injector', () => {
       class MyClass3 extends MyClass {
         constructor() { super('bar'); }
       }
-      instance.addHandler(MyClass, {handleInjection: () => new MyClass2()});
-      instance.addHandler(MyClass3, {handleInjection: () => new MyClass3()});
+      instance.addHandler(MyClass, () => new MyClass2());
+      instance.addHandler(MyClass3, () => new MyClass3());
 
       expect(instance.resolve(MyClass)).to.be.instanceof(MyClass3);
     });

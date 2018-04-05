@@ -5,6 +5,16 @@ import { shared as unboundShared } from '../decorators/shared';
 import { ExtendedJSX } from '../internals/ExtendedJSX';
 import { BaseConstructor, getParamInfo } from '../internals/utils';
 
+export type InjectionParameter = object | string | number | boolean | null;
+
+export interface Injection {
+  type: BaseConstructor<any>;
+  param: InjectionParameter;
+  injector: Injector;
+}
+
+export type InjectionHandlerFunction<T> = (injection: Injection) => T | null | undefined;
+
 export class Injector {
 
   // tslint:disable:typedef
@@ -23,21 +33,20 @@ export class Injector {
     this.inject = this.inject.bind(this);
   }
 
-  public addHandler = <T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandler<U>) => {
+  public addHandler = <T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandlerFunction<U>) => {
+    if (!targetType || !handler) {
+      throw new Error('invalid argument');
+    }
     this.forEachPrototype(targetType, (prototype: object) => {
       let targetTypeHandlers = this.handlers.get(prototype);
       if (!targetTypeHandlers) {
         this.handlers.set(prototype, targetTypeHandlers = []);
       }
-      let handlerObject: InjectionHandlerObject<T>
-        = handler instanceof Function ? {handleInjection: handler} : handler;
-      targetTypeHandlers.unshift(handlerObject);
+      targetTypeHandlers.unshift(handler);
     });
   }
 
   public resolve = <T>(type: BaseConstructor<T>, param: object | string | number | boolean | null = null) => {
-    let injectionParam: Injection = {type, injector: this, param};
-    injectionParam.injector = this;
     let handlers = this.findCompatibleHandlers(type);
     if (!handlers.length) {
       throw new Error(
@@ -46,7 +55,7 @@ export class Injector {
     }
     let unbox = this.getUnboxer(type);
     for (let handler of handlers) {
-      let result = unbox(handler.handleInjection(injectionParam, this));
+      let result = unbox(handler({type, injector: this, param}));
       if (result !== null && result !== undefined) {
         return result;
       }
@@ -79,7 +88,7 @@ export class Injector {
     }
   }
 
-  private findCompatibleHandlers<T>(type: BaseConstructor<T>): Array<InjectionHandlerObject<T>> {
+  private findCompatibleHandlers<T>(type: BaseConstructor<T>): Array<InjectionHandlerFunction<T>> {
     if (!type) {
       throw new Error(
         `Could not inject value since type is ${type}. Do you have circular module dependencies?`
@@ -115,20 +124,4 @@ export class Injector {
 
 export const injector = new Injector();
 
-export type InjectionParameter = object | string | number | boolean | null;
-
-export interface Injection {
-  type: BaseConstructor<any>;
-  param: InjectionParameter;
-  injector: Injector;
-}
-
-export type InjectionHandlerFunction<T> = (injection: Injection, injector: Injector) => T | null | undefined;
-
-export interface InjectionHandlerObject<T> {
-  handleInjection: InjectionHandlerFunction<T>;
-}
-
-export type InjectionHandler<T> = InjectionHandlerFunction<T> | InjectionHandlerObject<T>;
-
-type HandlersMap = Map<object, Array<InjectionHandlerObject<any>>>;
+type HandlersMap = Map<object, Array<InjectionHandlerFunction<any>>>;
