@@ -28,6 +28,20 @@ describe('inject', () => {
     public saySomething() { return 'baz3'; }
   }
 
+  abstract class ColorClass {
+    public abstract readonly color: string;
+  }
+
+  @injectable({param: 'blue'})
+  class BlueClass extends ColorClass{
+    public readonly color: string = '#0000ff';
+  }
+
+  @injectable({param: 'green'})
+  class GreenClass extends ColorClass {
+    public readonly color: string = '#00ff00';
+  }
+
   class ConstructorWithInjection {
 
     public service: MyServiceClass;
@@ -174,6 +188,18 @@ describe('inject', () => {
 
   it('injects with compatible type', () => {
     expect(instance.baseClass).to.be.instanceOf(CompatibleClass);
+  });
+
+  it('injects by param filter', () => {
+    class Colors {
+      constructor(
+        @inject('blue') public readonly b: ColorClass,
+        @inject('green') public readonly g: ColorClass
+      ) {}
+    }
+    let colors = create(Colors);
+    expect(colors.g).to.be.instanceOf(GreenClass);
+    expect(colors.b).to.be.instanceOf(BlueClass);
   });
 
   describe('via JSX', () => {

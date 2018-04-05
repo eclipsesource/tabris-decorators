@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Injection, Injector } from '../api/Injector';
+import { Injection, InjectionParameter, Injector } from '../api/Injector';
 import { applyClassDecorator, areStaticClassDecoratorArgs, BaseConstructor, ClassDecoratorFactory, Constructor } from '../internals/utils';
 
 export function injectable<T>(config: InjectableConfig<T>): ClassDecoratorFactory<T>;
@@ -29,12 +29,15 @@ class DefaultInjectionHandler<T> {
 
   constructor(private type: Constructor<T>, private config: InjectableConfig<T> = {}) { }
 
-  public handleInjection = ({injector}: Injection) => {
+  public handleInjection = (injection: Injection) => {
+    if ('param' in this.config && injection.param !== this.config.param) {
+      return null;
+    }
     if (!this.config.shared) {
-      return injector.create(this.type);
+      return injection.injector.create(this.type);
     }
     if (!this.instance) {
-      this.instance = injector.create(this.type);
+      this.instance = injection.injector.create(this.type);
     }
     return this.instance;
   }
@@ -44,6 +47,7 @@ class DefaultInjectionHandler<T> {
 export interface InjectableConfig<T> {
   shared?: boolean;
   implements?: BaseConstructor<T>;
+  param?: InjectionParameter;
 }
 
 const injectableKey = Symbol('injectable');

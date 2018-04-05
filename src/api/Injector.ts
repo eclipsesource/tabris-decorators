@@ -46,7 +46,7 @@ export class Injector {
     });
   }
 
-  public resolve = <T>(type: BaseConstructor<T>, param: object | string | number | boolean | null = null) => {
+  public resolve = <T>(type: BaseConstructor<T>, param: InjectionParameter = null) => {
     let handlers = this.findCompatibleHandlers(type);
     if (!handlers.length) {
       throw new Error(

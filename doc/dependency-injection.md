@@ -16,6 +16,20 @@ class Foo {
 }
 ```
 
+## @inject(param: InjectionParameter)
+
+Like `@inject`, but allows to pass pass on a value (any object, string, number or boolean) to the injection handler. For further information see `@injectable(config: InjectableConfig)` and `@injectionHandler(type: Class)`.
+
+```ts
+class Foo {
+
+  constructor(@inject('some value') a: ClassA) {
+    ...
+  }
+
+}
+```
+
 ## @injectable
 
 Apply this to a class to register it for injection. It can be injected as itself or as any of it's super-classes (except `Object`).
@@ -41,31 +55,45 @@ Class Bar() {
 
 The injectable class (`Foo2`) may also have injection dependencies itself. For every injection a new instance will be created. If you want to share a single instance for all injections, use `@injectable({shared: true})` instead.
 
-## @injectable({shared?: boolean, implements?: Class})
+## @injectable(config: InjectableConfig)
 
-Like `@injectable`, but with more options:
+* `config`: `{shared?: boolean, implements?: Class, param: InjectionParameter}`
 
-If `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton.
+Like `@injectable`, but with more options.
 
-If `implements` allows the decorated class to be injected as an instance of another (compatible) class, despite having a different constructor/prototype. This works since TypeScript has a [structural type system](http://www.typescriptlang.org/docs/handbook/type-compatibility.html) and allows using (abstract) classes as interfaces.
+* If `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton.
+
+* If `implements` allows the decorated class to be injected as an instance of another (compatible) class, despite having a different constructor/prototype. This works since TypeScript has a [structural type system](http://www.typescriptlang.org/docs/handbook/type-compatibility.html) and allows using (abstract) classes as interfaces.
+
+* If `param` is set the decorated class will only be injected for injections that have the same injection parameter. The parameter may be given via `@inject(param: InjectionParameter)` or `resolve(type: Class, param: InjectionParameter)`. This is really only useful when multiple compatible types are made injectable.
 
 ## @shared
 
 Shorthand for `@injectable({shared: true})`.
 
-## @injectionHandler
+## @injectionHandler(type: Class)
 
-Registers the decorated static method to handle injections for the given type directly. The method must return a value compatible to the given type or `null`/`undefined`. If no compatible value is returned the next injection handler is called. If no injection handler returns a compatible value the injection fails. (`@injectable` is an injection handler.)
+* `Injection`: `{type: Class, injector: Injector, param: InjectionParameter}`
+* `InjectionParameter`: `object | string | number | boolean | null`;
 
-## resolve(type: Class)
+Registers the decorated static method to handle injections for the given type directly. The method is passed an `Injection` object and must return a value compatible to the given type or `null`/`undefined`. If no compatible value is returned the next injection handler is called. If no injection handler returns a compatible value the injection fails. (`@injectable` creates an injection handler.)
 
-Returns an instance of the given type, just like using the `@inject` decorator would do in a constructor. Especially useful in cases where a `@inject` decorator can not be used, e.g. outside of classes. Note that `type` *has to be injectable*, i.e. have a compatible injection handler registered.
+The `Injection` object provides the following values:
+* `type`: The exact type that was requested. May be identical to the type parameter of the decorator, or another compatible class.
+* `injector`: The `Injector` instance the injection handler is registered with. May be used to create or resolve other objects.
+* `param`: An injection parameter that may have been passed via `@inject(param: InjectionParameter)` or `resolve(type: Class, param: InjectionParameter)`.
 
-## create(type)
+Injection handler may also be registered via the `addInjectionHandler` method on an `Injector` instance.
+
+## resolve(type: Class, injectionParameter?: InjectionParameter)
+
+Returns an instance of the given type, just like using the `@inject` decorator would do in a constructor. Especially useful in cases where a `@inject` decorator can not be used, e.g. outside of classes. Note that `type` *has to be injectable*, i.e. have a compatible injection handler registered. The second parameter may be omitted, or be used to pass a value to the injection handler. For further information see `@injectable(config: InjectableConfig)` and `@injectionHandler(type: Class)`.
+
+## create(type: Class)
 
 Creates an instance of the given type and fulfils all the constructor injections. *The type itself does not have to be (and typically isn't) injectable*.
 
-## create(type, param[])
+## create(type: Class, param: any[])
 
 Like `create(type)`, but any parameters not decorated with `inject` will be taken from the given array, with the index in the array matching that of the parameter. For example:
 
