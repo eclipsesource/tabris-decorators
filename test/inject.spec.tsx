@@ -143,7 +143,7 @@ describe('inject', () => {
   });
 
   it('injects with injection parameter', () => {
-    let instance2 = create(ConstructorWithInjection, ['foo']);
+    let instance2 = create(ConstructorWithInjection, 'foo');
     expect(instance2.service.param).to.equal('foo2');
   });
 
@@ -157,7 +157,7 @@ describe('inject', () => {
   });
 
   it('does not inject when not decorated', () => {
-    let instance2 = create(ConstructorWithInjection, [undefined, undefined, 34]);
+    let instance2 = create(ConstructorWithInjection, undefined, undefined, 34);
     expect(instance2.str).to.equal('');
     expect(instance2.service).to.be.instanceOf(MyServiceClass);
     expect(instance2.number).to.equal(34);
@@ -165,7 +165,7 @@ describe('inject', () => {
 
   it('create passes explicit construction parameter to super constructor', () => {
     class ExtendedConstrutorWithInjection extends ConstructorWithInjection {}
-    let instance2 = create(ExtendedConstrutorWithInjection, ['foo3', undefined, 34]);
+    let instance2 = create(ExtendedConstrutorWithInjection, 'foo3', undefined, 34);
     expect(instance2.str).to.equal('foo3');
     expect(instance2.service).to.be.instanceOf(MyServiceClass);
     expect(instance2.number).to.equal(34);

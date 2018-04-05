@@ -89,9 +89,9 @@ Injection handler may also be registered via the `addInjectionHandler` method on
 
 Returns an instance of the given type, just like using the `@inject` decorator would do in a constructor. Especially useful in cases where a `@inject` decorator can not be used, e.g. outside of classes. Note that `type` *has to be injectable*, i.e. have a compatible injection handler registered. The second parameter may be omitted, or be used to pass a value to the injection handler. For further information see `@injectable(config: InjectableConfig)` and `@injectionHandler(type: Class)`.
 
-## create(type: Class, parameters?: any[])
+## create(type: Class, ...parameters: any[])
 
-Creates an instance of the given type and fulfils all the constructor injections. *The type itself does not have to be (and typically isn't) injectable*. The values given in the parameters array will be passed to the constructor, while every remaining parameter of the constructor will be injected (if decorated with `@inject`).
+Creates an instance of the given type and fulfils all the constructor injections. *The type itself does not have to be (and typically isn't) injectable*. The parameters given after the type will be passed to the constructor, while every remaining parameter of the constructor will be injected (if decorated with `@inject`).
 
 Example:
 
@@ -104,7 +104,7 @@ class Foo {
 
 }
 
-let foo = create(Foo, [new ClassA()]);
+let foo = create(Foo, new ClassA());
 ```
 
 ## JSX and Dependency Injection

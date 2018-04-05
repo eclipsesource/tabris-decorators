@@ -44,9 +44,9 @@ export class ExtendedJSX {
 
   private convertType(type: string | Constructor<any>): string | Function {
     let injector = this.injector;
-    if (type instanceof Function) {
-      return function(...args: any[]) {
-        return injector.create(type, [args[0]]);
+    if (type instanceof Function && type.prototype) {
+      return function(props: any) {
+        return injector.create(type, props);
       };
     }
     return type;

@@ -66,13 +66,17 @@ export class Injector {
   }
 
   public create = <T, U, V, W>(
-    type: {new(arg1?: U, arg2?: V, arg3?: W, ...args: any[]): T; },
-    args: {0?: U, 1?: V, 2?: W, [index: number]: any, length: number} = []
+    type: {new(arg1?: U, arg2?: V, arg3?: W, ...remaining: any[]): T; },
+    arg1?: U,
+    arg2?: V,
+    arg3?: W,
+    ...remaining: any[]
   ): T => {
     if (!type) {
       throw new Error('No type to create was given');
     }
     try {
+      let args = [arg1, arg2, arg3].concat(remaining);
       let finalArgs: any[] = [];
       let paramInfo = getParamInfo(type) || [];
       let paramCount = Math.max(type.length, args.length, paramInfo.length);
