@@ -77,9 +77,10 @@ export class Injector {
       let paramInfo = getParamInfo(type) || [];
       let paramCount = Math.max(type.length, args.length, paramInfo.length);
       for (let i = 0; i < paramCount; i++) {
-        finalArgs[i] = args[i];
-        if (paramInfo[i]) {
+        if (args[i] === undefined && paramInfo[i]) {
           finalArgs[i] = this.resolve(paramInfo[i].type, paramInfo[i].injectParam || null);
+        } else {
+          finalArgs[i] = args[i];
         }
       }
       return new type(...finalArgs);

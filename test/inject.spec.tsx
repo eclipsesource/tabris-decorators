@@ -157,10 +157,10 @@ describe('inject', () => {
   });
 
   it('does not inject when not decorated', () => {
-    let instance2 = create(ConstructorWithInjection, ['foo3', undefined, 34]);
-    expect(instance2.str).to.equal('foo3');
+    let instance2 = create(ConstructorWithInjection, [undefined, undefined, 34]);
+    expect(instance2.str).to.equal('');
     expect(instance2.service).to.be.instanceOf(MyServiceClass);
-    expect(instance2.number).to.equal(0);
+    expect(instance2.number).to.equal(34);
   });
 
   it('create passes explicit construction parameter to super constructor', () => {
@@ -168,7 +168,7 @@ describe('inject', () => {
     let instance2 = create(ExtendedConstrutorWithInjection, ['foo3', undefined, 34]);
     expect(instance2.str).to.equal('foo3');
     expect(instance2.service).to.be.instanceOf(MyServiceClass);
-    expect(instance2.number).to.equal(0);
+    expect(instance2.number).to.equal(34);
   });
 
   it('injects implicit field', () => {

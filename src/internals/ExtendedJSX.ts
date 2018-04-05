@@ -46,7 +46,7 @@ export class ExtendedJSX {
     let injector = this.injector;
     if (type instanceof Function) {
       return function(...args: any[]) {
-        return injector.create(type, args);
+        return injector.create(type, [args[0]]);
       };
     }
     return type;

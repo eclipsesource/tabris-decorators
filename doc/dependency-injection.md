@@ -89,27 +89,11 @@ Injection handler may also be registered via the `addInjectionHandler` method on
 
 Returns an instance of the given type, just like using the `@inject` decorator would do in a constructor. Especially useful in cases where a `@inject` decorator can not be used, e.g. outside of classes. Note that `type` *has to be injectable*, i.e. have a compatible injection handler registered. The second parameter may be omitted, or be used to pass a value to the injection handler. For further information see `@injectable(config: InjectableConfig)` and `@injectionHandler(type: Class)`.
 
-## create(type: Class)
+## create(type: Class, parameters?: any[])
 
-Creates an instance of the given type and fulfils all the constructor injections. *The type itself does not have to be (and typically isn't) injectable*.
+Creates an instance of the given type and fulfils all the constructor injections. *The type itself does not have to be (and typically isn't) injectable*. The values given in the parameters array will be passed to the constructor, while every remaining parameter of the constructor will be injected (if decorated with `@inject`).
 
-## create(type: Class, param: any[])
-
-Like `create(type)`, but any parameters not decorated with `inject` will be taken from the given array, with the index in the array matching that of the parameter. For example:
-
-```ts
-class Foo {
-
-  constructor(@inject a: ClassA, b: ClassB, @inject c: ClassC) {
-    //...
-  }
-
-}
-
-let foo = create(Foo, [undefined, new ClassB(), new ClassC()]);
-```
-
-This will inject `a` and `c` (since they are decorated with `@inject`) , while `b` is taken from the given array. The instance of `ClassC` in the array will be ignored (because `@inject` overrides a given parameter). The array may be shorter than the parameter list of the constructor. If all injectable parameters are placed after the non-injectable parameters (recommended) this will always be the case. So above example is atypical. Better would be:
+Example:
 
 ```ts
 class Foo {
