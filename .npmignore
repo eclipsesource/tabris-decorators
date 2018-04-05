@@ -15,3 +15,4 @@ tslint.json
 tsconfig*.json
 .npmignore
 package-lock.json
+doc

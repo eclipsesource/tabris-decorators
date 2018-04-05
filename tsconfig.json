@@ -1,21 +1,17 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "moduleResolution": "node",
     "target": "es6",
-    "rootDirs": ["src", "test"],
     "lib": ["es6", "es2015.promise" ],
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "outDir": "./dist/",
+    "rootDir": "./src/",
+    "declaration": true,
     "strictNullChecks": true,
     "alwaysStrict": true,
-    "sourceMap": true,
-    "jsx": "react",
-    "jsxFactory": "JSX.createElement"
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": [
-    "./src/**/*.ts",
-    "./test/**/*.ts",
-    "./test/**/*.tsx"
+    "./src/**/*.ts"
   ]
 }

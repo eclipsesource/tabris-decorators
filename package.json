@@ -3,11 +3,16 @@
   "version": "1.0.0-rc2",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eclipsesource/tabris-decorators.git"
+  },
+  "license": "BSD-3-Clause",
   "scripts": {
     "clean": "rm -rf ./dist",
     "watch": "tsc -w --noEmit -p ./tsconfig.json",
-    "build": "tsc -p ./tsconfig-pack.json",
-    "test": "npm run lint && ts-mocha -p . ./test/*.spec.ts ./test/*.spec.tsx",
+    "build": "rm -rf dist/ && webpack",
+    "test": "npm run lint && ts-mocha -p ./tsconfig-test.json ./test/*.spec.ts ./test/*.spec.tsx",
     "test:file": "ts-mocha -p .",
     "lint": "tslint --project . src/*/*.ts test/**/*.ts test/**/*.tsx",
     "safePublish": "npm test && npm run clean && npm run build && npm publish"
@@ -21,14 +26,19 @@
     "@types/mocha": "^2.2.41",
     "@types/sinon": "^1.16.0",
     "@types/sinon-chai": "^2.7.0",
+    "ajv-cli": "^2.1.0",
     "chai": "^3.5.0",
     "mocha": "^3.2.0",
     "sinon": "^1.16.0",
     "sinon-chai": "^2.7.0",
     "tabris": "nightly",
+    "ts-loader": "^3.5.0",
     "ts-mocha": "^1.0.3",
     "tslint": "^5.3.2",
-    "typescript": "^2.6.2"
+    "typescript": "^2.6.2",
+    "uglifyjs-webpack-plugin": "^1.2.4",
+    "webpack": "^3.11.0",
+    "webpack-merge": "^4.1.2"
   },
   "dependencies": {
     "reflect-metadata": "^0.1.10"
