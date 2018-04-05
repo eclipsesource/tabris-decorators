@@ -35,8 +35,8 @@ export class Injector {
     });
   }
 
-  public resolve = <T>(type: BaseConstructor<T>, injection?: Injection) => {
-    let injectionParam = injection || {type, injector: this, target: null, param: null};
+  public resolve = <T>(type: BaseConstructor<T>, param: object | string | number | boolean | null = null) => {
+    let injectionParam: Injection = {type, injector: this, param};
     injectionParam.injector = this;
     let handlers = this.findCompatibleHandlers(type);
     if (!handlers.length) {
@@ -70,13 +70,7 @@ export class Injector {
       for (let i = 0; i < paramCount; i++) {
         finalArgs[i] = args[i];
         if (paramInfo[i]) {
-          let injection = {
-            type,
-            param: paramInfo[i].injectParam || null,
-            injector: this,
-            target: null
-          };
-          finalArgs[i] = this.resolve(paramInfo[i].type, injection);
+          finalArgs[i] = this.resolve(paramInfo[i].type, paramInfo[i].injectParam || null);
         }
       }
       return new type(...finalArgs);
@@ -121,10 +115,11 @@ export class Injector {
 
 export const injector = new Injector();
 
+export type InjectionParameter = object | string | number | boolean | null;
+
 export interface Injection {
   type: BaseConstructor<any>;
-  target: object | null;
-  param: string | null;
+  param: InjectionParameter;
   injector: Injector;
 }
 

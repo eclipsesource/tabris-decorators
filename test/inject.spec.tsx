@@ -136,12 +136,10 @@ describe('inject', () => {
   it('gives Injection infos to handler', () => {
     let fooInjection: Injection = (serviceHandler as SinonSpy).args[0][0];
     let otherInjection: Injection = (serviceHandler as SinonSpy).args[1][0];
-    expect(fooInjection.target).to.be.null;
     expect(fooInjection.param).to.equal('foo2');
-    expect(fooInjection.type).to.equal(ConstructorWithInjection);
-    expect(otherInjection.target).to.be.null;
+    expect(fooInjection.type).to.equal(MyServiceClass);
     expect(otherInjection.param).to.be.null;
-    expect(otherInjection.type).to.equal(ConstructorWithInjection);
+    expect(otherInjection.type).to.equal(MyServiceClass);
   });
 
   it('does not inject when not decorated', () => {
