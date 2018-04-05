@@ -8,6 +8,7 @@
     "package-lock.json": true,
     ".project": true
   },
+  "javascript.implicitProjectConfig.experimentalDecorators": true,
   "typescript.extension.sortImports.sortMethod": "path",
   "typescript.extension.sortImports.pathSortOrder": [
     "package",
