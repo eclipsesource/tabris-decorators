@@ -1,6 +1,6 @@
 {
   "name": "tabris-decorators",
-  "version": "1.0.0-rc2",
+  "version": "1.0.0-rc3",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "repository": {
@@ -13,8 +13,8 @@
     "watch": "tsc -w --noEmit -p ./tsconfig.json",
     "build": "rm -rf dist/ && webpack",
     "test": "npm run lint && ts-mocha -p ./tsconfig-test.json ./test/*.spec.ts ./test/*.spec.tsx",
-    "test:file": "ts-mocha -p .",
-    "lint": "tslint --project . src/*/*.ts test/**/*.ts test/**/*.tsx",
+    "test:file": "ts-mocha -p ./tsconfig-test.json",
+    "lint": "tslint --project ./tsconfig-test.json src/*/*.ts test/**/*.ts test/**/*.tsx",
     "safePublish": "npm test && npm run clean && npm run build && npm publish"
   },
   "peerDependencies": {
