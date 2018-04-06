@@ -2,6 +2,8 @@ import 'mocha';
 import 'sinon';
 import { SinonSpy } from 'sinon';
 import { Composite, CompositeProperties } from 'tabris';
+import { WidgetCollection } from 'tabris';
+import { TextInput } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox, spy } from './test';
 import { Constructor, create, inject, injectable, Injection, injectionHandler, injector, shared } from '../src';
@@ -265,6 +267,15 @@ describe('inject', () => {
 
     it('passes children', () => {
       expect(widget.children().length).to.equal(1);
+    });
+
+    it('does not interfere with stateless functional component', () => {
+      function ComponentFoo(prop: {bar: string}, children: string[] ) {
+        return new WidgetCollection([new TextInput({text: prop.bar}), new TextInput({text: children[0]})]);
+      }
+      let ti = <ComponentFoo bar='foo'>hello</ComponentFoo>;
+      expect(ti[0].text).to.equal('foo');
+      expect(ti[1].text).to.equal('hello');
     });
 
   });

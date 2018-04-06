@@ -1,7 +1,7 @@
 import { Widget } from 'tabris';
 import { applyJsxBindings, JsxBindings } from './bind-one-way';
 import { Injector } from '../api/Injector';
-import { Constructor } from '../internals/utils';
+import { Constructor, hasInjections } from '../internals/utils';
 /* tslint:disable no-namespace ban-types only-arrow-functions */
 
 export interface Properties { [property: string]: any; }
@@ -44,7 +44,7 @@ export class ExtendedJSX {
 
   private convertType(type: string | Constructor<any>): string | Function {
     let injector = this.injector;
-    if (type instanceof Function && type.prototype) {
+    if (type instanceof Function && hasInjections(type)) {
       return function(props: any) {
         return injector.create(type, props);
       };

@@ -12,7 +12,7 @@ export interface WidgetProtected {
   _find(selector?: Selector): WidgetCollection<Widget>;
   _find<U extends Widget>(constructor: { new (...args: any[]): U }): WidgetCollection<U>;
 }
-export interface ParamInfo {type: Constructor<any>; injectParam?: string; }
+export interface ParamInfo {type: Constructor<any>; injectParam?: string; inject?: boolean;}
 export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
 export type DecoratorFactory = (target: any, property: string, index?: number) => void;
 
@@ -145,6 +145,18 @@ export function getParamInfo(fn: any): ParamInfo[] {
     Reflect.defineMetadata(paramInfoKey, [], fn);
   }
   return Reflect.getMetadata(paramInfoKey, fn);
+}
+
+export function hasInjections(fn: any): boolean {
+  if (!Reflect.getMetadata(paramInfoKey, fn)) {
+    return false;
+  }
+  for (let paramInfo of getParamInfo(fn)) {
+    if (paramInfo && paramInfo.inject) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function checkPropertyExists(targetWidget: any, targetProperty: string, targetName: string = 'Target') {

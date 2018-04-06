@@ -17,6 +17,6 @@ export function inject(this: Injector, ...args: any[]): any {
 
 function setParameterInfo(target: any, index: number, injectParam?: string) {
   getParamInfo(target)[index] = {
-    injectParam, type: getParameterType(target, index)
+    injectParam, type: getParameterType(target, index), inject: true
   };
 }
