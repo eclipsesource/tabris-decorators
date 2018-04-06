@@ -1,15 +1,37 @@
 import { BaseConstructor } from '../internals/utils';
 
+/**
+ * Performs type checks on the given value. If the check fails the function throws an error message stating the reason.
+ *
+ * The following rules apply:
+ * * Object values may be an instance of the given class or any class extending it.
+ * * Primitive types are represented by their boxed type, e.g. a number is `Number`.
+ * * Null and undefined always pass.
+ * * Boxed values never pass.
+ */
 export function checkType(value: any, type: BaseConstructor<any>) {
   if (!type) {
     throw new Error('No type given');
+  }
+  if (isBoxedValue(value)) {
+    throw new Error('Boxed values are forbidden');
   }
   if (value === null || value === undefined || value instanceof type || isPrimitiveOfType(value, type)) {
     return;
   }
   throw new Error(
-    `Expected value to be of type "${getTypeName(type)}", but found "${getValueTypeName(value)}".`
+    `Expected ${getValueString(value)} to be of type ${getTypeName(type)}, but found ${getValueTypeName(value)}.`
   );
+}
+
+function getValueString(value: any): string {
+  let result = 'value';
+  if (value === '') {
+    result += ' [empty string]';
+  } else if (isPrimitiveValue(value)) {
+    return result += ` "${value}"`;
+  }
+  return result;
 }
 
 function getValueTypeName(value: any) {
@@ -34,6 +56,14 @@ function getTypeName(type: BaseConstructor<any>) {
   return name;
 }
 
+function isBoxedValue(value: any) {
+  return value instanceof Boolean || value instanceof Number || value instanceof String;
+}
+
 function isPrimitiveType(type: BaseConstructor<any>) {
   return type === Boolean || type === Number || type === String;
+}
+
+function isPrimitiveValue(value: any) {
+  return typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string';
 }

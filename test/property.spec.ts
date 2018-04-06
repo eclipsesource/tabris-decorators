@@ -80,10 +80,10 @@ describe('property', () => {
   it('throws if type check fails on checkable type', () => {
     let component = new CustomComponent({foo: 'foo', bar: 23}) as any;
     expect(() => component.foo = 24).to.throw(
-      'Failed to set property "foo": Expected value to be of type "string", but found "number"'
+      'Failed to set property "foo": Expected value "24" to be of type string, but found number'
     );
     expect(() => component.bar = 'foo2').to.throw(
-      'Failed to set property "bar": Expected value to be of type "number", but found "string"'
+      'Failed to set property "bar": Expected value "foo2" to be of type number, but found string'
     );
     expect(component.foo).to.equal('foo');
     expect(component.bar).to.equal(23);

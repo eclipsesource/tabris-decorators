@@ -5,7 +5,7 @@ import 'tabris';
 import { EventObject } from 'tabris';
 import { restoreSandbox, spy, stub } from './test';
 import { Listeners } from '../src';
-// tslint:disable:no-unused-expression
+// tslint:disable:no-unused-expression max-file-line-count
 
 describe('ListenerCollection', () => {
 

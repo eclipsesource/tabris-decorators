@@ -124,7 +124,7 @@ describe('getById', () => {
   it('throws if getters finds wrong type after first append', () => {
     expect(() => widget.append(composite1, button2, new Composite({id: 'button1'}))).to.throw(
         'Decorator "getById" could not resolve property "button1": '
-      + 'Expected value to be of type "Button", but found "Composite'
+      + 'Expected value to be of type Button, but found Composite'
     );
   });
 

@@ -129,7 +129,7 @@ describe('component', () => {
         widget.append(<CustomComponent2 bind-numberProperty='myText' />);
       }).to.throw(
           'Binding "numberProperty" -> "myText" failed: Failed to set property "numberProperty": '
-        + 'Expected value to be of type "number", but found "string".'
+        + 'Expected value "foo" to be of type number, but found string.'
       );
     });
 
@@ -140,7 +140,7 @@ describe('component', () => {
         widget2.someProperty = false;
       }).to.throw(
         'Binding "myText" -> "someProperty" failed: Failed to set property "myText": '
-      + 'Expected value to be of type "string", but found "boolean".'
+      + 'Expected value "false" to be of type string, but found boolean.'
       );
     });
 

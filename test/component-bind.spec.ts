@@ -183,7 +183,7 @@ describe('bind', () => {
     (target as any).text = 23;
     expect(() => widget.append(target)).to.throw(
         'Binding "myText" <-> "#textInput1.text" failed to initialize: '
-      + 'Expected value to be of type "string", but found "number".'
+      + 'Expected value "23" to be of type string, but found number.'
     );
   });
 
@@ -192,7 +192,7 @@ describe('bind', () => {
     (target as any).text = 23;
     expect(() => widget.append(target)).to.throw(
         'Binding "myText" <-> "#textInput1.text" failed to initialize: '
-      + 'Expected value to be of type "string", but found "number".'
+      + 'Expected value "23" to be of type string, but found number.'
     );
   });
 
@@ -279,7 +279,7 @@ describe('bind', () => {
 
     expect(() => child.text = 23).to.throw(
         'Binding "myText" <-> "#textInput1.text" failed to update CustomChild property "text": '
-      + 'Expected value to be of type "string", but found "number".'
+      + 'Expected value "23" to be of type string, but found number.'
     );
   });
 
@@ -293,7 +293,7 @@ describe('bind', () => {
 
     expect(() => widget.myText).to.throw(
         'Binding "myText" <-> "#textInput1.text" failed to provide CustomComponent property "myText": '
-      + 'Expected value to be of type "string", but found "number".'
+      + 'Expected value "23" to be of type string, but found number.'
     );
   });
 
@@ -320,7 +320,7 @@ describe('bind', () => {
 
     expect(() => (widget as any).myText = 23).to.throw(
        'Binding "myText" <-> "#textInput1.text" failed to update target value: '
-     + 'Expected value to be of type "string", but found "number".'
+     + 'Expected value "23" to be of type string, but found number.'
     );
   });
 

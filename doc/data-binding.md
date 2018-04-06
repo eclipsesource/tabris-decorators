@@ -81,4 +81,4 @@ The databinding system can not rely on the compiler to ensure type safety. There
 
 If the properties involved are decorated by `@property` or `@bind`, this will happen automatically. However, if either property type is an [advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html) or an interface, this is not possible and the binding will fail as a precaution. To fix this you need to set the typeGuard parameter of `@property`/`@bind` to a function that performs the type check explicitly.
 
-If the properties involved are not decorated by `@property` or `@bind` they are expected to perform the type check in the setter. While that is not enforced, all widgets built directly in to Tabris.js behave like this.
+If the properties involved are not decorated by `@property` or `@bind` they are expected to perform the type check in the setter. While that is not enforced, all widgets built directly in to Tabris.js behave like this. If you need to perform explicit type checks in your code you may want to make use of the `checkType` function exported by `tabris-decorators`.
