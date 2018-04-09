@@ -22,6 +22,7 @@ export class Listeners<T extends object = {}> {
     let delegate: Listeners<T> = this.addListener.bind(this);
     (delegate as any).target = this.target;
     (delegate as any).type = this.type;
+    (delegate as any).original = this;
     for (let key of DELEGATE_FIELDS) {
       delegate[key] = this[key] = this[key].bind(this);
     }

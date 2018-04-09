@@ -1,18 +1,19 @@
 # Event Handling
 
-The `@event` decorator together with the `Listeners` class provides an extended event handling API that sits on top of the one built into Tabris.js. This API is optimized for TypeScript and works very well with the MVP pattern and dependency injection.
+The `@event` decorator together with the `Listeners` class provides an extended event handling API that sits on top of the one built into Tabris.js. This API is optimized for TypeScript and works, for example, very well with an MVP pattern and dependency injection.
 
 More specifically it...
 
 * Improves type safety
-* Is useable even on non-widget classes
+* Is useable even in classes that don't extend `Widget`
+* Can be [combined with `@property`](./data-binding.md) to auto-generate change events
 * Simplifies adding custom events to your own UI component
 * Simplifies defining custom events on interfaces and abstract classes
 * Provides methods designed for use with promises and `async`/`await`
 
 ## @event
 
-Apply this to a property of the type `Listeners` (or `ChangeListeners`) to define a custom event for this class or interface.
+Apply this to a property of the type `Listeners` (or `ChangeListeners`) to define a custom event for this class. The name of the property __must__ start with 'on', e.g. 'onMyEvent'. The decorator can be used in abstract classes, but not interfaces. However, interfaces can define a property that is then implemented with `@event`.
 
 `Listeners` is generic with one optional type parameter that defines the data available on the `EventObject` instance given to the listeners, _in addition to `target`, `type` and `timeStamp`_.
 
@@ -23,17 +24,14 @@ When used on a widget the `Listeners` instance will be integrated in the existin
 Here are some examples declarations. Detailed explanations are given below in "Listeners Interface".
 
 ```ts
-class PlainClass {
+class SomeClass extends SomeOtherClass {
   @event public readonly onMyEvent: Listeners; // issues plain EventObject instances
   @event public readonly onFoo: Listeners<{foo: string}>; // EventObject with additional event data
   @event public readonly onCustomEvent1: Listeners<EventObject<this>>; // Sets type of `event.target` to `PlainClass`
   @event public readonly onCustomEvent2: Listeners<{target?: PlainClass}>; // almost the same, but more convenient to trigger
-}
-
-class MyComponent extends Composite {
   @property public selection: number; // will (due to the naming) trigger the event below:
   @event public readonly onSelectionChanged: ChangeListeners<number>;
-  @event public readonly onResize: Listeners<WidgetResizeEvent>; // Allows use of the existing resize event
+  @event public readonly onResize: Listeners<WidgetResizeEvent>; // On a widget this would delegate to the existing resize event
 }
 ```
 

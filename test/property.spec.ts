@@ -3,7 +3,7 @@ import 'sinon';
 import { Composite, CompositeProperties } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox, stub } from './test';
-import { property } from '../src';
+import { ChangeListeners, event, property } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 describe('property', () => {
@@ -57,7 +57,7 @@ describe('property', () => {
     expect(component.bar).to.equal(23);
   });
 
-  it('fires change event', () => {
+  it('fires change event on widget', () => {
     let listener = stub();
     let component = new CustomComponent().on('fooChanged', listener);
 
@@ -66,6 +66,37 @@ describe('property', () => {
     expect(listener).to.have.been.calledWithMatch({
       target: component, value: 'foo2', type: 'fooChanged'
     });
+  });
+
+  it('fires change event on plain object', () => {
+    let listener = stub();
+    class MyModel {
+      @property public myBool: boolean = false;
+      @event public onMyBoolChanged: ChangeListeners<boolean>;
+    }
+    let myModel = new MyModel();
+    myModel.onMyBoolChanged(listener);
+
+    myModel.myBool = true;
+
+    expect(listener).to.have.been.called;
+    expect(listener).to.have.been.calledWithMatch({
+      target: myModel, value: true, type: 'myBoolChanged'
+    });
+  });
+
+  it('does not fire event on plain object without matching listeners', () => {
+    let listener = stub();
+    class MyModel {
+      @property public myBool: boolean = false;
+      @event public onOtherPropChanged: ChangeListeners<boolean>;
+    }
+    let myModel = new MyModel();
+    myModel.onOtherPropChanged(listener);
+
+    myModel.myBool = true;
+
+    expect(listener).not.to.have.been.called;
   });
 
   it('do not fire change event if values are identical', () => {
