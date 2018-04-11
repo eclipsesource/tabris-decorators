@@ -2,9 +2,13 @@ import 'reflect-metadata';
 import { Injector } from '../api/Injector';
 import { applyDecorator, Constructor, getParameterType, getParamInfo, ParameterDecoratorFactory } from '../internals/utils';
 
-export function inject(constructor: Constructor<any>, property: string, index: number): void;
-export function inject(param: string): ParameterDecoratorFactory;
-export function inject(this: Injector, ...args: any[]): any {
+export function bindDecoratorInject(injector: Injector): typeof unboundInject {
+  return unboundInject.bind(injector);
+}
+
+export function unboundInject(constructor: Constructor<any>, property: string, index: number): void;
+export function unboundInject(param: string): ParameterDecoratorFactory;
+export function unboundInject(this: Injector, ...args: any[]): any {
   return applyDecorator('inject', args, (target, property, index) => {
     const param: string = typeof args[0] === 'string' ? args[0] : undefined;
     if (typeof index === 'number') {

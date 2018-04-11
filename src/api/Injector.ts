@@ -1,7 +1,7 @@
-import { inject as unboundInject } from '../decorators/inject';
-import { injectable as unboundInjectable } from '../decorators/injectable';
-import { injectionHandler as unboundInjectionHandler } from '../decorators/injectionHandler';
-import { shared as unboundShared } from '../decorators/shared';
+import { bindDecoratorInject, unboundInject } from '../decorators/inject';
+import { bindDecoratorInjectable, unboundInjectable } from '../decorators/injectable';
+import { bindDecoratorInjectionHandler, unboundInjectionHandler } from '../decorators/injectionHandler';
+import { bindDecoratorShared, unboundShared } from '../decorators/shared';
 import { ExtendedJSX } from '../internals/ExtendedJSX';
 import { BaseConstructor, getParamInfo } from '../internals/utils';
 
@@ -17,12 +17,10 @@ export type InjectionHandlerFunction<T> = (injection: Injection) => T | null | u
 
 export class Injector {
 
-  // tslint:disable:typedef
-  public readonly injectionHandler = unboundInjectionHandler;
-  public readonly inject = unboundInject;
-  public readonly injectable = unboundInjectable;
-  public readonly shared = unboundShared;
-  // tslint:enable:typedef
+  public readonly injectionHandler: typeof unboundInjectionHandler = bindDecoratorInjectionHandler(this);
+  public readonly inject: typeof unboundInject = bindDecoratorInject(this);
+  public readonly injectable: typeof unboundInjectable = bindDecoratorInjectable(this);
+  public readonly shared: typeof unboundShared = bindDecoratorShared(this);
   public readonly JSX: ExtendedJSX = new ExtendedJSX(this);
   private handlers: HandlersMap = new Map();
 
@@ -46,7 +44,7 @@ export class Injector {
     });
   }
 
-  public resolve = <T>(type: BaseConstructor<T>, param: InjectionParameter = null) => {
+  public resolve = <T>(type: BaseConstructor<T>, param: InjectionParameter = null): T => {
     let handlers = this.findCompatibleHandlers(type);
     if (!handlers.length) {
       throw new Error(

@@ -2,9 +2,13 @@ import 'reflect-metadata';
 import { Injection, InjectionParameter, Injector } from '../api/Injector';
 import { applyClassDecorator, areStaticClassDecoratorArgs, BaseConstructor, ClassDecoratorFactory, Constructor } from '../internals/utils';
 
-export function injectable<T>(config: InjectableConfig<T>): ClassDecoratorFactory<T>;
-export function injectable<T>(type: Constructor<T>): void;
-export function injectable(this: Injector, ...args: any[]): void | ClassDecoratorFactory<any> {
+export function bindDecoratorInjectable(injector: Injector): typeof unboundInjectable {
+  return unboundInjectable.bind(injector);
+}
+
+export function unboundInjectable<T>(config: InjectableConfig<T>): ClassDecoratorFactory<T>;
+export function unboundInjectable<T>(type: Constructor<T>): void;
+export function unboundInjectable(this: Injector, ...args: any[]): void | ClassDecoratorFactory<any> {
   return applyClassDecorator('injectable', args, (type: Constructor<any>) => {
     Reflect.defineMetadata(injectableKey, true, type);
     let config = getInjectableConfig(args);

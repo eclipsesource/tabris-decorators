@@ -6,8 +6,12 @@ export type IHDescriptor<T> = TypedPropertyDescriptor<IHFunction<T>>;
 export type InjectionHandlerDeco<T>
   = (target: BaseConstructor<any>, propertyName: string, descriptor: IHDescriptor<T>) => void;
 
-export function injectionHandler<T>(targetType: BaseConstructor<T>): InjectionHandlerDeco<T>;
-export function injectionHandler(this: Injector, ...args: any[]): any {
+export function bindDecoratorInjectionHandler(injector: Injector): typeof unboundInjectionHandler {
+  return unboundInjectionHandler.bind(injector);
+}
+
+export function unboundInjectionHandler<T>(targetType: BaseConstructor<T>): InjectionHandlerDeco<T>;
+export function unboundInjectionHandler(this: Injector, ...args: any[]): any {
   return applyDecorator('injectionHandler', args, (target: object, targetProperty: string) => {
     let type = args[0] as Constructor<any>;
     if (target instanceof Function) {
