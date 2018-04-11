@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Widget, WidgetResizeEvent } from 'tabris';
-import { BaseConstructor, checkPathSyntax, checkPropertyExists, getPropertyType, isUnchecked, WidgetInterface } from './utils';
+import { checkPathSyntax, checkPropertyExists, isUnchecked, WidgetInterface } from './utils';
 
 export interface JsxBindings { [targetProperty: string]: string; }
 
@@ -59,13 +59,12 @@ function createOneWayBindingDesc(target: WidgetInterface, targetProperty: string
   }
   let sourceProperty = path; // TODO: support other sources than base
   let sourceChangeEvent = sourceProperty + 'Changed';
-  let targetPropertyType = getPropertyType(target, targetProperty);
   checkPropertyExists(target, targetProperty);
   if (isUnchecked(target, targetProperty)) {
     throw new Error(`Can not bind to property "${targetProperty}" without type guard.`);
   }
   return {
-    target, targetProperty, path, sourceProperty, sourceChangeEvent, targetPropertyType
+    target, targetProperty, path, sourceProperty, sourceChangeEvent
   };
 }
 
@@ -89,7 +88,6 @@ interface OneWayBinding {
   path: string;
   target: Widget;
   targetProperty: string;
-  targetPropertyType: BaseConstructor<any>;
   sourceProperty: string;
   sourceChangeEvent: string;
 }
