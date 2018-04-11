@@ -99,7 +99,11 @@ export function defineGetter(proto: any, property: string, get: () => any): void
  * it returns the Object constructor.
  */
 export function getPropertyType(proto: any, property: string): Constructor<any> {
-  return Reflect.getMetadata('design:type', proto, property);
+  let result = Reflect.getMetadata('design:type', proto, property);
+  if (!result) {
+    throw new Error('Property type is undefined: Do you have circular dependency issues?');
+  }
+  return result;
 }
 
 /**
