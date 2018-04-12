@@ -56,7 +56,7 @@ triggerMyEvent();
 
 ### listeners.addListener(listener: Function)
 
-Adds a listener to be notified by new events. Each listener can only be added once.
+Registers a listener to be notified by new events. Each listener can only be added once.
 
 Same as calling `listeners` as a function. Therefore this...
 
@@ -82,7 +82,7 @@ The listener will _always_ receive an instance of `EventObject` with `target`, `
 
 ### listeners.removeListener(listener: Function)
 
-Removes a listener, no matter how it was registered.
+De-registers a listener, no matter how it was registered.
 
 On widgets this is the same as calling `widget.off('eventType', listener)`
 

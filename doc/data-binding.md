@@ -30,7 +30,13 @@ This makes changes to `myText` be applied to the `text` property of the `textVie
 
 Makes the decorated object property a "real" Tabris.js property, meaning it can be set via constructor or `set` method (on widgets with proper type declarations), and it fires change events. This is especially useful when the property is supposed to be the source of a one-way data binding. It also performs type checks for the databinding system.
 
-The `@property` decorators can be used in any class, not just subclasses of `Widget`. On a non-widget class change events are only fired [if a matching instance of `Listeners` is found](./event-handling.md).
+The `@property` decorators can be used in any class, not just subclasses of `Widget`. On a non-widget class change events are only fired [if a matching instance of `Listeners` is found](./event-handling.md):
+
+```ts
+@property public myText: string = 'foo';
+@event public readonly onMyTextChanged: ChangeListeners<string>;
+
+```
 
 ## @property(typeGuard: Function)
 

@@ -4,6 +4,26 @@ import { Composite } from 'tabris';
 import { processOneWayBindings } from '../internals//bind-one-way';
 import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory, isAppended, markAsAppended, markAsComponent, postAppendHandlers, WidgetInterface } from '../internals//utils';
 
+/**
+ * A decorator for classes extending `Widget`.
+ *
+ * Makes instances of the decorated class the base reference for databinding via the `@bind` decorator and
+ * the JSX attribute prefix `bind-`.
+ *
+ * Example for the JSX binding syntax:
+ *
+ * ```jsx
+ * this.append(
+ *  <textView bind-text='myText'/>
+ * );
+ * ```
+ * This binds the `TextView` property `text` to the property `myText` of the decorated class.
+ * The base property (`myText`) must be bindable - see `@property`.
+ * JSX bindings are resolved only with the first append call.
+ *
+ * The decorator also isolates the children of the class instance by making them accessible only internally via
+ * `@getById` or the protected `_children`, `_find` and `_apply` methods.
+ */
 export function component(type: BaseConstructor<Composite>) {
   markAsComponent(type);
   isolate(type);

@@ -10,6 +10,21 @@ export function bindDecoratorInjectionHandler(injector: Injector): typeof unboun
   return unboundInjectionHandler.bind(injector);
 }
 
+// Remember to update index.ts when editing this JsDoc:
+/**
+ * Registers a static method to handle injections for the given type:
+ * ```
+ * ‍@injectionHandler(MyServiceClass)
+ * public static createMyServiceClass(injection: Injection) {
+ *   return new MyServiceClass(someArg);
+ * }
+ * ```
+ * The method must return a value compatible to the given type or `null`/`undefined`.
+ * The method is passed an `Injection` object with the following fields:
+ * - `type`: The exact type that was requested.
+ * - `injector`: The `Injector` instance the injection handler is registered with.
+ * - `param`: An injection parameter that may have been passed via `@inject(param)` or `resolve(type, param)`
+ */
 export function unboundInjectionHandler<T>(targetType: BaseConstructor<T>): InjectionHandlerDeco<T>;
 export function unboundInjectionHandler(this: Injector, ...args: any[]): any {
   return applyDecorator('injectionHandler', args, (target: object, targetProperty: string) => {

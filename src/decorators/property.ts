@@ -6,7 +6,43 @@ import { applyDecorator, Constructor, getPropertyStore, getPropertyType, markAsU
 
 export type CustomPropertyDecorator = (target: Widget, property: string | symbol) => void;
 
+// Duplicate JsDoc is needed because of the function overload:
+
+/**
+ * This decorator makes a property fire change events, thereby making it bindable.
+ *
+ * `@property` can be used on any class, but on non-widget classes change events are only
+ * fired when a matching event is declared:
+ * ```ts
+ * ‍@property public myText: string;
+ * ‍@event public readonly onMyTextChanged: ChangeListeners<string>;
+ * ```
+ *
+ * The decorator can optionally also attach a type guard function to the property:
+ * ```
+ * ‍@property(value => boolean)
+ * ```
+ * The type guard is called whenever the property is set and must return `true`
+ * if `value` is of the expected type. This is required for some types to enable databinding.
+ */
 export function property(targetProto: object, property: string | symbol): void;
+/**
+ * This decorator makes a property fire change events, thereby making it bindable.
+ *
+ * `@property` can be used on any class, but on non-widget classes change events are only
+ * fired when a matching event is declared:
+ * ```ts
+ * ‍@property public myText: string;
+ * ‍@event public readonly onMyTextChanged: ChangeListeners<string>;
+ * ```
+ *
+ * The decorator can optionally also attach a type guard function to the property:
+ * ```
+ * ‍@property(value => boolean)
+ * ```
+ * The type guard is called whenever the property is set and must return `true`
+ * if `value` is of the expected type. This is required for some types to enable databinding.
+ */
 export function property(check: TypeGuard): CustomPropertyDecorator;
 export function property(...args: any[]): PropertyDecorator | void {
   return applyDecorator('property', args, (widgetProto: any, propertyName: string) => {

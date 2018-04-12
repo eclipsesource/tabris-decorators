@@ -4,7 +4,39 @@ import { Widget } from 'tabris';
 import { checkType } from '../api/checkType';
 import { applyDecorator, checkAppended, checkIsComponent, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, TypeGuard, WidgetInterface } from '../internals//utils';
 
+/**
+ * A decorator for readonly properties on classes extending `Widget`.
+ *
+ * Lets the property return the descendant widget with the same id as the property name.
+ * There must be exactly one match. The lookup happens on the first `append` call on the
+ * decorated class.
+ *
+ * The decorator can optionally also attach a type guard function to the property.
+ * This is necessary if the exact type of the widget is not known:
+ * ```
+ * ‍@getById(widget => typeof widget.text === 'string')
+ * public readonly widgetId: Widget & {text: string};
+ * ```
+ *
+ * This decorator only works on classes decorated with `@component`.
+ */
 export function getById(targetProto: Composite, property: string): void;
+/**
+ * A decorator for readonly properties on classes extending `Widget`.
+ *
+ * Lets the property return the descendant widget with the same id as the property name.
+ * There must be exactly one match. The lookup happens on the first `append` call on the
+ * decorated class.
+ *
+ * The decorator can optionally also attach a type guard function to the property.
+ * This is necessary if the exact type of the widget is not known:
+ * ```
+ * ‍@getById(widget => typeof widget.text === 'string')
+ * public readonly widgetId: Widget & {text: string};
+ * ```
+ *
+ * This decorator only works on classes decorated with `@component`.
+ */
 export function getById(check: TypeGuard): PropertyDecorator;
 export function getById(...args: any[]): void | PropertyDecorator{
   return applyDecorator('getById', args, (widgetProto: any, property: string) => {

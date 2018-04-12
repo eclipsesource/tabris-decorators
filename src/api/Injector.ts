@@ -15,22 +15,35 @@ export interface Injection {
 
 export type InjectionHandlerFunction<T> = (injection: Injection) => T | null | undefined;
 
+/**
+ * An `Injector` instance manages injection handlers and fulfills injections.
+ *
+ * You may create your own instance of `Injector` if you wish to keep your injection
+ * handlers separate from those kept in the global `injector` object exported
+ * by `tabris-decorators`. You must then use the attached decorators and `JSX` object
+ * instead of the global ones.
+ */
 export class Injector {
 
   public readonly injectionHandler: typeof unboundInjectionHandler = bindDecoratorInjectionHandler(this);
   public readonly inject: typeof unboundInject = bindDecoratorInject(this);
   public readonly injectable: typeof unboundInjectable = bindDecoratorInjectable(this);
   public readonly shared: typeof unboundShared = bindDecoratorShared(this);
+
+  /**
+   * This object needs to be present in the module namespace to allow JSX expressions that
+   * use this `Injector` instance to fulfill injections. E.g.
+   * ```
+   *   const JSX = injector.JSX;
+   * ```
+   */
   public readonly JSX: ExtendedJSX = new ExtendedJSX(this);
   private handlers: HandlersMap = new Map();
 
-  constructor() {
-    this.injectionHandler = this.injectionHandler.bind(this);
-    this.injectable = this.injectable.bind(this);
-    this.shared = this.shared.bind(this);
-    this.inject = this.inject.bind(this);
-  }
-
+  /**
+   * Explicitly registers a new injection handler. Same as using the attached `injectionHandler`
+   * decorator.
+   */
   public addHandler = <T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandlerFunction<U>) => {
     if (!targetType || !handler) {
       throw new Error('invalid argument');
@@ -44,6 +57,10 @@ export class Injector {
     });
   }
 
+  /**
+   * Returns an instance for an injectable type, just like using the `@inject` decorator
+   * would do in a constructor.
+   */
   public resolve = <T>(type: BaseConstructor<T>, param: InjectionParameter = null): T => {
     let handlers = this.findCompatibleHandlers(type);
     if (!handlers.length) {
@@ -63,6 +80,13 @@ export class Injector {
     );
   }
 
+  /**
+   * `create(type: Class, ...parameters: any[])`
+   *
+   * Creates an instance of the given class and fills in all the constructor parameters decorated with `@inject`.
+   * Parameters given after the type will be passed to the constructor, potentially overriding
+   * the injection value.
+   */
   public create = <T, U, V, W>(
     type: {new(arg1?: U, arg2?: V, arg3?: W, ...remaining: any[]): T; },
     arg1?: U,

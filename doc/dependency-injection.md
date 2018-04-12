@@ -32,7 +32,7 @@ class Foo {
 
 ## @injectable
 
-Apply this to a class to register it for injection. It can be injected as itself or as any of it's super-classes (except `Object`).
+Apply this to a class to register it for injection. It can be injected as itself or as any of its super-classes (except `Object`).
 
 ```ts
 class Foo {}
@@ -87,7 +87,7 @@ Injection handler may also be registered via the `addInjectionHandler` method on
 
 ## resolve(type: Class, injectionParameter?: InjectionParameter)
 
-Returns an instance of the given type, just like using the `@inject` decorator would do in a constructor. Especially useful in cases where a `@inject` decorator can not be used, e.g. outside of classes. Note that `type` *has to be injectable*, i.e. have a compatible injection handler registered. The second parameter may be omitted, or be used to pass a value to the injection handler. For further information see `@injectable(config: InjectableConfig)` and `@injectionHandler(type: Class)`.
+Returns an instance for an injectable type, just like using the `@inject` decorator would do in a constructor. Especially useful in cases where a `@inject` decorator can not be used, e.g. outside of classes. Note that `type` *has to be injectable*, i.e. have a compatible injection handler registered. The second parameter may be omitted, or be used to pass a value to the injection handler. For further information see `@injectable(config: InjectableConfig)` and `@injectionHandler(type: Class)`.
 
 ## create(type: Class, ...parameters: any[])
 
