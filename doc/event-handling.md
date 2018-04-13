@@ -161,7 +161,12 @@ private async enterPassword() {
 In addition to `Listeners<T extends object = {}>` there are a few additional interfaces exported that may come in handy:
 
 * `type ChangeListeners<Value, Target = {}> = Listeners<ChangeEvent<Value, Target>>;`
-* `type CustomEvent<EventData, Target = {}> = EventObject<Target> & EventData;`
+* * To be used as an alternative to `Listeners` for change events. First generic type describes the value that changes, the second - if given - the type of the target field. Can be used like `ChangeListeners<boolean, this>`.
 * `type ChangeEvent<Value, Target = {}> = PropertyChangeEvent<Target, Value>;`
+* * Shorthand for the change event interface exported by the tabris module. It allows to omit the target type.
+* `CustomEvent<CustomData, Target = {}> = EventObject<Target> & CustomData;`
+* * Shorthand for extending `EventObject`.
 * `type Listener<T = {}> = (ev: CustomEvent<T>) => any;`
+* * Can be used to define a listener method, e.g. `private handleFoo: Listener<CustomData> = ev => {...};`
 * `type ChangeListener<Value, Target = {}> = Listener<ChangeEvent<Value, Target>>;`
+* * Same, just for change events.
