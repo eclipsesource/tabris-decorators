@@ -2,6 +2,8 @@ import { EventObject, NativeObject, PropertyChangedEvent } from 'tabris';
 import { Constructor } from '../index';
 
 export type Listener<T = {}> = (ev: CustomEvent<T>) => any;
+export type Diff<T, U> = T extends U ? never : T;
+export type EventData<T> = {[P in Diff<keyof T, keyof EventObject<object>>]: T[P]};
 
 export interface Listeners<T extends object = {}> {
   // tslint:disable-next-line:callable-types
@@ -123,11 +125,11 @@ export class Listeners<T extends object = {}> {
    * will be issued directly. An initialized event object will be copied, enabling
    * simple event re-routing.
    */
-  public trigger(eventData?: T) {
+  public trigger(eventData?: EventData<T>) {
     let uninitialized = (eventData instanceof EventObject) && !eventData.type;
     let dispatchObject = uninitialized ? eventData : new EventObject();
     if (eventData && (eventData !== dispatchObject)) {
-      let {type, target, timeStamp, ...copyData} = eventData as EventObject<object>;
+      let {type, target, timeStamp, ...copyData} = eventData as Partial<EventObject<object>>;
       Object.assign(dispatchObject, copyData);
     }
     if ((dispatchObject as any)._initEvent instanceof Function) {
@@ -167,7 +169,7 @@ class DefaultListenerStore implements UntypedListenerStore {
 
 }
 
-export type CustomEvent<EventData, Target = {}> = EventObject<Target> & EventData;
+export type CustomEvent<CustomData, Target = {}> = EventObject<Target> & CustomData;
 export type ChangeEvent<Value, Target = {}> = PropertyChangedEvent<Target, Value>;
 export type ChangeListener<Value, Target = {}> = Listener<ChangeEvent<Value, Target>>;
 export type ChangeListeners<Value, Target = {}> = Listeners<ChangeEvent<Value, Target>>;

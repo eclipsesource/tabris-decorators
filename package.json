@@ -35,7 +35,7 @@
     "ts-loader": "^3.5.0",
     "ts-mocha": "^1.0.3",
     "tslint": "^5.3.2",
-    "typescript": "^2.6.2",
+    "typescript": "^2.8.1",
     "uglifyjs-webpack-plugin": "^1.2.4",
     "webpack": "^3.11.0",
     "webpack-merge": "^4.1.2"
