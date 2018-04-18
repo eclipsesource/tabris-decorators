@@ -76,7 +76,13 @@ myComponent.on('selectionChanged', myListener);
 <MyComponent onSelectionChanged={myListener} />;
 ```
 
-(For the JSX syntax you need to set [jsxProperties](https://tabrisjs.com/documentation/latest/lang.html#jsx) accordingly.)
+For the JSX syntax you need to declare [jsxProperties](https://tabrisjs.com/documentation/latest/lang.html#jsx) using the `ComponentJSX` interface like this:
+
+```ts
+‍@component class MyComponent extends Composite {
+  private jsxProperties: ComponentJSX<this>;
+}
+```
 
 The listener will _always_ receive an instance of `EventObject` with `target`, `type` and `timeStamp`, as well as additional fields depending on the generic parameter of `Listeners`. _That is true even when `trigger` is not called with an `EventObject` instance._
 
@@ -164,9 +170,11 @@ In addition to `Listeners<T extends object = {}>` there are a few additional int
 * * To be used as an alternative to `Listeners` for change events. First generic type describes the value that changes, the second - if given - the type of the target field. Can be used like `ChangeListeners<boolean, this>`.
 * `type ChangeEvent<Value, Target = {}> = PropertyChangeEvent<Target, Value>;`
 * * Shorthand for the change event interface exported by the tabris module. It allows to omit the target type.
-* `CustomEvent<CustomData, Target = {}> = EventObject<Target> & CustomData;`
+* `type ExtendedEvent<EventData, Target = {}> = EventObject<Target> & EventData`
 * * Shorthand for extending `EventObject`.
 * `type Listener<T = {}> = (ev: CustomEvent<T>) => any;`
 * * Can be used to define a listener method, e.g. `private handleFoo: Listener<CustomData> = ev => {...};`
 * `type ChangeListener<Value, Target = {}> = Listener<ChangeEvent<Value, Target>>;`
 * * Same, just for change events.
+* `type ComponentJSX<T> = JSX.CompositeProperties & ComponentExtensionsJSX<T>;`
+* * Creates a type representing all properties assignable to the component in JSX. It automatically converts all `Listeners` types to `Listener`. See `addListener` above.

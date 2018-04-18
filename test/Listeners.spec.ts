@@ -2,12 +2,12 @@ import { fail } from 'assert';
 import { expect } from 'chai';
 import { match } from 'sinon';
 import 'tabris';
-import { EventObject } from 'tabris';
+import { Composite, EventObject } from 'tabris';
 import { restoreSandbox, spy, stub } from './test';
-import { Listeners } from '../src';
+import { ChangeEvent, ChangeListeners, ComponentJSX, ExtendedEvent, Listeners } from '../src';
 // tslint:disable:no-unused-expression max-file-line-count
 
-describe('ListenerCollection', () => {
+describe('Listeners', () => {
 
   interface MyEvent {
     foo: string;

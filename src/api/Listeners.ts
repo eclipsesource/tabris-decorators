@@ -1,13 +1,13 @@
-import { EventObject, NativeObject, PropertyChangedEvent } from 'tabris';
-import { Constructor } from '../index';
+import { EventObject, NativeObject } from 'tabris';
+import { Constructor, ExtendedEvent } from '../index';
 
-export type Listener<T = {}> = (ev: CustomEvent<T>) => any;
+export type Listener<T = {}> = (ev: ExtendedEvent<T>) => any;
 export type Diff<T, U> = T extends U ? never : T;
 export type EventData<T> = {[P in Diff<keyof T, keyof EventObject<object>>]: T[P]};
 
 export interface Listeners<T extends object = {}> {
   // tslint:disable-next-line:callable-types
-  (listener: Listener<CustomEvent<T>>): void;
+  (listener: Listener<ExtendedEvent<T>>): void;
 }
 
 const DELEGATE_FIELDS = ['reject', 'resolve', 'addListener', 'removeListener', 'once', 'trigger'];
@@ -95,7 +95,7 @@ export class Listeners<T extends object = {}> {
    * Notifies the given listener the next time an event is issued, but not afterwards.
    */
   public once(listener: Listener<T>) {
-    let callback = (ev: CustomEvent<T>) => {
+    let callback = (ev: ExtendedEvent<T>) => {
       this.removeListener(callback);
       listener(ev);
     };
@@ -168,12 +168,3 @@ class DefaultListenerStore implements UntypedListenerStore {
   }
 
 }
-
-export type CustomEvent<CustomData, Target = {}> = EventObject<Target> & CustomData;
-export type ChangeEvent<Value, Target = {}> = PropertyChangedEvent<Target, Value>;
-export type ChangeListener<Value, Target = {}> = Listener<ChangeEvent<Value, Target>>;
-export type ChangeListeners<Value, Target = {}> = Listeners<ChangeEvent<Value, Target>>;
-
-// Ensure @event can check the property type:
-// tslint:disable-next-line:variable-name
-export const ChangeListeners = Listeners;
