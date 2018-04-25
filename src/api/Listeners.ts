@@ -79,7 +79,7 @@ export class Listeners<T extends object = {}> {
    */
   public async resolve(): Promise<T>;
   public async resolve(value?: object): Promise<object> {
-    let hasValue = arguments.length === 1;
+    let hasValue = typeof value !== 'undefined';
     return new Promise(resolve => {
       this.once(ev => {
         if (hasValue) {
