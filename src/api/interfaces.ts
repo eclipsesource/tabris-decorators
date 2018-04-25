@@ -1,4 +1,4 @@
-import { Composite, EventObject, Page, PropertyChangedEvent, Tab } from 'tabris';
+import { Composite, EventObject, PropertyChangedEvent } from 'tabris';
 import { Diff, Listener, Listeners } from './Listeners';
 
 export { Constructor, BaseConstructor, TypeGuard } from '../internals/utils';
