@@ -1,5 +1,6 @@
 import 'mocha';
 import 'sinon';
+import 'tabris';
 import { expect, restoreSandbox } from './test';
 import { InjectionHandlerFunction, Injector } from '../src';
 /* tslint:disable:no-unused-expression max-classes-per-file */
