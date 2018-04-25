@@ -1,8 +1,8 @@
 {
   "name": "tabris-decorators",
-  "version": "1.0.0-rc4",
+  "version": "1.0.0-test3",
   "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "typings": "dist/types.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eclipsesource/tabris-decorators.git"
@@ -11,7 +11,8 @@
   "scripts": {
     "clean": "rm -rf ./dist",
     "watch": "tsc -w --noEmit -p ./tsconfig.json",
-    "build": "rm -rf dist/ && webpack",
+    "build": "rm -rf dist/ && webpack && npm run dts",
+    "dts": "dts-generator --name tabris-decorators --project ./tsconfig-dts.json --out ./dist/index.d.ts --main tabris-decorators/index",
     "test": "npm run lint && ts-mocha -p ./tsconfig-test.json ./test/*.spec.ts ./test/*.spec.tsx",
     "test:file": "ts-mocha -p ./tsconfig-test.json",
     "lint": "tslint --project ./tsconfig-test.json src/*/*.ts test/**/*.ts test/**/*.tsx",
@@ -38,7 +39,8 @@
     "typescript": "^2.8.1",
     "uglifyjs-webpack-plugin": "^1.2.4",
     "webpack": "^3.11.0",
-    "webpack-merge": "^4.1.2"
+    "webpack-merge": "^4.1.2",
+    "dts-generator": "^2.1.0"
   },
   "dependencies": {
     "reflect-metadata": "^0.1.10"

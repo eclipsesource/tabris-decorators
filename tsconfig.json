@@ -5,7 +5,7 @@
     "lib": ["es6", "es2015.promise" ],
     "outDir": "./dist/",
     "rootDir": "./src/",
-    "declaration": true,
+    "declaration": false,
     "strictNullChecks": true,
     "alwaysStrict": true,
     "experimentalDecorators": true,

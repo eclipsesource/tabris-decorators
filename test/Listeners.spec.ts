@@ -2,9 +2,9 @@ import { fail } from 'assert';
 import { expect } from 'chai';
 import { match } from 'sinon';
 import 'tabris';
-import { Composite, EventObject } from 'tabris';
+import { EventObject } from 'tabris';
 import { restoreSandbox, spy, stub } from './test';
-import { ChangeEvent, ChangeListeners, ComponentJSX, ExtendedEvent, Listeners } from '../src';
+import { Listeners } from '../src';
 // tslint:disable:no-unused-expression max-file-line-count
 
 describe('Listeners', () => {
