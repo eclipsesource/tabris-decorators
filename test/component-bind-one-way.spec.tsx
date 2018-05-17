@@ -61,6 +61,24 @@ describe('component', () => {
       expect(textInput.text).to.equal('bar');
     });
 
+    it('uses initial target value as fallback when undefined is set', () => {
+      widget.append(textInput = <textInput bind-text='myText' text='foo'/>);
+
+      widget.myText = 'bar';
+      widget.myText = undefined;
+
+      expect(textInput.text).to.equal('foo');
+    });
+
+    it('applies null', () => {
+      widget.append(textInput = <textInput bind-text='myText' text='foo'/>);
+
+      widget.myText = 'bar';
+      widget.myText = null;
+
+      expect(textInput.text).to.equal('');
+    });
+
     it('works with <widgetCollection>', () => {
       widget.append(<widgetCollection><textInput bind-text='myText'/></widgetCollection>);
       widget.myText = 'bar';

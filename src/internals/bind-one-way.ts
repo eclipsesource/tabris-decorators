@@ -34,15 +34,19 @@ function initOneWayBinding(base: WidgetInterface, binding: OneWayBinding) {
     checkPropertyExists(base, binding.sourceProperty, base.constructor.name);
     base.on(binding.sourceChangeEvent, ({value}) => {
       try {
-        binding.target[binding.targetProperty] = value;
+        applyValue(binding, base[binding.sourceProperty]);
       } catch (ex) {
         throwBindingFailedError(binding, ex);
       }
     });
-    binding.target[binding.targetProperty] = base[binding.sourceProperty];
+    applyValue(binding, base[binding.sourceProperty]);
   } catch (ex) {
     throwBindingFailedError(binding, ex);
   }
+}
+
+function applyValue(binding: OneWayBinding, value: any) {
+  binding.target[binding.targetProperty] = value !== undefined ? value : binding.fallbackValue;
 }
 
 function throwBindingFailedError(binding: OneWayBinding, ex: Error): never {
@@ -63,8 +67,9 @@ function createOneWayBindingDesc(target: WidgetInterface, targetProperty: string
   if (isUnchecked(target, targetProperty)) {
     throw new Error(`Can not bind to property "${targetProperty}" without type guard.`);
   }
+  let fallbackValue = target[targetProperty];
   return {
-    target, targetProperty, path, sourceProperty, sourceChangeEvent
+    target, targetProperty, path, sourceProperty, sourceChangeEvent, fallbackValue
   };
 }
 
@@ -90,4 +95,5 @@ interface OneWayBinding {
   targetProperty: string;
   sourceProperty: string;
   sourceChangeEvent: string;
+  fallbackValue: any;
 }

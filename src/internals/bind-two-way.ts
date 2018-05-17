@@ -44,7 +44,7 @@ export function createBoundProperty(
           this.trigger(binding.baseChangeEvent, new ChangeEvent(this, binding.baseChangeEvent, value));
           return;
         }
-        getPropertyStore(this).get(binding.targetKey)[binding.targetProperty] = value;
+        applyValue(this, binding, value);
       } catch (ex) {
         throw new Error(getBindingFailedErrorMessage(binding, 'update target value', ex));
       }
@@ -84,6 +84,7 @@ function createTwoWayBindingDesc(
     baseProperty,
     basePropertyChecker,
     targetKey: Symbol(baseProperty + 'Target'),
+    fallbackValueKey: Symbol(baseProperty + 'FallbackValue'),
     targetChangeEvent: targetProperty + 'Changed',
     baseChangeEvent: baseProperty + 'Changed'
   };
@@ -98,7 +99,9 @@ function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
       throw new Error(`Can not bind to property "${binding.targetProperty}" without type guard.`);
     }
     propertyStore.set(binding.targetKey, child);
-    binding.basePropertyChecker(child[binding.targetProperty]);
+    const initialValue = child[binding.targetProperty];
+    binding.basePropertyChecker(initialValue);
+    propertyStore.set(binding.fallbackValueKey, initialValue);
     child.on(binding.targetChangeEvent, ({value}) => {
       try {
         binding.basePropertyChecker(value);
@@ -110,7 +113,7 @@ function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
       }
     });
     if (propertyStore.has(binding.baseProperty)) {
-      child[binding.targetProperty] = propertyStore.get(binding.baseProperty);
+      applyValue(base, binding, propertyStore.get(binding.baseProperty));
       propertyStore.delete(binding.baseProperty);
     } else {
       base.trigger(
@@ -121,6 +124,12 @@ function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
   } catch (ex) {
     throw new Error(getBindingFailedErrorMessage(binding, 'initialize', ex));
   }
+}
+
+function applyValue(base: WidgetInterface, binding: TwoWayBinding, value: any) {
+  const propertyStore = getPropertyStore(base);
+  const finalValue = value !== undefined ? value : propertyStore.get(binding.fallbackValueKey);
+  propertyStore.get(binding.targetKey)[binding.targetProperty] = finalValue;
 }
 
 function getChild(base: WidgetInterface, selector: string) {
@@ -156,6 +165,7 @@ interface TwoWayBinding {
   selector: string;
   targetProperty: string;
   targetKey: symbol;
+  fallbackValueKey: symbol;
   targetChangeEvent: string;
   baseChangeEvent: string;
   basePropertyChecker: (value: any) => void;

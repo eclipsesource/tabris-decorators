@@ -245,6 +245,34 @@ describe('bind', () => {
     expect(textInput1.text).to.equal('bar');
   });
 
+  it('uses initial target value as fallback when undefined is initial base value', () => {
+    widget.myText = undefined;
+
+    widget.append(textInput1);
+
+    expect(textInput1.text).to.equal('foo');
+    expect(widget.myText).to.equal('foo');
+  });
+
+  it('uses initial target value as fallback when undefined is set', () => {
+    widget.append(textInput1);
+
+    widget.myText = 'bar';
+    widget.myText = undefined;
+
+    expect(textInput1.text).to.equal('foo');
+    expect(widget.myText).to.equal('foo');
+  });
+
+  it('applies null', () => {
+    widget.append(textInput1);
+
+    widget.myText = null;
+
+    expect(textInput1.text).to.equal('');
+    expect(widget.myText).to.equal('');
+  });
+
   it('fires change event when target changes', () => {
     widget.append(textInput1);
     let listener = stub();

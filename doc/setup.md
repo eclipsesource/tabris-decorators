@@ -6,7 +6,7 @@ Generate a Tabris.js TypeScript project using the [Tabris CLI](https://www.npmjs
 
 For existing projects, note that Tabris.js 2.4.2 or later is required.
 
-Install the `tabris-decorators module`:
+Install the `tabris-decorators` module:
 
 `npm install tabris-decorators`.
 
