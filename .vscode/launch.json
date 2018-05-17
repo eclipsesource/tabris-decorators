@@ -13,7 +13,11 @@
       },
       "runtimeArgs": [
         "--colors",
-        "${file}"
+        "${file}",
+        "-p",
+        "./tsconfig-test.json",
+        "./test/*.spec.ts",
+         "./test/*.spec.tsx"
       ],
       "internalConsoleOptions": "openOnSessionStart"
     },

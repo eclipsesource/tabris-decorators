@@ -4,7 +4,6 @@
   "files.eol": "\n",
   "editor.tabSize": 2,
   "files.exclude": {
-    "node_modules": true,
     "package-lock.json": true,
     ".project": true
   },
