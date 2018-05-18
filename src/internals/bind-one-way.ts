@@ -12,7 +12,7 @@ export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings) 
         createOneWayBindingDesc(targetInstance as WidgetInterface, targetProperty, bindings[targetProperty])
       );
     } catch (ex) {
-      throw new Error(`Could not bind property "${targetProperty}" to "${bindings[targetProperty]}": ${ex.message}`);
+      throwBindingFailedError(targetProperty, bindings[targetProperty], ex);
     }
   }
   targetInstance[oneWayBindingsKey] = oneWayBindings;
@@ -34,23 +34,31 @@ function initOneWayBinding(base: WidgetInterface, binding: OneWayBinding) {
     checkPropertyExists(base, binding.sourceProperty, base.constructor.name);
     base.on(binding.sourceChangeEvent, ({value}) => {
       try {
-        applyValue(binding, base[binding.sourceProperty]);
+        applyValue(binding, evaluateBinding(base, binding));
       } catch (ex) {
-        throwBindingFailedError(binding, ex);
+        throwBindingFailedError(binding.targetProperty, binding.path, ex);
       }
     });
-    applyValue(binding, base[binding.sourceProperty]);
+    applyValue(binding, evaluateBinding(base, binding));
   } catch (ex) {
-    throwBindingFailedError(binding, ex);
+    throwBindingFailedError(binding.targetProperty, binding.path, ex);
   }
+}
+
+function evaluateBinding(base: WidgetInterface, binding: OneWayBinding) {
+  let baseValue = base[binding.sourceProperty];
+  if (!binding.subProperty) {
+    return baseValue;
+  }
+  return baseValue instanceof Object ? baseValue[binding.subProperty] : undefined;
 }
 
 function applyValue(binding: OneWayBinding, value: any) {
   binding.target[binding.targetProperty] = value !== undefined ? value : binding.fallbackValue;
 }
 
-function throwBindingFailedError(binding: OneWayBinding, ex: Error): never {
-  throw new Error(`Binding "${binding.targetProperty}" -> "${binding.path}" failed: ${ex.message}`);
+function throwBindingFailedError(targetProperty: string, path: string, ex: Error): never {
+  throw new Error(`Binding "${targetProperty}" -> "${path}" failed: ${ex.message}`);
 }
 
 function createOneWayBindingDesc(target: WidgetInterface, targetProperty: string, path: string): OneWayBinding {
@@ -58,18 +66,20 @@ function createOneWayBindingDesc(target: WidgetInterface, targetProperty: string
   if (path.startsWith('.') || path.startsWith('#')) {
     throw new Error('JSX binding path can currently not contain a selector.');
   }
-  if (path.split('.').length > 1) {
-    throw new Error('JSX binding path can currently only have one segment.');
+  const segments = path.split('.');
+  if (segments.length > 2) {
+    throw new Error('JSX binding path can have no more than two segments.');
   }
-  let sourceProperty = path; // TODO: support other sources than base
-  let sourceChangeEvent = sourceProperty + 'Changed';
+  const sourceProperty = segments[0]; // TODO: support other sources than base
+  const subProperty = segments[1];
+  const sourceChangeEvent = sourceProperty + 'Changed';
   checkPropertyExists(target, targetProperty);
   if (isUnchecked(target, targetProperty)) {
     throw new Error(`Can not bind to property "${targetProperty}" without type guard.`);
   }
-  let fallbackValue = target[targetProperty];
+  const fallbackValue = target[targetProperty];
   return {
-    target, targetProperty, path, sourceProperty, sourceChangeEvent, fallbackValue
+    target, targetProperty, path, sourceProperty, sourceChangeEvent, fallbackValue, subProperty
   };
 }
 
@@ -93,6 +103,7 @@ interface OneWayBinding {
   path: string;
   target: Widget;
   targetProperty: string;
+  subProperty: string;
   sourceProperty: string;
   sourceChangeEvent: string;
   fallbackValue: any;

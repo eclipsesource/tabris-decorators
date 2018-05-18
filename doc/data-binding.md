@@ -1,10 +1,14 @@
 # Data Binding
 
-## @component
+## One-way bindings
+
+### @component
 
 Makes the decorated widget class the *base reference* for databinding. Also, a widget class decorated with `@component` will not allow its own children to be selected by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using `@getById` on a private/protected property.
 
-For ONE-WAY bindings, `@component` enables a new JSX attribute prefix `bind-`, which actively copies values **from** the *base* component **to** the *target* (child) element.
+### JSX Attribute: bind-\<targetProperty\>='\<baseProperty\>[.\<subProperty\>]'\
+
+For one-way bindings, `@component` enables a new JSX attribute prefix `bind-`, which actively copies values **from** the *base component* **to** the *target element* (a descendant widget).
 
 Example:
 
@@ -24,17 +28,41 @@ Example:
   }
 ```
 
-This makes changes to `myText` be applied to the `text` property of the `textView` element. The source must be a proper Tabris.js style property, not just a field. This can be achieved simply by adding a `@property` decorator, but a custom implementation also works as long as appropriate change events are fired. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the *target* property is implemented in TypeScript it should ideally also be using `@property`, otherwise type safety can not be guaranteed (see below).
+This applies changes of the *base property* `myText` to the *target property* `text` of the *target element* `textView`. The *base property* must be a proper Tabris.js style property, not just a field. This can be achieved simply by adding a `@property` decorator, but a custom implementation also works as long as appropriate change events are fired. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect. If the *target* property is implemented in TypeScript it should be using `@property`, so type safety can be guaranteed (see below).
 
-If the *base* property is set to `undefined`, the *target* property will be reset to its initial value (from the point in time when the binding was initialized). In the above example this would be an empty string, since that is the default value of the `TextView` property `text`. But it can also be the value that is given in JSX:
+### Binding to sub-property
+
+You can bind to a property of a *base property* value if its a model-like object:
+
+```tsx
+  @component
+  class CustomComponent extends Composite {
+
+    @property public item: {myText: string} = {str: 'foo'};
+
+    constructor(properties: CompositeProperties) {
+      super(properties);
+      this.append(
+        <textView bind-text='item.myText'/>
+      );
+    }
+
+  }
+```
+
+The binding will not update the *target property* when the property on the item changes, only when the item is replaced.
+
+#### Fallback value
+
+If the *base property* is set to `undefined`, the *target property* will be reset to its initial value (from the point in time when the binding was initialized). In the above example this would be an empty string, since that is the default value of the `TextView` property `text`. But it can also be the value that is given in JSX:
 
 ```tsx
 <textView bind-text='myText' text='fallback value'/>
 ```
 
-This behavior exists **only** for `undefined`, `null` is passed through without changes. To be able to set `undefined` on the *target* property via a binding you have to make that its initial value.
+This behavior exists **only** for `undefined`, `null` is passed through without changes. To be able to set `undefined` on the *target property* via a binding you have to make that its initial value.
 
-## @property
+### @property
 
 Makes the decorated object property a "real" Tabris.js property, meaning it can be set via constructor or `set` method (on widgets with proper type declarations), and it fires change events. This is especially useful when the property is supposed to be the source of a one-way data binding. It also performs type checks for the databinding system.
 
@@ -46,7 +74,7 @@ The `@property` decorators can be used in any class, not just subclasses of `Wid
 
 ```
 
-## @property(typeGuard: Function)
+### @property(typeGuard: Function)
 
 Like `@property`, but uses the given function (type guard) to perform type checks. The type guard may be more strict than the TypeScript compiler (e.g. allowing only positive numbers where the compiler allows any number), but should never be less strict, though it is technically possible.
 
@@ -64,30 +92,34 @@ Example:
   }
 ```
 
-## @bind({path: "#\<id\>.\<property\>", typeGuard?: Function})
+## Two-Way bindings
 
-Binds the decorated property of a widget to the property of a child. As with `@getById`, the binding is established after `append` is called the first time on the widget, there needs to be exactly one child with the given id, and it has to have a property of the same type.
+### @bind({path: "#\<targetElementId\>.\<targetProperty\>", typeGuard?: Function})
 
-`@bind` creates a TWO-WAY binding, meaning changes to the source/child widget property are not just reflected on the decorated property, but also the other way around. Change events are fired for the decorated property if (and only if) the source/child widget fires change events. Only one `@bind` decorator can be applied to any given property. It also implies `@property` and includes its typeGuard feature. Only one of the two can be applied to the same property.
+Binds the decorated *base property* of a *base component* to the property of a *target element* (descendant widget). As with `@getById`, the binding is established after `append` is called the first time on the widget, there needs to be exactly one descendant widget with the given id, and it has to have a property of the same type.
+
+`@bind` creates a two-way binding, meaning changes to the *target property* are reflected on the decorated *base property* and the other way around. Change events are fired for the decorated *base property* if (and only if) the *target element* fires change events. Only one `@bind` decorator can be applied to any given property. It also implies `@property` and includes its typeGuard feature. Only one of the two can be applied to the same property.
 
 `@bind` only works on classes decorated with `@component`.
 
-As with one-way bindings, setting the *base* property to `undefined` resets the *target* property to its initial value.
+As with one-way bindings, setting the *base property* to `undefined` resets the *target property* to its initial value.
 
 
-## @bind(path: string)
+### @bind(path: string)
 
 Shorthand for `@bind({path: string})`
 
-## @getById
+## Other
+
+### @getById
 
 Lets the property return the descendant with the same id as the property name. The following rules apply:
 
  * It only works on classes decorated with `@component`.
  * It is read-only at runtime. Attempts to set the property fill fail silently.
- * It will search for a matching child exactly once, after `append` is called the first time on the widget instance.
+ * It will search for a matching descendant widget exactly once, after `append` is called the first time on the widget instance.
  * If accessed before children have been appended it will throw an error.
- * It will always return the same child, even if it is disposed or removed.
+ * It will always return the same descendant, even if it is disposed or removed.
  * It will throw if there is no match, more than one, or if the type is not correct.
 
 ## @getById(v => boolean)

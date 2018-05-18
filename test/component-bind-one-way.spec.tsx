@@ -13,9 +13,15 @@ describe('component', () => {
     restoreSandbox();
   });
 
+  interface Item {
+    text: string;
+    int: number;
+  }
+
   @component
   class CustomComponent extends Composite {
     @property public myText: string = 'foo';
+    @property public myItem: Item = null;
     private readonly jsxProperties: CompositeProperties;
   }
 
@@ -99,7 +105,7 @@ describe('component', () => {
       expect(() => {
         widget.append(<CustomComponent bind-someField='myText' />);
       }).to.throw(
-          'Could not bind property "someField" to "myText": '
+          'Binding "someField" -> "myText" failed: '
         + 'Target does not have a property "someField"'
       );
     });
@@ -116,7 +122,7 @@ describe('component', () => {
       expect(() => {
         widget.append(<CustomComponent2 bind-someProperty='myText' />);
       }).to.throw(
-          'Could not bind property "someProperty" to "myText": '
+          'Binding "someProperty" -> "myText" failed: '
         + 'Can not bind to property "someProperty" without type guard.'
       );
     });
@@ -164,14 +170,14 @@ describe('component', () => {
 
     it('fails to decorate with invalid binding path', () => {
       const badPaths: {[path: string]: string} = {
-        'foo.bar': 'JSX binding path can currently only have one segment.',
+        'foo.bar': 'CustomComponent does not have a property "foo".',
         '#foo': 'JSX binding path can currently not contain a selector.',
         '.foo': 'JSX binding path can currently not contain a selector.'
       };
       for (let path in badPaths) {
         expect(() => {
           widget.append(<CustomComponent2 bind-numberProperty={path} />);
-        }).to.throw(`Could not bind property "numberProperty" to "${path}": ${badPaths[path]}`);
+        }).to.throw(`Binding "numberProperty" -> "${path}" failed: ${badPaths[path]}`);
       }
     });
 
@@ -195,6 +201,47 @@ describe('component', () => {
       expect(() => {
         widget4.trigger('resize', {target: widget4});
       }).not.to.throw;
+    });
+
+    it('can bind to object property', () => {
+      widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
+
+      widget.myItem = {text: 'bar', int: 23};
+
+      expect(textInput.text).to.equal('bar');
+    });
+
+    it('ignores changes on bound object', () => {
+      widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
+
+      widget.myItem = {text: 'bar', int: 23};
+      widget.myItem.text = 'baz';
+
+      expect(textInput.text).to.equal('bar');
+    });
+
+    it('updates on object replacement', () => {
+      widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
+
+      widget.myItem = {text: 'bar', int: 23};
+      widget.myItem = {text: 'baz', int: 23};
+
+      expect(textInput.text).to.equal('baz');
+    });
+
+    it('falls back to initial value on null', () => {
+      widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
+
+      widget.myItem = {text: 'foo', int: 23};
+      widget.myItem = null;
+
+      expect(textInput.text).to.equal('foo');
+    });
+
+    it('falls back to initial value on initial value undefined', () => {
+      widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
+
+      expect(textInput.text).to.equal('foo');
     });
 
   });
