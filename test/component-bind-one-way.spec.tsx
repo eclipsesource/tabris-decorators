@@ -21,6 +21,7 @@ describe('component', () => {
   @component
   class CustomComponent extends Composite {
     @property public myText: string = 'foo';
+    @property public myNumber: number = 0;
     @property public myItem: Item = null;
     private readonly jsxProperties: CompositeProperties;
   }
@@ -242,6 +243,55 @@ describe('component', () => {
       widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
 
       expect(textInput.text).to.equal('foo');
+    });
+
+  });
+
+  describe('template-<property>', () => {
+
+    it('throws for incorrect syntax', () => {
+      const badPaths: {[path: string]: string} = {
+        'hello': 'Template "hello" does not contain a valid placeholder',
+        'hello}': 'Template "hello}" does not contain a valid placeholder',
+        '${hello': 'Template "${hello" does not contain a valid placeholder',
+        '${he lo}': 'Binding path contains invalid characters.',
+        '${hello}${hello}': 'Template "${hello}${hello}" contains too many placeholder',
+        'hello ${foo} world': 'CustomComponent does not have a property "foo".',
+        'hello ${foo.bar}': 'CustomComponent does not have a property "foo".',
+        'hello ${#foo}': 'JSX binding path can currently not contain a selector.',
+        'hello ${.foo}': 'JSX binding path can currently not contain a selector.'
+      };
+      for (let path in badPaths) {
+        expect(() => {
+          widget.dispose();
+          widget = new CustomComponent();
+          widget.append(<textView template-text={path} />);
+        }).to.throw(`Template binding "text" -> "${path}" failed: ${badPaths[path]}`);
+      }
+    });
+
+    it('applies changes of source property value with template', () => {
+      widget.append(textInput = <textInput template-text='Hello ${myText}!'/>);
+
+      widget.myText = 'bar';
+
+      expect(textInput.text).to.equal('Hello bar!');
+    });
+
+    it('converts non-strings', () => {
+      widget.append(textInput = <textInput template-text='Hello ${myNumber}!'/>);
+
+      widget.myNumber = 23;
+
+      expect(textInput.text).to.equal('Hello 23!');
+    });
+
+    it('fallback value not inserted in template', () => {
+      widget.append(textInput = <textInput template-text='Hello ${myNumber}!' text='no one here'/>);
+
+      widget.myNumber = undefined;
+
+      expect(textInput.text).to.equal('no one here');
     });
 
   });

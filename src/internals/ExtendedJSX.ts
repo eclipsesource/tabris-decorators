@@ -27,11 +27,11 @@ export class ExtendedJSX {
     let properties: Properties | void;
     let bindings: JsxBindings | void;
     for (let attribute in attributes) {
-      if (attribute.startsWith('bind-')) {
+      if (attribute.startsWith('bind-') || attribute.startsWith('template-')) {
         if (!bindings) {
           bindings = {};
         }
-        bindings[attribute.slice(5)] = attributes[attribute];
+        bindings[attribute] = attributes[attribute];
       } else {
         if (!properties) {
           properties = {};

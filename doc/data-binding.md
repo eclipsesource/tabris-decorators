@@ -6,7 +6,7 @@
 
 Makes the decorated widget class the *base reference* for databinding. Also, a widget class decorated with `@component` will not allow its own children to be selected by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using `@getById` on a private/protected property.
 
-### JSX Attribute: bind-\<targetProperty\>='\<baseProperty\>[.\<subProperty\>]'\
+### JSX Attribute: bind-\<targetProperty\>='\<baseProperty\>[.\<subProperty\>]'
 
 For one-way bindings, `@component` enables a new JSX attribute prefix `bind-`, which actively copies values **from** the *base component* **to** the *target element* (a descendant widget).
 
@@ -91,6 +91,31 @@ Example:
 
   }
 ```
+
+### JSX Attribute: template-\<targetProperty\>='\<string\>${\<path\>}\<string\>'
+
+A one-way binding where the *base value* is embedded in a template string.
+The template has to contain exactly one `${<path>}` placeholder , where `<path>` is a string of the same syntax as one-way bindings using the `bind-` prefix.
+
+Example:
+
+```tsx
+  @component
+  class CustomComponent extends Composite {
+
+    @property public name: string = 'Peter';
+
+    constructor(properties: CompositeProperties) {
+      super(properties);
+      this.append(
+        <textView template-text='Hello ${name}!' text='No one here?'/>
+      );
+    }
+
+  }
+```
+
+This results in `'Hello Peter!'` initially, and falls back to `'No one here?'` if `name` is set to `undefined`.
 
 ## Two-Way bindings
 

@@ -2,17 +2,23 @@ import 'reflect-metadata';
 import { Widget, WidgetResizeEvent } from 'tabris';
 import { checkPathSyntax, checkPropertyExists, isUnchecked, WidgetInterface } from './utils';
 
+const placeholder = /\$\{[^\}]+\}/g;
+
 export interface JsxBindings { [targetProperty: string]: string; }
 
 export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings) {
   let oneWayBindings: OneWayBinding[] = [];
-  for (let targetProperty in bindings) {
+  for (let attribute in bindings) {
     try {
       oneWayBindings.push(
-        createOneWayBindingDesc(targetInstance as WidgetInterface, targetProperty, bindings[targetProperty])
+        createOneWayBindingDesc(targetInstance as WidgetInterface, attribute, bindings[attribute] + '')
       );
     } catch (ex) {
-      throwBindingFailedError(targetProperty, bindings[targetProperty], ex);
+      throwBindingFailedError({
+        type: getBindingType(attribute),
+        targetProperty: getTargetProperty(attribute),
+        bindingString: bindings[attribute]
+      }, ex);
     }
   }
   targetInstance[oneWayBindingsKey] = oneWayBindings;
@@ -31,37 +37,39 @@ export function processOneWayBindings(base: WidgetInterface, target: Widget) {
 
 function initOneWayBinding(base: WidgetInterface, binding: OneWayBinding) {
   try {
-    checkPropertyExists(base, binding.sourceProperty, base.constructor.name);
+    checkPropertyExists(base, binding.baseProperty, base.constructor.name);
     base.on(binding.sourceChangeEvent, ({value}) => {
       try {
         applyValue(binding, evaluateBinding(base, binding));
       } catch (ex) {
-        throwBindingFailedError(binding.targetProperty, binding.path, ex);
+        throwBindingFailedError(binding, ex);
       }
     });
     applyValue(binding, evaluateBinding(base, binding));
   } catch (ex) {
-    throwBindingFailedError(binding.targetProperty, binding.path, ex);
+    throwBindingFailedError(binding, ex);
   }
 }
 
 function evaluateBinding(base: WidgetInterface, binding: OneWayBinding) {
-  let baseValue = base[binding.sourceProperty];
-  if (!binding.subProperty) {
-    return baseValue;
+  const baseValue = base[binding.baseProperty];
+  const rawValue = binding.subProperty
+    ? baseValue instanceof Object ? baseValue[binding.subProperty] : undefined
+    : baseValue;
+  if (rawValue === undefined) {
+    return binding.fallbackValue;
   }
-  return baseValue instanceof Object ? baseValue[binding.subProperty] : undefined;
+  return binding.converter ? binding.converter(rawValue) : rawValue;
 }
 
 function applyValue(binding: OneWayBinding, value: any) {
-  binding.target[binding.targetProperty] = value !== undefined ? value : binding.fallbackValue;
+  binding.target[binding.targetProperty] = value;
 }
 
-function throwBindingFailedError(targetProperty: string, path: string, ex: Error): never {
-  throw new Error(`Binding "${targetProperty}" -> "${path}" failed: ${ex.message}`);
-}
-
-function createOneWayBindingDesc(target: WidgetInterface, targetProperty: string, path: string): OneWayBinding {
+function createOneWayBindingDesc(target: WidgetInterface, attribute: string, bindingString: string): OneWayBinding {
+  const type = getBindingType(attribute);
+  const targetProperty = getTargetProperty(attribute);
+  const path = extractPath(type, bindingString);
   checkPathSyntax(path);
   if (path.startsWith('.') || path.startsWith('#')) {
     throw new Error('JSX binding path can currently not contain a selector.');
@@ -70,17 +78,32 @@ function createOneWayBindingDesc(target: WidgetInterface, targetProperty: string
   if (segments.length > 2) {
     throw new Error('JSX binding path can have no more than two segments.');
   }
-  const sourceProperty = segments[0]; // TODO: support other sources than base
+  const baseProperty = segments[0]; // TODO: support other sources than base
   const subProperty = segments[1];
-  const sourceChangeEvent = sourceProperty + 'Changed';
+  const sourceChangeEvent = baseProperty + 'Changed';
   checkPropertyExists(target, targetProperty);
   if (isUnchecked(target, targetProperty)) {
     throw new Error(`Can not bind to property "${targetProperty}" without type guard.`);
   }
   const fallbackValue = target[targetProperty];
+  const converter = type === 'template' ? compileTemplate(bindingString) : undefined;
   return {
-    target, targetProperty, path, sourceProperty, sourceChangeEvent, fallbackValue, subProperty
+    bindingString, target, targetProperty, baseProperty, sourceChangeEvent, fallbackValue, subProperty, type, converter
   };
+}
+
+function extractPath(type: 'bind' | 'template', bindingString: string) {
+  if (type === 'bind') {
+    return bindingString;
+  }
+  let matches = bindingString.match(placeholder);
+  if (!matches) {
+    throw new Error(`Template "${bindingString}" does not contain a valid placeholder`);
+  }
+  if (matches.length > 1) {
+    throw new Error(`Template "${bindingString}" contains too many placeholder`);
+  }
+  return matches[0].substring(2, matches[0].length - 1);
 }
 
 function checkBindingsApplied(ev: WidgetResizeEvent) {
@@ -97,14 +120,35 @@ function clearOneWayBindings(instance: Widget) {
   delete instance[oneWayBindingsKey];
 }
 
+function compileTemplate(template: string) {
+  return value => template.replace(placeholder, value);
+}
+
+function getBindingType(attribute: string): 'bind' | 'template' {
+  return attribute.split('-')[0] as any;
+}
+
+function getTargetProperty(attribute: string): string {
+  return attribute.split('-')[1];
+}
+
+function throwBindingFailedError({type, targetProperty, bindingString}: Partial<OneWayBinding>, ex: any): never {
+  const isTemplate = type === 'template';
+  throw new Error(
+    `${isTemplate ? 'Template binding' : 'Binding'} "${targetProperty}" -> "${bindingString}" failed: ${ex.message}`
+  );
+}
+
 const oneWayBindingsKey = Symbol();
 
 interface OneWayBinding {
-  path: string;
+  type: 'bind' | 'template';
+  converter?: (v: any) => string;
+  bindingString: string;
   target: Widget;
   targetProperty: string;
   subProperty: string;
-  sourceProperty: string;
+  baseProperty: string;
   sourceChangeEvent: string;
   fallbackValue: any;
 }
