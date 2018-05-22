@@ -8,7 +8,7 @@ Feature requests (and bug reports) via [GitHub issues](https://github.com/eclips
 
 Documentation (works best on [GitHub](https://github.com/eclipsesource/tabris-decorators/blob/master/README.md)):
 
-* [Setup](./doc/setup.md)
-* [Data Binding](./doc/data-binding.md)
-* [Event Handling](./doc/event-handling.md)
-* [Dependency Injection](./doc/dependency-injection.md)
+* [Setup](https://github.com/eclipsesource/tabris-decorators/blob/master/doc/setup.md)
+* [Data Binding](https://github.com/eclipsesource/tabris-decorators/blob/master/doc/data-binding.md)
+* [Event Handling](https://github.com/eclipsesource/tabris-decorators/blob/master/doc/event-handling.md)
+* [Dependency Injection](https://github.com/eclipsesource/tabris-decorators/blob/master/doc/dependency-injection.md)
