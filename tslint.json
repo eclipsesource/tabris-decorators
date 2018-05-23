@@ -18,7 +18,7 @@
     ],
     "no-default-export": true,
     "await-promise": true,
-    "indent": false,
+    "indent": [true, "spaces"],
     "forin": false,
     "interface-name": [
       false

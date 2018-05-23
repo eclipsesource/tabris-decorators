@@ -95,7 +95,7 @@ Example:
 ### JSX Attribute: template-\<targetProperty\>='\<string\>${\<path\>}\<string\>'
 
 A one-way binding where the *base value* is embedded in a template string.
-The template has to contain exactly one `${<path>}` placeholder , where `<path>` is a string of the same syntax as one-way bindings using the `bind-` prefix.
+The template has to contain exactly one `${<path>}` placeholder, where `<path>` is a string of the same syntax as one-way bindings using the `bind-` prefix.
 
 Example:
 
