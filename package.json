@@ -1,6 +1,6 @@
 {
   "name": "tabris-decorators",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "repository": {
@@ -19,7 +19,7 @@
     "safePublish": "npm test && npm run clean && npm run build && npm publish"
   },
   "peerDependencies": {
-    "tabris": "2.5.0"
+    "tabris": "2.5.1"
   },
   "devDependencies": {
     "@types/chai": "^3.5.0",
