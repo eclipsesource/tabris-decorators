@@ -12,8 +12,6 @@
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/ts-mocha.cmd"
       },
       "runtimeArgs": [
-        "--colors",
-        "${file}",
         "-p",
         "./tsconfig-test.json",
         "./test/*.spec.ts",
