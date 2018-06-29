@@ -1,6 +1,8 @@
 import { Injector } from '../api/Injector';
 import { Constructor } from '../internals/utils';
 
+export type SharedDecorator = typeof unboundShared;
+
 export function bindDecoratorShared(injector: Injector): typeof unboundShared {
   return unboundShared.bind(injector);
 }

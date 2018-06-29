@@ -3,8 +3,10 @@ import { applyDecorator, BaseConstructor, Constructor } from '../internals/utils
 
 export type IHFunction<T> = (injection: Injection) => T | void;
 export type IHDescriptor<T> = TypedPropertyDescriptor<IHFunction<T>>;
-export type InjectionHandlerDeco<T>
+export type CoreInjectionHandlerDecorator<T>
   = (target: BaseConstructor<any>, propertyName: string, descriptor: IHDescriptor<T>) => void;
+
+export type InjectionHandlerDecorator = typeof unboundInjectionHandler;
 
 export function bindDecoratorInjectionHandler(injector: Injector): typeof unboundInjectionHandler {
   return unboundInjectionHandler.bind(injector);
@@ -25,7 +27,7 @@ export function bindDecoratorInjectionHandler(injector: Injector): typeof unboun
  * - `injector`: The `Injector` instance the injection handler is registered with.
  * - `param`: An injection parameter that may have been passed via `@inject(param)` or `resolve(type, param)`
  */
-export function unboundInjectionHandler<T>(targetType: BaseConstructor<T>): InjectionHandlerDeco<T>;
+export function unboundInjectionHandler<T>(targetType: BaseConstructor<T>): CoreInjectionHandlerDecorator<T>;
 export function unboundInjectionHandler(this: Injector, ...args: any[]): any {
   return applyDecorator('injectionHandler', args, (target: object, targetProperty: string) => {
     let type = args[0] as Constructor<any>;

@@ -2,6 +2,8 @@ import 'reflect-metadata';
 import { Injection, InjectionParameter, Injector } from '../api/Injector';
 import { applyClassDecorator, areStaticClassDecoratorArgs, BaseConstructor, ClassDecoratorFactory, Constructor } from '../internals/utils';
 
+export type InjectableDecorator = typeof unboundInjectable;
+
 export function bindDecoratorInjectable(injector: Injector): typeof unboundInjectable {
   return unboundInjectable.bind(injector);
 }

@@ -1,6 +1,8 @@
-import { Injection, injector } from './api/Injector';
-import { InjectableConfig } from './decorators/injectable';
-import { Constructor } from './internals/utils';
+import { CreateFunction, Injection, injector, ResolveFunction } from './api/Injector';
+import { InjectDecorator } from './decorators/inject';
+import { InjectableDecorator } from './decorators/injectable';
+import { InjectionHandlerDecorator } from './decorators/injectionHandler';
+import { SharedDecorator } from './decorators/shared';
 
 // NOTE: The JsDoc for decorators in this file are necessary duplicates from those attached to the implementation.
 // Those here are displayed in VS code when using the decorator without parameters.
@@ -14,6 +16,7 @@ export * from './api/checkType';
 export * from './api/Injector';
 export * from './api/interfaces';
 export * from './api/Listeners';
+export * from './api/to';
 
 /**
  * A decorator that marks a constructor parameter for injections based on the type of the parameter:
@@ -25,7 +28,7 @@ export * from './api/Listeners';
  * constructor(@inject('some value') a: ClassA) { ... }
  * ```
  */
-export const inject = injector.inject;
+export const inject: InjectDecorator = injector.inject;
 
 /**
  * A decorator that makes a class injectable via `@inject` or `resolve(type)`.
@@ -44,12 +47,12 @@ export const inject = injector.inject;
  * - `implements: OtherClass`: allows the class to be injected as `OtherClass`
  * - `param: value`: allows injection only when `@inject(param)` gives the exact same parameter value.
  */
-export const injectable = injector.injectable;
+export const injectable: InjectableDecorator = injector.injectable;
 
 /**
  * Shorthand for `@injectable({shared: true})`.
  */
-export const shared = injector.shared;
+export const shared: SharedDecorator = injector.shared;
 
 /**
  * Registers a static method to handle injections for the given type:
@@ -65,9 +68,9 @@ export const shared = injector.shared;
  * - `injector`: The `Injector` instance the injection handler is registered with.
  * - `param`: An injection parameter that may have been passed via `@inject(param)` or `resolve(type, param)`
  */
-export const injectionHandler = injector.injectionHandler;
+export const injectionHandler: InjectionHandlerDecorator = injector.injectionHandler;
 
-export const create = injector.create;
-export const resolve = injector.resolve;
+export const create: CreateFunction = injector.create;
+export const resolve: ResolveFunction = injector.resolve;
 
 (JSX as any) = injector.JSX;

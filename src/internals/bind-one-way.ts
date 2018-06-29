@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Widget, WidgetResizeEvent } from 'tabris';
 import { checkPathSyntax, checkPropertyExists, isUnchecked, WidgetInterface } from './utils';
+import { Binding } from '../api/to';
 
 const placeholder = /\$\{[^\}]+\}/g;
 
@@ -11,7 +12,7 @@ export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings) 
   for (let attribute in bindings) {
     try {
       oneWayBindings.push(
-        createOneWayBindingDesc(targetInstance as WidgetInterface, attribute, bindings[attribute] + '')
+        createOneWayBindingDesc(targetInstance as WidgetInterface, attribute, asBinding(bindings[attribute]))
       );
     } catch (ex) {
       throwBindingFailedError({
@@ -33,6 +34,13 @@ export function processOneWayBindings(base: WidgetInterface, target: Widget) {
     }
     clearOneWayBindings(target);
   }
+}
+
+function asBinding(value: any): Binding {
+  return {
+    path: value && value.path ? value.path.toString() : (value || '').toString(),
+    converter: value.converter
+  };
 }
 
 function initOneWayBinding(base: WidgetInterface, binding: OneWayBinding) {
@@ -59,16 +67,21 @@ function evaluateBinding(base: WidgetInterface, binding: OneWayBinding) {
   if (rawValue === undefined) {
     return binding.fallbackValue;
   }
-  return binding.converter ? binding.converter(rawValue) : rawValue;
+  try {
+    return binding.converter(rawValue);
+  } catch (ex) {
+    throw new Error('Converter exception: ' + ex.message);
+  }
 }
 
 function applyValue(binding: OneWayBinding, value: any) {
   binding.target[binding.targetProperty] = value;
 }
 
-function createOneWayBindingDesc(target: WidgetInterface, attribute: string, bindingString: string): OneWayBinding {
+function createOneWayBindingDesc(target: WidgetInterface, attribute: string, binding: Binding): OneWayBinding {
   const type = getBindingType(attribute);
   const targetProperty = getTargetProperty(attribute);
+  const bindingString = binding.path;
   const path = extractPath(type, bindingString);
   checkPathSyntax(path);
   if (path.startsWith('.') || path.startsWith('#')) {
@@ -86,7 +99,7 @@ function createOneWayBindingDesc(target: WidgetInterface, attribute: string, bin
     throw new Error(`Can not bind to property "${targetProperty}" without type guard.`);
   }
   const fallbackValue = target[targetProperty];
-  const converter = type === 'template' ? compileTemplate(bindingString) : undefined;
+  const converter = type === 'template' ? compileTemplate(bindingString) : (binding.converter || (v => v));
   return {
     bindingString, target, targetProperty, baseProperty, sourceChangeEvent, fallbackValue, subProperty, type, converter
   };
@@ -143,7 +156,7 @@ const oneWayBindingsKey = Symbol();
 
 interface OneWayBinding {
   type: 'bind' | 'template';
-  converter?: (v: any) => string;
+  converter: (v: any) => string;
   bindingString: string;
   target: Widget;
   targetProperty: string;

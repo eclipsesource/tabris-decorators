@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Widget, WidgetCollection } from 'tabris';
 import { Composite } from 'tabris';
 import { processOneWayBindings } from '../internals//bind-one-way';
-import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory, isAppended, markAsAppended, markAsComponent, postAppendHandlers, WidgetInterface } from '../internals//utils';
+import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory, isAppended, markAsAppended, markAsComponent, originalAppendKey, postAppendHandlers, WidgetInterface } from '../internals//utils';
 
 /**
  * A decorator for classes extending `Widget`.
@@ -51,7 +51,7 @@ function returnEmptyCollection() {
 }
 
 function patchAppend(type: BaseConstructor<Widget>) {
-  let widgetProto = type.prototype;
+  let widgetProto = type.prototype as WidgetInterface;
   if (widgetProto.append !== customAppend) {
     widgetProto[originalAppendKey] = widgetProto.append;
     widgetProto.append = customAppend;
@@ -72,5 +72,3 @@ function runPostAppendHandler(widgetInstance: WidgetInterface) {
     fn(widgetInstance);
   }
 }
-
-const originalAppendKey = Symbol();

@@ -2,9 +2,9 @@ import 'mocha';
 import 'sinon';
 import { Composite, CompositeProperties, TextInput, TextView } from 'tabris';
 import * as tabrisMock from './tabris-mock';
-import { expect, restoreSandbox } from './test';
-import { component, property } from '../src';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
+import { expect, restoreSandbox, stub } from './test';
+import { component, property, to } from '../src';
+/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
 
 describe('component', () => {
 
@@ -243,6 +243,46 @@ describe('component', () => {
       widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
 
       expect(textInput.text).to.equal('foo');
+    });
+
+    describe('to', () => {
+
+      it('applies changes of source property value', () => {
+        widget.append(textInput = <textInput bind-text={to('myText', v => v)} />);
+
+        widget.myText = 'bar';
+
+        expect(textInput.text).to.equal('bar');
+      });
+
+      it('calls converter with initial value', () => {
+        const converter = stub().returns('foo');
+        widget.myText = 'bar';
+
+        widget.append(textInput = <textInput bind-text={to('myText', converter)} />);
+
+        expect(converter).to.have.been.calledOnce;
+        expect(converter).to.have.been.calledWith('bar');
+        expect(textInput.text).to.equal('foo');
+      });
+
+      it('fails to bind with converter returning incompatible type', () => {
+        expect(() => {
+          widget.append(<CustomComponent2 bind-numberProperty={to('myText', v => !!v)} />);
+        }).to.throw(
+            'Binding "numberProperty" -> "myText" failed: Failed to set property "numberProperty": '
+          + 'Expected value "true" to be of type number, but found boolean.'
+        );
+      });
+
+      it('fails to bind with converter throwing', () => {
+        expect(() => {
+          widget.append(<CustomComponent2 bind-numberProperty={to('myText', v => { throw new Error('fooerror'); })} />);
+        }).to.throw(
+            'Binding "numberProperty" -> "myText" failed: Converter exception: fooerror'
+        );
+      });
+
     });
 
   });

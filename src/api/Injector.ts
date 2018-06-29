@@ -1,11 +1,14 @@
-import { bindDecoratorInject, unboundInject } from '../decorators/inject';
-import { bindDecoratorInjectable, unboundInjectable } from '../decorators/injectable';
-import { bindDecoratorInjectionHandler, unboundInjectionHandler } from '../decorators/injectionHandler';
-import { bindDecoratorShared, unboundShared } from '../decorators/shared';
+import { bindDecoratorInject, InjectDecorator, unboundInject } from '../decorators/inject';
+import { bindDecoratorInjectable, InjectableDecorator, unboundInjectable } from '../decorators/injectable';
+import { bindDecoratorInjectionHandler, InjectionHandlerDecorator } from '../decorators/injectionHandler';
+import { bindDecoratorShared, SharedDecorator, unboundShared } from '../decorators/shared';
 import { ExtendedJSX } from '../internals/ExtendedJSX';
 import { BaseConstructor, getParamInfo } from '../internals/utils';
 
 export type InjectionParameter = object | string | number | boolean | null;
+
+export type CreateFunction = typeof Injector.prototype.create;
+export type ResolveFunction = typeof Injector.prototype.resolve;
 
 export interface Injection {
   type: BaseConstructor<any>;
@@ -25,10 +28,10 @@ export type InjectionHandlerFunction<T> = (injection: Injection) => T | null | u
  */
 export class Injector {
 
-  public readonly injectionHandler: typeof unboundInjectionHandler = bindDecoratorInjectionHandler(this);
-  public readonly inject: typeof unboundInject = bindDecoratorInject(this);
-  public readonly injectable: typeof unboundInjectable = bindDecoratorInjectable(this);
-  public readonly shared: typeof unboundShared = bindDecoratorShared(this);
+  public readonly injectionHandler: InjectionHandlerDecorator = bindDecoratorInjectionHandler(this);
+  public readonly inject: InjectDecorator = bindDecoratorInject(this);
+  public readonly injectable: InjectableDecorator = bindDecoratorInjectable(this);
+  public readonly shared: SharedDecorator = bindDecoratorShared(this);
 
   /**
    * This object needs to be present in the module namespace to allow JSX expressions that

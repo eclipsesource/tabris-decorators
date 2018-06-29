@@ -1,7 +1,13 @@
-import { Widget } from 'tabris';
+import { Composite, Widget } from 'tabris';
 import { WidgetCollection } from 'tabris';
 
 const uncheckedProperty: unique symbol = Symbol('foo');
+const postAppendHandlersKey = Symbol();
+const wasAppendedKey = Symbol();
+const propertyStoreKey = Symbol();
+const paramInfoKey = Symbol();
+const componentKey = Symbol();
+export const originalAppendKey = Symbol();
 
 // tslint:disable-next-line:ban-types
 export type BaseConstructor<T> = Function & { prototype: T };
@@ -9,6 +15,8 @@ export interface Constructor<T> {new(...args: any[]): T; }
 export type ParameterDecoratorFactory = (target: Constructor<any>, property: string, index: number) => void;
 export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
 export type WidgetInterface = {
+  [originalAppendKey]: typeof Composite.prototype.append,
+  [wasAppendedKey]: boolean,
   [uncheckedProperty]: any,
   [prop: string]: any
 } & Widget & WidgetProtected;
@@ -228,11 +236,3 @@ export function checkIsComponent(widget: Widget) {
     throw new Error(`${widget.constructor.name} is not a @component`);
   }
 }
-
-/* Internals */
-
-const postAppendHandlersKey = Symbol();
-const wasAppendedKey = Symbol();
-const propertyStoreKey = Symbol();
-const paramInfoKey = Symbol();
-const componentKey = Symbol();

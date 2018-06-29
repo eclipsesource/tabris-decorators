@@ -6,7 +6,12 @@
 
 Makes the decorated widget class the *base reference* for databinding. Also, a widget class decorated with `@component` will not allow its own children to be selected by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using `@getById` on a private/protected property.
 
-### JSX Attribute: bind-\<targetProperty\>='\<baseProperty\>[.\<subProperty\>]'
+### JSX Attribute: bind-\<targetProperty\>=<Binding>
+
+Where `<Binding>` can be
+ * a path string of format `\<baseProperty\>[.\<subProperty\>]`
+ * a plain object `{path: string, converter?: Function}`
+ * or a call `to(path: string, converter: Function)`
 
 For one-way bindings, `@component` enables a new JSX attribute prefix `bind-`, which actively copies values **from** the *base component* **to** the *target element* (a descendant widget).
 
@@ -51,6 +56,31 @@ You can bind to a property of a *base property* value if its a model-like object
 ```
 
 The binding will not update the *target property* when the property on the item changes, only when the item is replaced.
+
+#### Conversion
+
+The value can be manipulated or converted to an entirely different type using a converter function.
+This would convert a `Date` instance (`person.dob`) to a localized string:
+
+```tsx
+<textView bind-text={{path: 'person.dob', converter: v => v.toLocaleString())} />
+```
+
+There is also the utility function `to` exported by `tabris-decorators` that makes this expression slightly shorter:
+
+```tsx
+<textView bind-text={to('person.dob', v => v.toLocaleString())} />`
+````
+
+ It can also be used to define reuseable shorthands:
+
+ ```tsx
+ // define shorthand, maybe in some other module:
+ const toLocaleString = (path: string) => to(path, v => v.toLocaleString());
+
+ // later use:
+<textView bind-text={toLocaleString('person.dob')} />
+```
 
 #### Fallback value
 
