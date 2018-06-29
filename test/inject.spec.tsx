@@ -7,7 +7,7 @@ import { TextInput } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox, spy } from './test';
 import { Constructor, create, inject, injectable, Injection, injectionHandler, injector, shared } from '../src';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
+/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct max-file-line-count max-line-length*/
 
 describe('inject', () => {
 
@@ -110,6 +110,76 @@ describe('inject', () => {
     let instance2 = create(ConstructorWithInjection);
 
     expect(instance2.number).to.equal(44);
+  });
+
+  it('injects when used with create on super class', () => {
+    class ConstructorWithInjectionExtended extends ConstructorWithInjection {
+      constructor(
+        str: string | undefined,
+        @inject('foo2') service: MyServiceClass,
+        @inject num: number,
+        @inject public otherService: MyServiceClass,
+        @inject public singleton1?: MySingletonClass,
+        @inject public singleton2?: MyOtherSingletonClass,
+        @inject public baseClass?: BaseClass
+      ) {
+        super(str, service, num, otherService, singleton1, singleton2, baseClass);
+      }
+    }
+    numberHandler = (injection) => 44;
+
+    let instance2 = create(ConstructorWithInjectionExtended);
+
+    expect(instance2.number).to.equal(44);
+  });
+
+  it('injects when used with create on super class with different param order', () => {
+    class ConstructorWithInjectionExtended extends ConstructorWithInjection {
+      constructor(
+        str: string | undefined,
+        @inject('foo2') service: MyServiceClass,
+        @inject public otherService: MyServiceClass,
+        @inject num: number,
+        @inject public singleton2?: MyOtherSingletonClass,
+        @inject public singleton1?: MySingletonClass,
+        @inject public baseClass?: BaseClass
+      ) {
+        super(str, service, num, otherService, singleton1, singleton2, baseClass);
+      }
+    }
+    numberHandler = (injection) => 44;
+
+    let instance2 = create(ConstructorWithInjection);
+    let instance3 = create(ConstructorWithInjectionExtended);
+
+    expect(instance2.number).to.equal(44);
+    expect(instance2.str).to.equal('');
+    expect(instance3.number).to.equal(44);
+    expect(instance3.str).to.equal('');
+  });
+
+  it('injects when used with create on super class with different param count', () => {
+    class ConstructorWithInjectionExtended extends ConstructorWithInjection {
+      constructor(
+        @inject('foo2') service: MyServiceClass,
+        @inject num: number,
+        @inject public otherService: MyServiceClass,
+        @inject public singleton2?: MyOtherSingletonClass,
+        @inject public singleton1?: MySingletonClass,
+        @inject public baseClass?: BaseClass
+      ) {
+        super('foo3', service, num, otherService, singleton1, singleton2, baseClass);
+      }
+    }
+    numberHandler = (injection) => 44;
+
+    let instance2 = create(ConstructorWithInjection);
+    let instance3 = create(ConstructorWithInjectionExtended);
+
+    expect(instance2.number).to.equal(44);
+    expect(instance2.str).to.equal('');
+    expect(instance3.number).to.equal(44);
+    expect(instance3.str).to.equal('foo3');
   });
 
   it('fails for unsupported type', () => {
@@ -234,7 +304,7 @@ describe('inject', () => {
     beforeEach(() => {
       stringHandler = injection => new String(injection.param);
       widget = (
-      <MyCustomWidget left={3} top={4}>
+      <MyCustomWidget left={3} top={4} >
         <composite/>
       </MyCustomWidget>
       );

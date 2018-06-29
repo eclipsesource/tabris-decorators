@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Injector } from '../api/Injector';
-import { applyDecorator, Constructor, getParameterType, getParamInfo, ParameterDecoratorFactory } from '../internals/utils';
+import { applyDecorator, Constructor, getOwnParamInfo, getParameterType, ParameterDecoratorFactory } from '../internals/utils';
 
 export function bindDecoratorInject(injector: Injector): typeof unboundInject {
   return unboundInject.bind(injector);
@@ -31,7 +31,7 @@ export function unboundInject(this: Injector, ...args: any[]): any {
 }
 
 function setParameterInfo(target: any, index: number, injectParam?: string) {
-  getParamInfo(target)[index] = {
+  getOwnParamInfo(target)[index] = {
     injectParam, type: getParameterType(target, index), inject: true
   };
 }

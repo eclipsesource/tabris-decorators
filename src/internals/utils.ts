@@ -1,12 +1,17 @@
 import { Widget } from 'tabris';
 import { WidgetCollection } from 'tabris';
 
+const uncheckedProperty: unique symbol = Symbol('foo');
+
 // tslint:disable-next-line:ban-types
 export type BaseConstructor<T> = Function & { prototype: T };
 export interface Constructor<T> {new(...args: any[]): T; }
 export type ParameterDecoratorFactory = (target: Constructor<any>, property: string, index: number) => void;
 export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
-export type WidgetInterface = {[prop: string]: any} & Widget & WidgetProtected;
+export type WidgetInterface = {
+  [uncheckedProperty]: any,
+  [prop: string]: any
+} & Widget & WidgetProtected;
 export type TypeGuard = (v: any) => boolean;
 export interface WidgetProtected {
   _find(selector?: Selector): WidgetCollection<Widget>;
@@ -143,19 +148,33 @@ export function getPropertyStore(instance: any): Map<string | symbol, any> {
 
 /**
  * Gets array of injection data for each parameter of the given function
+ * For non exists it will be created
  */
-export function getParamInfo(fn: any): ParamInfo[] {
-  if (!Reflect.getMetadata(paramInfoKey, fn)) {
+export function getOwnParamInfo(fn: any): ParamInfo[] {
+  if (!Reflect.getOwnMetadata(paramInfoKey, fn)) {
     Reflect.defineMetadata(paramInfoKey, [], fn);
+  }
+  return Reflect.getOwnMetadata(paramInfoKey, fn);
+}
+
+/**
+ * Gets array of injection data for each parameter of the given function
+ * If non exist and the function is a constructor, the super constructor will checked.
+ * If non exists in the entire chain, null will be returned.
+ */
+export function getParamInfo(fn: any): ParamInfo[] | null {
+  if (!Reflect.getMetadata(paramInfoKey, fn)) {
+    return null;
   }
   return Reflect.getMetadata(paramInfoKey, fn);
 }
 
 export function hasInjections(fn: any): boolean {
-  if (!Reflect.getMetadata(paramInfoKey, fn)) {
+  const paramInfoArr = getParamInfo(fn);
+  if (!paramInfoArr || !paramInfoArr.length) {
     return false;
   }
-  for (let paramInfo of getParamInfo(fn)) {
+  for (let paramInfo of paramInfoArr) {
     if (paramInfo && paramInfo.inject) {
       return true;
     }
@@ -214,7 +233,6 @@ export function checkIsComponent(widget: Widget) {
 
 const postAppendHandlersKey = Symbol();
 const wasAppendedKey = Symbol();
-const uncheckedProperty = Symbol();
 const propertyStoreKey = Symbol();
 const paramInfoKey = Symbol();
 const componentKey = Symbol();
