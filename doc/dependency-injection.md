@@ -57,7 +57,7 @@ The injectable class (`Foo2`) may also have injection dependencies itself. For e
 
 ## @injectable(config: InjectableConfig)
 
-* `config`: `{shared?: boolean, implements?: Class, param: InjectionParameter}`
+* `config`: `{shared?: boolean, implements?: Class, param?: InjectionParameter, priority?: number}`
 
 Like `@injectable`, but with more options.
 
@@ -67,11 +67,13 @@ Like `@injectable`, but with more options.
 
 * If `param` is set the decorated class will only be injected for injections that have the same injection parameter. The parameter may be given via `@inject(param: InjectionParameter)` or `resolve(type: Class, param: InjectionParameter)`. This is really only useful when multiple compatible types are made injectable.
 
+* The `priority` controls the priority of this class over other compatible injectable classes. The class with the highest priority will be used for injection. This value defaults to zero. If there are multiple classes registered with the same priority, the last class that was registered is used to resolve the injection.
+
 ## @shared
 
 Shorthand for `@injectable({shared: true})`.
 
-## @injectionHandler(type: Class)
+## @injectionHandler(targetType: Class)
 
 * `Injection`: `{type: Class, injector: Injector, param: InjectionParameter}`
 * `InjectionParameter`: `object | string | number | boolean | null`;
@@ -84,6 +86,10 @@ The `Injection` object provides the following values:
 * `param`: An injection parameter that may have been passed via `@inject(param: InjectionParameter)` or `resolve(type: Class, param: InjectionParameter)`.
 
 Injection handler may also be registered via the `addInjectionHandler` method on an `Injector` instance.
+
+## @injectionHandler({targetType: Class, priority?: number})
+
+Like `@injectionHandler(targetType: Class)`, but allows to give a priority, just like `@injectable({priority: number})`. The priority controls in which order injection handlers for the same target type are called, with the highest priority handler being called first.
 
 ## resolve(type: Class, injectionParameter?: InjectionParameter)
 

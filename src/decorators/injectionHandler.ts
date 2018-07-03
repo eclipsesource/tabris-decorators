@@ -21,18 +21,29 @@ export function bindDecoratorInjectionHandler(injector: Injector): typeof unboun
  *   return new MyServiceClass(someArg);
  * }
  * ```
- * The method must return a value compatible to the given type or `null`/`undefined`.
+ * A priority may also be given, defaults to 0:
+ * ```ts
+ * @injectionHandler({targetType: MyServiceClass, priority: 2})
+ * ```
+ *
+ * The decorated method must return a value compatible to the given type or `null`/`undefined`.
  * The method is passed an `Injection` object with the following fields:
  * - `type`: The exact type that was requested.
  * - `injector`: The `Injector` instance the injection handler is registered with.
  * - `param`: An injection parameter that may have been passed via `@inject(param)` or `resolve(type, param)`
  */
+// tslint:disable:unified-signatures
 export function unboundInjectionHandler<T>(targetType: BaseConstructor<T>): CoreInjectionHandlerDecorator<T>;
+export function unboundInjectionHandler<T>(
+  param: {targetType: BaseConstructor<T>, priority?: number}
+): CoreInjectionHandlerDecorator<T>;
 export function unboundInjectionHandler(this: Injector, ...args: any[]): any {
   return applyDecorator('injectionHandler', args, (target: object, targetProperty: string) => {
-    let type = args[0] as Constructor<any>;
     if (target instanceof Function) {
-      this.addHandler(type, (injection) => target[targetProperty](injection));
+      const targetType = (args[0] instanceof Function ? args[0] : args[0].targetType) as Constructor<any>;
+      const priority = (args[0] instanceof Function ? 0 : args[0].priority) || 0;
+      const handler = (injection) => target[targetProperty](injection);
+      this.addHandler({targetType, handler, priority});
     } else {
       throw new Error('Decorator must be applied to a method');
     }

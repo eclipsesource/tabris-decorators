@@ -71,6 +71,25 @@ describe('Injector', () => {
       expect(instance.resolve(Number)).to.equal(24);
     });
 
+    it('handler with highest priority wins', () => {
+      let numberHandler2 = () => 24;
+      instance.addHandler({targetType: Number, handler: numberHandler, priority: 1});
+      instance.addHandler({targetType: Number, handler: numberHandler2});
+      instance.addHandler({targetType: Number, handler: () => null});
+      instance.addHandler({targetType: Number, handler: () => undefined});
+
+      expect(instance.resolve(Number)).to.equal(23);
+    });
+
+    it('last added handler with same priority wins', () => {
+      instance.addHandler({targetType: Number, handler: () => 10, priority: 1});
+      instance.addHandler({targetType: Number, handler: () => 11, priority: 3});
+      instance.addHandler({targetType: Number, handler: () => 12, priority: 3});
+      instance.addHandler({targetType: Number, handler: () => 13, priority: 2});
+
+      expect(instance.resolve(Number)).to.equal(12);
+    });
+
     it('does not cache', () => {
       let i = 0;
       instance = new Injector();

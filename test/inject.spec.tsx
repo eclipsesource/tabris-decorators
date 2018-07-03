@@ -25,9 +25,14 @@ describe('inject', () => {
     public saySomething() { return 'baz1'; }
   }
 
-  @injectable({implements: BaseClass})
+  @injectable({implements: BaseClass, priority: 2})
   class CompatibleClass {
     public saySomething() { return 'baz3'; }
+  }
+
+  @injectable({implements: BaseClass, priority: 1})
+  class LowPriorityClass {
+    public saySomething() { return 'baz4'; }
   }
 
   abstract class ColorClass {
@@ -65,11 +70,21 @@ describe('inject', () => {
     }
 
   }
+
+  class MyServiceClassInjectionHandlerTwo {
+
+    @injectionHandler({targetType: MyServiceClass, priority: 2})
+    public static createMyServiceClass(injection: Injection) {
+      return serviceHandler(injection);
+    }
+
+  }
+
   class MyServiceClassInjectionHandler {
 
     @injectionHandler(MyServiceClass)
-    public static createMyServiceClass(injection: Injection) {
-      return serviceHandler(injection);
+    public static createMyServiceClass() {
+      throw new Error('will never be called');
     }
 
   }
@@ -258,7 +273,8 @@ describe('inject', () => {
     expect(instance2.singleton2).to.equal(instance.singleton2);
   });
 
-  it('injects with compatible type', () => {
+  it('injects with highest priority compatible type', () => {
+    expect(instance.baseClass.saySomething()).to.equal('baz3');
     expect(instance.baseClass).to.be.instanceOf(CompatibleClass);
   });
 

@@ -45,6 +45,7 @@ export const inject: InjectDecorator = injector.inject;
  * The object can have any of these entries:
  * - `shared: boolean`: when `true`this makes the class effectively a singleton
  * - `implements: OtherClass`: allows the class to be injected as `OtherClass`
+ * - `priority: number`: The priority of this class relative to other compatible injectables. Defaults to 0.
  * - `param: value`: allows injection only when `@inject(param)` gives the exact same parameter value.
  */
 export const injectable: InjectableDecorator = injector.injectable;
@@ -62,7 +63,12 @@ export const shared: SharedDecorator = injector.shared;
  *   return new MyServiceClass(someArg);
  * }
  * ```
- * The method must return a value compatible to the given type or `null`/`undefined`.
+ * A priority may also be given, defaults to 0:
+ * ```ts
+ * @injectionHandler({targetType: MyServiceClass, priority: 2})
+ * ```
+ *
+ * The decorated method must return a value compatible to the given type or `null`/`undefined`.
  * The method is passed an `Injection` object with the following fields:
  * - `type`: The exact type that was requested.
  * - `injector`: The `Injector` instance the injection handler is registered with.

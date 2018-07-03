@@ -24,18 +24,20 @@ export function bindDecoratorInjectable(injector: Injector): typeof unboundInjec
  * The object can have any of these entries:
  * - `shared: boolean`: when `true`this makes the class effectively a singleton
  * - `implements: OtherClass`: allows the class to be injected as `OtherClass`
+ * - `priority: number`: The priority of this class relative to other compatible injectables. Defaults to 0.
  * - `param: value`: allows injection only when `@inject(param)` gives the exact same parameter value.
  */
 export function unboundInjectable<T>(config: InjectableConfig<T>): ClassDecoratorFactory<T>;
 export function unboundInjectable<T>(type: Constructor<T>): void;
 export function unboundInjectable(this: Injector, ...args: any[]): void | ClassDecoratorFactory<any> {
-  return applyClassDecorator('injectable', args, (type: Constructor<any>) => {
-    Reflect.defineMetadata(injectableKey, true, type);
-    let config = getInjectableConfig(args);
-    let handler = new DefaultInjectionHandler(type, config);
-    this.addHandler(type, handler.handleInjection);
+  return applyClassDecorator('injectable', args, (targetType: Constructor<any>) => {
+    Reflect.defineMetadata(injectableKey, true, targetType);
+    const config = getInjectableConfig(args);
+    const handler = (new DefaultInjectionHandler(targetType, config)).handleInjection;
+    const priority = config.priority || 0;
+    this.addHandler({targetType, handler, priority});
     if (config.implements) {
-      this.addHandler(config.implements, handler.handleInjection);
+      this.addHandler({targetType: config.implements, handler, priority});
     }
   });
 }
@@ -70,6 +72,7 @@ class DefaultInjectionHandler<T> {
 
 export interface InjectableConfig<T> {
   shared?: boolean;
+  priority?: number;
   implements?: BaseConstructor<T>;
   param?: InjectionParameter;
 }

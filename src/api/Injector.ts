@@ -1,14 +1,19 @@
-import { bindDecoratorInject, InjectDecorator, unboundInject } from '../decorators/inject';
-import { bindDecoratorInjectable, InjectableDecorator, unboundInjectable } from '../decorators/injectable';
+import { bindDecoratorInject, InjectDecorator } from '../decorators/inject';
+import { bindDecoratorInjectable, InjectableDecorator } from '../decorators/injectable';
 import { bindDecoratorInjectionHandler, InjectionHandlerDecorator } from '../decorators/injectionHandler';
-import { bindDecoratorShared, SharedDecorator, unboundShared } from '../decorators/shared';
+import { bindDecoratorShared, SharedDecorator } from '../decorators/shared';
 import { ExtendedJSX } from '../internals/ExtendedJSX';
 import { BaseConstructor, getParamInfo } from '../internals/utils';
 
 export type InjectionParameter = object | string | number | boolean | null;
-
 export type CreateFunction = typeof Injector.prototype.create;
 export type ResolveFunction = typeof Injector.prototype.resolve;
+
+export interface HandlerRegistration<Type, Result extends Type> {
+  targetType: BaseConstructor<Type>;
+  handler: InjectionHandlerFunction<Result>;
+  priority?: number;
+}
 
 export interface Injection {
   type: BaseConstructor<any>;
@@ -47,16 +52,19 @@ export class Injector {
    * Explicitly registers a new injection handler. Same as using the attached `injectionHandler`
    * decorator.
    */
-  public addHandler = <T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandlerFunction<U>) => {
-    if (!targetType || !handler) {
+  public addHandler: {
+    <T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandlerFunction<U>): void;
+    <T, U extends T>(param: HandlerRegistration<T, U>): void;
+  } = <T, U extends T>(arg1: HandlerRegistration<T, U> | BaseConstructor<T>, arg2?: InjectionHandlerFunction<U>) => {
+    const param = (arg1 instanceof Function ? {targetType: arg1, handler: arg2} : arg1) as HandlerRegistration<T, U>;
+    if (!param.targetType || !param.handler) {
       throw new Error('invalid argument');
     }
-    this.forEachPrototype(targetType, (prototype: object) => {
-      let targetTypeHandlers = this.handlers.get(prototype);
-      if (!targetTypeHandlers) {
-        this.handlers.set(prototype, targetTypeHandlers = []);
-      }
-      targetTypeHandlers.unshift(handler);
+    this.forEachPrototype(param.targetType, (prototype: object) => {
+      const targetTypeHandlers = this.handlers.get(prototype) || [];
+      const ref = targetTypeHandlers.findIndex(reg => (reg.priority || 0) <= (param.priority || 0));
+      targetTypeHandlers.splice(ref < 0 ? targetTypeHandlers.length : ref, 0, param);
+      this.handlers.set(prototype, targetTypeHandlers);
     });
   }
 
@@ -65,15 +73,15 @@ export class Injector {
    * would do in a constructor.
    */
   public resolve = <T>(type: BaseConstructor<T>, param: InjectionParameter = null): T => {
-    let handlers = this.findCompatibleHandlers(type);
-    if (!handlers.length) {
+    let regs = this.findHandlerRegistrations(type);
+    if (!regs.length) {
       throw new Error(
         `Could not inject value of type ${type.name} since no compatible injection handler exists for this type.`
       );
     }
     let unbox = this.getUnboxer(type);
-    for (let handler of handlers) {
-      let result = unbox(handler({type, injector: this, param}));
+    for (let reg of regs) {
+      let result = unbox(reg.handler({type, injector: this, param}));
       if (result !== null && result !== undefined) {
         return result;
       }
@@ -118,7 +126,7 @@ export class Injector {
     }
   }
 
-  private findCompatibleHandlers<T>(type: BaseConstructor<T>): Array<InjectionHandlerFunction<T>> {
+  private findHandlerRegistrations<T>(type: BaseConstructor<T>): Array<HandlerRegistration<T, T>> {
     if (!type) {
       throw new Error(
         `Could not inject value since type is ${type}. Do you have circular module dependencies?`
@@ -154,4 +162,4 @@ export class Injector {
 
 export const injector = new Injector();
 
-type HandlersMap = Map<object, Array<InjectionHandlerFunction<any>>>;
+type HandlersMap = Map<object, Array<HandlerRegistration<any, any>>>;
