@@ -1,6 +1,6 @@
 {
   "name": "tabris-decorators",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "repository": {
@@ -19,7 +19,7 @@
     "safePublish": "npm test && npm run clean && npm run build && npm publish"
   },
   "peerDependencies": {
-    "tabris": "^2.6.0"
+    "tabris": "^2.7.0"
   },
   "devDependencies": {
     "@types/chai": "^3.5.0",
@@ -29,18 +29,18 @@
     "@types/sinon-chai": "^2.7.0",
     "ajv-cli": "^2.1.0",
     "chai": "^3.5.0",
+    "dts-generator": "^2.1.0",
     "mocha": "^3.2.0",
     "sinon": "^1.16.0",
     "sinon-chai": "^2.7.0",
-    "tabris": "nightly",
+    "tabris": "^2.7.0-dev.20190211",
     "ts-loader": "^3.5.0",
     "ts-mocha": "^1.0.3",
     "tslint": "^5.3.2",
     "typescript": "^2.8.1",
     "uglifyjs-webpack-plugin": "^1.2.4",
     "webpack": "^3.11.0",
-    "webpack-merge": "^4.1.2",
-    "dts-generator": "^2.1.0"
+    "webpack-merge": "^4.1.2"
   },
   "dependencies": {
     "reflect-metadata": "^0.1.10"
