@@ -121,14 +121,15 @@ Injections on widgets created via JSX are automatically resolved using the globa
 
 All injection handler created by `@injectable`, `@shared` and `@injectionHandler` are managed in an `Injector` instance. The DI related decorators and functions exported directly by `tabris-decorators` belong to a global (i.e. singleton) `Injector` instance exported as `injector`, i.e. `injector.injectable === injectable`. It also has the (modified) global `JSX` object that manages injections for JSX expressions attached.
 
-Usually there is no need to create your own instance of `Injector`, but it may be useful for unit testing or when writing libraries targeting Tabris.js.  To do so create a new module (e.g. `customInjector.ts`) that looks like this:
+Creating your own instance of `Injector` may be useful for unit testing or when writing libraries targeting Tabris.js. To do so create a new module (e.g. `customInjector.ts`) that looks like this:
 
 ```ts
 import { Injector } from 'tabris-decorators';
 
 export const injector = new Injector();
-export const { inject, shared, injectable, injectionHandler, create, resolve, JSX } = new Injector();
+export const { inject, shared, injectable, injectionHandler, create, resolve, JSX } = injector;
 ```
+
 To use the custom injector within another module instead of the global one, import the decorators/functions from `./customInjector` instead of `tabris-decorators`. You also need to import `JSX` if you use JSX expressions.
 
 ```ts
@@ -136,3 +137,11 @@ import { injector, inject, injectable, shared, injectionHandler, JSX } from './c
 ```
 
 The `@inject` decorator - unlike `@injectable`, `@injectionHandler`, etc. - is not bound to any specific injector. Therefore it would technically not need to be available on every `Injector` instance. It is there only for convenience when creating custom injectors as above.
+
+The Injector instance that was used to create a given object may be obtained by `Injector.get(object)`. That is necessary if an object needs an injector instance (e.g. for calling `injector.create()`), but may be created by different injectors in different scenarios, for example in unit testing.
+
+Example:
+
+```js
+const newObject = Injector.get(this).create(InjectableType);
+```
