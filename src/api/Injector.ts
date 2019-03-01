@@ -22,6 +22,7 @@ export interface Injection {
 }
 
 export type InjectionHandlerFunction<T> = (injection: Injection) => T | null | undefined;
+const injectorKey = Symbol();
 
 /**
  * An `Injector` instance manages injection handlers and fulfills injections.
@@ -32,6 +33,19 @@ export type InjectionHandlerFunction<T> = (injection: Injection) => T | null | u
  * instead of the global ones.
  */
 export class Injector {
+
+  /**
+   * Returns the instance of Injector that was used to create the given object.
+   */
+  public static get(object: object): Injector {
+    if (!object || !(object instanceof Object)) {
+      throw new Error('Injector.get does not accept values of type ' + typeof object);
+    }
+    if (injectorKey in object) {
+      return object[injectorKey];
+    }
+    throw new Error('Object was not created by an Injector');
+  }
 
   public readonly injectionHandler: InjectionHandlerDecorator = bindDecoratorInjectionHandler(this);
   public readonly inject: InjectDecorator = bindDecoratorInject(this);
@@ -83,7 +97,7 @@ export class Injector {
     for (let reg of regs) {
       let result = unbox(reg.handler({type, injector: this, param}));
       if (result !== null && result !== undefined) {
-        return result;
+        return this.tagResult(result);
       }
     }
     throw new Error(
@@ -120,7 +134,7 @@ export class Injector {
           finalArgs[i] = args[i];
         }
       }
-      return new type(...finalArgs);
+      return this.tagResult(new type(...finalArgs));
     } catch (ex) {
       throw new Error(`Could not create instance of ${type.name}:\n${ex.message}`);
     }
@@ -156,6 +170,13 @@ export class Injector {
       cb(currentProto);
       currentProto = Object.getPrototypeOf(currentProto);
     }
+  }
+
+  private tagResult(value: any) {
+    if (value instanceof Object) {
+      value[injectorKey] = this;
+    }
+    return value;
   }
 
 }
