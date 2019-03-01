@@ -183,4 +183,26 @@ describe('Injector', () => {
 
   });
 
+  describe('get', () => {
+
+    it('throws for null and undefined', () => {
+      expect(() => Injector.get(null)).to.throw();
+      expect(() => Injector.get(undefined)).to.throw();
+    });
+
+    it('throws for objects not created by an injector', () => {
+      expect(() => Injector.get({})).to.throw();
+    });
+
+    it('gets injector instance for objects created by create', () => {
+      expect(Injector.get(instance.create(Date))).to.equal(instance);
+    });
+
+    it('gets injector instance for objects created by resolve', () => {
+      instance.addHandler(Date, () => new Date());
+      expect(Injector.get(instance.resolve(Date))).to.equal(instance);
+    });
+
+  });
+
 });

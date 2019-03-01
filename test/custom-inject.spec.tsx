@@ -1,10 +1,10 @@
 import 'mocha';
 import 'sinon';
 import { Composite, CompositeProperties } from 'tabris';
-import { create, inject, injectable, injectionHandler, JSX, resolve, shared } from './customInjector';
+import { create, inject, injectable, injectionHandler, injector, JSX, resolve, shared } from './customInjector';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox } from './test';
-import { Injection, injector as orgInjector } from '../src';
+import { Injection, injector as orgInjector, Injector } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
 
 @injectable class MyServiceClass { }
@@ -63,6 +63,16 @@ describe('custom injector inject', () => {
     }).to.throw(
       'Could not inject value of type MyServiceClass since no compatible injection handler exists for this type.'
     );
+  });
+
+  it('can be obtained by Injector.get', () => {
+    const instance = create(ConstructorWithInjection);
+    const singleton = resolve(MyServiceClass);
+
+    expect(Injector.get(instance)).to.equal(injector);
+    expect(Injector.get(instance).inject).to.equal(inject);
+    expect(Injector.get(singleton)).to.equal(injector);
+    expect(Injector.get(singleton).inject).to.equal(inject);
   });
 
   describe('via JSX', () => {
