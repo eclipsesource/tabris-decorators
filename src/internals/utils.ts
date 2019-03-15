@@ -1,5 +1,4 @@
-import { Composite, Widget } from 'tabris';
-import { WidgetCollection } from 'tabris';
+import { Composite, Selector, Widget, WidgetCollection } from 'tabris';
 
 const uncheckedProperty: unique symbol = Symbol('foo');
 const postAppendHandlersKey = Symbol();

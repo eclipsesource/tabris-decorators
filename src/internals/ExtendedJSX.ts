@@ -13,12 +13,18 @@ export class ExtendedJSX {
   constructor(private readonly injector: Injector) { }
 
   public createElement = (
-    type: string|Constructor<any>, jsxProperties: Properties, ...children: Widget[]
+    type: Function|string, jsxProperties: Properties, ...children: Widget[]
   ) => {
     let {properties, bindings} = this.extractBindings(jsxProperties);
-    let result = originalJSX.createElement(this.convertType(type), properties as Object, ...children);
+    // TODO: Fix createElement signature in tabris module
+    let result = originalJSX.createElement(
+      this.convertType(type) as Function,
+      properties as Object,
+      ...children as any
+    );
     if (bindings) {
-      applyJsxBindings(result, bindings);
+      // TODO: Check result to actually be a widget
+      applyJsxBindings(result as unknown as Widget, bindings);
     }
     return result;
   }
@@ -42,11 +48,11 @@ export class ExtendedJSX {
     return {properties, bindings};
   }
 
-  private convertType(type: string | Constructor<any>): string | Function {
+  private convertType(type: string | Function): string | Function {
     let injector = this.injector;
     if (type instanceof Function && hasInjections(type)) {
       return function(props: any) {
-        return injector.create(type, props);
+        return injector.create(type as Constructor<any>, props);
       };
     }
     return type;

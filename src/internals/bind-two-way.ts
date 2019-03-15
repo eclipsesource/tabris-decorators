@@ -102,7 +102,7 @@ function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
     const initialValue = child[binding.targetProperty];
     binding.basePropertyChecker(initialValue);
     propertyStore.set(binding.fallbackValueKey, initialValue);
-    child.on(binding.targetChangeEvent, ({value}) => {
+    child.on({[binding.targetChangeEvent]: ({value}: ChangeEvent<any>) => {
       try {
         binding.basePropertyChecker(value);
         base.trigger(binding.baseChangeEvent, new ChangeEvent(base, binding.baseChangeEvent, value));
@@ -111,7 +111,7 @@ function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
         throw new Error(getBindingFailedErrorMessage(binding, action, ex)
         );
       }
-    });
+    }});
     if (propertyStore.has(binding.baseProperty)) {
       applyValue(base, binding, propertyStore.get(binding.baseProperty));
       propertyStore.delete(binding.baseProperty);
@@ -146,7 +146,7 @@ function getBindingFailedErrorMessage(binding: TwoWayBinding, action: string, ex
   return `Binding "${binding.baseProperty}" <-> "${binding.path}" failed to ${action}: ${ex.message}`;
 }
 
-function createTypeChecker(type: BaseConstructor<any>, typeGuard: (v: any) => void) {
+function createTypeChecker(type: BaseConstructor<any>, typeGuard: (v: any) => boolean) {
   if (typeGuard) {
     return (value: any) => {
       if (!typeGuard(value)) {

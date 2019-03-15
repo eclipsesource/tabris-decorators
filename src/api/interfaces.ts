@@ -1,5 +1,5 @@
-import { Composite, EventObject, PropertyChangedEvent } from 'tabris';
-import { Diff, Listener, Listeners } from './Listeners';
+import { EventObject, PropertyChangedEvent } from 'tabris';
+import { Listener, Listeners } from './Listeners';
 
 export { Constructor, BaseConstructor, TypeGuard } from '../internals/utils';
 
@@ -11,17 +11,3 @@ export type ChangeListeners<Value, Target = {}> = Listeners<ChangeEvent<Value, T
 // Ensure @event can check the property type:
 // tslint:disable-next-line:variable-name
 export const ChangeListeners = Listeners;
-
-export type UnpackListeners<T> = T extends Listeners<infer U> ? Listener<U> : T;
-export type UnpackAllListeners<T> = { [Key in keyof T]: UnpackListeners<T[Key]>};
-export type ComponentExtensionsJSX<T> = Partial<{ [Key in Diff<keyof T, keyof Composite>]: UnpackListeners<T[Key]>}>;
-
-/**
- * Use this type to enabled proper JSX support for your component like this:
- * ```ts
- * ‍@component class MyComponent extends Composite {
- *   private jsxProperties: ComponentJSX<this>;
- * }
- * ```
- */
-export type ComponentJSX<T> = JSX.CompositeProperties & ComponentExtensionsJSX<T>;
