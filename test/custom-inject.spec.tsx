@@ -1,6 +1,6 @@
 import 'mocha';
 import 'sinon';
-import { Composite, CompositeProperties } from 'tabris';
+import { Composite, Properties } from 'tabris';
 import { create, inject, injectable, injectionHandler, injector, JSX, resolve, shared } from './customInjector';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox } from './test';
@@ -80,7 +80,7 @@ describe('custom injector inject', () => {
     class MyCustomWidget extends Composite {
 
       constructor(
-        properties: CompositeProperties,
+        properties: Properties<Composite>,
         @inject public service: MyServiceClass
       ) {
         super(properties);

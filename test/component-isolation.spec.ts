@@ -1,7 +1,6 @@
 import 'mocha';
 import 'sinon';
-import { Button, Composite, Widget } from 'tabris';
-import { CompositeProperties } from 'tabris';
+import { Button, Composite, Properties, Widget } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox } from './test';
 import { component, getById } from '../src';
@@ -13,7 +12,7 @@ class CustomComponent extends Composite {
   @getById
   public readonly foo3: Widget;
 
-  constructor(properties: CompositeProperties, containSelf: boolean) {
+  constructor(properties: Properties<Composite>, containSelf: boolean) {
     super(properties);
     this.append(
       new Composite({class: 'foo', id: 'foo1'}),
