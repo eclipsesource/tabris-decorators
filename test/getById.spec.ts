@@ -86,6 +86,7 @@ describe('getById', () => {
         @getById public readonly button1: Button;
       }
       clock.tick(now + 100);
+      // tslint:disable-next-line:no-console
       expect(console.error).to.have.been.calledWith(
        'Decorator "getById" could not resolve property "button1": FailedComponent is not a @component'
       );

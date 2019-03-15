@@ -5,7 +5,7 @@ import { Page } from 'tabris';
 import { Tab } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { restoreSandbox, stub } from './test';
-import { ChangeEvent, ChangeListeners, ComponentJSX, event, ExtendedEvent } from '../src';
+import { ChangeEvent, ChangeListeners, event, ExtendedEvent } from '../src';
 import { Listeners } from '../src';
 // tslint:disable:no-unused-expression
 
@@ -18,7 +18,7 @@ describe('event', () => {
   }
 
   // tslint:disable-next-line:variable-name only-arrow-functions no-empty no-any
-  const PseudoNativeObject: {new(): NativeObject} = function() {} as any;
+  const PseudoNativeObject: new() => NativeObject = function() {} as any;
   PseudoNativeObject.prototype = NativeObject.prototype;
 
   let listener: () => void;

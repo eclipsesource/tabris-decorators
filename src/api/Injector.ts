@@ -113,7 +113,7 @@ export class Injector {
    * the injection value.
    */
   public create = <T, U, V, W>(
-    type: {new(arg1?: U, arg2?: V, arg3?: W, ...remaining: any[]): T; },
+    type: new(arg1?: U, arg2?: V, arg3?: W, ...remaining: any[]) => T,
     arg1?: U,
     arg2?: V,
     arg3?: W,

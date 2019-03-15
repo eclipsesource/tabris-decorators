@@ -5,7 +5,8 @@
     "target": "es6",
     "lib": ["es6", "es2015.promise" ],
     "outDir": "./dist/",
-    "rootDir": "./src/"
+    "rootDir": "./src/",
+    "noUnusedLocals": true
   },
   "include": [
     "./src/**/*.ts"

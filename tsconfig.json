@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es5",
+    "target": "es6",
     "lib": ["es6", "es2015.promise" ],
     "outDir": "./dist/",
     "rootDir": "./src/",
@@ -9,7 +9,8 @@
     "strictNullChecks": true,
     "alwaysStrict": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "noUnusedLocals": true
   },
   "include": [
     "./src/**/*.ts"

@@ -1,4 +1,4 @@
-import { CreateFunction, Injection, injector, ResolveFunction } from './api/Injector';
+import { CreateFunction, injector, ResolveFunction } from './api/Injector';
 import { InjectDecorator } from './decorators/inject';
 import { InjectableDecorator } from './decorators/injectable';
 import { InjectionHandlerDecorator } from './decorators/injectionHandler';

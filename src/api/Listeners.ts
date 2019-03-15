@@ -162,6 +162,7 @@ class DefaultListenerStore implements UntypedListenerStore {
     this.listeners.forEach((value, listener) => {
       let result = listener(ev);
       if (result instanceof Promise) {
+        // tslint:disable-next-line:no-console
         result.catch(console.error);
       }
     });
