@@ -1,11 +1,8 @@
 import { expect } from 'chai';
-import 'tabris';
-import { Composite, NativeObject } from 'tabris';
-import { Page } from 'tabris';
-import { Tab } from 'tabris';
-import * as tabrisMock from './tabris-mock';
+import { NativeObject } from 'tabris';
+import './tabris-mock';
 import { restoreSandbox, stub } from './test';
-import { ChangeEvent, ChangeListeners, event, ExtendedEvent } from '../src';
+import { event } from '../src';
 import { Listeners } from '../src';
 // tslint:disable:no-unused-expression
 

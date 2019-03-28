@@ -3,7 +3,7 @@ import 'sinon';
 import { Composite, TextInput, TextView, WidgetCollection } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox, stub } from './test';
-import { component, property, to } from '../src';
+import { component, injector, property, to } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
 
 describe('component', () => {
@@ -40,6 +40,7 @@ describe('component', () => {
   let textView: TextView;
 
   beforeEach(() => {
+    JSX.install(injector.jsxProcessor);
     widget = new CustomComponent();
   });
 

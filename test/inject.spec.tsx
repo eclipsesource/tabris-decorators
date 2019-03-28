@@ -1,7 +1,7 @@
 import 'mocha';
 import 'sinon';
 import { SinonSpy } from 'sinon';
-import { Composite, Properties, TextInput, WidgetCollection } from 'tabris';
+import { Composite, Constraint, Properties, TextInput, WidgetCollection } from 'tabris';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox, spy } from './test';
 import { Constructor, create, inject, injectable, Injection, injectionHandler, injector, shared } from '../src';
@@ -314,9 +314,10 @@ describe('inject', () => {
     let widget: MyCustomWidget;
 
     beforeEach(() => {
+      JSX.install(injector.jsxProcessor);
       stringHandler = injection => new String(injection.param);
       widget = (
-      <MyCustomWidget left={3} top={4} >
+      <MyCustomWidget left={3} top={4}>
         <Composite/>
       </MyCustomWidget>
       );
@@ -343,8 +344,8 @@ describe('inject', () => {
     });
 
     it('passes attributes', () => {
-      expect(widget.left).to.equal(3);
-      expect(widget.top).to.equal(4);
+      expect((widget.left as Constraint).offset).to.equal(3);
+      expect((widget.top as Constraint).offset).to.equal(4);
     });
 
     it('passes children', () => {
@@ -352,8 +353,8 @@ describe('inject', () => {
     });
 
     it('does not interfere with stateless functional component', () => {
-      function ComponentFoo(prop: {bar: string, children?: string|string[]}, children: string ) {
-        return new WidgetCollection([new TextInput({text: prop.bar}), new TextInput({text: children[0]})]);
+      function ComponentFoo(prop: {bar: string, children: string[]}) {
+        return new WidgetCollection([new TextInput({text: prop.bar}), new TextInput({text: prop.children[0]})]);
       }
       let ti = <ComponentFoo bar='foo'>
         hello

@@ -79,4 +79,6 @@ export const injectionHandler: InjectionHandlerDecorator = injector.injectionHan
 export const create: CreateFunction = injector.create;
 export const resolve: ResolveFunction = injector.resolve;
 
-(JSX as any) = injector.JSX;
+if (typeof JSX === 'object') { // check for unit testing only
+  JSX.install(injector.jsxProcessor);
+}

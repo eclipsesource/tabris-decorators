@@ -1,7 +1,6 @@
 import 'mocha';
 import 'sinon';
 import 'tabris';
-import './test';
 import { expect } from './test';
 import { checkType } from '../src';
 // tslint:disable:no-construct

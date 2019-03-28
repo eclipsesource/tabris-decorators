@@ -1,7 +1,7 @@
 import 'mocha';
 import 'sinon';
 import { Composite, Properties } from 'tabris';
-import { create, inject, injectable, injectionHandler, injector, JSX, resolve, shared } from './customInjector';
+import { create, inject, injectable, injectionHandler, injector, jsxProcessor as JSX, resolve, shared } from './customInjector';
 import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox } from './test';
 import { Injection, injector as orgInjector, Injector } from '../src';
@@ -94,7 +94,7 @@ describe('custom injector inject', () => {
 
     it('fails with default JSX object', () => {
       // tslint:disable-next-line:no-shadowed-variable
-      let JSX = orgInjector.JSX;
+      let JSX = orgInjector.jsxProcessor;
       expect(() => {
         <MyCustomWidget/>;
       }).to.throw(

@@ -1,6 +1,7 @@
 import { expect, use } from 'chai';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
+import './tabris-mock';
 /* tslint:disable no-namespace */
 
 use(sinonChai);
