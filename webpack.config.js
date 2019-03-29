@@ -5,7 +5,7 @@ module.exports = {
   externals: ['tabris', 'reflect-metadata'],
   output: {
     libraryTarget: 'commonjs2',
-    filename: "dist/index.js",
+    filename: "index.js",
   },
   resolve: { extensions: [".ts", ".tsx", ".js"] },
   module: {
