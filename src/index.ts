@@ -15,7 +15,6 @@ export * from './decorators/event';
 export * from './api/checkType';
 export * from './api/Injector';
 export * from './api/interfaces';
-export * from './api/Listeners';
 export * from './api/to';
 
 /**

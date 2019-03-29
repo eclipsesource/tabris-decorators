@@ -1,9 +1,8 @@
 import { expect } from 'chai';
-import { NativeObject } from 'tabris';
+import { Listeners, NativeObject } from 'tabris';
 import './tabris-mock';
 import { restoreSandbox, stub } from './test';
 import { event } from '../src';
-import { Listeners } from '../src';
 // tslint:disable:no-unused-expression
 
 describe('event', () => {

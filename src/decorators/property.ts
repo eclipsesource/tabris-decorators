@@ -1,7 +1,6 @@
-import { Widget } from 'tabris';
-import { ChangeEvent } from '../api/ChangeEvent';
+import { Listeners, Widget } from 'tabris';
 import { checkType } from '../api/checkType';
-import { Listeners, TypeGuard } from '../index';
+import { TypeGuard } from '../index';
 import { applyDecorator, Constructor, getPropertyStore, getPropertyType, markAsUnchecked } from '../internals/utils';
 
 export type CustomPropertyDecorator = (target: Widget, property: string | symbol) => void;
@@ -69,7 +68,7 @@ export function property(...args: any[]): PropertyDecorator | void {
           getPropertyStore(this).set(propertyName, value);
           const listeners: any = target[listenerProperty];
           if (target instanceof Widget) {
-            target.trigger(changeEvent, new ChangeEvent(this, changeEvent, value));
+            target.trigger(changeEvent, {value});
           } else if (listeners && listeners.original instanceof Listeners) {
             listeners.trigger({value});
           }
