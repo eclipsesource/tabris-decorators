@@ -4,3 +4,5 @@ node_modules/
 .project
 .rpt2_cache
 tabris-js-remote*.tgz
+examples/**/package-lock.json
+examples/**/*.cmd
