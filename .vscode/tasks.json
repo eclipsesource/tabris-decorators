@@ -1,27 +1,27 @@
 {
-  "version": "0.1.0",
-  "command": "npm",
-  "isShellCommand": true,
-  "showOutput": "always",
-  "suppressTaskName": true,
+  "version": "2.0.0",
+  "presentation": {
+    "reveal": "always",
+    "focus": false,
+    "panel": "dedicated",
+    "showReuseMessage": false
+  },
+  "type": "shell",
   "tasks": [
     {
-      "taskName": "Test (file)",
+      "label": "Test (file)",
+      "command": "npm",
       "args": ["run", "test:file", "${file}"],
-      "isTestCommand": true
+      "type": "shell",
+      "group": {
+        "isDefault": true,
+        "kind": "test"
+      }
     },
     {
-      "taskName": "Test (all)",
-      "args": ["test"]
-    },
-    {
-      "taskName": "Watch",
-      "args": ["run", "watch"],
-      "isBackground": true,
-      "problemMatcher": ["$tsc-watch"]
-    },
-    {
-      "taskName": "Publish",
+      "label": "Publish",
+      "type": "shell",
+      "command": "npm",
       "args": ["run", "safePublish"]
     }
   ]
