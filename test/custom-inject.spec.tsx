@@ -1,8 +1,8 @@
 import 'mocha';
 import 'sinon';
-import { Composite, Properties } from 'tabris';
+import { Composite, Properties, tabris } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
 import { create, inject, injectable, injectionHandler, injector, jsxProcessor as JSX, resolve, shared } from './customInjector';
-import * as tabrisMock from './tabris-mock';
 import { expect, restoreSandbox } from './test';
 import { Injection, injector as orgInjector, Injector } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
@@ -88,8 +88,8 @@ describe('custom injector inject', () => {
 
     }
 
-    afterEach(() => {
-      tabrisMock.reset();
+    beforeEach(() => {
+      tabris._init(new ClientMock());
     });
 
     it('fails with default JSX object', () => {

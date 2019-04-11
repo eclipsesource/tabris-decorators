@@ -1,8 +1,8 @@
 import 'mocha';
 import 'sinon';
-import { ChangeListeners, Composite, Properties } from 'tabris';
-import * as tabrisMock from './tabris-mock';
-import { expect, restoreSandbox, stub } from './test';
+import { ChangeListeners, Composite, Properties, tabris } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
+import { expect, stub } from './test';
 import { event, property } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
@@ -40,9 +40,8 @@ describe('property', () => {
 
   }
 
-  afterEach(() => {
-    tabrisMock.reset();
-    restoreSandbox();
+  beforeEach(() => {
+    tabris._init(new ClientMock());
   });
 
   it('support set via constructor', () => {

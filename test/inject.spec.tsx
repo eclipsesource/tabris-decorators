@@ -1,8 +1,8 @@
 import 'mocha';
 import 'sinon';
 import { SinonSpy } from 'sinon';
-import { Composite, Constraint, Properties, TextInput, WidgetCollection } from 'tabris';
-import * as tabrisMock from './tabris-mock';
+import { Composite, Constraint, Properties, tabris, TextInput, WidgetCollection } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox, spy } from './test';
 import { Constructor, create, inject, injectable, Injection, injectionHandler, injector, shared } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct max-file-line-count max-line-length*/
@@ -98,6 +98,7 @@ describe('inject', () => {
   injector.addHandler(Boolean, (injection: Injection) => booleanHandler(injection));
 
   beforeEach(() => {
+    tabris._init(new ClientMock());
     serviceHandler = spy(({param}) => new MyServiceClass(param));
     numberHandler = (injection) => 0;
     stringHandler = (injection) => '';
@@ -321,10 +322,6 @@ describe('inject', () => {
         <Composite/>
       </MyCustomWidget>
       );
-    });
-
-    afterEach(() => {
-      tabrisMock.reset();
     });
 
     it('injects parameterless', () => {

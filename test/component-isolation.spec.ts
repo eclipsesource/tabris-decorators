@@ -1,7 +1,7 @@
 import 'mocha';
 import 'sinon';
-import { Button, Composite, Properties, Widget } from 'tabris';
-import * as tabrisMock from './tabris-mock';
+import { Button, Composite, Properties, tabris, Widget } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox } from './test';
 import { component, getById } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
@@ -43,13 +43,13 @@ describe('component', () => {
   let parent: Composite;
 
   beforeEach(() => {
+    tabris._init(new ClientMock());
     parent = new Composite();
     widget = new CustomComponent({}, true);
     parent.append(widget);
   });
 
   afterEach(() => {
-    tabrisMock.reset();
     restoreSandbox();
   });
 

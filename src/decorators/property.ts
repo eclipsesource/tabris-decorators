@@ -3,7 +3,7 @@ import { checkType } from '../api/checkType';
 import { TypeGuard } from '../index';
 import { applyDecorator, Constructor, getPropertyStore, getPropertyType, markAsUnchecked } from '../internals/utils';
 
-export type CustomPropertyDecorator = (target: Widget, property: string | symbol) => void;
+export type CustomPropertyDecorator = (target: object, property: string | symbol) => void;
 
 // Duplicate JsDoc is needed because of the function overload:
 

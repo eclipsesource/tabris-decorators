@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { Listeners, NativeObject } from 'tabris';
-import './tabris-mock';
+import { Listeners, NativeObject, tabris } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
 import { restoreSandbox, stub } from './test';
 import { event } from '../src';
 // tslint:disable:no-unused-expression
@@ -21,6 +21,7 @@ describe('event', () => {
   let typedListener: (ev: MyEvent) => void;
 
   beforeEach(() => {
+    tabris._init(new ClientMock());
     listener = stub();
     typedListener = stub();
   });
@@ -29,7 +30,7 @@ describe('event', () => {
 
   it('injects working Listeners', () => {
     class PlainClass {
-      @event public readonly onMyEvent: Listeners<{}>;
+      @event public readonly onMyEvent: Listeners<{target: PlainClass}>;
     }
 
     let object = new PlainClass();
