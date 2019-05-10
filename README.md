@@ -1,4 +1,4 @@
-# TypeScript Decorators for Tabris.js
+# TypeScript Decorators for Tabris.js 3
 
 This module provides __databinding__, __extended event handling__, and  __dependency injection__ for [Tabris.js](http://tabrisjs.com) based on [TypeScript decorators](http://www.typescriptlang.org/docs/handbook/decorators.html).
 
