@@ -1,12 +1,8 @@
 import { expect } from 'chai';
-import 'tabris';
-import { Composite, NativeObject } from 'tabris';
-import { Page } from 'tabris';
-import { Tab } from 'tabris';
-import * as tabrisMock from './tabris-mock';
+import { Listeners, NativeObject, tabris } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
 import { restoreSandbox, stub } from './test';
-import { ChangeEvent, ChangeListeners, ComponentJSX, event, ExtendedEvent } from '../src';
-import { Listeners } from '../src';
+import { event } from '../src';
 // tslint:disable:no-unused-expression
 
 describe('event', () => {
@@ -18,13 +14,14 @@ describe('event', () => {
   }
 
   // tslint:disable-next-line:variable-name only-arrow-functions no-empty no-any
-  const PseudoNativeObject: {new(): NativeObject} = function() {} as any;
+  const PseudoNativeObject: new() => NativeObject = function() {} as any;
   PseudoNativeObject.prototype = NativeObject.prototype;
 
   let listener: () => void;
   let typedListener: (ev: MyEvent) => void;
 
   beforeEach(() => {
+    tabris._init(new ClientMock());
     listener = stub();
     typedListener = stub();
   });
@@ -33,7 +30,7 @@ describe('event', () => {
 
   it('injects working Listeners', () => {
     class PlainClass {
-      @event public readonly onMyEvent: Listeners<{}>;
+      @event public readonly onMyEvent: Listeners<{target: PlainClass}>;
     }
 
     let object = new PlainClass();
@@ -123,68 +120,6 @@ describe('event', () => {
         @event public readonly myEvent: Listeners<{}>;
       }
     }).to.throw(/myEvent/);
-  });
-
-  describe('in JSX', () => {
-
-    beforeEach(() => {
-      tabrisMock.reset();
-    });
-
-    it('ComponentJSX auto converts Listeners on composite to Listener in JSX', () => {
-      class MyComponent extends Composite {
-        @event public onMyEvent: Listeners<{foo: string}>;
-        @event public onMyChangeEvent: ChangeListeners<string>;
-        private jsxProperties: ComponentJSX<this>;
-      }
-      let event1: ExtendedEvent<{foo: string}>;
-      let event2: ChangeEvent<string>;
-
-      let myComponent: MyComponent
-        = <MyComponent padding={10} onMyEvent={ev => event1 = ev} onMyChangeEvent={ev => event2 = ev}/>;
-      myComponent.onMyEvent.trigger({foo: 'bar'});
-      myComponent.onMyChangeEvent.trigger({value: 'bar'});
-
-      expect(event1.foo).to.equal('bar');
-      expect(event2.value).to.equal('bar');
-    });
-
-    it('ComponentJSX auto converts Listeners on page to Listener in JSX', () => {
-      class MyComponent extends Page {
-        @event public onMyEvent: Listeners<{foo: string}>;
-        @event public onMyChangeEvent: ChangeListeners<string>;
-        private jsxProperties: ComponentJSX<this>;
-      }
-      let event1: ExtendedEvent<{foo: string}>;
-      let event2: ChangeEvent<string>;
-
-      let myComponent: MyComponent
-        = <MyComponent title='foo' onMyEvent={ev => event1 = ev} onMyChangeEvent={ev => event2 = ev} />;
-      myComponent.onMyEvent.trigger({foo: 'bar'});
-      myComponent.onMyChangeEvent.trigger({value: 'bar'});
-
-      expect(event1.foo).to.equal('bar');
-      expect(event2.value).to.equal('bar');
-    });
-
-    it('ComponentJSX auto converts Listeners on page to Listener in JSX', () => {
-      class MyComponent extends Tab {
-        @event public onMyEvent: Listeners<{foo: string}>;
-        @event public onMyChangeEvent: ChangeListeners<string>;
-        public jsxProperties: ComponentJSX<this>;
-      }
-      let event1: ExtendedEvent<{foo: string}>;
-      let event2: ChangeEvent<string>;
-
-      let myComponent: MyComponent
-        = <MyComponent title='foo' onMyEvent={ev => event1 = ev} onMyChangeEvent={ev => event2 = ev}/>;
-      myComponent.onMyEvent.trigger({foo: 'bar'});
-      myComponent.onMyChangeEvent.trigger({value: 'bar'});
-
-      expect(event1.foo).to.equal('bar');
-      expect(event2.value).to.equal('bar');
-    });
-
   });
 
 });

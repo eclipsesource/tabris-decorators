@@ -1,8 +1,8 @@
 import 'mocha';
 import 'sinon';
-import { Composite, CompositeProperties } from 'tabris';
-import { create, inject, injectable, injectionHandler, injector, JSX, resolve, shared } from './customInjector';
-import * as tabrisMock from './tabris-mock';
+import { Composite, Properties, tabris } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
+import { create, inject, injectable, injectionHandler, injector, jsxProcessor, resolve, shared } from './customInjector';
 import { expect, restoreSandbox } from './test';
 import { Injection, injector as orgInjector, Injector } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
@@ -80,7 +80,7 @@ describe('custom injector inject', () => {
     class MyCustomWidget extends Composite {
 
       constructor(
-        properties: CompositeProperties,
+        properties: Properties<Composite>,
         @inject public service: MyServiceClass
       ) {
         super(properties);
@@ -88,13 +88,13 @@ describe('custom injector inject', () => {
 
     }
 
-    afterEach(() => {
-      tabrisMock.reset();
+    beforeEach(() => {
+      tabris._init(new ClientMock());
     });
 
     it('fails with default JSX object', () => {
       // tslint:disable-next-line:no-shadowed-variable
-      let JSX = orgInjector.JSX;
+      let JSX = orgInjector.jsxProcessor;
       expect(() => {
         <MyCustomWidget/>;
       }).to.throw(
@@ -104,6 +104,8 @@ describe('custom injector inject', () => {
     });
 
     it('works with custom JSX object', () => {
+      // tslint:disable-next-line:no-shadowed-variable
+      let JSX = injector.jsxProcessor;
       let widget: MyCustomWidget = <MyCustomWidget/>;
       expect(widget.service).to.be.instanceOf(MyServiceClass);
     });

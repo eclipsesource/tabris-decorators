@@ -1,14 +1,14 @@
 import 'mocha';
 import 'sinon';
-import { Composite, CompositeProperties } from 'tabris';
-import * as tabrisMock from './tabris-mock';
-import { expect, restoreSandbox, stub } from './test';
-import { ChangeListeners, event, property } from '../src';
+import { ChangeListeners, Composite, Properties, tabris } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
+import { expect, stub } from './test';
+import { event, property } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 describe('property', () => {
 
-  type CustomComponentProperties = CompositeProperties & {foo?: string, bar?: number};
+  type CustomComponentProperties = Properties<Composite> & {foo?: string, bar?: number};
 
   class CustomComponent extends Composite {
 
@@ -40,9 +40,8 @@ describe('property', () => {
 
   }
 
-  afterEach(() => {
-    tabrisMock.reset();
-    restoreSandbox();
+  beforeEach(() => {
+    tabris._init(new ClientMock());
   });
 
   it('support set via constructor', () => {
@@ -72,7 +71,7 @@ describe('property', () => {
     let listener = stub();
     class MyModel {
       @property public myBool: boolean = false;
-      @event public onMyBoolChanged: ChangeListeners<boolean>;
+      @event public onMyBoolChanged: ChangeListeners<MyModel, 'myBool'>;
     }
     let myModel = new MyModel();
     myModel.onMyBoolChanged(listener);
@@ -89,7 +88,7 @@ describe('property', () => {
     let listener = stub();
     class MyModel {
       @property public myBool: boolean = false;
-      @event public onOtherPropChanged: ChangeListeners<boolean>;
+      @event public onOtherPropChanged: ChangeListeners<MyModel, 'myBool'>;
     }
     let myModel = new MyModel();
     myModel.onOtherPropChanged(listener);

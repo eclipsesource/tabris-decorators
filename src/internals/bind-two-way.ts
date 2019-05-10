@@ -1,5 +1,4 @@
-import { Widget, WidgetCollection } from 'tabris';
-import { ChangeEvent } from '../api/ChangeEvent';
+import { PropertyChangedEvent, Widget, WidgetCollection } from 'tabris';
 import { checkType } from '../api/checkType';
 import { TypeGuard } from '../index';
 import { BaseConstructor, checkPathSyntax, isAppended } from '../internals/utils';
@@ -41,7 +40,7 @@ export function createBoundProperty(
         typeChecker(value);
         if (!isAppended(this)) {
           getPropertyStore(this).set(baseProperty, value);
-          this.trigger(binding.baseChangeEvent, new ChangeEvent(this, binding.baseChangeEvent, value));
+          this.trigger(binding.baseChangeEvent, {value});
           return;
         }
         applyValue(this, binding, value);
@@ -102,23 +101,23 @@ function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
     const initialValue = child[binding.targetProperty];
     binding.basePropertyChecker(initialValue);
     propertyStore.set(binding.fallbackValueKey, initialValue);
-    child.on(binding.targetChangeEvent, ({value}) => {
+    child.on({[binding.targetChangeEvent]: ({value}: PropertyChangedEvent<any, any>) => {
       try {
         binding.basePropertyChecker(value);
-        base.trigger(binding.baseChangeEvent, new ChangeEvent(base, binding.baseChangeEvent, value));
+        base.trigger(binding.baseChangeEvent, {value});
       } catch (ex) {
         let action = `update ${child.constructor.name} property "${binding.targetProperty}"`;
         throw new Error(getBindingFailedErrorMessage(binding, action, ex)
         );
       }
-    });
+    }});
     if (propertyStore.has(binding.baseProperty)) {
       applyValue(base, binding, propertyStore.get(binding.baseProperty));
       propertyStore.delete(binding.baseProperty);
     } else {
       base.trigger(
         binding.baseChangeEvent,
-        new ChangeEvent(base, binding.baseChangeEvent, child[binding.targetProperty])
+        {value: child[binding.targetProperty]}
       );
     }
   } catch (ex) {
@@ -146,7 +145,7 @@ function getBindingFailedErrorMessage(binding: TwoWayBinding, action: string, ex
   return `Binding "${binding.baseProperty}" <-> "${binding.path}" failed to ${action}: ${ex.message}`;
 }
 
-function createTypeChecker(type: BaseConstructor<any>, typeGuard: (v: any) => void) {
+function createTypeChecker(type: BaseConstructor<any>, typeGuard: (v: any) => boolean) {
   if (typeGuard) {
     return (value: any) => {
       if (!typeGuard(value)) {

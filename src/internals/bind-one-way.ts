@@ -46,13 +46,13 @@ function asBinding(value: any): Binding {
 function initOneWayBinding(base: WidgetInterface, binding: OneWayBinding) {
   try {
     checkPropertyExists(base, binding.baseProperty, base.constructor.name);
-    base.on(binding.sourceChangeEvent, ({value}) => {
+    base.on({[binding.sourceChangeEvent]: () => {
       try {
         applyValue(binding, evaluateBinding(base, binding));
       } catch (ex) {
         throwBindingFailedError(binding, ex);
       }
-    });
+    }});
     applyValue(binding, evaluateBinding(base, binding));
   } catch (ex) {
     throwBindingFailedError(binding, ex);

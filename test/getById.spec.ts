@@ -1,15 +1,18 @@
 import 'mocha';
 import { useFakeTimers } from 'sinon';
-import { Button, Composite } from 'tabris';
-import * as tabrisMock from './tabris-mock';
+import { Button, Composite, tabris } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox, spy } from './test';
 import { component, getById } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 describe('getById', () => {
 
+  beforeEach(() => {
+    tabris._init(new ClientMock());
+  });
+
   afterEach(() => {
-    tabrisMock.reset();
     restoreSandbox();
   });
 
@@ -86,6 +89,7 @@ describe('getById', () => {
         @getById public readonly button1: Button;
       }
       clock.tick(now + 100);
+      // tslint:disable-next-line:no-console
       expect(console.error).to.have.been.calledWith(
        'Decorator "getById" could not resolve property "button1": FailedComponent is not a @component'
       );

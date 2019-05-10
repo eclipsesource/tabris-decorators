@@ -76,14 +76,6 @@ myComponent.on('selectionChanged', myListener);
 <MyComponent onSelectionChanged={myListener} />;
 ```
 
-For the JSX syntax you need to declare [jsxProperties](https://tabrisjs.com/documentation/latest/lang.html#jsx) using the `ComponentJSX` interface like this:
-
-```ts
-‍@component class MyComponent extends Composite {
-  private jsxProperties: ComponentJSX<this>;
-}
-```
-
 The listener will _always_ receive an instance of `EventObject` with `target`, `type` and `timeStamp`, as well as additional fields depending on the generic parameter of `Listeners`. _That is true even when `trigger` is not called with an `EventObject` instance._
 
 ### listeners.removeListener(listener: Function)
@@ -176,5 +168,3 @@ In addition to `Listeners<T extends object = {}>` there are a few additional int
 * * Can be used to define a listener method, e.g. `private handleFoo: Listener<CustomData> = ev => {...};`
 * `type ChangeListener<Value, Target = {}> = Listener<ChangeEvent<Value, Target>>;`
 * * Same, just for change events.
-* `type ComponentJSX<T> = JSX.CompositeProperties & ComponentExtensionsJSX<T>;`
-* * Creates a type representing all properties assignable to the component in JSX. It automatically converts all `Listeners` types to `Listener`. See `addListener` above.

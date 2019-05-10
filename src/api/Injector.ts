@@ -56,10 +56,14 @@ export class Injector {
    * This object needs to be present in the module namespace to allow JSX expressions that
    * use this `Injector` instance to fulfill injections. E.g.
    * ```
-   *   const JSX = injector.JSX;
+   *   const JSX = injector.jsxProcessor; // shadows global JSX object
+   * ```
+   * Or to set it as the default for all JSX elements globally:
+   * ```
+   *   JSX.install(injector.jsxProcessor);
    * ```
    */
-  public readonly JSX: ExtendedJSX = new ExtendedJSX(this);
+  public readonly jsxProcessor: ExtendedJSX = new ExtendedJSX(this);
   private handlers: HandlersMap = new Map();
 
   /**
@@ -113,7 +117,7 @@ export class Injector {
    * the injection value.
    */
   public create = <T, U, V, W>(
-    type: {new(arg1?: U, arg2?: V, arg3?: W, ...remaining: any[]): T; },
+    type: new(arg1?: U, arg2?: V, arg3?: W, ...remaining: any[]) => T,
     arg1?: U,
     arg2?: V,
     arg3?: W,

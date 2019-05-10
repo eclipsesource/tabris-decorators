@@ -1,16 +1,19 @@
 import 'mocha';
 import 'sinon';
 import { useFakeTimers } from 'sinon';
-import { Composite, TextInput } from 'tabris';
-import * as tabrisMock from './tabris-mock';
+import { Composite, tabris, TextInput } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox, spy, stub } from './test';
 import { bind, component, property } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
 
 describe('bind', () => {
 
+  beforeEach(() => {
+    tabris._init(new ClientMock());
+  });
+
   afterEach(() => {
-    tabrisMock.reset();
     restoreSandbox();
   });
 
@@ -92,6 +95,7 @@ describe('bind', () => {
         @bind('#textInput1.text') public myText: string;
       }
       clock.tick(now + 100);
+      // tslint:disable-next-line:no-console
       expect(console.error).to.have.been.calledWith(
         'Binding "myText" <-> "#textInput1.text" failed to initialize: FailedComponent is not a @component'
       );

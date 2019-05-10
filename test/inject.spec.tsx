@@ -1,10 +1,8 @@
 import 'mocha';
 import 'sinon';
 import { SinonSpy } from 'sinon';
-import { Composite, CompositeProperties } from 'tabris';
-import { WidgetCollection } from 'tabris';
-import { TextInput } from 'tabris';
-import * as tabrisMock from './tabris-mock';
+import { Composite, Constraint, Properties, tabris, TextInput, WidgetCollection } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox, spy } from './test';
 import { Constructor, create, inject, injectable, Injection, injectionHandler, injector, shared } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct max-file-line-count max-line-length*/
@@ -100,6 +98,7 @@ describe('inject', () => {
   injector.addHandler(Boolean, (injection: Injection) => booleanHandler(injection));
 
   beforeEach(() => {
+    tabris._init(new ClientMock());
     serviceHandler = spy(({param}) => new MyServiceClass(param));
     numberHandler = (injection) => 0;
     stringHandler = (injection) => '';
@@ -298,10 +297,8 @@ describe('inject', () => {
       public foo: string;
       public nonInjected: number;
 
-      private jsxProperties: CompositeProperties;
-
       constructor(
-        properties: CompositeProperties,
+        properties: Properties<Composite>,
         @inject service: MyServiceClass,
         @inject('foo') foo: string,
         nothingToInject: number,
@@ -318,16 +315,13 @@ describe('inject', () => {
     let widget: MyCustomWidget;
 
     beforeEach(() => {
+      JSX.install(injector.jsxProcessor);
       stringHandler = injection => new String(injection.param);
       widget = (
-      <MyCustomWidget left={3} top={4} >
-        <composite/>
+      <MyCustomWidget left={3} top={4}>
+        <Composite/>
       </MyCustomWidget>
       );
-    });
-
-    afterEach(() => {
-      tabrisMock.reset();
     });
 
     it('injects parameterless', () => {
@@ -347,8 +341,8 @@ describe('inject', () => {
     });
 
     it('passes attributes', () => {
-      expect(widget.left).to.equal(3);
-      expect(widget.top).to.equal(4);
+      expect((widget.left as Constraint).offset).to.equal(3);
+      expect((widget.top as Constraint).offset).to.equal(4);
     });
 
     it('passes children', () => {
@@ -356,10 +350,14 @@ describe('inject', () => {
     });
 
     it('does not interfere with stateless functional component', () => {
-      function ComponentFoo(prop: {bar: string}, children: string[] ) {
-        return new WidgetCollection([new TextInput({text: prop.bar}), new TextInput({text: children[0]})]);
+      function ComponentFoo(prop: {bar: string, children: string[]}) {
+        return new WidgetCollection([new TextInput({text: prop.bar}), new TextInput({text: prop.children[0]})]);
       }
-      let ti = <ComponentFoo bar='foo'>hello</ComponentFoo>;
+      let ti = <ComponentFoo bar='foo'>
+        hello
+        {'test'}
+        world
+      </ComponentFoo>;
       expect(ti[0].text).to.equal('foo');
       expect(ti[1].text).to.equal('hello');
     });

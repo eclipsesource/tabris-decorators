@@ -1,0 +1,15 @@
+{
+  "name": "property-change-events",
+  "version": "3.0.0-rc1",
+  "dependencies": {
+    "reflect-metadata": "^0.1.13",
+    "tabris": "3.0.0-rc1",
+    "tabris-decorators": "3.0.0-rc1",
+    "typescript": "3.3.x"
+  },
+  "main": "dist/app.js",
+  "scripts": {
+    "build": "tsc -p .",
+    "watch": "tsc -p . -w --preserveWatchOutput --inlineSourceMap"
+  }
+}

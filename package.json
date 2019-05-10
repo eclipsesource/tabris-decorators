@@ -1,6 +1,6 @@
 {
   "name": "tabris-decorators",
-  "version": "2.7.0",
+  "version": "3.0.0-rc1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "repository": {
@@ -9,9 +9,8 @@
   },
   "license": "BSD-3-Clause",
   "scripts": {
-    "clean": "rm -rf ./dist",
-    "watch": "tsc -w --noEmit -p ./tsconfig.json",
-    "build": "rm -rf dist/ && webpack && npm run dts",
+    "clean": "rm -rf ./dist/*",
+    "build": "rm -rf ./dist/* && webpack --mode=production && npm run dts",
     "dts": "dts-generator --name tabris-decorators --project ./tsconfig-dts.json --out ./dist/index.d.ts --main tabris-decorators/index",
     "test": "npm run lint && ts-mocha -p ./tsconfig-test.json ./test/*.spec.ts ./test/*.spec.tsx",
     "test:file": "ts-mocha -p ./tsconfig-test.json",
@@ -19,30 +18,32 @@
     "safePublish": "npm test && npm run clean && npm run build && npm publish"
   },
   "peerDependencies": {
-    "tabris": "^2.7.0"
+    "tabris": "3.0.0-rc1"
   },
   "devDependencies": {
     "@types/chai": "^3.5.0",
-    "@types/lodash": "^4.13.1",
+    "@types/lodash": "^4.14.123",
     "@types/mocha": "^2.2.41",
     "@types/sinon": "^1.16.0",
-    "@types/sinon-chai": "^2.7.0",
+    "@types/sinon-chai": "^2.7.35",
     "ajv-cli": "^2.1.0",
     "chai": "^3.5.0",
     "dts-generator": "^2.1.0",
-    "mocha": "^3.2.0",
+    "install": "^0.12.2",
+    "mocha": "^6.0.2",
+    "npm": "^6.9.0",
     "sinon": "^1.16.0",
     "sinon-chai": "^2.7.0",
-    "tabris": "^2.7.0-dev.20190211",
-    "ts-loader": "^3.5.0",
-    "ts-mocha": "^1.0.3",
-    "tslint": "^5.3.2",
-    "typescript": "^2.8.1",
-    "uglifyjs-webpack-plugin": "^1.2.4",
-    "webpack": "^3.11.0",
-    "webpack-merge": "^4.1.2"
+    "tabris": "^3.0.0-rc1-dev.20190510",
+    "ts-loader": "^4.0.0",
+    "ts-mocha": "^1.3.0",
+    "tslint": "^5.14.0",
+    "typescript": "3.3.x",
+    "webpack": "^4.0.0",
+    "webpack-cli": "^3.2.3",
+    "webpack-merge": "^4.2.1"
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.10"
+    "reflect-metadata": "^0.1.13"
   }
 }

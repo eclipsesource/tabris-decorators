@@ -1,15 +1,18 @@
 import 'mocha';
 import 'sinon';
-import { Composite, CompositeProperties, TextInput, TextView } from 'tabris';
-import * as tabrisMock from './tabris-mock';
+import { Composite, tabris, TextInput, TextView, WidgetCollection } from 'tabris';
+import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox, stub } from './test';
-import { component, property, to } from '../src';
+import { component, injector, property, to } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
 
 describe('component', () => {
 
+  beforeEach(() => {
+    tabris._init(new ClientMock());
+  });
+
   afterEach(() => {
-    tabrisMock.reset();
     restoreSandbox();
   });
 
@@ -23,7 +26,6 @@ describe('component', () => {
     @property public myText: string = 'foo';
     @property public myNumber: number = 0;
     @property public myItem: Item = null;
-    private readonly jsxProperties: CompositeProperties;
   }
 
   @component
@@ -33,7 +35,6 @@ describe('component', () => {
     public checkedSomeProperty: string | boolean;
     public someField: string;
     @property public numberProperty: number;
-    private readonly jsxProperties: CompositeProperties;
   }
 
   let widget: CustomComponent;
@@ -42,6 +43,7 @@ describe('component', () => {
   let textView: TextView;
 
   beforeEach(() => {
+    JSX.install(injector.jsxProcessor);
     widget = new CustomComponent();
   });
 
@@ -55,13 +57,13 @@ describe('component', () => {
   describe('bind-<property>', () => {
 
     it('applies the current source property value to property of unknown type', () => {
-      widget.append(textInput = <textInput bind-text='myText'/>);
+      widget.append(textInput = <TextInput bind-text='myText'/>);
 
       expect(textInput.text).to.equal('foo');
     });
 
     it('applies changes of source property value', () => {
-      widget.append(textInput = <textInput bind-text='myText'/>);
+      widget.append(textInput = <TextInput bind-text='myText'/>);
 
       widget.myText = 'bar';
 
@@ -69,7 +71,7 @@ describe('component', () => {
     });
 
     it('uses initial target value as fallback when undefined is set', () => {
-      widget.append(textInput = <textInput bind-text='myText' text='foo'/>);
+      widget.append(textInput = <TextInput bind-text='myText' text='foo'/>);
 
       widget.myText = 'bar';
       widget.myText = undefined;
@@ -78,7 +80,7 @@ describe('component', () => {
     });
 
     it('applies null', () => {
-      widget.append(textInput = <textInput bind-text='myText' text='foo'/>);
+      widget.append(textInput = <TextInput bind-text='myText' text='foo'/>);
 
       widget.myText = 'bar';
       widget.myText = null;
@@ -86,15 +88,15 @@ describe('component', () => {
       expect(textInput.text).to.equal('');
     });
 
-    it('works with <widgetCollection>', () => {
-      widget.append(<widgetCollection><textInput bind-text='myText'/></widgetCollection>);
+    it('works with <WidgetCollection>', () => {
+      widget.append(<WidgetCollection><TextInput bind-text='myText'/></WidgetCollection>);
       widget.myText = 'bar';
 
       expect((widget as any)._find().first(TextInput).text).to.equal('bar');
     });
 
     it('ignores detaching the source', () => {
-      widget.append(textInput = <textInput bind-text='myText'/>);
+      widget.append(textInput = <TextInput bind-text='myText'/>);
 
       textInput.detach();
       widget.myText = 'bar';
@@ -113,7 +115,7 @@ describe('component', () => {
 
     it('fails to bind to non-existing base property', () => {
       expect(() => {
-        widget.append(textInput = <textInput bind-text='doesNotExist'/>);
+        widget.append(textInput = <TextInput bind-text='doesNotExist'/>);
       }).to.throw(
         'Binding "text" -> "doesNotExist" failed: CustomComponent does not have a property "doesNotExist"'
       );
@@ -187,7 +189,7 @@ describe('component', () => {
         @property public myText: string = 'foo';
       }
       let widget3 = new NotAComponent();
-      let widget4 = <textView bind-text='myText' /> as TextView;
+      let widget4 = <TextView bind-text='myText' /> as TextView;
       widget3.append(widget4);
       expect(() => {
         widget4.trigger('resize', {target: widget4});
@@ -197,7 +199,7 @@ describe('component', () => {
     });
 
     it('does not throw on appear when applied to a @component', () => {
-      let widget4 = <textView bind-text='myText' /> as TextView;
+      let widget4 = <TextView bind-text='myText' /> as TextView;
       widget.append(widget4);
       expect(() => {
         widget4.trigger('resize', {target: widget4});
@@ -205,7 +207,7 @@ describe('component', () => {
     });
 
     it('can bind to object property', () => {
-      widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
+      widget.append(textInput = <TextInput bind-text='myItem.text' text='foo'/>);
 
       widget.myItem = {text: 'bar', int: 23};
 
@@ -213,7 +215,7 @@ describe('component', () => {
     });
 
     it('ignores changes on bound object', () => {
-      widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
+      widget.append(textInput = <TextInput bind-text='myItem.text' text='foo'/>);
 
       widget.myItem = {text: 'bar', int: 23};
       widget.myItem.text = 'baz';
@@ -222,7 +224,7 @@ describe('component', () => {
     });
 
     it('updates on object replacement', () => {
-      widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
+      widget.append(textInput = <TextInput bind-text='myItem.text' text='foo'/>);
 
       widget.myItem = {text: 'bar', int: 23};
       widget.myItem = {text: 'baz', int: 23};
@@ -231,7 +233,7 @@ describe('component', () => {
     });
 
     it('falls back to initial value on null', () => {
-      widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
+      widget.append(textInput = <TextInput bind-text='myItem.text' text='foo'/>);
 
       widget.myItem = {text: 'foo', int: 23};
       widget.myItem = null;
@@ -240,7 +242,7 @@ describe('component', () => {
     });
 
     it('falls back to initial value on initial value undefined', () => {
-      widget.append(textInput = <textInput bind-text='myItem.text' text='foo'/>);
+      widget.append(textInput = <TextInput bind-text='myItem.text' text='foo'/>);
 
       expect(textInput.text).to.equal('foo');
     });
@@ -248,7 +250,7 @@ describe('component', () => {
     describe('to', () => {
 
       it('applies changes of source property value', () => {
-        widget.append(textInput = <textInput bind-text={to('myText', v => v)} />);
+        widget.append(textInput = <TextInput bind-text={to('myText', v => v)} />);
 
         widget.myText = 'bar';
 
@@ -259,7 +261,7 @@ describe('component', () => {
         const converter = stub().returns('foo');
         widget.myText = 'bar';
 
-        widget.append(textInput = <textInput bind-text={to('myText', converter)} />);
+        widget.append(textInput = <TextInput bind-text={to('myText', converter)} />);
 
         expect(converter).to.have.been.calledOnce;
         expect(converter).to.have.been.calledWith('bar');
@@ -305,13 +307,13 @@ describe('component', () => {
         expect(() => {
           widget.dispose();
           widget = new CustomComponent();
-          widget.append(<textView template-text={path} />);
+          widget.append(<TextView template-text={path} />);
         }).to.throw(`Template binding "text" -> "${path}" failed: ${badPaths[path]}`);
       }
     });
 
     it('applies changes of source property value with template', () => {
-      widget.append(textInput = <textInput template-text='Hello ${myText}!'/>);
+      widget.append(textInput = <TextInput template-text='Hello ${myText}!'/>);
 
       widget.myText = 'bar';
 
@@ -319,7 +321,7 @@ describe('component', () => {
     });
 
     it('converts non-strings', () => {
-      widget.append(textInput = <textInput template-text='Hello ${myNumber}!'/>);
+      widget.append(textInput = <TextInput template-text='Hello ${myNumber}!'/>);
 
       widget.myNumber = 23;
 
@@ -327,7 +329,7 @@ describe('component', () => {
     });
 
     it('fallback value not inserted in template', () => {
-      widget.append(textInput = <textInput template-text='Hello ${myNumber}!' text='no one here'/>);
+      widget.append(textInput = <TextInput template-text='Hello ${myNumber}!' text='no one here'/>);
 
       widget.myNumber = undefined;
 

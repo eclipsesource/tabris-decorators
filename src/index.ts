@@ -1,4 +1,4 @@
-import { CreateFunction, Injection, injector, ResolveFunction } from './api/Injector';
+import { CreateFunction, injector, ResolveFunction } from './api/Injector';
 import { InjectDecorator } from './decorators/inject';
 import { InjectableDecorator } from './decorators/injectable';
 import { InjectionHandlerDecorator } from './decorators/injectionHandler';
@@ -15,7 +15,6 @@ export * from './decorators/event';
 export * from './api/checkType';
 export * from './api/Injector';
 export * from './api/interfaces';
-export * from './api/Listeners';
 export * from './api/to';
 
 /**
@@ -79,4 +78,6 @@ export const injectionHandler: InjectionHandlerDecorator = injector.injectionHan
 export const create: CreateFunction = injector.create;
 export const resolve: ResolveFunction = injector.resolve;
 
-(JSX as any) = injector.JSX;
+if (typeof JSX === 'object') { // check for unit testing only
+  JSX.install(injector.jsxProcessor);
+}

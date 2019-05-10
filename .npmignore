@@ -14,6 +14,6 @@ ts*.json
 tslint.json
 tsconfig*.json
 .npmignore
-package-lock.json
 doc
 webpack.config.js
+examples
