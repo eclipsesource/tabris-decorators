@@ -2,7 +2,7 @@ import 'mocha';
 import 'sinon';
 import { Composite, Properties, tabris } from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { create, inject, injectable, injectionHandler, injector, jsxProcessor, resolve, shared } from './customInjector';
+import { create, inject, injectable, injectionHandler, injector, JSX, resolve, shared } from './customInjector';
 import { expect, restoreSandbox } from './test';
 import { Injection, injector as orgInjector, Injector } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
@@ -105,7 +105,6 @@ describe('custom injector inject', () => {
 
     it('works with custom JSX object', () => {
       // tslint:disable-next-line:no-shadowed-variable
-      let JSX = injector.jsxProcessor;
       let widget: MyCustomWidget = <MyCustomWidget/>;
       expect(widget.service).to.be.instanceOf(MyServiceClass);
     });
