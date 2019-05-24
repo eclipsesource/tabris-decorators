@@ -1,0 +1,55 @@
+---
+---
+# @property
+
+> :point_right: Make sure to first read the introduction to [decorators](./index.md).
+
+Makes the decorated object property fire change events and perform runtime value checks. The property therefore becomes a valid source for one-way data bindings on [`@component`](./@component.md) decorated widgets. The `@property` decorators can be used in any class, not just subclasses of `Widget`. On a non-widget class change events are only fired [if a matching instance of `ChangeListeners` is found](./@event.md):
+
+## @property (no parameter)
+
+Triggers change events and performs implicit runtime checks on any value the property is set to.
+
+```ts
+class Foo {
+  @property public myText: string = 'foo';
+  @event public onMyTextChanged: ChangeListeners<Foo, 'myText'>;
+}
+
+const foo = new Foo();
+foo.onMyTextChanged(ev => console.log(ev.value));
+foo.myText = 'bar'; // logs "bar"
+(foo as any).myText = 23; // throws due to the implicit value check
+```
+
+The implicit runtime check only works with primitive types and classes. [Advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html) and interfaces can not be checked:
+
+```ts
+class Foo {
+  @property public myItem: {bar: string};
+}
+
+const foo = new Foo();
+foo.myItem = {bar: 'foo'}; // OK
+(foo as any).myItem = {foo: 'bar'}; // runtime check passes despite incorrect type
+```
+
+In these cases it is recommended to use a type guard:
+
+## @property(typeGuard: Function)
+
+Like `@property`, but uses the given function (type guard) to perform type checks. The type guard may be more strict than the TypeScript compiler (e.g. allowing only positive numbers where the compiler allows any number), but should never be less strict, though it is technically possible.
+
+The function may return either a boolean (`true` indicates the value passes), or throw an error explaining why the value did not pass.
+
+Example:
+
+```ts
+  @component
+  class CustomComponent extends Composite {
+
+    @property(v => v instanceof Array || (!isNaN(v) && v >= 0))
+    public mixedType: number[] | number = 0;
+
+  }
+```

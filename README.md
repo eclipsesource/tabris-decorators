@@ -6,9 +6,4 @@ An example app using `tabris-decorators` can be found [here](https://github.com/
 
 Feature requests (and bug reports) via [GitHub issues](https://github.com/eclipsesource/tabris-decorators/issues) are very welcome
 
-Documentation:
-
-* [Setup](https://github.com/eclipsesource/tabris-decorators/blob/master/doc/setup.md)
-* [Data Binding](https://github.com/eclipsesource/tabris-decorators/blob/master/doc/data-binding.md)
-* [Event Handling](https://github.com/eclipsesource/tabris-decorators/blob/master/doc/event-handling.md)
-* [Dependency Injection](https://github.com/eclipsesource/tabris-decorators/blob/master/doc/dependency-injection.md)
+Documentation can be found [here](https://github.com/eclipsesource/tabris-decorators/blob/master/doc/index.md)
