@@ -1,0 +1,55 @@
+---
+---
+# @inject
+
+> :point_right: Make sure to first read the introduction to [decorators](./index.md).
+
+`@inject` together with `@injectable` allow for simple [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) ("DI").
+
+## @inject (no parameter)
+
+Decorate a constructor parameter to inject a value based on the type of the parameter, e.g.:
+
+```ts
+import {inject, create} from 'tabris-decorators';
+import {ClassB} from './ClassB';
+
+export class ClassA {
+
+  constructor(@inject b: ClassB) {
+    ...
+  }
+
+}
+```
+
+Where `ClassB` has to be made injectable first via [`@injectable`](./@injectable), [`@shared`](./@shared), [`@injectionHandler`](./@injectionHandler) or by using the [`Injector class`](./Injector.md). To create instances of `ClassA` use the `create` method:
+
+```ts
+import {create} from 'tabris-decorators';
+import {classA} from './ClassA';
+
+const a = create(ClassA);
+```
+
+If `ClassA` itself is injected somewhere the injections are taken care of by `@inject`.
+
+The type of the injection - i.e. the type of the parameter decorated with `@inject` - has to be a class. Interfaces and [advanced types](http://www.typescriptlang.org/docs/handbook/advanced-types.html) are not supported. However, abstract classes and [classes merged with interfaces](https://www.typescriptlang.org/docs/handbook/declaration-merging.html) work. Since classes [can be used like interfaces](https://www.typescriptlang.org/docs/handbook/classes.html#using-a-class-as-an-interface) most traditional dependency injection patterns can still be used.
+
+### JSX
+
+Widgets (custom components) may also use `@inject`. If they are used as a JSX element all injections are automatically resolved using the global [injector](./Injector.md). However, **the first constructor parameter can then not be used for injection** since this is where the properties object is passed to by the JSX processor.
+
+## @inject(param: InjectionParameter)
+
+Like `@inject`, but allows to pass on a value (any object, string, number or boolean) to the injection handler. For further information see [`@injectable`](./@injectable) and [`@injectionHandler`](./@injectionHandler).
+
+```ts
+class Foo {
+
+  constructor(@inject('some value') a: ClassA) {
+    ...
+  }
+
+}
+```
