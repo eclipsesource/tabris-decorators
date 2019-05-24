@@ -51,7 +51,7 @@ describe('event', () => {
 
   it('synthesizes tabris events on NativeObjects', () => {
     class MyNativeObject extends PseudoNativeObject {
-      @event public readonly onMyEvent: Listeners<{}>;
+      @event public readonly onMyEvent: Listeners<{target: MyNativeObject}>;
     }
 
     let object = new MyNativeObject();
@@ -63,7 +63,7 @@ describe('event', () => {
 
   it('receives events on NativeObjects', () => {
     class MyNativeObject extends PseudoNativeObject {
-      @event public readonly onMyEvent: Listeners<{}>;
+      @event public readonly onMyEvent: Listeners<{target: MyNativeObject}>;
     }
 
     let object = new MyNativeObject();
@@ -104,20 +104,20 @@ describe('event', () => {
     expect(() => {
       // tslint:disable-next-line:no-unused-variable
       class PlainClass {
-        @event public readonly onmyEvent: Listeners<{}>;
+        @event public readonly onmyEvent: Listeners<{target: PlainClass}>;
       }
     }).to.throw(/onmyEvent/);
     expect(() => {
       // tslint:disable-next-line:no-unused-variable
       class PlainClass {
         // tslint:disable-next-line:variable-name
-        @event public readonly MyEvent: Listeners<{}>;
+        @event public readonly MyEvent: Listeners<{target: PlainClass}>;
       }
     }).to.throw(/MyEvent/);
     expect(() => {
       // tslint:disable-next-line:no-unused-variable
       class PlainClass {
-        @event public readonly myEvent: Listeners<{}>;
+        @event public readonly myEvent: Listeners<{target: PlainClass}>;
       }
     }).to.throw(/myEvent/);
   });
