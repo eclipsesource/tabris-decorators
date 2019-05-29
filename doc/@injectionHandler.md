@@ -2,15 +2,15 @@
 ---
 # @injectionHandler
 
-> :point_right: Make sure to first read the introduction to [decorators](./decorators.md) and the [`@inject`](./@inject.md) documentation.
+> :point_right: Make sure to first read the introduction to [decorators](./index.md) and the [`@inject`](./@inject.md) documentation.
 
 Registers a method as an injection handler, allowing it to fulfill injections explicitly. It is essentially a more powerful alternative to [`@injectable`](./@injectable.md).
 
-## @injectionHandler(targetType: Class)
+## @injectionHandler(targetType)
 
-May be applied to a **static method** to handle injections for the `targetType` directly. The method is passed an `Injection` object and must return a value compatible to the given type or `null`/`undefined`. If no compatible value is returned the next injection handler is called. If no injection handler returns a compatible value the injection fails. (`@injectable` creates an injection handler.)
+Where `targetType` can be any class.
 
-The interface of `Injection` is:
+May be applied to a **static** method to handle injections for the `targetType` directly. The method return a value compatible to the given type or `null`/`undefined` to leave the injection unhandled. The method is also passed an `Injection` object of the following type:
 ```ts
 {
   type: Class,
@@ -27,7 +27,7 @@ Where...
 Example:
 
 ```ts
-import {injectionHandler, injection} from 'tabris-decorators';
+import {injectionHandler, Injection} from 'tabris-decorators';
 
 class MyInjectionHandler {
 
@@ -39,6 +39,10 @@ class MyInjectionHandler {
 }
 ```
 
-## @injectionHandler({targetType: Class, priority?: number})
+If no compatible value is returned the next injection handler is called. If no injection handler returns a compatible value the injection fails. (`@injectable` implicitly creates an injection handler.) A single class may hold any number of injection handler methods. The name of an injection handler methods is not relevant.
 
-Like `@injectionHandler(targetType: Class)`, but allows to give a priority, just like [`@injectable({priority: number})`](./@injectable.md). The priority controls in which order injection handlers for the same target type are called, with the highest priority handler being called first.
+## @injectionHandler({targetType, priority?})
+
+Where `targetType` can be any class and priority - if given - has to be a `number`.
+
+Like `@injectionHandler(targetType)`, but allows to give a priority, just like [`@injectable({priority})`](./@injectable.md). The priority controls in which order injection handlers for the same target type are called, with the highest priority handler being called first.

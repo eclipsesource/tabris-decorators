@@ -45,9 +45,9 @@ Install the `tabris-decorators` module itself:
 
 `npm install tabris-decorators`.
 
-Edit your `tsconfig.json` to enable the compiler options `experimentalDecorators` and `emitDecoratorMetadata`. Also ensure the `jsx` and `jsxFactory` options are correctly set:
+Check your `tsconfig.json` to ensure the compiler options `experimentalDecorators`, `emitDecoratorMetadata`, `jsx` and `jsxFactory` options are set as below:
 
-```json
+```js
 {
   "compilerOptions": {
     "module": "commonjs",

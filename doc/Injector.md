@@ -2,22 +2,15 @@
 ---
 # Injector
 
-> :point_right: Make sure to first read the introduction to [decorators](./decorators.md) and the [`@inject`](./@inject.md) documentation.
+> :point_right: Make sure to first read the introduction to [decorators](./index.md) and the [`@inject`](./@inject.md) documentation.
 
-All injection handler created by `@injectable`, `@shared` and `@injectionHandler` are managed in a global `Injector` instance exported as `injector`. It provides methods - `create` and `resolve` - for resolving injections, which, like the decorators, are also exported directly from `'tabris-decorators'`:
+All injection handler created by `@injectable`, `@shared` and `@injectionHandler` are registered in a global `Injector` instance exported as `injector`.
 
-```ts
-import {injector, create, resolve, injectable} from 'tabris-decorators';
+## create(type, ...parameters)
 
-console.log(injector.create === create);
-console.log(injector.resolve === resolve);
-console.log(injector.injectable === injectable);
-// etc...
-```
+Where `type` can be any class and `parameters` (optional) are of the same type as the constructor parameters.
 
-## create(type: Class, ...parameters: any[])
-
-Creates an instance of the given type and fulfils all the constructor injections. *The type itself does not have to be (and typically isn't) injectable*. The parameters given after the type will be passed to the constructor, while every remaining parameter of the constructor will be injected (if decorated with [`@inject`](./@inject.md)).
+Creates an instance of the given type and fulfils all the constructor injections. *The type itself does not have to be injectable*. If it was the `resolve` method should be used instead. If parameters are given after the type they will be passed to the constructor, while all other constructor parameters will be injected (if decorated with [`@inject`](./@inject.md)).
 
 Example:
 
@@ -33,10 +26,37 @@ class Foo {
 let foo = create(Foo, new ClassA());
 ```
 
-## resolve(type: Class, injectionParameter?: unknown)
+The `create` method of the default global injector instance is also exported directly by `'tabris-decorators'`:
 
-Returns an instance for an injectable type, just like using the `@inject` decorator would do in a constructor. Especially useful in cases where a `@inject` decorator can not be used, e.g. outside of classes. Note that `type` *has to be injectable*, i.e. have a compatible injection handler registered. The second parameter may be omitted, or be used to pass a value to the injection handler. For further information see `@injectable(config: InjectableConfig)` and `@injectionHandler(type: Class)`.
+```ts
+import {injector, create} from 'tabris-decorators';
 
+console.log(injector.create === create);
+```
+
+## resolve(type, injectionParameter?)
+
+Where `type` can be any class and `injectionParameter` of any type.
+
+Returns an instance for the given type, just like using the `@inject` decorator would do in a constructor. Especially useful in cases where the `@inject` decorator can not be used, e.g. outside of classes. Note that `type` *has to be injectable*, i.e. have a compatible injection handler registered. The second parameter may be omitted, or be used to pass a value to the injection handler. For further information see [`@injectable(config)`](./@injectable.md) and [`@injectionHandler(type)`](./@injectionHandler.md).
+
+The `resolve` method of the default global injector instance is also exported directly by `'tabris-decorators'`:
+
+```ts
+import {injector, resolve} from 'tabris-decorators';
+
+console.log(injector.resolve === resolve);
+```
+
+## addHandler({targetType, handler, priority?})
+
+Where `targetType` is any class, `handler` is a Function returning a `targetType` instance and priority - if given - is a `number`.
+
+Explicitly registers a new injection handler for `targetType` Same as using the [`injectionHandler`](./@injectionHandler.md) decorator attached to the same `Injector` instance.
+
+## addHandler(targetType, handler)
+
+Shorthand for `addHandler({targetType, handler})`.
 
 ## Custom Injector instances
 

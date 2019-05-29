@@ -15,6 +15,8 @@ Makes the decorated property return the descendant with the same id as the prope
  * It will always return the same descendant, even if it is disposed or removed.
  * It will throw if there is no match, more than one, or if the type is not correct.
 
-## @getById(v => boolean)
+## @getById(typeGuard)
 
-Like `@getById`, but uses the given type guard to check the found widget, allowing widgets with compatible but not identical types to be resolved.
+Where `typeGuard` is of the type `value: any => boolean`.
+
+Like `@getById`, but uses the given type guard function to check the found widget, allowing widgets with compatible but not identical types to be resolved.

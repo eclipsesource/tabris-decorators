@@ -6,16 +6,16 @@
 
 This decorator creates two-way bindings within a custom component. Changes to the decorated *component property* are reflected on the *target property* of a *target element* (child) and the other way around. Change events are fired for the decorated *component property* if (and only if) the *target element* fires change events.
 
-`@bind` can by applied to any property of a class decorated with [`@component`](./@component.md). It also implies [`@property`](./@property.md) and includes its [typeGuard](./@property.md#typeGuard) feature. Only one of the two can be applied to the same property.
+`@bind` can by applied to any property of a class decorated with [`@component`](./@component.md). It also implies [`@property`](./@property.md) and includes its [typeGuard](./@property.md) feature. Only one of the two can be applied to the same property.
 
 `@bind` requires exactly one parameter:
 
 ## @bind(options)
 
-Where `options` is:
+Where `options` is of the type
 ```ts
 {
-  path: "#\<targetElementId\>.\<targetProperty\>",
+  path: "#<targetElementId>.<targetProperty>",
   typeGuard?: Function
 }
 ```
@@ -26,6 +26,6 @@ A [`typeGuard`](./@property.md). may be given to perform value checks.
 
 As with one-way bindings, setting the *component property* to `undefined` resets the *target property* to its initial value.
 
-## @bind(path: string)
+## @bind(path)
 
-Shorthand for `@bind({path: string})`
+Shorthand for `@bind({path: path})`

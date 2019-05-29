@@ -45,9 +45,9 @@ bind-<targetProperty>=<Binding>
 ```
 
 Where `<Binding>` can be
- * a path string of format `<componentProperty>[.<subProperty>]`
- * a plain object `{path: string, converter?: Function}`
- * or a call `to(path: string, converter: Function)`
+ * a path string of the format `'<componentProperty>[.<subProperty>]'`
+ * an object of the type `{path: string, converter?: Function}`
+ * or a call `to(path: string, converter: Function)` ("`to`" must be imported from `'tabris-decorators'`)
 
 This actively copies values **from** the *component* **to** the *target element*. The target element has to be a child (or indirect descendant) widget.
 
@@ -69,7 +69,7 @@ class CustomComponent extends Composite {
 }
 ```
 
-This applies changes of the *component property* `myText` to the *target property* `text` of the *target element* `textView`. The *component property* must be a proper Tabris.js style property, not just a field. This can be achieved simply by adding a `@property` decorator, but a custom implementation also works as long as appropriate change events are fired. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect.
+This applies changes of the *component property* `myText` to the *target property* `text` of the *target element* `textView`. The *component property* must be a "real" Tabris.js-style property, i.e. fire change events and perform type checks. This can be achieved by simply adding a [`@property`](./@property.md) decorator to any field, but an explicit implementation with `set`/`get` also works. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect.
 
 ### Binding to sub-property
 
@@ -95,13 +95,13 @@ class CustomComponent extends Composite {
 }
 ```
 
-The item is treated as immutable, meaning The binding will not update the *target property* when the property on the item changes, only when the item is replaced.
+The item is treated as immutable, meaning The binding will not update the *target property* when the property on the item changes, only when the item is replaced. This may change in the future.
 
 ### Conversion
 
 The value of the component property can be manipulated or converted in a binding using a converter function.
 
-This would convert a `Date` instance (`person.dob`) to a localized string:
+In this example `Date` instance `person.dob`, (date of birth) will be converted to a localized string:
 
 {% raw %}
 ```tsx
@@ -109,9 +109,13 @@ This would convert a `Date` instance (`person.dob`) to a localized string:
 ```
 {% endraw %}
 
-There is also the utility function `to` exported by `tabris-decorators` that makes this expression slightly shorter:
+There is also a utility function `to` that makes this expression slightly shorter:
 
 ```tsx
+import {to} from 'tabris-decorators';
+
+//...
+
 <TextView bind-text={to('person.dob', v => v.toLocaleString())} />`
 ```
 
@@ -143,7 +147,7 @@ Using `template-` as a JSX attribute prefix creates a one-way binding where the 
 template-<targetProperty>='<string>${<path>}<string>'
 ```
 
-The template has to contain exactly one `${<path>}` placeholder, where `<path>` is a string of the same syntax as one-way bindings using the `bind-` prefix.
+The template has to contain exactly one `${<path>}` placeholder, where `<path>` is a string of the same syntax as one-way bindings using the `bind-` prefix. While this feature lends from the JavaScript template string syntax, it is not using backticks!
 
 Example:
 
@@ -167,9 +171,9 @@ This results in `'Hello Peter!'` initially, and falls back to `'No one here?'` i
 
 ### Notes on type safety
 
-The data binding enabled by `@component` can not rely on the TypeScript compiler to ensure type safety. Therefore runtime type checks need to be performed.
+The data binding enabled by `@component` can not rely on the TypeScript compiler to ensure type safety. Therefore runtime type value checks need to be performed.
 
-For all properties of built-in Tabris.js widgets this is already the case. Also, if a property is decorated with `@property` or `@bind`, value checks happen automatically. However, if the property type is an [advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html) or an interface, this is not possible and the binding will fail as a precaution. In this case you need to set the [typeGuard](./@property.md) parameter of `@property`/`@bind` to perform the check explicitly.
+For all properties of built-in Tabris.js widgets this is already the case. Also, if a property is decorated with [`@property`](./@property.md) or [`@bind`](./@bind.md), type checks are added implicitly. However, if the property type is an [advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html) or an interface, this is not possible and the binding will fail as a precaution. In this case you need to set the [typeGuard](./@property.md) parameter of `@property`/`@bind` to perform the check explicitly.
 
 If the properties involved are not decorated by `@property` or `@bind` they are expected to perform the type check in the setter.
 

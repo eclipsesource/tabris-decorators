@@ -23,7 +23,7 @@ export class ClassA {
 }
 ```
 
-Where `ClassB` has to be made injectable first via [`@injectable`](./@injectable), [`@shared`](./@shared), [`@injectionHandler`](./@injectionHandler) or by using the [`Injector class`](./Injector.md). To create instances of `ClassA` use the `create` method:
+`ClassB` has to to have a registered _injection handler_, which can be achieved using [`@injectable`](./@injectable), [`@shared`](./@shared), [`@injectionHandler`](./@injectionHandler), or by using the [`Injector class`](./Injector.md) method "`addHandler`". To create instances of `ClassA` you must use the `create` method which handles the injections:
 
 ```ts
 import {create} from 'tabris-decorators';
@@ -40,9 +40,11 @@ The type of the injection - i.e. the type of the parameter decorated with `@inje
 
 Widgets (custom components) may also use `@inject`. If they are used as a JSX element all injections are automatically resolved using the global [injector](./Injector.md). However, **the first constructor parameter can then not be used for injection** since this is where the properties object is passed to by the JSX processor.
 
-## @inject(param: InjectionParameter)
+## @inject(param)
 
-Like `@inject`, but allows to pass on a value (any object, string, number or boolean) to the injection handler. For further information see [`@injectable`](./@injectable) and [`@injectionHandler`](./@injectionHandler).
+Where `param` can be any object, string, number or boolean.
+
+Like `@inject`, but allows to pass on a value to the injection handler. For further information see [`@injectable`](./@injectable) and [`@injectionHandler`](./@injectionHandler).
 
 ```ts
 class Foo {
