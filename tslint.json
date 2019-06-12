@@ -16,6 +16,7 @@
         "singleline": "never"
       }
     ],
+    "callable-types": false,
     "no-default-export": true,
     "await-promise": true,
     "indent": [true, "spaces"],
@@ -46,12 +47,6 @@
       "check-module"
     ],
     "interface-over-type-literal": false,
-    "no-unused-variable": [
-      true,
-      {
-        "ignore-pattern": "jsxProperties|tsProperties"
-      }
-    ],
     "variable-name": false,
     "no-conditional-assignment": false,
     "typedef": [

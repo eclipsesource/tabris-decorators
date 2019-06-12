@@ -92,6 +92,7 @@ describe('bind', () => {
         @bind('#textInput1.text') public myText: string;
       }
       clock.tick(now + 100);
+      // tslint:disable-next-line: no-console
       expect(console.error).to.have.been.calledWith(
         'Binding "myText" <-> "#textInput1.text" failed to initialize: FailedComponent is not a @component'
       );

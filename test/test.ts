@@ -11,4 +11,4 @@ let stub = sandbox.stub.bind(sandbox) as sinon.SinonStubStatic;
 let mock = sandbox.mock.bind(sandbox) as sinon.SinonMockStatic;
 let restoreSandbox: () => void = sandbox.restore.bind(sandbox) as () => void;
 
-export {expect, spy, stub, mock, restoreSandbox};
+export { expect, spy, stub, mock, restoreSandbox };
