@@ -236,3 +236,21 @@ export function checkIsComponent(widget: Widget) {
     throw new Error(`${widget.constructor.name} is not a @component`);
   }
 }
+
+export function getPath(widget: Widget) {
+  const path = [widget];
+  let parent = widget.parent();
+  while (parent) {
+    path.unshift(parent);
+    parent = parent.parent();
+  }
+  return path.map(widgetToString).join(' > ');
+}
+
+function widgetToString(widget: Widget) {
+  const type = widget.constructor.name;
+  const cidAttr = `[cid="${widget.cid}"]`;
+  const id = widget.id ? '#' + widget.id : '';
+  const classes = widget.classList.length ? '.' + widget.classList.join('.') : '';
+  return type + cidAttr + id + classes;
+}

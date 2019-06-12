@@ -187,12 +187,13 @@ describe('component', () => {
         @property public myText: string = 'foo';
       }
       let widget3 = new NotAComponent();
-      let widget4 = <textView bind-text='myText' /> as TextView;
+      let widget4 = <textView id='foo' bind-text='myText' /> as TextView;
       widget3.append(widget4);
       expect(() => {
         widget4.trigger('resize', {target: widget4});
       }).to.throw(
-        'Could not resolve one-way binding on CustomComponent: Not appended to a @component'
+          'Could not resolve one-way binding: Not appended to a @component\n'
+        + `NotAComponent[cid="${widget3.cid}"] > TextView[cid="${widget4.cid}"]#foo`
       );
     });
 

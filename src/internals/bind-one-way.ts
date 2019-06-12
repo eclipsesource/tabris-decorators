@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Widget, WidgetResizeEvent } from 'tabris';
-import { checkPathSyntax, checkPropertyExists, isUnchecked, WidgetInterface } from './utils';
+import { checkPathSyntax, checkPropertyExists, getPath, isUnchecked, WidgetInterface } from './utils';
 import { Binding } from '../api/to';
 
 const placeholder = /\$\{[^\}]+\}/g;
@@ -121,7 +121,9 @@ function extractPath(type: 'bind' | 'template', bindingString: string) {
 
 function checkBindingsApplied(ev: WidgetResizeEvent) {
   if (getOneWayBindings(ev.target)) {
-    throw new Error('Could not resolve one-way binding on CustomComponent: Not appended to a @component');
+    throw new Error(
+      'Could not resolve one-way binding: Not appended to a @component\n' + getPath(ev.target)
+    );
   }
 }
 
