@@ -1,4 +1,4 @@
-import { CreateFunction, Injection, injector, ResolveFunction } from './api/Injector';
+import { CreateFunction, injector, ResolveFunction } from './api/Injector';
 import { InjectDecorator } from './decorators/inject';
 import { InjectableDecorator } from './decorators/injectable';
 import { InjectionHandlerDecorator } from './decorators/injectionHandler';
@@ -78,5 +78,9 @@ export const injectionHandler: InjectionHandlerDecorator = injector.injectionHan
 
 export const create: CreateFunction = injector.create;
 export const resolve: ResolveFunction = injector.resolve;
+
+if ((JSX as any).isExtendedJSX) {
+  throw new Error('tabris-decorators is installed twice.');
+}
 
 (JSX as any) = injector.JSX;

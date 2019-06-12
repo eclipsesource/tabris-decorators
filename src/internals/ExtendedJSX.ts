@@ -10,6 +10,8 @@ const originalJSX = JSX;
 
 export class ExtendedJSX {
 
+  public readonly isExtendedJSX: boolean = true;
+
   constructor(private readonly injector: Injector) { }
 
   public createElement = (
