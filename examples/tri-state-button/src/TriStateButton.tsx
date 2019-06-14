@@ -1,16 +1,16 @@
 import { Color, ColorValue, Composite, Font, FontValue, LayoutData, Properties, TextView } from 'tabris';
 import { component, property, to } from 'tabris-decorators';
 
-export type State = 'empty' | 'checked' | 'crossed';
+export type State = boolean | 'neutral';
 
 export function isState(value: unknown): value is State {
-  return value === 'empty' || value === 'checked' || value === 'crossed';
+  return value === true || value === false || value === 'neutral';
 }
 
 @component
 export class TriStateButton extends Composite {
 
-  @property(isState) public state: State = 'empty';
+  @property(isState) public state: State = false;
   @property(Color.isColorValue) public textColor: ColorValue = 'black';
   @property(Font.isFontValue) public font: FontValue = 'initial';
   @property public text: string = '';
@@ -21,7 +21,7 @@ export class TriStateButton extends Composite {
     this.onTap(this.handleTap);
     this.append(
       <$>
-        <TextView centerY font={{size: 24}} bind-text={to('state', state => stateToChar[state])}/>
+        <TextView centerY font={{size: 24}} bind-text={to('state', stateToChar)}/>
         <TextView centerY left={[LayoutData.prev, 8]}
             bind-text='text'
             bind-font='font'
@@ -31,19 +31,22 @@ export class TriStateButton extends Composite {
   }
 
   private handleTap = () => {
-    if (this.state === 'checked') {
-      this.state = 'crossed';
-    } else if (this.state === 'crossed') {
-      this.state = 'empty';
+    if (this.state === true) {
+      this.state = false;
+    } else if (this.state === false) {
+      this.state = 'neutral';
     } else {
-      this.state = 'checked';
+      this.state = true;
     }
   }
 
 }
 
-const stateToChar: Record<State, string> = {
-  empty: '☐',
-  checked: '☑',
-  crossed: '☒'
-};
+function stateToChar(state: State) {
+  if (state === 'neutral') {
+    return '☐';
+  } else if (state === true) {
+    return '☑';
+  }
+  return '☒';
+}

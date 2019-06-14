@@ -31,6 +31,7 @@ export class ExampleComponent extends Composite {
         <TextView>Exactly the same as:</TextView>
         <TextView bind-text={to('myText', myText => `Hello ${myText}!`)}/>
         <TextView bind-text={{path: 'myText', converter: myText => 'Hello ' + myText + '!'}}/>
+
       </Stack>
     );
     this._find(TextView).set({font: {size: 18}});

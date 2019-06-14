@@ -35,5 +35,5 @@ export function bind(...args: any[]): any {
 
 export interface BindConfig {
   path: string;
-  typeGuard: TypeGuard;
+  typeGuard?: TypeGuard;
 }
