@@ -19,4 +19,4 @@ Makes the decorated property return the descendant with the same id as the prope
 
 Where `typeGuard` is of the type `value: any => boolean`.
 
-Like `@getById`, but uses the given type guard function to check the found widget, allowing widgets with compatible but not identical types to be resolved.
+Like `@getById`, but uses the given type guard function to check the found widget, allowing widgets with a compatible API to be resolved as another type.

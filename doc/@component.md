@@ -6,7 +6,7 @@
 
 Makes the decorated widget class a "custom component" with the following features:
 
-## Isolation
+## Encapsulation
 
 A widget class decorated with `@component` will not allow its own children to be selected by public API or by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using [@getById](./@getById.md) on a private/protected property.
 
@@ -49,7 +49,7 @@ Where `<Binding>` can be
  * an object of the type `{path: string, converter?: Function}`
  * or a call `to(path: string, converter: Function)` ("`to`" must be imported from `'tabris-decorators'`)
 
-This actively copies values **from** the *component* **to** the *target element*. The target element has to be a child (or indirect descendant) widget.
+This applies the value of the *component property* to the *target element property*. All future changes to the component property are reflected on the target property. The target element has to be a child (or indirect descendant) widget.
 
 Example:
 
@@ -69,11 +69,11 @@ class CustomComponent extends Composite {
 }
 ```
 
-This applies changes of the *component property* `myText` to the *target property* `text` of the *target element* `textView`. The *component property* must be a "real" Tabris.js-style property, i.e. fire change events and perform type checks. This can be achieved by simply adding a [`@property`](./@property.md) decorator to any field, but an explicit implementation with `set`/`get` also works. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect.
+This applies changes of the *component property* `myText` to the *target property* `text` of the *target element* `textView`. The *component property* must be [a "real" Tabris.js-style property](../widget-basics.md#widget-properties), i.e. fire change events and perform type checks. This can be achieved by simply adding a [`@property`](./@property.md) decorator to any field, but an explicit implementation with `set`/`get` also works. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect.
 
 ### Binding to sub-property
 
-You can bind to a property of a *component property* value if its a model-like object:
+You can bind to a property of a *component property* value if its an object:
 
 ```tsx
 class MyItem {
@@ -95,7 +95,23 @@ class CustomComponent extends Composite {
 }
 ```
 
-The item is treated as immutable, meaning The binding will not update the *target property* when the property on the item changes, only when the item is replaced. This may change in the future.
+The item is treated as immutable. This means  the binding will not update the *target property* when the property on the item object changes, only when the entire item is replaced. (This may change in the future.)
+
+```ts
+const component = new CustomComponent();
+contentView.append(component);
+const item1 = new MyItem();
+item1.myText = 'text1';
+component.item = item1;
+
+//This does NOT update the TextView text:
+component.item.myText = 'text2';
+
+//This does update the text:
+const item2 = new MyItem();
+item2.myText = 'text2';
+component.item = item2;
+```
 
 ### Conversion
 
