@@ -4,7 +4,7 @@ import { State } from './TriStateButton';
 
 contentView.append(
   <Stack stretch alignment='stretchX' padding={12} spacing={12}>
-    <Survey textColor='red' font='18px serif'/>
+    <Survey textColor={{red: 255, green: 10, blue: 10}} font='18px serif' apples milk/>
     <Button onSelect={printResults}>Print results</Button>
     <TextView markupEnabled font='18px serif'/>
   </Stack>
@@ -22,10 +22,10 @@ function printResults() {
 }
 
 function stateToAnswer(state: State) {
-  if (state === 'checked') {
+  if (state === true) {
     return 'Yes';
   }
-  if (state === 'crossed') {
+  if (state === false) {
     return 'No';
   }
   return '(No answer)';

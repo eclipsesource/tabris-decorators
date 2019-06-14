@@ -1,4 +1,4 @@
-import { ChangeListeners, Composite, Properties, Slider, StackComposite, TextInput, TextView } from 'tabris';
+import { ChangeListeners, Composite, Properties, Slider, Stack, TextInput, TextView } from 'tabris';
 import { bind, component, event } from 'tabris-decorators';
 
 @component
@@ -14,7 +14,7 @@ export class ExampleComponent extends Composite {
     super();
     this.set(properties);
     this.append(
-      <StackComposite spacing={12} padding={12} >
+      <Stack spacing={12} padding={12} >
 
         <TextView>Source of "myNumber":</TextView>
         <Slider id='source1' width={200}/>
@@ -22,7 +22,7 @@ export class ExampleComponent extends Composite {
         <TextView>Source of "myText":</TextView>
         <TextInput id='source2' width={200}/>
 
-      </StackComposite>
+      </Stack>
     );
     this._find(TextView).set({font: {size: 18}});
   }

@@ -1,16 +1,16 @@
-import { Button, contentView, StackComposite, TextInput, TextView } from 'tabris';
+import { Button, contentView, Stack, TextInput, TextView } from 'tabris';
 import { Person } from './Person';
 
 const person = new Person();
 
 contentView.append(
-  <StackComposite layoutData='fill' alignment='stretchX' padding={12} spacing={12}>
+  <Stack layoutData='stretch' alignment='stretchX' padding={12} spacing={12}>
     <TextInput text='X' message='Name (at least 2 chars)' onAccept={changeName}/>
     <Button onSelect={changeName}>Change Name</Button>
     <TextInput text='-5' message='Age (positive number)' onAccept={changeAge}/>
     <Button onSelect={changeAge}>Change Age</Button>
     <TextView font={{size: 18}}/>
-  </StackComposite>
+  </Stack>
 );
 
 function changeName() {
