@@ -30,7 +30,7 @@ It includes the following decorators:
   * [@property](./@property.md)
   * [@event](./@event.md)
   * [@bind](./@bind.md)
-  * [@getById](./@getbyId.md)
+  * [@getById](./@getById.md)
 * Related to [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection):
   * [@inject](./@inject.md)
   * [@injectable](./@injectable.md)
