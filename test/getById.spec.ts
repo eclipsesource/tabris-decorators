@@ -61,9 +61,10 @@ describe('getById', () => {
   it('fails to decorate unknown type', () => {
     expect(() => {
       @component class FailedComponent extends Composite {
-        @getById public readonly button1: Button | null;
+        @getById public readonly button1: Button | null | Composite;
       }
     }).to.throw(
+        Error,
         'Could not apply decorator "getById" to "button1": '
       + 'Property button1 can not be resolved without a type guard.'
     );
