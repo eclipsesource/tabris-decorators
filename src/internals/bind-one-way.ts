@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Widget, WidgetResizeEvent } from 'tabris';
+import { subscribe } from './subscribe';
 import { checkPathSyntax, checkPropertyExists, isUnchecked, WidgetInterface } from './utils';
 import { Binding } from '../api/to';
 
@@ -45,25 +46,21 @@ function asBinding(value: any): Binding {
 
 function initOneWayBinding(base: WidgetInterface, binding: OneWayBinding) {
   try {
-    checkPropertyExists(base, binding.baseProperty, base.constructor.name);
-    base.on({[binding.sourceChangeEvent]: () => {
+    checkPropertyExists(base, binding.path[0], base.constructor.name);
+    const cancel = subscribe(base, binding.path, rawValue => {
       try {
-        applyValue(binding, evaluateBinding(base, binding));
+        applyValue(binding, evaluateBinding(binding, rawValue));
       } catch (ex) {
         throwBindingFailedError(binding, ex);
       }
-    }});
-    applyValue(binding, evaluateBinding(base, binding));
+    });
+    base.on({dispose: cancel});
   } catch (ex) {
     throwBindingFailedError(binding, ex);
   }
 }
 
-function evaluateBinding(base: WidgetInterface, binding: OneWayBinding) {
-  const baseValue = base[binding.baseProperty];
-  const rawValue = binding.subProperty
-    ? baseValue instanceof Object ? baseValue[binding.subProperty] : undefined
-    : baseValue;
+function evaluateBinding(binding: OneWayBinding, rawValue: any) {
   if (rawValue === undefined) {
     return binding.fallbackValue;
   }
@@ -82,18 +79,12 @@ function createOneWayBindingDesc(target: WidgetInterface, attribute: string, bin
   const type = getBindingType(attribute);
   const targetProperty = getTargetProperty(attribute);
   const bindingString = binding.path;
-  const path = extractPath(type, bindingString);
-  checkPathSyntax(path);
-  if (path.startsWith('.') || path.startsWith('#')) {
+  const pathString = extractPath(type, bindingString);
+  checkPathSyntax(pathString);
+  if (pathString.startsWith('.') || pathString.startsWith('#')) {
     throw new Error('JSX binding path can currently not contain a selector.');
   }
-  const segments = path.split('.');
-  if (segments.length > 2) {
-    throw new Error('JSX binding path can have no more than two segments.');
-  }
-  const baseProperty = segments[0]; // TODO: support other sources than base
-  const subProperty = segments[1];
-  const sourceChangeEvent = baseProperty + 'Changed';
+  const path = pathString.split('.');
   checkPropertyExists(target, targetProperty);
   if (isUnchecked(target, targetProperty)) {
     throw new Error(`Can not bind to property "${targetProperty}" without type guard.`);
@@ -101,7 +92,7 @@ function createOneWayBindingDesc(target: WidgetInterface, attribute: string, bin
   const fallbackValue = target[targetProperty];
   const converter = type === 'template' ? compileTemplate(bindingString) : (binding.converter || (v => v));
   return {
-    bindingString, target, targetProperty, baseProperty, sourceChangeEvent, fallbackValue, subProperty, type, converter
+    bindingString, target, targetProperty, path, fallbackValue, type, converter
   };
 }
 
@@ -160,8 +151,6 @@ interface OneWayBinding {
   bindingString: string;
   target: Widget;
   targetProperty: string;
-  subProperty: string;
-  baseProperty: string;
-  sourceChangeEvent: string;
+  path: string[];
   fallbackValue: any;
 }

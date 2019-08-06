@@ -1,9 +1,13 @@
 import { Composite, ProgressBar, Properties, Stack, TextView } from 'tabris';
 import { component, property } from 'tabris-decorators';
 
+export class OtherModel {
+  @property public someString: string = 'Hello World';
+}
+
 export class Model {
-  public someString: string = 'Hello Again!';
-  public someNumber: number = 50;
+  @property public otherModel: OtherModel = new OtherModel();
+  @property public someNumber: number = 10;
 }
 
 @component
@@ -18,26 +22,18 @@ export class ExampleComponent extends Composite {
     this.append(
       <Stack spacing={12} padding={12} >
 
-        <TextView>Simple binding to a string property:</TextView>
-        <TextView bind-text='myText'/>
+        <TextView>Binding to a component property:</TextView>
+        <TextView background='yellow'
+            bind-text='myText'
+            text='Placeholder'/>
 
-        <TextView>Exactly the same:</TextView>
-        <TextView bind-text={{path: 'myText'}}/>
-
-        <TextView>With a fallback value for undefined:</TextView>
-        <TextView text='fallback text' bind-text='myText'/>
-
-        <TextView>To the property of an object:</TextView>
-        <TextView bind-text='myObject.someString'/>
-
-        <TextView>With a fallback value for null or undefined:</TextView>
-        <TextView text='fallback text' bind-text='myObject.someString'/>
-
-        <TextView>Binding to a numeric value:</TextView>
+        <TextView>Binding to a object property:</TextView>
         <ProgressBar bind-selection='myObject.someNumber' width={200}/>
 
-        <TextView>Binding to a numeric value with fallback:</TextView>
-        <ProgressBar selection={100} bind-selection='myObject.someNumber' width={200}/>
+        <TextView>Binding to a nested object property:</TextView>
+        <TextView background='yellow'
+            bind-text='myObject.otherModel.someString'
+            text='Placeholder'/>
 
       </Stack>
     );
