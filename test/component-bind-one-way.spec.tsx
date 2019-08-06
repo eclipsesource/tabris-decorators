@@ -1,9 +1,9 @@
 import 'mocha';
 import 'sinon';
-import { Composite, tabris, TextInput, TextView, WidgetCollection } from 'tabris';
+import { ChangeListeners, Composite, tabris, TextInput, TextView, WidgetCollection } from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox, stub } from './test';
-import { component, injector, property, to } from '../src';
+import { component, event, injector, property, to } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
 
 describe('component', () => {
@@ -19,6 +19,20 @@ describe('component', () => {
   interface Item {
     text: string;
     int: number;
+    otherItem?: Item;
+  }
+
+  class ItemB implements Item {
+    @event public onOtherItemChanged: ChangeListeners<ItemB, 'otherItem'>;
+    @property public text: string;
+    @property public int: number;
+    public otherItem: Item;
+  }
+
+  class ItemA implements Item {
+    @property public text: string;
+    @property public int: number;
+    @property public otherItem: Item;
   }
 
   @component
@@ -214,13 +228,42 @@ describe('component', () => {
       expect(textInput.text).to.equal('bar');
     });
 
-    it('ignores changes on bound object', () => {
+    it('ignores changes on bound object property', () => {
       widget.append(textInput = <TextInput bind-text='myItem.text' text='foo'/>);
 
       widget.myItem = {text: 'bar', int: 23};
       widget.myItem.text = 'baz';
 
       expect(textInput.text).to.equal('bar');
+    });
+
+    it('detect changes on bound object @property', () => {
+      widget.append(textInput = <TextInput bind-text='myItem.text' text='foo'/>);
+
+      widget.myItem = Object.assign(new ItemA(), {text: 'bar', int: 23});
+      widget.myItem.text = 'baz';
+
+      expect(textInput.text).to.equal('baz');
+    });
+
+    it('detect changes on bound object property with change events', () => {
+      widget.append(textInput = <TextInput bind-text='myItem.text' text='foo'/>);
+
+      widget.myItem = Object.assign(new ItemB(), {text: 'bar', int: 23});
+      widget.myItem.text = 'baz';
+      (widget.myItem as ItemB).onOtherItemChanged.trigger();
+
+      expect(textInput.text).to.equal('baz');
+    });
+
+    it('detect changes on bound nested object @property', () => {
+      widget.append(textInput = <TextInput bind-text='myItem.otherItem.text' text='foo'/>);
+
+      widget.myItem = new ItemA();
+      widget.myItem.otherItem = new ItemA();
+      widget.myItem.otherItem.text = 'baz';
+
+      expect(textInput.text).to.equal('baz');
     });
 
     it('updates on object replacement', () => {
@@ -245,6 +288,19 @@ describe('component', () => {
       widget.append(textInput = <TextInput bind-text='myItem.text' text='foo'/>);
 
       expect(textInput.text).to.equal('foo');
+    });
+
+    it('ignores changes on bound nested object after component dispose', () => {
+      widget.append(textInput = <TextInput bind-text='myItem.otherItem.text' text='foo'/>);
+      const myItem = widget.myItem = new ItemA();
+      widget.myItem.otherItem = new ItemA();
+      widget.myItem.otherItem.text = 'baz';
+
+      textInput.detach();
+      widget.dispose();
+      myItem.otherItem.text = 'foo';
+
+      expect(textInput.text).to.equal('baz');
     });
 
     describe('to', () => {

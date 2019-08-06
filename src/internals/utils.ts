@@ -1,6 +1,7 @@
-import { Composite, Selector, Widget, WidgetCollection } from 'tabris';
+import { Composite, Listeners, NativeObject, Selector, Widget, WidgetCollection } from 'tabris';
 
-const uncheckedProperty: unique symbol = Symbol('foo');
+const uncheckedProperty: unique symbol = Symbol();
+const changeEventsSupport: unique symbol = Symbol();
 const postAppendHandlersKey = Symbol();
 const wasAppendedKey = Symbol();
 const propertyStoreKey = Symbol();
@@ -13,12 +14,15 @@ export type BaseConstructor<T> = Function & { prototype: T };
 export type Constructor<T> = new(...args: any[]) => T;
 export type ParameterDecoratorFactory = (target: Constructor<any>, property: string, index: number) => void;
 export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
+export type EventTarget = {
+  [changeEventsSupport]: {[prop: string]: true|undefined}
+};
 export type WidgetInterface = {
   [originalAppendKey]: typeof Composite.prototype.append,
   [wasAppendedKey]: boolean,
   [uncheckedProperty]: any,
   [prop: string]: any
-} & Widget & WidgetProtected;
+} & Widget & WidgetProtected & EventTarget;
 export type TypeGuard = (v: any) => boolean;
 export interface WidgetProtected {
   _find(selector?: Selector): WidgetCollection<Widget>;
@@ -204,6 +208,33 @@ export function markAsUnchecked(widget: WidgetInterface, targetProperty: string)
 
 export function isUnchecked(widget: WidgetInterface, targetProperty: string) {
   return widget[uncheckedProperty] && widget[uncheckedProperty][targetProperty];
+}
+
+export function markSupportsChangeEvents(target: Partial<EventTarget>, targetProperty: string) {
+  if (!target[changeEventsSupport]) {
+    target[changeEventsSupport] = {};
+  }
+  (target as EventTarget)[changeEventsSupport][targetProperty] = true;
+}
+
+export function supportsChangeEvents(target: Partial<EventTarget>, targetProperty: string): boolean {
+  if (target instanceof NativeObject) {
+    return true; // anyone could fire change events
+  }
+  const changeEvent = targetProperty + 'Changed';
+  const listenerProperty = 'on' + changeEvent.charAt(0).toUpperCase() + changeEvent.slice(1);
+  const listeners: any = target[listenerProperty];
+  if (listeners && listeners.original instanceof Listeners) {
+    if (listeners.original.target !== target || listeners.original.type !== changeEvent) {
+      throw new Error(listenerProperty + ' has wrong target or event type');
+    }
+    return true;
+  }
+  return !!(target[changeEventsSupport] && (target as EventTarget)[changeEventsSupport][targetProperty]);
+}
+
+export function trigger(target: Partial<EventTarget>, type: string, eventData: any) {
+  Listeners.getListenerStore(target).trigger(type, eventData);
 }
 
 export function markAsAppended(widget: WidgetInterface) {

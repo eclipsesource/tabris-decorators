@@ -1,7 +1,6 @@
-import { Listeners, Widget } from 'tabris';
 import { checkType } from '../api/checkType';
 import { TypeGuard } from '../index';
-import { applyDecorator, Constructor, getPropertyStore, getPropertyType, markAsUnchecked } from '../internals/utils';
+import * as utils from '../internals/utils';
 
 export type CustomPropertyDecorator = (target: object, property: string | symbol) => void;
 
@@ -44,34 +43,29 @@ export function property(targetProto: object, property: string | symbol): void;
  */
 export function property(check: TypeGuard): CustomPropertyDecorator;
 export function property(...args: any[]): PropertyDecorator | void {
-  return applyDecorator('property', args, (widgetProto: any, propertyName: string) => {
+  return utils.applyDecorator('property', args, (widgetProto: any, propertyName: string) => {
     const changeEvent = propertyName + 'Changed';
-    const listenerProperty = 'on' + changeEvent.charAt(0).toUpperCase() + changeEvent.slice(1);
-    const targetType = getPropertyType(widgetProto, propertyName);
+    const targetType = utils.getPropertyType(widgetProto, propertyName);
     const check = args[0] instanceof Function ? args[0] : null;
     const unchecked = targetType === Object && !check;
     if (unchecked) {
-      markAsUnchecked(widgetProto, propertyName);
+      utils.markAsUnchecked(widgetProto, propertyName);
     }
+    utils.markSupportsChangeEvents(widgetProto, propertyName);
     Object.defineProperty(widgetProto, propertyName, {
       get() {
         const target: object = this;
-        return getPropertyStore(target).get(propertyName);
+        return utils.getPropertyStore(target).get(propertyName);
       },
       set(value: any) {
         const target: object = this;
-        const currentValue = getPropertyStore(this).get(propertyName);
+        const currentValue = utils.getPropertyStore(this).get(propertyName);
         if (currentValue !== value) {
           if (!unchecked) {
             setterTypeCheck(propertyName, value, targetType, check);
           }
-          getPropertyStore(this).set(propertyName, value);
-          const listeners: any = target[listenerProperty];
-          if (target instanceof Widget) {
-            target.trigger(changeEvent, {value});
-          } else if (listeners && listeners.original instanceof Listeners) {
-            listeners.trigger({value});
-          }
+          utils.getPropertyStore(this).set(propertyName, value);
+          utils.trigger(target, changeEvent, {value});
         }
       },
       enumerable: true,
@@ -81,7 +75,7 @@ export function property(...args: any[]): PropertyDecorator | void {
 }
 
 function setterTypeCheck(
-  propertyName: string, value: any, targetType: Constructor<any>, check: TypeGuard
+  propertyName: string, value: any, targetType: utils.Constructor<any>, check: TypeGuard
 ) {
   try {
     if (check) {

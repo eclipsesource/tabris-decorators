@@ -45,11 +45,11 @@ bind-<targetProperty>=<Binding>
 ```
 
 Where `<Binding>` can be
- * a path string of the format `'<componentProperty>[.<subProperty>]'`
+ * a path string of the format `'<componentProperty>[.<property>]*'` defining the *source property* of the binding
  * an object of the type `{path: string, converter?: Function}`
  * or a call `to(path: string, converter: Function)` ("`to`" must be imported from `'tabris-decorators'`)
 
-This applies the value of the *component property* to the *target element property*. All future changes to the component property are reflected on the target property. The target element has to be a child (or indirect descendant) widget.
+This applies the value of the *source property* to the *target element property*. All future changes to the source property are reflected on the target property. The target element has to be a child (or indirect descendant) widget. All target elements are determined when `append` is called the first time. Appending or detaching widgets after that has no effect.
 
 Example:
 
@@ -69,15 +69,44 @@ class CustomComponent extends Composite {
 }
 ```
 
-This applies changes of the *component property* `myText` to the *target property* `text` of the *target element* `textView`. The *component property* must be [a "real" Tabris.js-style property](../widget-basics.md#widget-properties), i.e. fire change events and perform type checks. This can be achieved by simply adding a [`@property`](./@property.md) decorator to any field, but an explicit implementation with `set`/`get` also works. The bindings are resolved when append is called the first time. Appending/detaching widgets after that has no effect.
+This applies changes of the *component property* `myText` - the *source property* of this binding - to the *target property* `text` of the *target element* `TextView`. **The component property has to fire [change events](../widget-basics.md#widget-properties) for this to work.** That can be achieved by either adding a [`@property`](./@property.md) decorator to any field (as in the above example), or by explicitly implementing a setter like in this full example:
 
-### Binding to sub-property
+```tsx
+import { Composite, ChangeListeners, Properties, TextView } from 'tabris';
+import { component, event } from 'tabris-decorators';
 
-You can bind to a property of a *component property* value if its an object:
+@component
+export class CustomComponent extends Composite {
+
+  @event public onMyTextChanged: ChangeListeners<CustomComponent, 'myText'>;
+  private _myText: string = 'foo';
+
+  constructor(properties?: Properties<Composite>) {
+    super();
+    this.set(properties).append(
+      <TextView bind-text='myText'/>
+    );
+  }
+
+  public set myText(value: string) {
+    this._myText = value;
+    this.onMyTextChanged.trigger({value});
+  }
+
+  public get myText() {
+    return this._myText;
+  }
+
+}
+```
+
+### Binding to nested properties
+
+The *source property* of a binding can also be a property of a *component property* value if its an object:
 
 ```tsx
 class MyItem {
-  public myText: string = 'foo';
+  @property public myText: string = 'foo';
 }
 
 @component
@@ -95,27 +124,41 @@ class CustomComponent extends Composite {
 }
 ```
 
-The item is treated as immutable. This means  the binding will not update the *target property* when the property on the item object changes, only when the entire item is replaced. (This may change in the future.)
+Even deeply nested property paths are supported, e.g. `bind-text='some.deep.nested.property'`. If the object hierarchy ends prematurely the binding resolves to `undefined`, as though the source property had that value. An example would be `bind-text='foo.bar.baz'` where `'foo.bar'` is already null. See also ["Fallback Value"](#fallback_value).
+
+**As with binding to *component properties*, the `MyItem` class above needs to fire change events for `myText`, otherwise it would be treated as immutable.** Example:
 
 ```ts
 const component = new CustomComponent();
 contentView.append(component);
 const item1 = new MyItem();
 item1.myText = 'text1';
-component.item = item1;
+component.item = item1; // OK
 
-//This does NOT update the TextView text:
-component.item.myText = 'text2';
 
-//This does update the text:
+component.item.myText = 'text2'; // OK?
+```
+
+That last line would not update the binding if `MyItem` was implemented like this, without `@property`:
+
+```ts
+class MyItem {
+  public myText: string = 'foo';
+}
+```
+
+But it would still update the binding by doing this:
+```ts
 const item2 = new MyItem();
 item2.myText = 'text2';
-component.item = item2;
+component.item = item1; // OK even without @property
 ```
+
+`MyItem` could also implement explicit setter and getter to fire change events, exactly like the `CustomComponent` example above. Both `@property` and `@event` work on any class, not just widgets. Objects created via JSON (object literals) can be used in a binding, but since they don't fire change events they are treated as immutable.
 
 ### Conversion
 
-The value of the component property can be manipulated or converted in a binding using a converter function.
+The value of the *source property* can be manipulated or converted in a binding using a converter function.
 
 In this example `Date` instance `person.dob`, (date of birth) will be converted to a localized string:
 
@@ -145,9 +188,9 @@ import {to} from 'tabris-decorators';
 <TextView bind-text={toLocaleString('person.dob')} />
 ```
 
-### Fallback value
+### Fallback Value
 
-If the *component property* is set to `undefined`, the *target property* will be reset to its initial value (from the point in time when the binding was initialized). In the above example this would be an empty string, since that is the default value of the `TextView` property `text`. But it can also be the value that is given in JSX:
+If the binding resolves to `undefined`, the *target property* will be reset to its initial value (from the point in time when the binding was initialized). In the above examples the initial value would be an empty string, since that is the default value of the `TextView` property `text`. But it can also be the value that is given in JSX:
 
 ```tsx
 <TextView bind-text='myText' text='fallback value'/>
@@ -155,9 +198,9 @@ If the *component property* is set to `undefined`, the *target property* will be
 
 This behavior exists **only** for `undefined`, `null` is passed through without changes. To be able to set `undefined` on the *target property* via a binding you have to make that its initial value.
 
-### Template strings
+### Template Strings
 
-Using `template-` as a JSX attribute prefix creates a one-way binding where the *component property* value is embedded in a template string:
+Using `template-` as a JSX attribute prefix creates a one-way binding where the *source property* value is embedded in a template string:
 
 ```
 template-<targetProperty>='<string>${<path>}<string>'
