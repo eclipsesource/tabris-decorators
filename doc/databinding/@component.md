@@ -2,7 +2,7 @@
 ---
 # @component
 
-> :point_right: Make sure to first read the introduction to [decorators](./index.md).
+> :point_right: Make sure to first read the [introduction](./index.md).
 
 Makes the decorated widget class a "custom component" with the following features:
 

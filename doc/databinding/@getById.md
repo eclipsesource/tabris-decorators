@@ -2,7 +2,7 @@
 ---
 # @getById
 
-> :point_right: Make sure to first read the introduction to [decorators](./index.md).
+> :point_right: Make sure to first read the [introduction](./index.md).
 
 ## @getById (no parameter)
 

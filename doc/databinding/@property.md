@@ -2,7 +2,7 @@
 ---
 # @property
 
-> :point_right: Make sure to first read the introduction to [decorators](./index.md).
+> :point_right: Make sure to first read the [introduction](./index.md).
 
 Makes the decorated object property fire change events and perform runtime value checks, which is the expected behavior of [widget properties in Tabris.js](../widget-basics.md#widget-properties). It makes the property a valid source for one-way data bindings on [`@component`](./@component.md) decorated widgets. The `@property` decorators can be used in any class, not just subclasses of `Widget`. On a non-widget class change events may be listened to via [an instance of `ChangeListeners` attached to an appropriately named property](./@event.md).
 
