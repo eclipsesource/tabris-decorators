@@ -2,7 +2,7 @@
 ---
 # @injectionHandler
 
-> :point_right: Make sure to first read the [introduction](./index.md)  and the [`@inject`](./@inject.md) documentation.
+> :point_right: Make sure to first read the [introduction to dependency injection](./index.md)  and the [`@inject`](./@inject.md) documentation.
 
 Registers a method as an injection handler, allowing it to fulfill injections explicitly. It is essentially a more powerful alternative to [`@injectable`](./@injectable.md).
 

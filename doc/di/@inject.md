@@ -2,7 +2,7 @@
 ---
 # @inject
 
-> :point_right: Make sure to first read the [introduction](./index.md).
+> :point_right: Make sure to first read the [introduction to dependency injection](./index.md).
 
 `@inject` together with `@injectable` allow for simple [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) ("DI").
 

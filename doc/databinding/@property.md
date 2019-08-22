@@ -2,11 +2,13 @@
 ---
 # @property
 
-> :point_right: Make sure to first read the [introduction](./index.md).
+> :point_right: Make sure to first read the [introduction to data binding](./index.md).
 
 Makes the decorated object property fire change events and perform runtime value checks, which is the expected behavior of [widget properties in Tabris.js](../widget-basics.md#widget-properties). It makes the property a valid source for one-way data bindings on [`@component`](./@component.md) decorated widgets. The `@property` decorators can be used in any class, not just subclasses of `Widget`. On a non-widget class change events may be listened to via [an instance of `ChangeListeners` attached to an appropriately named property](./@event.md).
 
 ## @property (no parameter)
+
+> See example app ["property-change-events"](../../examples/property-change-events).
 
 Triggers change events and performs implicit runtime checks on any value the property is set to.
 
@@ -39,6 +41,8 @@ In these cases it is recommended to use a type guard:
 ## @property(typeGuard)
 
 Where `typeGuard` is of the type `(value: any) => boolean`.
+
+> See example app ["property-value-checks"](../../examples/property-value-checks).
 
 Like `@property`, but uses the given function (type guard) to perform type checks. The type guard may be more strict than the TypeScript compiler (e.g. allowing only positive numbers where the compiler allows any number), but should never be less strict.
 

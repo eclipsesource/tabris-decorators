@@ -2,7 +2,7 @@
 ---
 # @event
 
-> :point_right: Make sure to first read the [introduction](./index.md).
+> :point_right: Make sure to first read the [introduction to data binding](./index.md).
 
 Apply this decorators to a property of the type `Listeners` (or `ChangeListeners`) to define a custom event for this class without explicitly creating a `Listeners` instance. The instance will instead be created lazily. The property becomes effectively read-only, but does not have to be marked with `readonly` (though it can be). The name of the property __must__ start with 'on', e.g. `'onMyEvent'`. The decorator can be used in abstract classes, but not interfaces. However, interfaces can define a property that is then implemented with `@event`.
 
