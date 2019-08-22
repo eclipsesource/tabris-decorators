@@ -2,7 +2,7 @@
 ---
 # Injector
 
-> :point_right: Make sure to first read the introduction to [decorators](./index.md) and the [`@inject`](./@inject.md) documentation.
+> :point_right: Make sure to first read the [introduction](./index.md) and the [`@inject`](./@inject.md) documentation.
 
 All injection handler created by `@injectable`, `@shared` and `@injectionHandler` are registered in a global `Injector` instance exported as `injector`.
 

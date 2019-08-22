@@ -2,7 +2,7 @@
 ---
 # @bind
 
-> :point_right: Make sure to first read the introduction to [decorators](./index.md).
+> :point_right: Make sure to first read the [introduction](./index.md).
 
 This decorator creates two-way bindings within a custom component. Changes to the decorated *component property* are reflected on the *target property* of a *target element* (child) and the other way around. Change events are fired for the decorated *component property* if (and only if) the *target element* fires change events.
 
