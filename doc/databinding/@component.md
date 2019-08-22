@@ -2,7 +2,7 @@
 ---
 # @component
 
-> :point_right: Make sure to first read the [introduction](./index.md).
+> :point_right: Make sure to first read the [introduction to data binding](./index.md).
 
 Makes the decorated widget class a "custom component" with the following features:
 
@@ -37,6 +37,8 @@ console.log(myComponent.find('#foo').only(TextInput).text);
 ```
 
 ## One way bindings
+
+> See example app ["bind-one-way"](../../examples/bind-one-way).
 
 For one-way bindings, `@component` enables JSX attributes of the following format:
 
@@ -102,6 +104,8 @@ export class CustomComponent extends Composite {
 
 ### Binding to nested properties
 
+> See example app ["bind-one-way"](../../examples/bind-one-way).
+
 The *source property* of a binding can also be a property of a *component property* value if its an object:
 
 ```tsx
@@ -124,7 +128,7 @@ class CustomComponent extends Composite {
 }
 ```
 
-Even deeply nested property paths are supported, e.g. `bind-text='some.deep.nested.property'`. If the object hierarchy ends prematurely the binding resolves to `undefined`, as though the source property had that value. An example would be `bind-text='foo.bar.baz'` where `'foo.bar'` is already null. See also ["Fallback Value"](#fallback_value).
+Even deeply nested property paths are supported, e.g. `bind-text='some.deep.nested.property'`. If the object hierarchy ends prematurely the binding resolves to `undefined`, as though the source property had that value. An example would be `bind-text='foo.bar.baz'` where `'foo.bar'` is already null. See also ["Fallback Value"](#fallback-value).
 
 **As with binding to *component properties*, the `MyItem` class above needs to fire change events for `myText`, otherwise it would be treated as immutable.** Example:
 
@@ -157,6 +161,8 @@ component.item = item1; // OK even without @property
 `MyItem` could also implement explicit setter and getter to fire change events, exactly like the `CustomComponent` example above. Both `@property` and `@event` work on any class, not just widgets. Objects created via JSON (object literals) can be used in a binding, but since they don't fire change events they are treated as immutable.
 
 ### Conversion
+
+> See example app ["bind-and-convert"](../../examples/bind-and-convert).
 
 The value of the *source property* can be manipulated or converted in a binding using a converter function.
 
@@ -229,6 +235,8 @@ Example:
 This results in `'Hello Peter!'` initially, and falls back to `'No one here?'` if `name` is set to `undefined`.
 
 ### Notes on type safety
+
+> See example app ["tri-state-button"](../../examples/tri-state-button).
 
 The data binding enabled by `@component` can not rely on the TypeScript compiler to ensure type safety. Therefore runtime type value checks need to be performed.
 

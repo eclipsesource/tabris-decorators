@@ -2,7 +2,7 @@
 ---
 # @injectable
 
-> :point_right: Make sure to first read the [introduction](./index.md) and the [`@inject`](./@inject.md) documentation.
+> :point_right: Make sure to first read the [introduction to dependency injection](./index.md) and the [`@inject`](./@inject.md) documentation.
 
 Apply this to a class to register it for injection.
 
