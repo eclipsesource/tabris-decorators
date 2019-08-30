@@ -1,5 +1,5 @@
 import { Listeners } from 'tabris';
-import { supportsChangeEvents } from './utils';
+import { supportsChangeEvents } from './utils-databinding';
 
 const force = Symbol();
 

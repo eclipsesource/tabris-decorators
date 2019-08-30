@@ -1,6 +1,6 @@
 ---
 ---
-## @shared
+# @shared
 
 > :point_right: Make sure to first read the [introduction to dependency injection](./index.md) and the [`@inject`](./@inject.md) documentation.
 

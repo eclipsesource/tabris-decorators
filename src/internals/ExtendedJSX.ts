@@ -1,5 +1,5 @@
 import { JsxProcessor, NativeObject, Widget } from 'tabris';
-import { applyJsxBindings, JsxBindings } from './bind-one-way';
+import { applyJsxBindings, JsxBindings } from './applyJsxBindings';
 import { Injector } from '../api/Injector';
 import { Constructor, hasInjections } from '../internals/utils';
 /* tslint:disable no-namespace ban-types only-arrow-functions */

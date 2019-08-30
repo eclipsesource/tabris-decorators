@@ -1,8 +1,8 @@
-import { PropertyChangedEvent, Widget, WidgetCollection } from 'tabris';
+import { PropertyChangedEvent } from 'tabris';
+import { BaseConstructor, getPropertyType } from './utils';
+import { checkIsComponent, checkPropertyExists, getChild, getPropertyStore, isAppended, isUnchecked, parseTargetPath, postAppendHandlers, WidgetInterface } from './utils-databinding';
 import { checkType } from '../api/checkType';
 import { TypeGuard } from '../index';
-import { BaseConstructor, checkPathSyntax, isAppended } from '../internals/utils';
-import { checkIsComponent, checkPropertyExists, getPropertyStore, getPropertyType, isUnchecked, postAppendHandlers, WidgetInterface } from '../internals/utils';
 
 export function createBoundProperty(
   baseProto: WidgetInterface,
@@ -15,7 +15,7 @@ export function createBoundProperty(
     throw new Error(`Can not bind to property "${baseProperty}" without type guard.`);
   }
   let typeChecker = createTypeChecker(basePropertyType, typeGuard);
-  const binding = createTwoWayBindingDesc(targetPath, baseProperty, typeChecker);
+  const binding = createBoundPropertyDesc(targetPath, baseProperty, typeChecker);
   Object.defineProperty(baseProto, baseProperty, {
     get(this: WidgetInterface) {
       try {
@@ -49,7 +49,7 @@ export function createBoundProperty(
       }
     }, enumerable: true, configurable: true
   });
-  postAppendHandlers(baseProto).push(base => initTwoWayBinding(base, binding));
+  postAppendHandlers(baseProto).push(base => initBoundProperty(base, binding));
   setTimeout(() => {
     try {
       checkIsComponent(baseProto);
@@ -60,22 +60,12 @@ export function createBoundProperty(
   });
 }
 
-function createTwoWayBindingDesc(
+function createBoundPropertyDesc(
   path: string,
   baseProperty: string,
   basePropertyChecker: (value: any) => void
-): TwoWayBinding {
-  checkPathSyntax(path);
-  if (!path.startsWith('#')) {
-    throw new Error('Binding path needs to start with "#".');
-  }
-  let segments = path.split('.');
-  if (segments.length < 2) {
-    throw new Error('Binding path needs at least two segments.');
-  } else if (segments.length > 2) {
-    throw new Error('Binding path has too many segments.');
-  }
-  let [selector, targetProperty] = segments;
+): BoundProperty {
+  const {selector, targetProperty} = parseTargetPath(path);
   return {
     path,
     selector,
@@ -89,7 +79,7 @@ function createTwoWayBindingDesc(
   };
 }
 
-function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
+function initBoundProperty(base: WidgetInterface, binding: BoundProperty) {
   try {
     const child = getChild(base, binding.selector);
     const propertyStore = getPropertyStore(base);
@@ -125,23 +115,13 @@ function initTwoWayBinding(base: WidgetInterface, binding: TwoWayBinding) {
   }
 }
 
-function applyValue(base: WidgetInterface, binding: TwoWayBinding, value: any) {
+function applyValue(base: WidgetInterface, binding: BoundProperty, value: any) {
   const propertyStore = getPropertyStore(base);
   const finalValue = value !== undefined ? value : propertyStore.get(binding.fallbackValueKey);
   propertyStore.get(binding.targetKey)[binding.targetProperty] = finalValue;
 }
 
-function getChild(base: WidgetInterface, selector: string) {
-  let results = (base as any)._find(selector) as WidgetCollection<Widget>;
-  if (results.length === 0) {
-    throw new Error(`No widget matching "${selector}" was appended.`);
-  } else if (results.length > 1) {
-    throw new Error(`Multiple widgets matching "${selector}" were appended.`);
-  }
-  return results.first() as WidgetInterface;
-}
-
-function getBindingFailedErrorMessage(binding: TwoWayBinding, action: string, ex: Error) {
+function getBindingFailedErrorMessage(binding: BoundProperty, action: string, ex: Error) {
   return `Binding "${binding.baseProperty}" <-> "${binding.path}" failed to ${action}: ${ex.message}`;
 }
 
@@ -158,7 +138,7 @@ function createTypeChecker(type: BaseConstructor<any>, typeGuard: (v: any) => bo
   };
 }
 
-interface TwoWayBinding {
+interface BoundProperty {
   path: string;
   baseProperty: string;
   selector: string;

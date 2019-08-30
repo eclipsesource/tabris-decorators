@@ -2,7 +2,8 @@ import 'reflect-metadata';
 import { Composite } from 'tabris';
 import { Widget } from 'tabris';
 import { checkType } from '../api/checkType';
-import { applyDecorator, checkAppended, checkIsComponent, defineGetter, getPropertyStore, getPropertyType, postAppendHandlers, TypeGuard, WidgetInterface } from '../internals//utils';
+import { applyDecorator, defineGetter, getPropertyType } from '../internals//utils';
+import { checkAppended, checkIsComponent, getPropertyStore, postAppendHandlers, TypeGuard, WidgetInterface } from '../internals//utils-databinding';
 
 /**
  * A decorator for readonly properties on classes extending `Widget`.

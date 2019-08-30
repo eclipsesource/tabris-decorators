@@ -10,6 +10,7 @@ import { SharedDecorator } from './decorators/shared';
 export * from './decorators/component';
 export * from './decorators/property';
 export * from './decorators/bind';
+export * from './decorators/bindAll';
 export * from './decorators/getById';
 export * from './decorators/event';
 export * from './api/checkType';

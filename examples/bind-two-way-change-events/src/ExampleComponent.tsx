@@ -1,14 +1,19 @@
 import { ChangeListeners, Composite, Properties, Slider, Stack, TextInput, TextView } from 'tabris';
-import { bind, component, event } from 'tabris-decorators';
+import { bind, bindAll, component, event, property } from 'tabris-decorators';
+
+export class Model {
+  @event public onMyTextChanged: ChangeListeners<Model, 'myText'>;
+  @property public myText: string;
+}
 
 @component
 export class ExampleComponent extends Composite {
 
-  @bind('#source1.selection') public myNumber: number = 50;
+  @bind('#source1.selection') public myNumber: number;
   @event public onMyNumberChanged: ChangeListeners<ExampleComponent, 'myNumber'>;
 
-  @bind('#source2.text') public myText: string = 'Hello World!';
-  @event public onMyTextChanged: ChangeListeners<ExampleComponent, 'myText'>;
+  @bindAll({myText: '#source2.text'})
+  public model: Model;
 
   constructor(properties: Properties<ExampleComponent>) {
     super();
@@ -19,7 +24,7 @@ export class ExampleComponent extends Composite {
         <TextView>Source of "myNumber":</TextView>
         <Slider id='source1' width={200}/>
 
-        <TextView>Source of "myText":</TextView>
+        <TextView>Source of "model.myText":</TextView>
         <TextInput id='source2' width={200}/>
 
       </Stack>
