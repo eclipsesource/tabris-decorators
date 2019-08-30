@@ -64,13 +64,13 @@ describe('subscribe', () => {
     });
 
     it('is called with new value', () => {
-      sub.reset();
+      sub.resetHistory();
       widget.cornerRadius = 5;
       expect(sub).to.have.been.calledWith(5);
     });
 
     it('is not called after cancellation', () => {
-      sub.reset();
+      sub.resetHistory();
 
       cancel();
       widget.cornerRadius = 5;
@@ -99,7 +99,7 @@ describe('subscribe', () => {
 
     it('is not automatically called with new value', () => {
       subscribe(target, ['foo'], sub);
-      sub.reset();
+      sub.resetHistory();
       target.foo = 'baz';
       expect(sub).not.to.have.been.called;
     });
@@ -107,7 +107,7 @@ describe('subscribe', () => {
     it('is called with new value if ChangeListeners is set up correctly', () => {
       target.onFooChanged = new ChangeListeners(target, 'foo');
       subscribe(target, ['foo'], sub);
-      sub.reset();
+      sub.resetHistory();
 
       target.foo = 'baz';
       target.onFooChanged.trigger({value: target.foo});
@@ -119,7 +119,7 @@ describe('subscribe', () => {
     it('is called with new value if Listeners is used correctly', () => {
       target.onFooChanged = new Listeners(target, 'fooChanged');
       subscribe(target, ['foo'], sub);
-      sub.reset();
+      sub.resetHistory();
 
       target.foo = 'baz';
       target.onFooChanged.trigger({value: target.foo});
@@ -131,7 +131,7 @@ describe('subscribe', () => {
     it('is called with new value if trigger is called without parameter', () => {
       target.onFooChanged = new Listeners(target, 'fooChanged');
       subscribe(target, ['foo'], sub);
-      sub.reset();
+      sub.resetHistory();
 
       target.foo = 'baz';
       target.onFooChanged.trigger();
@@ -143,7 +143,7 @@ describe('subscribe', () => {
     it('is not called if trigger is called without value change', () => {
       target.onFooChanged = new Listeners(target, 'fooChanged');
       subscribe(target, ['foo'], sub);
-      sub.reset();
+      sub.resetHistory();
 
       target.onFooChanged.trigger();
 
@@ -163,7 +163,7 @@ describe('subscribe', () => {
     it('is not called with new value if ChangeListeners is created later', () => {
       subscribe(target, ['foo'], sub);
       target.onFooChanged = new ChangeListeners(target, 'foo');
-      sub.reset();
+      sub.resetHistory();
 
       target.foo = 'baz';
       target.onFooChanged.trigger({value: target.foo});
@@ -217,7 +217,7 @@ describe('subscribe', () => {
 
       it('is called with new value', () => {
         subscribe(target, ['foo'], sub);
-        sub.reset();
+        sub.resetHistory();
 
         target.foo = 2;
 
@@ -237,7 +237,7 @@ describe('subscribe', () => {
 
       it('is not called after cancellation', () => {
         cancel = subscribe(target, ['foo'], sub);
-        sub.reset();
+        sub.resetHistory();
 
         cancel();
         target.foo = 2;
@@ -264,7 +264,7 @@ describe('subscribe', () => {
       });
 
       it('is called when sub-target property changes', () => {
-        sub.reset();
+        sub.resetHistory();
 
         subTarget.bar = 'hello';
 
@@ -273,7 +273,7 @@ describe('subscribe', () => {
       });
 
       it('is called when sub-target is replaced', () => {
-        sub.reset();
+        sub.resetHistory();
 
         const newSubTarget = new ModelB();
         newSubTarget.bar = 'world';
@@ -284,7 +284,7 @@ describe('subscribe', () => {
       });
 
       it('is called when sub-target is set', () => {
-        sub.reset();
+        sub.resetHistory();
         target.b = null;
 
         target.b = subTarget;
@@ -295,7 +295,7 @@ describe('subscribe', () => {
       });
 
       it('is called with undefined when sub-target is set to null', () => {
-        sub.reset();
+        sub.resetHistory();
 
         target.b = null;
 
@@ -312,7 +312,7 @@ describe('subscribe', () => {
 
       it('is not called when previous sub-target property changes', () => {
         target.b = null;
-        sub.reset();
+        sub.resetHistory();
 
         subTarget.bar = 'world';
 
@@ -320,7 +320,7 @@ describe('subscribe', () => {
       });
 
       it('is not called after cancellation', () => {
-        sub.reset();
+        sub.resetHistory();
 
         cancel();
         subTarget.bar = 'world';
