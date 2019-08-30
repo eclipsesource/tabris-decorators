@@ -8,8 +8,6 @@ import { event, property } from '../src';
 
 describe('property', () => {
 
-  type CustomComponentProperties = Properties<Composite> & {foo?: string, bar?: number};
-
   class CustomComponent extends Composite {
 
     @property public foo: string;
@@ -27,16 +25,9 @@ describe('property', () => {
     @property(v => {if (v !== true) { throw new Error('only true allowed'); } return true;})
     public trueType: boolean = true;
 
-    constructor(properties?: CustomComponentProperties) {
+    constructor(properties?: Properties<CustomComponent>) {
       super(properties);
     }
-
-  }
-
-  interface CustomComponent {
-
-    set(properties: CustomComponentProperties): this;
-    set(property: string, value: any): this;
 
   }
 
