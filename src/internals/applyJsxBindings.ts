@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import { Widget, WidgetResizeEvent } from 'tabris';
-import { subscribe } from './subscribe';
-import { checkPathSyntax, checkPropertyExists, isUnchecked, WidgetInterface } from './utils';
+import { checkPathSyntax, checkPropertyExists, isUnchecked, WidgetInterface } from './utils-databinding';
 import { Binding } from '../api/to';
 
 const placeholder = /\$\{[^\}]+\}/g;
@@ -27,14 +26,12 @@ export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings) 
   targetInstance.once({resize: checkBindingsApplied});
 }
 
-export function processOneWayBindings(base: WidgetInterface, target: Widget) {
-  let bindings = getOneWayBindings(target);
-  if (bindings) {
-    for (let binding of bindings) {
-      initOneWayBinding(base, binding);
-    }
-    clearOneWayBindings(target);
-  }
+export function getOneWayBindings(instance: Widget): OneWayBinding[] {
+  return instance[oneWayBindingsKey];
+}
+
+export function clearOneWayBindings(instance: Widget) {
+  delete instance[oneWayBindingsKey];
 }
 
 function asBinding(value: any): Binding {
@@ -42,37 +39,6 @@ function asBinding(value: any): Binding {
     path: value && value.path ? value.path.toString() : (value || '').toString(),
     converter: value.converter
   };
-}
-
-function initOneWayBinding(base: WidgetInterface, binding: OneWayBinding) {
-  try {
-    checkPropertyExists(base, binding.path[0], base.constructor.name);
-    const cancel = subscribe(base, binding.path, rawValue => {
-      try {
-        applyValue(binding, evaluateBinding(binding, rawValue));
-      } catch (ex) {
-        throwBindingFailedError(binding, ex);
-      }
-    });
-    base.on({dispose: cancel});
-  } catch (ex) {
-    throwBindingFailedError(binding, ex);
-  }
-}
-
-function evaluateBinding(binding: OneWayBinding, rawValue: any) {
-  if (rawValue === undefined) {
-    return binding.fallbackValue;
-  }
-  try {
-    return binding.converter(rawValue);
-  } catch (ex) {
-    throw new Error('Converter exception: ' + ex.message);
-  }
-}
-
-function applyValue(binding: OneWayBinding, value: any) {
-  binding.target[binding.targetProperty] = value;
 }
 
 function createOneWayBindingDesc(target: WidgetInterface, attribute: string, binding: Binding): OneWayBinding {
@@ -116,14 +82,6 @@ function checkBindingsApplied(ev: WidgetResizeEvent) {
   }
 }
 
-function getOneWayBindings(instance: Widget): OneWayBinding[] {
-  return instance[oneWayBindingsKey];
-}
-
-function clearOneWayBindings(instance: Widget) {
-  delete instance[oneWayBindingsKey];
-}
-
 function compileTemplate(template: string) {
   return value => template.replace(placeholder, value);
 }
@@ -145,7 +103,7 @@ function throwBindingFailedError({type, targetProperty, bindingString}: Partial<
 
 const oneWayBindingsKey = Symbol();
 
-interface OneWayBinding {
+export interface OneWayBinding {
   type: 'bind' | 'template';
   converter: (v: any) => string;
   bindingString: string;

@@ -1,4 +1,4 @@
-import { BaseConstructor } from '../internals/utils';
+import { BaseConstructor, isPrimitiveType } from '../internals/utils';
 
 /**
  * Performs type checks on the given value. If the check fails the function throws an error message stating the reason.
@@ -58,10 +58,6 @@ function getTypeName(type: BaseConstructor<any>) {
 
 function isBoxedValue(value: any) {
   return value instanceof Boolean || value instanceof Number || value instanceof String;
-}
-
-function isPrimitiveType(type: BaseConstructor<any>) {
-  return type === Boolean || type === Number || type === String;
 }
 
 function isPrimitiveValue(value: any) {

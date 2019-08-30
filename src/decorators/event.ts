@@ -1,5 +1,5 @@
 import { ChangeListeners, Listeners } from 'tabris';
-import { getPropertyStore } from '../internals/utils';
+import { getPropertyStore } from '../internals/utils-databinding';
 
 interface ListenersStore {[name: string]: Listeners<any>; }
 interface TargetInstance {[key: string]: ListenersStore; }

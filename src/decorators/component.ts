@@ -1,8 +1,9 @@
 import 'reflect-metadata';
 import { Widget, WidgetCollection } from 'tabris';
 import { Composite } from 'tabris';
-import { processOneWayBindings } from '../internals//bind-one-way';
-import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory, isAppended, markAsAppended, markAsComponent, originalAppendKey, postAppendHandlers, WidgetInterface } from '../internals//utils';
+import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory } from '../internals//utils';
+import { isAppended, markAsAppended, markAsComponent, originalAppendKey, postAppendHandlers, WidgetInterface } from '../internals//utils-databinding';
+import { processOneWayBindings } from '../internals/processOneWayBindings';
 
 /**
  * A decorator for classes extending `Widget`.
