@@ -28,5 +28,6 @@ The following data binding related decorators are exported by `tabris-decorators
   * [@component](./@component.md) - Class decorators that enables data binding within a custom component.
   * [@property](./@property.md) - Makes any property a valid source of one-way bindings.
   * [@bind](./@bind.md) - Configures a custom component property for two-way bindings.
+  * [@bindAll](./@bindAll.md) - Shorthand for `@bind({all})`
   * [@event](./@event.md) - Auto-initializes a [`Listeners`](../api/Listeners.md) properties to create a type-safe (change) event APIs.
   * [@getById](./@getById.md) - Auto-initializes a (usually private) custom component property for direct access to a child element.
