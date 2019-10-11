@@ -17,6 +17,7 @@ export * from './api/checkType';
 export * from './api/Injector';
 export * from './api/interfaces';
 export * from './api/to';
+export * from './api/List';
 
 /**
  * A decorator that marks a constructor parameter for injections based on the type of the parameter:
