@@ -1,6 +1,6 @@
 {
   "name": "tabris-decorators",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "repository": {
@@ -34,7 +34,7 @@
     "npm": "^6.9.0",
     "sinon": "^7.4.1",
     "sinon-chai": "^3.3.0",
-    "tabris": "^3.0.0",
+    "tabris": "^3.2.1",
     "ts-loader": "^6.0.4",
     "ts-mocha": "^6.0.0",
     "tslint": "^5.18.0",
