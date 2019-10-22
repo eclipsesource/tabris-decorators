@@ -24,7 +24,7 @@ export function checkType(value: any, type: BaseConstructor<any>) {
   );
 }
 
-function getValueString(value: any): string {
+export function getValueString(value: any): string {
   let result = 'value';
   if (value === '') {
     result += ' [empty string]';
