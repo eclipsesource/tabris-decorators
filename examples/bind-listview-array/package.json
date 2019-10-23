@@ -1,5 +1,5 @@
 {
-  "name": "bind-lintview-list",
+  "name": "bind-listview-array",
   "version": "3.2.1",
   "dependencies": {
     "reflect-metadata": "^0.1.13",

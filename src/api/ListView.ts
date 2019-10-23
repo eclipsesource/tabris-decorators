@@ -1,7 +1,7 @@
 import { ChangeListeners, CollectionView, Properties } from 'tabris';
 import { Cell, TextCell } from './Cell';
 import { getValueString } from './checkType';
-import { List, listObservers, Mutation } from './List';
+import { List, ListLike, listObservers, Mutation } from './List';
 import { component } from '../decorators/component';
 import { event } from '../decorators/event';
 
@@ -9,7 +9,7 @@ import { event } from '../decorators/event';
 export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
 
   @event public onItemsChanged: ChangeListeners<this, 'items'>;
-  protected _items: List<ItemType> = null;
+  protected _items: ListLike<ItemType> = null;
 
   constructor(properties: Properties<ListView<ItemType>> = {}) {
     super();
@@ -18,18 +18,19 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
       .set(properties);
   }
 
-  public set items(value: List<ItemType>) {
+  public set items(value: ListLike<ItemType>) {
     if (value === this._items) {
       return;
     }
-    if (!(value instanceof List) && value !== null) {
-      throw new Error('Failed to set property "items": ' + getValueString(value) + ' is not a List');
-    };
+    if (!(value instanceof List) && !(value instanceof Array) && value !== null) {
+      throw new Error('Failed to set property "items": ' + getValueString(value) + ' is not a List or Array');
+    }
     if (this._items instanceof List) {
       listObservers(this._items).removeListener(this._handleMutation);
     }
+    const oldValue = this._items;
     this._items = value;
-    this.load(value ? value.length : 0);
+    this._autoUpdate(oldValue);
     if (value instanceof List) {
       listObservers(value).addListener(this._handleMutation);
     }
@@ -55,6 +56,72 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
     }
   }
 
+  protected _autoUpdate(oldList: ListLike<ItemType>): void {
+    if (!(this._items instanceof Array && oldList instanceof Array)) {
+      return this.load((this._items || []).length);
+    }
+    if (this._items.length === oldList.length) {
+      return this._items.forEach((value, index) => {
+        if (value !== oldList[index]) { this.refresh(index); }
+      });
+    }
+    if (this._items.length > oldList.length) {
+      const range = getDiff(this._items, oldList);
+      if (range) {
+        return this.insert(range[0], range[1]);
+      }
+    }
+    if (this._items.length < oldList.length) {
+      const range = getDiff(oldList, this._items);
+      if (range) {
+        return this.remove(range[0], range[1]);
+      }
+    }
+    this.load(this._items.length);
+  }
+
+}
+
+/**
+ * Returns a single range that changed (insert or delete) between two arrays.
+ * If this is not possible returns null instead. Assumes the item count has changed.
+ */
+function getDiff(listA: ListLike<unknown>, listB: ListLike<unknown>): [number, number] {
+  const start = getMatchLength([listB, 0], [listA, 0]);
+  if (start === listB.length) {
+    return [start, listA.length - start];
+  }
+  const nextMatch = listA.indexOf(listB[start], start);
+  if (nextMatch < 0) {
+    return null;
+  }
+  const length = nextMatch - start;
+  const tail = getMatchLength([listB, start], [listA, start + length]);
+  if (((start + length + tail) === listA.length) && ((start + tail) === listB.length)) {
+    return [start, length];
+  }
+  return null;
+}
+
+/**
+ * Returns the amount of items that are equal between the two
+ * arrays starting from the given offsets.
+ */
+function getMatchLength(
+  [itemsA, offsetA]: [ListLike<unknown>, number],
+  [itemsB, offsetB]: [ListLike<unknown>, number]
+): number {
+  let indexA = offsetA;
+  let indexB = offsetB;
+  while (indexA < itemsA.length && indexB < itemsB.length) {
+    if (itemsA[indexA] === itemsB[indexB]) {
+      indexA++;
+      indexB++;
+    } else {
+      break;
+    }
+  }
+  return indexA - offsetA;
 }
 
 function createCell(): Cell<any> {

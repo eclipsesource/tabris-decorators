@@ -5,7 +5,7 @@ import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox, spy } from './test';
 import { component, event, injector, property, to } from '../src';
 import { TextCell } from '../src/api/Cell';
-import { List } from '../src/api/List';
+import { List, ListLike } from '../src/api/List';
 import { ListView } from '../src/api/ListView';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
 
@@ -15,16 +15,19 @@ describe('ListView', () => {
     public foo: string = 'bar';
   }
 
+  function items() {
+    const arr: MyItem[]  = new Array(10);
+    for (let i = 0; i < 10; i++) {
+      arr[i] = new MyItem();
+    }
+    return arr;
+  }
+
   let listView: ListView<MyItem>;
-  let list: List<MyItem>;
 
   beforeEach(() => {
     tabris._init(new ClientMock());
     JSX.install(injector.jsxProcessor);
-    list = new List(10);
-    for (let i = 0; i < 10; i++) {
-      list[i] = new MyItem();
-    }
   });
 
   afterEach(() => {
@@ -47,12 +50,23 @@ describe('ListView', () => {
     });
 
     it('accepts List', () => {
+      const list = List.from(items());
+
       listView.items = list;
 
       expect(listView.items).to.equal(list);
     });
 
+    it('accepts Array', () => {
+      const arr = items();
+
+      listView.items = arr;
+
+      expect(listView.items).to.equal(arr);
+    });
+
     it('fires change event', () => {
+      const list = List.from(items());
       const listener = spy();
       listView.onItemsChanged(listener);
 
@@ -62,6 +76,7 @@ describe('ListView', () => {
     });
 
     it('does not fire change event when setting same list', () => {
+      const list = List.from(items());
       const listener = spy();
       listView.items = list;
       listView.onItemsChanged(listener);
@@ -72,7 +87,7 @@ describe('ListView', () => {
     });
 
     it('accepts null', () => {
-      listView.items = list;
+      listView.items = items();
       listView.items = null;
 
       expect(listView.items).to.be.null;
@@ -88,7 +103,7 @@ describe('ListView', () => {
     it('reloads with new length', () => {
       spy(listView, 'load');
 
-      listView.items = list;
+      listView.items = items();
 
       expect(listView.load).to.have.been.calledOnceWith(10);
       expect(listView.itemCount).to.equal(10);
@@ -106,7 +121,10 @@ describe('ListView', () => {
 
     describe('mutation', () => {
 
+      let list: List<MyItem>;
+
       beforeEach(() => {
+        list = List.from(items());
         listView.items = list;
         spy(listView, 'refresh');
         spy(listView, 'remove');
@@ -224,6 +242,238 @@ describe('ListView', () => {
 
     });
 
+    describe('diffing', () => {
+
+      let arr: MyItem[];
+      let copy: MyItem[];
+
+      beforeEach(() => {
+        arr = items();
+        // ensures duplicate entries do not cause issues:
+        arr = arr.concat(arr.reverse());
+        copy = arr.concat();
+        listView.items = arr;
+        spy(listView, 'refresh');
+        spy(listView, 'remove');
+        spy(listView, 'insert');
+        spy(listView, 'load');
+      });
+
+      it('does nothing with exact copy', () => {
+        listView.items = copy;
+
+        expect(listView.refresh).not.to.have.been.called;
+        expect(listView.insert).not.to.have.been.called;
+        expect(listView.remove).not.to.have.been.called;
+        expect(listView.load).not.to.have.been.called;
+      });
+
+      it('calls refresh on set', () => {
+        copy[2] = new MyItem();
+
+        listView.items = copy;
+
+        expect(listView.refresh).to.have.been.calledOnceWith(2);
+      });
+
+      it('calls refresh on multi-set', () => {
+        copy[0] = new MyItem();
+        copy[10] = new MyItem();
+        copy[19] = new MyItem();
+
+        listView.items = copy;
+
+        expect(listView.refresh).to.have.been.calledWith(0);
+        expect(listView.refresh).to.have.been.calledWith(10);
+        expect(listView.refresh).to.have.been.calledWith(19);
+      });
+
+      it('calls refresh on range-set', () => {
+        copy.splice(10, 3, new MyItem(), new MyItem(), new MyItem());
+
+        listView.items = copy;
+
+        expect(listView.refresh).to.have.been.calledWith(10);
+        expect(listView.refresh).to.have.been.calledWith(11);
+        expect(listView.refresh).to.have.been.calledWith(12);
+      });
+
+      it('calls refresh on shift', () => {
+        copy.splice(2, 0, new MyItem());
+        copy.splice(4, 1);
+
+        listView.items = copy;
+
+        expect(listView.refresh).to.have.been.calledWith(2);
+        expect(listView.refresh).to.have.been.calledWith(3);
+      });
+
+      it('calls refresh on duplication', () => {
+        copy[3] = copy[4];
+
+        listView.items = copy;
+
+        expect(listView.refresh).to.have.been.calledOnceWith(3);
+      });
+
+      it('calls refresh on flip', () => {
+        const temp = copy[3];
+        copy[3] = copy[4];
+        copy[4] = temp;
+
+        listView.items = copy;
+
+        expect(listView.refresh).to.have.been.calledWith(3);
+        expect(listView.refresh).to.have.been.calledWith(4);
+      });
+
+      it('calls insert on single insert', () => {
+        copy.splice(10, 0, new MyItem());
+
+        listView.items = copy;
+
+        expect(listView.load).not.to.have.been.called;
+        expect(listView.insert).to.have.been.calledOnceWith(10, 1);
+      });
+
+      it('calls insert on range insert', () => {
+        copy.splice(10, 0, new MyItem(), new MyItem(), new MyItem());
+
+        listView.items = copy;
+
+        expect(listView.insert).to.have.been.calledOnceWith(10, 3);
+      });
+
+      it('calls insert on push', () => {
+        copy.push(new MyItem());
+
+        listView.items = copy;
+
+        expect(listView.insert).to.have.been.calledOnceWith(20, 1);
+      });
+
+      it('calls insert on unshift', () => {
+        copy.unshift(new MyItem());
+
+        listView.items = copy;
+
+        expect(listView.insert).to.have.been.calledOnceWith(0, 1);
+      });
+
+      it('calls insert on length set', () => {
+        copy.length = 30;
+
+        listView.items = copy;
+
+        expect(listView.insert).to.have.been.calledOnceWith(20, 10);
+      });
+
+      it('calls remove on single remove', () => {
+        copy.splice(10, 1);
+
+        listView.items = copy;
+
+        expect(listView.remove).to.have.been.calledOnceWith(10, 1);
+      });
+
+      it('calls remove on range remove', () => {
+        copy.splice(10, 3);
+
+        listView.items = copy;
+
+        expect(listView.remove).to.have.been.calledOnceWith(10, 3);
+      });
+
+      it('calls remove on pop', () => {
+        copy.pop();
+
+        listView.items = copy;
+
+        expect(listView.remove).to.have.been.calledOnceWith(19, 1);
+      });
+
+      it('calls remove on shift', () => {
+        copy.shift();
+
+        listView.items = copy;
+
+        expect(listView.remove).to.have.been.calledOnceWith(0, 1);
+      });
+
+      it('calls remove on length set', () => {
+        copy.length = 10;
+
+        listView.items = copy;
+
+        expect(listView.remove).to.have.been.calledOnceWith(10, 10);
+      });
+
+      it('calls load on set and insert', () => {
+        copy[0] = new MyItem();
+        copy.push(new MyItem());
+
+        listView.items = copy;
+
+        expect(listView.refresh).not.to.have.been.called;
+        expect(listView.insert).not.to.have.been.called;
+        expect(listView.load).to.have.been.calledOnceWith(21);
+      });
+
+      it('calls load on set and remove', () => {
+        copy[1] = new MyItem();
+        copy.pop();
+
+        listView.items = copy;
+
+        expect(listView.refresh).not.to.have.been.called;
+        expect(listView.remove).not.to.have.been.called;
+        expect(listView.load).to.have.been.calledOnceWith(19);
+      });
+
+      it('calls load on splice with more inserts than deletes', () => {
+        copy.splice(2, 1, new MyItem(), new MyItem());
+
+        listView.items = copy;
+
+        expect(listView.refresh).not.to.have.been.called;
+        expect(listView.insert).not.to.have.been.called;
+        expect(listView.load).to.have.been.calledOnceWith(21);
+      });
+
+      it('calls load on splice with more deletes than inserts', () => {
+        copy.splice(2, 4, new MyItem(), new MyItem(), new MyItem());
+
+        listView.items = copy;
+
+        expect(listView.refresh).not.to.have.been.called;
+        expect(listView.remove).not.to.have.been.called;
+        expect(listView.load).to.have.been.calledOnceWith(19);
+      });
+
+      it('calls load on multiple removes', () => {
+        copy.splice(2, 2);
+        copy.splice(12, 1);
+
+        listView.items = copy;
+
+        expect(listView.refresh).not.to.have.been.called;
+        expect(listView.remove).not.to.have.been.called;
+        expect(listView.load).to.have.been.calledOnceWith(17);
+      });
+
+      it('calls load on multiple inserts', () => {
+        copy.splice(2, 0, new MyItem());
+        copy.splice(12, 0, new MyItem());
+
+        listView.items = copy;
+
+        expect(listView.refresh).not.to.have.been.called;
+        expect(listView.insert).not.to.have.been.called;
+        expect(listView.load).to.have.been.calledOnceWith(22);
+      });
+
+    });
+
   });
 
   describe('createCell', () => {
@@ -238,7 +488,7 @@ describe('ListView', () => {
 
     beforeEach(() => {
       listView = new ListView();
-      listView.items = list;
+      listView.items = items();
     });
 
     it('assigns items', () => {
@@ -248,9 +498,9 @@ describe('ListView', () => {
       expect(listView.updateCell(cells[1], 1));
       expect(listView.updateCell(cells[2], 2));
 
-      expect(cells[0].item).to.equal(list[0]);
-      expect(cells[1].item).to.equal(list[1]);
-      expect(cells[2].item).to.equal(list[2]);
+      expect(cells[0].item).to.equal(listView.items[0]);
+      expect(cells[1].item).to.equal(listView.items[1]);
+      expect(cells[2].item).to.equal(listView.items[2]);
     });
 
   });
