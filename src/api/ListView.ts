@@ -1,4 +1,4 @@
-import { ChangeListeners, CollectionView, Properties } from 'tabris';
+import { ChangeListeners, CollectionView, JSXAttributes, Properties } from 'tabris';
 import { Cell, TextCell } from './Cell';
 import { getValueString } from './checkType';
 import { List, ListLike, listObservers, Mutation } from './List';
@@ -8,15 +8,7 @@ import { event } from '../decorators/event';
 @component
 export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
 
-  @event public onItemsChanged: ChangeListeners<this, 'items'>;
-  protected _items: ListLike<ItemType> = null;
-
-  constructor(properties: Properties<ListView<ItemType>> = {}) {
-    super();
-    this
-      .set({createCell, updateCell} as any /* tabris declarations bug */)
-      .set(properties);
-  }
+  public jsxAttributes: JSXAttributes<this> & {children: Cell[]};
 
   public set items(value: ListLike<ItemType>) {
     if (value === this._items) {
@@ -39,6 +31,16 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
 
   public get items() {
     return this._items;
+  }
+
+  @event public onItemsChanged: ChangeListeners<this, 'items'>;
+  protected _items: ListLike<ItemType> = null;
+
+  constructor(properties: Properties<ListView<ItemType>> = {}) {
+    super();
+    this
+      .set({createCell, updateCell} as any /* tabris declarations bug */)
+      .set(properties);
   }
 
   protected _handleMutation = ({start, deleteCount, items}: Mutation<ItemType>) => {
@@ -78,6 +80,16 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
       }
     }
     this.load(this._items.length);
+  }
+
+  // tslint:disable-next-line
+  public [JSX.jsxFactory](Type, attributes) {
+    const {children, ...pureAttributes} = attributes;
+    const result = CollectionView.prototype[JSX.jsxFactory].call(this, Type, pureAttributes);
+    if (children) {
+      result.createCell = Cell.factory(children[0]);
+    }
+    return result;
   }
 
 }

@@ -1,9 +1,9 @@
 import 'mocha';
 import { match } from 'sinon';
-import { Color, Composite, Properties, tabris, TextView, WidgetCollection } from 'tabris';
+import { ChangeListeners, Composite, ImageView, JSXAttributes, Properties, Stack, tabris, TextView, Widget, WidgetCollection } from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox, spy } from './test';
-import { injector } from '../src';
+import { injector, property } from '../src';
 import { Cell, TextCell } from '../src/api/Cell';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
 
@@ -11,6 +11,12 @@ describe('Cell', () => {
 
   class MyItem {
     public foo: string = 'bar';
+  }
+
+  class MyCell extends Cell<MyItem> {
+    constructor(properties: Properties<MyCell>) {
+      super({highlightOnTouch: true});
+    }
   }
 
   beforeEach(() => {
@@ -45,11 +51,6 @@ describe('Cell', () => {
   });
 
   it('can be extended', () => {
-    class MyCell extends Cell<MyItem> {
-      constructor(properties: Properties<MyCell>) {
-        super({highlightOnTouch: true});
-      }
-    }
     const cell: MyCell = (
       <MyCell>
         <TextView bind-text='item.foo'/>
@@ -59,6 +60,263 @@ describe('Cell', () => {
     cell.item = new MyItem();
 
     expect((cell as any)._find(TextView).only().text).to.equal('bar');
+  });
+
+  describe('factory', () => {
+
+    it ('throws for falsy argument', () => {
+      expect(() => Cell.factory(null)).to.throw();
+    });
+
+    it ('throws for non "Cell" instance argument', () => {
+      class NotCell extends Composite {
+        @property public item: MyItem;
+      }
+      expect(() => Cell.factory(<NotCell/>)).to.throw();
+    });
+
+    it ('throws for cells not created via JSX', () => {
+      expect(() => Cell.factory(new Cell())).to.throw();
+    });
+
+    describe('from Cell element', () => {
+
+      it ('returns same factory every time', () => {
+        let cell: Cell<MyItem> = <Cell/>;
+        expect(Cell.factory(cell)).to.equal(Cell.factory(cell));
+        expect(Cell.factory(Cell.factory(cell)())).to.equal(Cell.factory(cell));
+      });
+
+      it ('returns source element first', () => {
+        let cell: Cell<MyItem> = <Cell/>;
+        expect(Cell.factory(cell)()).to.equal(cell);
+      });
+
+      it ('returns new elements after first', () => {
+        let cell: Cell<MyItem> = <Cell/>;
+        const first = Cell.factory(cell)();
+
+        const second = Cell.factory(cell)();
+        const third = Cell.factory(cell)();
+
+        expect(second).to.be.instanceOf(Cell);
+        expect(third).to.be.instanceOf(Cell);
+        expect(first).not.to.equal(second);
+        expect(second).not.to.equal(third);
+      });
+
+      it ('returns elements of same class', () => {
+        const factory = Cell.factory(<MyCell/>);
+        factory();
+
+        expect(factory()).to.be.instanceOf(MyCell);
+      });
+
+      it ('returns elements with same attribute values', () => {
+        const factory = Cell.factory(<Cell enabled={false} height={23}/>);
+        factory();
+
+        const element = factory();
+
+        expect(element.enabled).to.be.false;
+        expect(element.height).to.equal(23);
+      });
+
+      it ('returns elements with attributes from creation only', () => {
+        const cell = <Cell enabled={false} height={23}/>;
+        cell.enabled = true;
+        const factory = Cell.factory(<Cell enabled={false} height={23}/>);
+        cell.height = 13;
+        factory();
+
+        const element = factory();
+
+        expect(element.enabled).to.be.false;
+        expect(element.height).to.equal(23);
+      });
+
+      it ('returns elements with same listeners', () => {
+        const listener = spy();
+        const factory = Cell.factory(<Cell onEnabledChanged={listener}/>);
+        const original = factory();
+
+        const copy = factory();
+        original.enabled = false;
+        copy.enabled = false;
+
+        expect(listener).to.be.have.been.calledTwice;
+        expect(listener.firstCall.args[0].target).to.equal(original);
+        expect(listener.secondCall.args[0].target).to.equal(copy);
+      });
+
+      it ('returns elements with listeners from creation only', () => {
+        const listener = spy();
+        const factory = Cell.factory(<Cell onEnabledChanged={listener}/>);
+        const original = factory();
+        original.onHighlightOnTouchChanged(listener);
+        original.onEnabledChanged.removeListener(listener);
+
+        const copy = factory();
+        copy.enabled = false;
+        copy.highlightOnTouch = true;
+
+        expect(listener).to.be.have.been.calledOnce;
+        expect(listener.firstCall.args[0].target).to.equal(copy);
+        expect(listener.firstCall.args[0].value).to.be.false;
+      });
+
+      describe('with children', () => {
+
+        function _children(widget: Widget): WidgetCollection {
+          return (widget as any)._children();
+        }
+
+        function clone(cell: Cell): Cell {
+          const factory = Cell.factory(cell);
+          factory();
+          return factory();
+        }
+
+        it('clones only child', () => {
+          const cell: Cell = (
+            <Cell>
+              <TextView text='foo'/>
+            </Cell>
+          );
+
+          const children = _children(clone(cell));
+
+          expect(children.length).to.equal(1);
+          expect(children[0]).to.be.instanceOf(TextView);
+          expect((children[0] as TextView).text).to.equal('foo');
+          expect(children[0]).not.to.equal(_children(cell)[0]);
+        });
+
+        it('clones children from creation only', () => {
+          const cell: Cell = (
+            <Cell>
+              <TextView text='foo'/>
+            </Cell>
+          );
+          _children(cell).dispose();
+          cell.append(<ImageView/>);
+
+          const children = _children(clone(cell));
+
+          expect(children.length).to.equal(1);
+          expect(children[0]).to.be.instanceOf(TextView);
+        });
+
+        it('clones children from JSX syntax only', () => {
+          const cell: Cell = (
+            <Cell>
+              {new TextView({text: 'foo'})}
+            </Cell>
+          );
+
+          expect(() => _children(clone(cell))).to.throw();
+        });
+
+        it('clones children deeply', () => {
+          const cell: Cell = (
+            <Cell>
+              <Stack>
+                <TextView text='foo'/>
+                <TextView text='bar'/>
+              </Stack>
+            </Cell>
+          );
+
+          const children = _children(clone(cell));
+
+          expect(children.length).to.equal(1);
+          expect(children[0]).to.be.instanceOf(Stack);
+          expect(_children(children[0]).length).to.equal(2);
+          expect((_children(children[0])[0] as TextView).text).to.equal('foo');
+          expect((_children(children[0])[1] as TextView).text).to.equal('bar');
+        });
+
+        it('clones with text content', () => {
+          const cell: Cell = (
+            <Cell>
+              <Stack>
+                <TextView>foo</TextView>
+                <TextView>bar</TextView>
+              </Stack>
+            </Cell>
+          );
+
+          const children = _children(clone(cell));
+
+          expect(children.length).to.equal(1);
+          expect(children[0]).to.be.instanceOf(Stack);
+          expect(_children(children[0]).length).to.equal(2);
+          expect((_children(children[0])[0] as TextView).text).to.equal('foo');
+          expect((_children(children[0])[1] as TextView).text).to.equal('bar');
+        });
+
+        it('clones with data binding', () => {
+          const cell: Cell = (
+            <Cell>
+              <TextView bind-text='item.foo'/>
+            </Cell>
+          );
+          const copy = clone(cell);
+
+          copy.item = new MyItem();
+
+          expect((_children(copy)[0] as TextView).text).to.equal('bar');
+          expect((_children(cell)[0] as TextView).text).to.equal('');
+        });
+
+        it('clones custom Cell with constructor created content', () => {
+          class MyCustomCell extends Cell<MyItem> {
+            constructor() {
+              super();
+              this.append(<TextView bind-text='item.foo'/>);
+            }
+          }
+          const cell: Cell = <MyCustomCell/>;
+
+          const copy = clone(cell);
+          copy.item = new MyItem();
+
+          expect(_children(cell).length).to.equal(1);
+          expect(_children(copy).length).to.equal(1);
+          expect((_children(copy)[0] as TextView).text).to.equal('bar');
+          expect((_children(cell)[0] as TextView).text).to.equal('');
+        });
+
+        it('clones with functional components using non-JSX syntax internally', () => {
+          function MyStack(args: {highlightOnTouch: boolean, children: Widget[]}): Stack {
+            return new Stack({
+              enabled: false,
+              highlightOnTouch: args.highlightOnTouch
+            }).append(args.children);
+          }
+          const cell: Cell = (
+            <Cell>
+              <MyStack highlightOnTouch>
+                <TextView>foo</TextView>
+              </MyStack>
+            </Cell>
+          );
+
+          const children = _children(clone(cell));
+
+          expect(children.length).to.equal(1);
+          expect(children[0]).to.be.instanceOf(Stack);
+          expect(children[0].enabled).to.be.false;
+          expect(children[0].highlightOnTouch).to.be.true;
+          expect(_children(children[0]).length).to.equal(1);
+          expect(_children(children[0])[0]).not.to.equal(_children(_children(cell)[0])[0]);
+          expect((_children(children[0])[0] as TextView).text).to.equal('foo');
+        });
+
+      });
+
+    });
+
   });
 
   describe('item', () => {
