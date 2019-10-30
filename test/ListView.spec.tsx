@@ -1,10 +1,10 @@
 import 'mocha';
 import { match } from 'sinon';
-import { ChangeListeners, CollectionView, Composite, PropertyChangedEvent, tabris, TextInput, TextView, WidgetCollection } from 'tabris';
+import { CollectionView, Image, ImageView, tabris, TextInput, TextView, Widget, WidgetCollection } from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox, spy } from './test';
-import { component, event, injector, property, to } from '../src';
-import { TextCell } from '../src/api/Cell';
+import { injector } from '../src';
+import { Cell, TextCell } from '../src/api/Cell';
 import { List, ListLike } from '../src/api/List';
 import { ListView } from '../src/api/ListView';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
@@ -478,8 +478,41 @@ describe('ListView', () => {
 
   describe('createCell', () => {
 
+    function _children(widget: Widget): WidgetCollection {
+      return (widget as any)._children();
+    }
+
     it('creates TextCell initially', () => {
       expect(new ListView().createCell('')).to.be.instanceOf(TextCell);
+    });
+
+    it('is set by JSX Cell children', () => {
+      listView = (
+        <ListView>
+          <Cell highlightOnTouch>
+            <TextView bind-text='item.foo'/>
+            <ImageView image='foo.png'/>
+          </Cell>
+        </ListView>
+      );
+
+      const cell = listView.createCell('');
+      cell.item = new MyItem();
+
+      expect(cell).to.be.instanceOf(Cell);
+      expect(cell).not.to.equal(listView.createCell(''));
+      expect(cell.highlightOnTouch).to.be.true;
+      expect(_children(cell)[0]).to.be.instanceOf(TextView);
+      expect(_children(cell).only(TextView).text).to.equal('bar');
+      expect(Image.from(_children(cell).only(ImageView).image).src).to.equal('foo.png');
+    });
+
+    it('can not be set by non-Cell children', () => {
+      expect(() => (
+        <ListView>
+          <TextView bind-text='item.foo'/>
+        </ListView>
+      )).to.throw();
     });
 
   });
