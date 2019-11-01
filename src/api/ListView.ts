@@ -1,9 +1,15 @@
 import { ChangeListeners, CollectionView, JSXAttributes, Properties } from 'tabris';
-import { Cell, TextCell } from './Cell';
+import { Cell, ItemCheck, ItemTypeDef, TextCell } from './Cell';
 import { getValueString } from './checkType';
 import { List, ListLike, listObservers, Mutation } from './List';
 import { component } from '../decorators/component';
 import { event } from '../decorators/event';
+
+type CellFactoryDef<T> = {
+  itemType: ItemTypeDef<T>,
+  itemCheck: ItemCheck<T>,
+  create: () => Cell<T>
+};
 
 @component
 export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
@@ -39,7 +45,7 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
   constructor(properties: Properties<ListView<ItemType>> = {}) {
     super();
     this
-      .set({createCell, updateCell} as any /* tabris declarations bug */)
+      .set({createCell: defaultCreateCell, updateCell} as any /* tabris declarations bug */)
       .set(properties);
   }
 
@@ -85,13 +91,59 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
   // tslint:disable-next-line
   public [JSX.jsxFactory](Type, attributes) {
     const {children, ...pureAttributes} = attributes;
-    const result = CollectionView.prototype[JSX.jsxFactory].call(this, Type, pureAttributes);
-    if (children) {
-      result.createCell = Cell.factory(children[0]);
+    const result: ListView<unknown>
+      = CollectionView.prototype[JSX.jsxFactory].call(this, Type, pureAttributes);
+    if (children instanceof Array) {
+      const factories: Array<CellFactoryDef<unknown>> = children.map((child, index) => ({
+        itemType: child.itemType,
+        itemCheck: child.itemCheck,
+        create: Cell.factory(child)
+      }));
+      result.cellType = getCellTypeCallback(result, factories);
+      result.createCell = getCreateCellCallback(factories);
     }
     return result;
   }
 
+}
+
+function getCellTypeCallback(
+  listView: ListView<unknown>,
+  factories: Array<CellFactoryDef<unknown>>
+): ((index: number) => string) {
+  return (itemIndex: number) => {
+    const item = listView.items[itemIndex];
+    const factoryIndex = factories.findIndex(entry => factorySupportsItem(entry, item));
+    if (factoryIndex < 0) {
+      throw new Error('No cell factory found for item ' + itemIndex);
+    }
+    return factoryIndex + '';
+  };
+}
+
+function factorySupportsItem(factory: CellFactoryDef<unknown>, item: unknown): boolean {
+  if (factory.itemType instanceof Function && !(item instanceof factory.itemType)) {
+    return false;
+  }
+  if (typeof factory.itemType === 'string' && typeof item !== factory.itemType) {
+    return false;
+  }
+  if (factory.itemCheck instanceof Function && !factory.itemCheck(item)) {
+    return false;
+  }
+  return true;
+}
+
+function getCreateCellCallback(
+  factories: Array<CellFactoryDef<unknown>>
+): (cellType: string) => Cell<unknown> {
+  return (type: string) => {
+    const factoryIndex = parseInt(type, 10);
+    if (isNaN(factoryIndex)) {
+      throw new Error('Invalid cell factory index ' + factoryIndex);
+    }
+    return factories[factoryIndex].create();
+  };
 }
 
 /**
@@ -136,7 +188,7 @@ function getMatchLength(
   return indexA - offsetA;
 }
 
-function createCell(): Cell<any> {
+function defaultCreateCell(): Cell<any> {
   return new TextCell();
 }
 

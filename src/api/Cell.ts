@@ -3,8 +3,17 @@ import { component } from '../decorators/component';
 import { event } from '../decorators/event';
 import { property } from '../decorators/property';
 import { getJsxTemplate, JsxTemplate } from '../internals/ExtendedJSX';
+import { Constructor } from '../internals/utils';
 
 const factory: unique symbol = Symbol('factory');
+
+export type ItemTypeDef<T> = Constructor<T> | 'string' | 'number' | 'boolean';
+export type ItemCheck<T> = (value: T) => boolean;
+export type CellCreationArgs<ItemType> = {
+  itemType?: ItemTypeDef<ItemType>,
+  itemCheck?: ItemCheck<ItemType>,
+  item?: never
+};
 
 @component
 export class Cell<ItemType = unknown> extends Composite {
@@ -30,18 +39,24 @@ export class Cell<ItemType = unknown> extends Composite {
     return original[factory];
   }
 
-  public jsxAttributes: JSXAttributes<this> & {children?: JSXChildren<Widget>, item?: never};
-  @property public item: ItemType = null;
+  public jsxAttributes: JSXAttributes<this>
+    & {children?: JSXChildren<Widget>}
+    & CellCreationArgs<ItemType>;
+
   @event public onItemChanged: ChangeListeners<this, 'item'>;
+
+  @property public readonly itemType: ItemTypeDef<ItemType>;
+  @property public readonly itemCheck: ItemCheck<ItemType>;
+  @property public item: ItemType = null;
 
   private [factory]: () => this;
 
-  constructor(properties?: Properties<Composite>) {
+  constructor(properties?: Properties<Composite> & CellCreationArgs<ItemType>) {
     super();
     if (properties && ('item' in properties)) {
       throw new Error('item must not be initialized');
     }
-    this.set(properties || {});
+    this.set<Composite & CellCreationArgs<ItemType>>(properties || {});
   }
 
   // tslint:disable-next-line
