@@ -23,7 +23,7 @@ describe('ListView', () => {
     return arr;
   }
 
-  let listView: ListView<MyItem>;
+  let listView: ListView<MyItem | string | Image>;
 
   beforeEach(() => {
     tabris._init(new ClientMock());
@@ -482,11 +482,15 @@ describe('ListView', () => {
       return (widget as any)._children();
     }
 
+    function cellForItem(index: number) {
+      return listView.createCell((listView.cellType as (index: number) => string)(index));
+    }
+
     it('creates TextCell initially', () => {
-      expect(new ListView().createCell('')).to.be.instanceOf(TextCell);
+      expect(new ListView().createCell('0')).to.be.instanceOf(TextCell);
     });
 
-    it('is set by JSX Cell children', () => {
+    it('is set by single JSX Cell', () => {
       listView = (
         <ListView>
           <Cell highlightOnTouch>
@@ -496,15 +500,85 @@ describe('ListView', () => {
         </ListView>
       );
 
-      const cell = listView.createCell('');
+      const cell = listView.createCell('0');
       cell.item = new MyItem();
 
       expect(cell).to.be.instanceOf(Cell);
-      expect(cell).not.to.equal(listView.createCell(''));
+      expect(cell).not.to.equal(listView.createCell('0'));
       expect(cell.highlightOnTouch).to.be.true;
       expect(_children(cell)[0]).to.be.instanceOf(TextView);
       expect(_children(cell).only(TextView).text).to.equal('bar');
       expect(Image.from(_children(cell).only(ImageView).image).src).to.equal('foo.png');
+    });
+
+    it('is set for multiple types by multiple JSX Cell elements', () => {
+      listView = (
+        <ListView>
+          <Cell itemType={MyItem}>
+            <TextView bind-text='item.foo'/>
+            <ImageView image='foo.png'/>
+          </Cell>
+          <Cell itemType='string'>
+            <TextView bind-text='item'/>
+          </Cell>
+          <Cell itemCheck={Image.isImageValue}>
+            <ImageView bind-image='item'/>
+          </Cell>
+        </ListView>
+      );
+
+      listView.items = ['foo', new MyItem(), Image.from('foo')];
+
+      expect(_children(cellForItem(0)).length).to.equal(1);
+      expect(_children(cellForItem(1)).length).to.equal(2);
+      expect(_children(cellForItem(2)).length).to.equal(1);
+      expect(_children(cellForItem(0))[0]).to.be.instanceOf(TextView);
+      expect(_children(cellForItem(1))[0]).to.be.instanceOf(TextView);
+      expect(_children(cellForItem(1))[1]).to.be.instanceOf(ImageView);
+      expect(_children(cellForItem(2))[0]).to.be.instanceOf(ImageView);
+    });
+
+    it('prioritizes cell types by Cell element order', () => {
+      listView = (
+        <ListView>
+          <Cell itemType='string'>
+            <TextView/>
+          </Cell>
+          <Cell itemType={Object}/>
+          <Cell itemType={MyItem}>
+            <ImageView/>
+          </Cell>
+        </ListView>
+      );
+
+      listView.items = ['foo', new MyItem(), Image.from('foo')];
+
+      expect(_children(cellForItem(0)).length).to.equal(1);
+      expect(_children(cellForItem(1)).length).to.equal(0);
+      expect(_children(cellForItem(2)).length).to.equal(0);
+      expect(_children(cellForItem(0))[0]).to.be.instanceOf(TextView);
+    });
+
+    it('combines itemType with itemCheck', () => {
+      listView = (
+        <ListView>
+          <Cell itemType={Object} itemCheck={v => !(v instanceof Image)}/>
+          <Cell itemType={Image} itemCheck={v => v.height !== 'auto' && v.height <= 50}>
+            <ImageView height={50}/>
+          </Cell>
+          <Cell itemType={Image}>
+            <ImageView height={100}/>
+          </Cell>
+        </ListView>
+      );
+
+      listView.items = [new MyItem(), Image.from({height: 50, src: 'foo'}), Image.from('foo')];
+
+      expect(_children(cellForItem(0)).length).to.equal(0);
+      expect(_children(cellForItem(1)).length).to.equal(1);
+      expect(_children(cellForItem(2)).length).to.equal(1);
+      expect(_children(cellForItem(1))[0].height).to.equal(50);
+      expect(_children(cellForItem(2))[0].height).to.equal(100);
     });
 
     it('can not be set by non-Cell children', () => {
