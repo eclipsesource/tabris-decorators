@@ -591,6 +591,58 @@ describe('ListView', () => {
 
   });
 
+  describe('cellHeight', () => {
+
+    function heightForItem(index: number) {
+      return (listView.cellHeight as (index: number) => number)(index);
+    }
+
+    it('is set by JSX Cell with height', () => {
+      listView = (
+        <ListView>
+          <Cell height={23}/>
+        </ListView>
+      );
+
+      listView.items = [null];
+
+      expect(heightForItem(0)).to.equal(23);
+    });
+
+    it('is set for multiple item types by multiple JSX Cell elements', () => {
+      listView = (
+        <ListView>
+          <Cell itemType={MyItem} height={23}/>
+          <Cell itemType='string' height={24}/>
+          <Cell itemType={Image}/>
+        </ListView>
+      );
+
+      listView.items = ['foo', new MyItem(), Image.from('foo')];
+
+      expect(heightForItem(0)).to.equal(24);
+      expect(heightForItem(1)).to.equal(23);
+      expect(heightForItem(2)).to.equal('auto');
+    });
+
+    it('falls back to initial value', () => {
+      listView = (
+        <ListView cellHeight={25}>
+          <Cell itemType={MyItem} height={23}/>
+          <Cell itemType='string' height={24}/>
+          <Cell itemType={Image}/>
+        </ListView>
+      );
+
+      listView.items = ['foo', new MyItem(), Image.from('foo')];
+
+      expect(heightForItem(0)).to.equal(24);
+      expect(heightForItem(1)).to.equal(23);
+      expect(heightForItem(2)).to.equal(25);
+    });
+
+  });
+
   describe('updateCell', () => {
 
     beforeEach(() => {

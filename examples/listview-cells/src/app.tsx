@@ -10,21 +10,21 @@ contentView.append(
   <TabFolder stretch>
     <Tab title='Simple'>
       <ListView stretch items={Array.from(generate(20))}>
-        <Cell padding={8}>
+        <Cell padding={8} height={52}>
           <TextView centerY template-text='The color of ${item.text}:' font='24px'/>
-          <Composite left='prev() 24' width={64} height={64} bind-background='item.color'/>
+          <Composite  stretchY left='prev() 24' width={80} bind-background='item.color'/>
         </Cell>
       </ListView>
     </Tab>
     <Tab title='Mixed'>
       <ListView stretch items={Array.from(generate(20, {mixed: true}))}>
-        <Cell itemType={Item} padding={8}>
-          <TextView font='24px'
-              bind-textColor='item.color'
-              template-text='This is Item ${item.text}:'/>
+        <Cell itemType='string' height={56} padding={8}>
+          <TextView font={{size: 32, style: 'italic'}} bind-text='item'/>
         </Cell>
-        <Cell itemType='string' padding={8}>
-          <TextView font='32px' bind-text='item'/>
+        <Cell itemType={Item} height={40} padding={8}>
+          <TextView font='20px'
+              bind-textColor='item.color'
+              template-text='This is Item ${item.text}'/>
         </Cell>
       </ListView>
     </Tab>
