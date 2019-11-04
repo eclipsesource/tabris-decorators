@@ -8,6 +8,7 @@ import { event } from '../decorators/event';
 type CellFactoryDef<T> = {
   itemType: ItemTypeDef<T>,
   itemCheck: ItemCheck<T>,
+  itemHeight: 'auto' | number,
   create: () => Cell<T>
 };
 
@@ -97,9 +98,11 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
       const factories: Array<CellFactoryDef<unknown>> = children.map((child, index) => ({
         itemType: child.itemType,
         itemCheck: child.itemCheck,
+        itemHeight: child.height,
         create: Cell.factory(child)
       }));
       result.cellType = getCellTypeCallback(result, factories);
+      result.cellHeight = getCellHeightCallback(result, factories);
       result.createCell = getCreateCellCallback(factories);
     }
     return result;
@@ -110,14 +113,29 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
 function getCellTypeCallback(
   listView: ListView<unknown>,
   factories: Array<CellFactoryDef<unknown>>
-): ((index: number) => string) {
-  return (itemIndex: number) => {
+): ((index: number) => string ) {
+  const cellFactoryIndex = (itemIndex: number) => {
     const item = listView.items[itemIndex];
     const factoryIndex = factories.findIndex(entry => factorySupportsItem(entry, item));
     if (factoryIndex < 0) {
       throw new Error('No cell factory found for item ' + itemIndex);
     }
-    return factoryIndex + '';
+    return factoryIndex;
+  };
+  return (itemIndex: number) => cellFactoryIndex(itemIndex) + '';
+}
+
+function getCellHeightCallback(
+  listView: ListView<unknown>,
+  factories: Array<CellFactoryDef<unknown>>
+): ((index: number) => number | 'auto') {
+  const fallback = typeof listView.cellHeight === 'number' ? listView.cellHeight : 'auto';
+  return (itemIndex: number) => {
+    const factory = factories.find(entry => factorySupportsItem(entry, listView.items[itemIndex]));
+    if (!factory) {
+      throw new Error('No cell factory found for item ' + itemIndex);
+    }
+    return factory.itemHeight === 'auto' ? fallback : factory.itemHeight;
   };
 }
 
