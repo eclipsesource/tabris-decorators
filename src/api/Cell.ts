@@ -12,7 +12,8 @@ export type ItemCheck<T> = (value: T) => boolean;
 export type CellCreationArgs<ItemType> = {
   itemType?: ItemTypeDef<ItemType>,
   itemCheck?: ItemCheck<ItemType>,
-  item?: never
+  item?: never,
+  selectable?: boolean
 };
 
 @component
@@ -45,6 +46,7 @@ export class Cell<ItemType = unknown> extends Composite {
 
   @event public onItemChanged: ChangeListeners<this, 'item'>;
 
+  @property public readonly selectable: boolean = false;
   @property public readonly itemType: ItemTypeDef<ItemType>;
   @property public readonly itemCheck: ItemCheck<ItemType>;
   @property public item: ItemType = null;

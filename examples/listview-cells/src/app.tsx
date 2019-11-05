@@ -1,5 +1,5 @@
-import { Color, Composite, contentView, Tab, TabFolder, TextView } from 'tabris';
-import { Cell, ListView, property } from 'tabris-decorators';
+import { Action, Button, CheckBox, Color, Composite, contentView, StackLayout, Tab, TabFolder, TextView } from 'tabris';
+import { Cell, ItemAction, ListView, ListViewSelectEvent, property } from 'tabris-decorators';
 
 class Item {
   @property public text: string;
@@ -9,7 +9,7 @@ class Item {
 contentView.append(
   <TabFolder stretch>
     <Tab title='Simple'>
-      <ListView stretch items={Array.from(generate(20))}>
+      <ListView stretch items={generate(20)}>
         <Cell padding={8} height={52}>
           <TextView centerY template-text='The color of ${item.text}:' font='24px'/>
           <Composite  stretchY left='prev() 24' width={80} bind-background='item.color'/>
@@ -17,7 +17,7 @@ contentView.append(
       </ListView>
     </Tab>
     <Tab title='Mixed'>
-      <ListView stretch items={Array.from(generate(20, {mixed: true}))}>
+      <ListView stretch items={generate(20, {mixed: true})}>
         <Cell itemType='string' height={56} padding={8}>
           <TextView font={{size: 32, style: 'italic'}} bind-text='item'/>
         </Cell>
@@ -28,8 +28,41 @@ contentView.append(
         </Cell>
       </ListView>
     </Tab>
+    <Tab title='Selectable' layout={StackLayout.default}>
+      <ListView stretch items={generate(20)} onSelect={handleSelection}>
+        <Cell selectable padding={8} height={52}>
+          <TextView centerY template-text='Tap here to select ${item.text}:' font='24px'/>
+        </Cell>
+      </ListView>
+      <TextView id='output1' padding={12} font='18px'>...</TextView>
+    </Tab>
+    <Tab title='Actions' layout={StackLayout.default}>
+      <ListView stretch items={generate(20)} onSelect={handleAction}>
+        <Cell padding={8} height={80}>
+          <Button left={0} font='18px' onSelect={ListView.selectPrimary}>Primary</Button>
+          <TextView left='prev() 12' right='next() 12' font='18px'
+              bind-text='item.text'
+              onLongPress={ev => ev.state === 'start' ? ListView.selectSecondary(ev) : null}/>
+          <CheckBox right={0} font='18px' onSelect={ListView.selectToggle}>Toggle Action</CheckBox>
+        </Cell>
+      </ListView>
+      <TextView id='output2' padding={12} font='18px'>Hold down on text for secondary action</TextView>
+    </Tab>
   </TabFolder>
 );
+
+function handleSelection(ev: ListViewSelectEvent<Item>) {
+  $('#output1').only(TextView).text = 'Selected ' + ev.item.text;
+}
+
+function handleAction(ev: ListViewSelectEvent<Item>) {
+  const textView = $('#output2').only(TextView);
+  textView.text = ItemAction[ev.action] + ' Action on  ' + ev.item.text;
+  const source = ev.originalEvent.target;
+  if (source instanceof CheckBox) {
+    $('#output2').only(TextView).text += ` (${source.checked})`;
+  }
+}
 
 function generate(num: number, options: {mixed: boolean} = null): Array<Item|string> {
   let count = 0;

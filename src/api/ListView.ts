@@ -1,4 +1,4 @@
-import { ChangeListeners, CollectionView, JSXAttributes, Properties } from 'tabris';
+import { ChangeListeners, CollectionView, EventObject, JSXAttributes, Listeners, Properties, Widget } from 'tabris';
 import { Cell, ItemCheck, ItemTypeDef, TextCell } from './Cell';
 import { getValueString } from './checkType';
 import { List, ListLike, listObservers, Mutation } from './List';
@@ -12,8 +12,55 @@ type CellFactoryDef<T> = {
   create: () => Cell<T>
 };
 
+export enum ItemAction {
+  Primary = 1,
+  Secondary = 2,
+  Toggle = 3,
+  Dismiss = 4
+}
+
+export class ListViewSelectEvent<ItemType> extends EventObject<ListView<ItemType>> {
+
+  constructor(
+    public readonly item: ItemType,
+    public readonly itemIndex: number,
+    public readonly originalEvent: EventObject<Widget>,
+    public readonly action: number
+  ) {
+    super();
+  }
+
+}
+
 @component
 export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
+
+  public static selectPrimary(ev: EventObject<Widget>) {
+    ListView.select(ev, ItemAction.Primary);
+  }
+
+  public static selectSecondary(ev: EventObject<Widget>) {
+    ListView.select(ev, ItemAction.Secondary);
+  }
+
+  public static selectToggle(ev: EventObject<Widget>) {
+    ListView.select(ev, ItemAction.Toggle);
+  }
+
+  public static selectDismiss(ev: EventObject<Widget>) {
+    ListView.select(ev, ItemAction.Dismiss);
+  }
+
+  public static select(ev: EventObject<Widget>, action: number = 0) {
+    const listView = ev.target.parent(ListView);
+    const itemIndex = listView.itemIndex(ev.target);
+    listView.onSelect.trigger(new ListViewSelectEvent(
+      listView.items[itemIndex],
+      itemIndex,
+      ev,
+      action
+    ));
+  }
 
   public jsxAttributes: JSXAttributes<this> & {children: Cell[]};
 
@@ -41,6 +88,7 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
   }
 
   @event public onItemsChanged: ChangeListeners<this, 'items'>;
+  @event public onSelect: Listeners<ListViewSelectEvent<ItemType>>;
   protected _items: ListLike<ItemType> = null;
 
   constructor(properties: Properties<ListView<ItemType>> = {}) {
@@ -160,7 +208,12 @@ function getCreateCellCallback(
     if (isNaN(factoryIndex)) {
       throw new Error('Invalid cell factory index ' + factoryIndex);
     }
-    return factories[factoryIndex].create();
+    const result = factories[factoryIndex].create();
+    if (result.selectable) {
+      result.highlightOnTouch = true;
+      result.onTap(ListView.select);
+    }
+    return result;
   };
 }
 

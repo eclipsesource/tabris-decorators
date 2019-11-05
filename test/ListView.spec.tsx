@@ -1,12 +1,12 @@
 import 'mocha';
-import { match } from 'sinon';
-import { CollectionView, Image, ImageView, tabris, TextInput, TextView, Widget, WidgetCollection } from 'tabris';
+import { match, SinonSpy, stub } from 'sinon';
+import { CollectionView, EventObject, Image, ImageView, tabris, TextView, ToggleButton, Widget, WidgetCollection } from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox, spy } from './test';
 import { injector } from '../src';
 import { Cell, TextCell } from '../src/api/Cell';
 import { List, ListLike } from '../src/api/List';
-import { ListView } from '../src/api/ListView';
+import { ItemAction, ListView, ListViewSelectEvent } from '../src/api/ListView';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
 
 describe('ListView', () => {
@@ -511,6 +511,19 @@ describe('ListView', () => {
       expect(Image.from(_children(cell).only(ImageView).image).src).to.equal('foo.png');
     });
 
+    it('enables highlightOnTouch on selectable cells', () => {
+      listView = (
+        <ListView>
+          <Cell selectable/>
+        </ListView>
+      );
+
+      const cell = listView.createCell('0');
+      cell.item = new MyItem();
+
+      expect(cell.highlightOnTouch).to.be.true;
+    });
+
     it('is set for multiple types by multiple JSX Cell elements', () => {
       listView = (
         <ListView>
@@ -660,6 +673,109 @@ describe('ListView', () => {
       expect(cells[0].item).to.equal(listView.items[0]);
       expect(cells[1].item).to.equal(listView.items[1]);
       expect(cells[2].item).to.equal(listView.items[2]);
+    });
+
+  });
+
+  describe('onSelect', () => {
+
+    let listener: SinonSpy<[ListViewSelectEvent<MyItem>]>;
+    let cell: Cell;
+
+    beforeEach(() => {
+      listView = new ListView();
+      listView.items = items();
+      cell = listView.createCell('');
+      stub(cell, 'parent').withArgs(ListView).returns(listView);
+      listener = spy() as SinonSpy<[ListViewSelectEvent<MyItem>]>;
+      listView.onSelect(listener);
+      cell.item = listView.items[2];
+      stub(listView, 'itemIndex').returns(2);
+    });
+
+    it('is triggered via ListView.select', () => {
+      cell.onTap(ListView.select);
+
+      cell.onTap.trigger({touches: [{x: 0, y: 0}]});
+
+      expect(listener).to.have.been.calledOnce;
+      const event = listener.getCalls()[0].args[0];
+      expect(event).to.be.instanceOf(ListViewSelectEvent);
+      expect(event.type).to.equal('select');
+      expect(event.item).to.equal(listView.items[2]);
+      expect(event.itemIndex).to.equal(2);
+      expect(event.target).to.equal(listView);
+      expect(event.originalEvent.type).to.equal('tap');
+      expect(event.originalEvent.target).to.equal(cell);
+      expect(event.action).to.equal(0);
+    });
+
+    it('is triggered via ListView.select with action', () => {
+      cell.onTap(ev => ListView.select(ev, 23));
+
+      cell.onTap.trigger({touches: [{x: 0, y: 0}]});
+
+      const event = listener.getCalls()[0].args[0];
+      expect(event.action).to.equal(23);
+    });
+
+    it('is triggered via ListView.selectPrimary', () => {
+      cell.onTap(ListView.selectPrimary);
+
+      cell.onTap.trigger({touches: [{x: 0, y: 0}]});
+
+      const event = listener.getCalls()[0].args[0];
+      expect(event.action).to.equal(ItemAction.Primary);
+    });
+
+    it('is triggered via tap if cell is selectable', () => {
+      listView = <ListView><Cell selectable/></ListView>;
+      listView.items = items();
+      cell = listView.createCell('0');
+      stub(cell, 'parent').withArgs(ListView).returns(listView);
+      listView.onSelect(listener);
+      cell.item = listView.items[2];
+      stub(listView, 'itemIndex').returns(2);
+
+      cell.onTap.trigger({touches: [{x: 0, y: 0}]});
+
+      expect(listener).to.have.been.calledOnce;
+      const event = listener.getCalls()[0].args[0];
+      expect(event.action).to.equal(0);
+    });
+
+    it('is triggered via ListView.selectSecondary', () => {
+      cell.onLongPress(ListView.selectSecondary);
+
+      cell.onLongPress.trigger({touches: [{x: 0, y: 0}], state: 'end'});
+
+      expect(listener).to.have.been.calledOnce;
+      const event = listener.getCalls()[0].args[0];
+      expect(event.action).to.equal(ItemAction.Secondary);
+      expect(event.originalEvent.type).to.equal(event.originalEvent.target.onLongPress.type);
+      expect(event.originalEvent.target).to.equal(cell);
+    });
+
+    it('is triggered via ListView.selectToggle', () => {
+      const toggleButton: ToggleButton = <ToggleButton onSelect={ListView.selectToggle}/>;
+      stub(toggleButton, 'parent').withArgs(ListView).returns(listView);
+      cell.append(toggleButton);
+
+      toggleButton.onSelect.trigger();
+
+      const event = listener.getCalls()[0].args[0];
+      expect(event.action).to.equal(ItemAction.Toggle);
+      expect(event.originalEvent.type).to.equal('select');
+      expect(event.originalEvent.target).to.equal(toggleButton);
+    });
+
+    it('is triggered via ListView.selectDismiss', () => {
+      cell.onSwipeLeft(ListView.selectDismiss);
+
+      cell.onSwipeLeft.trigger();
+
+      const event = listener.getCalls()[0].args[0];
+      expect(event.action).to.equal(ItemAction.Dismiss);
     });
 
   });
