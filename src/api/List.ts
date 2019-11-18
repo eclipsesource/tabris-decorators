@@ -37,7 +37,7 @@ export type Mutation<T> = {
   start: number;
   deleteCount: number;
   items: T[];
-  target: List<T>;
+  target: ListLike<T>;
 };
 
 export function listObservers<T>(list: List<T>): Listeners<Mutation<T>> {
