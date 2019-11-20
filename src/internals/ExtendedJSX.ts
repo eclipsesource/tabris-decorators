@@ -1,14 +1,16 @@
-import { JsxProcessor, Widget } from 'tabris';
+import { JsxProcessor, NativeObject, Widget } from 'tabris';
 import { applyJsxBindings, JsxBindings } from './applyJsxBindings';
 import { Injector } from '../api/Injector';
 import { Constructor, hasInjections } from '../internals/utils';
 /* tslint:disable no-namespace ban-types only-arrow-functions */
 
 export interface Properties { [property: string]: any; }
+export type JsxConstructor = {prototype: JSX.ElementClass, new(): object};
+export type JsxNativeType = {prototype: JSX.ElementClass, new(): NativeObject};
 
 export type JsxTemplate = {source: unknown} | {
   jsx: ExtendedJSX,
-  componentType: JSX.JsxConstructor,
+  componentType: JsxConstructor,
   sfc: ((param: object) => any),
   attributes: object,
   children: JsxTemplate[]
@@ -27,7 +29,7 @@ export class ExtendedJSX extends JsxProcessor {
     super();
   }
 
-  public createCustomComponent(type: JSX.JsxConstructor, attributes: any): JSX.ElementClass | string {
+  public createCustomComponent(type: JsxConstructor, attributes: any): JSX.ElementClass | string {
     const result = super.createCustomComponent(type, attributes);
     if (result instanceof Object) {
       const {children, ...pureAttributes} = attributes;
@@ -57,7 +59,7 @@ export class ExtendedJSX extends JsxProcessor {
     return result;
   }
 
-  public createNativeObject(Type: JSX.JsxNativeType, attributes: Properties) {
+  public createNativeObject(Type: JsxNativeType, attributes: Properties) {
     let {miscAttributes, bindings} = this.extractBindings(attributes);
     let result = super.createNativeObject(
       this.convertType(Type),
@@ -88,7 +90,7 @@ export class ExtendedJSX extends JsxProcessor {
     return {miscAttributes, bindings};
   }
 
-  private convertType(type: JSX.JsxNativeType): JSX.JsxNativeType {
+  private convertType(type: JsxNativeType): any {
     const injector = this.injector;
     if (hasInjections(type)) {
       return function(props: any) {
