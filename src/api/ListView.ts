@@ -101,6 +101,12 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
     } else if (items.length > deleteCount) {
       this.insert(start + refreshCount, items.length - refreshCount);
     }
+    this._children().forEach(cell => {
+      const newIndex = this.itemIndex(cell);
+      if (newIndex >= 0) {
+        cell.itemIndex = newIndex;
+      }
+    });
   }
 
   // tslint:disable-next-line
@@ -189,4 +195,5 @@ function defaultCreateCell(): Cell<any> {
 
 function updateCell<T>(this: ListView<T>, cell: Cell<T>, index: number) {
   cell.item = this.items[index];
+  cell.itemIndex = index;
 }

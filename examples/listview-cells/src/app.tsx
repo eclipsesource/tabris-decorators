@@ -1,5 +1,17 @@
-import { Action, Button, CheckBox, Color, Composite, contentView, StackLayout, Tab, TabFolder, TextView } from 'tabris';
-import { Cell, ItemAction, ListView, ListViewSelectEvent, property } from 'tabris-decorators';
+import {
+  Action,
+  Button,
+  CheckBox,
+  Color,
+  Composite,
+  contentView,
+  PropertyChangedEvent,
+  StackLayout,
+  Tab,
+  TabFolder,
+  TextView
+  } from 'tabris';
+import { Cell, ItemAction, ListView, ListViewSelectEvent, property, to } from 'tabris-decorators';
 
 class Item {
   @property public text: string;
@@ -28,7 +40,7 @@ contentView.append(
         </Cell>
       </ListView>
     </Tab>
-    <Tab title='Selectable' layout={StackLayout.default}>
+    <Tab title='Selection' layout={StackLayout.default}>
       <ListView stretch items={generate(20)} onSelect={handleSelection}>
         <Cell selectable padding={8} height={52}>
           <TextView centerY template-text='Tap here to select ${item.text}:' font='24px'/>
@@ -47,6 +59,13 @@ contentView.append(
         </Cell>
       </ListView>
       <TextView id='output2' padding={12} font='18px'>Hold down on text for secondary action</TextView>
+    </Tab>
+    <Tab title='Zebra'>
+      <ListView stretch items={generate(20)}>
+        <Cell padding={8} height={52} onItemIndexChanged={alternateBackground}>
+          <TextView centerY bind-text='item.text' font='24px' bind-textColor={toForeground('itemIndex')}/>
+        </Cell>
+      </ListView>
     </Tab>
   </TabFolder>
 );
@@ -78,4 +97,12 @@ function generate(num: number, options: {mixed: boolean} = null): Array<Item|str
     }
   }
   return arr;
+}
+
+function alternateBackground({target, value}: PropertyChangedEvent<Cell, number>) {
+  target.background = value % 2 === 0 ? '#fff' : '#ddd';
+}
+
+function toForeground(path: string) {
+  return to(path, (index: number) => index % 2 === 0 ? '#999' : '#000');
 }

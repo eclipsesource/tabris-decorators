@@ -354,6 +354,38 @@ describe('Cell', () => {
 
   });
 
+  describe('itemIndex', () => {
+
+    let cell: Cell<MyItem>;
+
+    beforeEach(() => {
+      cell = new Cell();
+    });
+
+    it('is -1 initially', () => {
+      expect(cell.itemIndex).to.equal(-1);
+    });
+
+    it('accepts new index', () => {
+      cell.itemIndex = 2;
+      expect(cell.itemIndex).to.equal(2);
+    });
+
+    it('fires change event', () => {
+      const listener = spy();
+      cell.onItemIndexChanged(listener);
+
+      cell.itemIndex = 2;
+
+      expect(listener).to.have.been.calledOnceWith(match.has('value', 2));
+    });
+
+    it('rejects -2', () => {
+      expect(() => cell.itemIndex = -2).to.throw();
+    });
+
+  });
+
   describe('TextCell', () => {
 
     function itemToText(item: any): string {
