@@ -5,7 +5,7 @@ import ClientMock from 'tabris/ClientMock';
 import { expect, restoreSandbox, spy } from './test';
 import { injector } from '../src';
 import { Cell, TextCell } from '../src/api/Cell';
-import { List, ListLike } from '../src/api/List';
+import { List } from '../src/api/List';
 import { ItemAction, ListView, ListViewSelectEvent } from '../src/api/ListView';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
 
@@ -161,6 +161,22 @@ describe('ListView', () => {
       it('inserts when item is unshifted', () => {
         list.unshift(new MyItem());
         expect(listView.insert).to.have.been.calledOnceWith(0, 1);
+      });
+
+      it('re-aligns item indicies when item is unshifted', () => {
+        const cells: Array<Cell<any>> = [listView.createCell(''), listView.createCell(''), listView.createCell('')];
+        cells.forEach((cell, index) => cell.itemIndex = index);
+        stub(listView as any, '_children').returns(new WidgetCollection(cells));
+        stub(listView, 'itemIndex')
+          .withArgs(cells[0]).returns(1)
+          .withArgs(cells[1]).returns(2)
+          .withArgs(cells[2]).returns(-1);
+
+        list.unshift(new MyItem());
+
+        expect(cells[0].itemIndex).to.equal(1);
+        expect(cells[1].itemIndex).to.equal(2);
+        expect(cells[2].itemIndex).to.equal(2); // updates with next updateCell callback
       });
 
       it('inserts when multiple items are unshifted', () => {
@@ -666,13 +682,25 @@ describe('ListView', () => {
     it('assigns items', () => {
       const cells = [listView.createCell(''), listView.createCell(''), listView.createCell('')];
 
-      expect(listView.updateCell(cells[0], 0));
-      expect(listView.updateCell(cells[1], 1));
-      expect(listView.updateCell(cells[2], 2));
+      listView.updateCell(cells[0], 0);
+      listView.updateCell(cells[1], 1);
+      listView.updateCell(cells[2], 2);
 
       expect(cells[0].item).to.equal(listView.items[0]);
       expect(cells[1].item).to.equal(listView.items[1]);
       expect(cells[2].item).to.equal(listView.items[2]);
+    });
+
+    it('assigns itemIndicies', () => {
+      const cells = [listView.createCell(''), listView.createCell(''), listView.createCell('')];
+
+      expect(listView.updateCell(cells[0], 0));
+      expect(listView.updateCell(cells[1], 1));
+      expect(listView.updateCell(cells[2], 2));
+
+      expect(cells[0].itemIndex).to.equal(0);
+      expect(cells[1].itemIndex).to.equal(1);
+      expect(cells[2].itemIndex).to.equal(2);
     });
 
   });

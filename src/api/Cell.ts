@@ -45,11 +45,13 @@ export class Cell<ItemType = unknown> extends Composite {
     & CellCreationArgs<ItemType>;
 
   @event public onItemChanged: ChangeListeners<this, 'item'>;
+  @event public onItemIndexChanged: ChangeListeners<this, 'itemIndex'>;
 
   @property public readonly selectable: boolean = false;
   @property public readonly itemType: ItemTypeDef<ItemType>;
   @property public readonly itemCheck: ItemCheck<ItemType>;
   @property public item: ItemType = null;
+  @property(num => num >= -1) public itemIndex: number = -1;
 
   private [factory]: () => this;
 

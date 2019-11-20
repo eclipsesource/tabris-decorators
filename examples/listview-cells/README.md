@@ -11,3 +11,5 @@ The "Mixed" `ListView` defines two different cell types for displaying `MyItem` 
 The "Selection" `ListView` showcases the selection event API in its simplest configuration. By setting `selectable` the ListView will issue `select` events when a cell is tapped.
 
 The "Actions" `ListView` demonstrates how the selection event property `action` can be set to different pre-defined values depending on which child widget of a cell is interacted with.
+
+The "Zebra" `ListView` demonstrates how to change properties of a cell depending on its index. In this example the colors depend on whether the index is even or uneven. The background is changed via a `itemIndex` change  listener and the foreground is changed via a one-way binding with converter.
