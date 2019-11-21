@@ -62,7 +62,7 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
     ));
   }
 
-  public jsxAttributes: JSXAttributes<this> & {children: Cell[]};
+  public jsxAttributes: JSXAttributes<this> & {children?: Cell[]};
   @event public onItemsChanged: ChangeListeners<this, 'items'>;
   @event public onSelect: Listeners<ListViewSelectEvent<ItemType>>;
 
