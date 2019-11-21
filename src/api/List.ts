@@ -6,6 +6,7 @@ const init: unique symbol = Symbol('init');
 
 export type ListLike<T> = {
   length: number;
+  [index: number]: T;
   [Symbol.iterator](): IterableIterator<T>;
   entries(): IterableIterator<[number, T]>;
   // tslint:disable-next-line: max-line-length
@@ -212,6 +213,10 @@ export class List<T> implements ListLike<T> {
   // [Symbol.isConcatSpreadable]
   // [Symbol.toStringTag]
 
+}
+
+export interface List<T> {
+  [index: number]: T;
 }
 
 const traps = {

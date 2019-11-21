@@ -6,17 +6,20 @@ import { BaseConstructor, isPrimitiveType } from '../internals/utils';
  * The following rules apply:
  * * Object values may be an instance of the given class or any class extending it.
  * * Primitive types are represented by their boxed type, e.g. a number is `Number`.
- * * Null and undefined always pass.
+ * * Null and undefined pass unless 'strict' is true
  * * Boxed values never pass.
  */
-export function checkType(value: any, type: BaseConstructor<any>) {
+export function checkType(value: any, type: BaseConstructor<any>, strict?: boolean) {
   if (!type) {
     throw new Error('No type given');
   }
   if (isBoxedValue(value)) {
     throw new Error('Boxed values are forbidden');
   }
-  if (value === null || value === undefined || value instanceof type || isPrimitiveOfType(value, type)) {
+  if (!strict && (value === null || value === undefined)) {
+    return;
+  }
+  if (value instanceof type || isPrimitiveOfType(value, type)) {
     return;
   }
   throw new Error(

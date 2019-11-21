@@ -1,0 +1,16 @@
+{
+  "name": "listview-cells",
+  "version": "3.3.0",
+  "dependencies": {
+    "reflect-metadata": "^0.1.13",
+    "tabris": "^3.3.0",
+    "tabris-decorators": "^3.3.0",
+    "typescript": "3.3.x"
+  },
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "tabris serve -w -a",
+    "build": "tsc -p .",
+    "watch": "tsc -p . -w --preserveWatchOutput --inlineSourceMap"
+  }
+}
