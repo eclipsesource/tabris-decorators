@@ -18,7 +18,7 @@
     "safePublish": "npm test && npm run clean && npm run build && npm publish"
   },
   "peerDependencies": {
-    "tabris": "^3.0.0"
+    "tabris": "^3.3.0-dev"
   },
   "devDependencies": {
     "@types/chai": "^4.2.0",
@@ -34,7 +34,7 @@
     "npm": "^6.9.0",
     "sinon": "^7.4.1",
     "sinon-chai": "^3.3.0",
-    "tabris": "^3.2.1",
+    "tabris": "^3.3.0-dev",
     "ts-loader": "^6.0.4",
     "ts-mocha": "^6.0.0",
     "tslint": "^5.18.0",
