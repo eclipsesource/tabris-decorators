@@ -10,15 +10,18 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "clean": "rm -rf ./dist/*",
-    "build": "rm -rf ./dist/* && webpack --mode=production && npm run dts",
+    "build": "webpack --mode=production && npm run dts",
     "dts": "dts-generator --name tabris-decorators --project ./tsconfig-dts.json --out ./dist/index.d.ts --main tabris-decorators/index",
     "test": "npm run lint && ts-mocha -p ./tsconfig-test.json ./test/*.spec.ts ./test/*.spec.tsx",
     "test:file": "ts-mocha -p ./tsconfig-test.json",
     "lint": "tslint --project ./tsconfig-test.json src/*/*.ts test/**/*.ts test/**/*.tsx",
-    "safePublish": "npm test && npm run clean && npm run build && npm publish"
+    "safePublish": "npm test && npm run clean && npm run build && npm publish",
+    "start": "run-script-os",
+    "start:nix": "./launch.sh",
+    "start:windows": ".\\launch.cmd"
   },
   "peerDependencies": {
-    "tabris": "^3.3.0-dev"
+    "tabris": "^3.3.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.0",
@@ -32,9 +35,10 @@
     "install": "^0.12.2",
     "mocha": "^6.2.0",
     "npm": "^6.9.0",
+    "run-script-os": "^1.0.7",
     "sinon": "^7.4.1",
     "sinon-chai": "^3.3.0",
-    "tabris": "^3.3.0-dev",
+    "tabris": "nightly",
     "ts-loader": "^6.0.4",
     "ts-mocha": "^6.0.0",
     "tslint": "^5.18.0",
