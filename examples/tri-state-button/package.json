@@ -2,15 +2,20 @@
   "name": "tri-state-button",
   "version": "3.1.0",
   "dependencies": {
-    "reflect-metadata": "^0.1.13",
-    "tabris": "^3.0.0",
-    "tabris-decorators": "^3.0.0",
+    "reflect-metadata": "^0.1.13"
+  },
+  "optionalDependencies": {
+    "tabris": "^3.3.0",
+    "tabris-decorators": "3.3.0"
+  },
+  "devDependencies": {
     "typescript": "3.3.x"
   },
   "main": "dist/app.js",
   "scripts": {
     "start": "tabris serve -w -a",
     "build": "tsc -p .",
-    "watch": "tsc -p . -w --preserveWatchOutput --inlineSourceMap"
+    "watch": "tsc -p . -w --preserveWatchOutput --inlineSourceMap",
+    "gitpod": "tabris serve -a -w --no-intro --port 8080 --external $(gp url 8080):443"
   }
 }
