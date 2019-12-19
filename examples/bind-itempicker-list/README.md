@@ -1,4 +1,4 @@
-# Example "bind-listview-list"
+# Example "bind-itempicker-list"
 
 Demonstrates how to bind an ItemPicker to a `List` of mutable objects.
 
