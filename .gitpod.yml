@@ -1,0 +1,6 @@
+tasks:
+  - init: "clear && echo Installing Tabris, please stand by... && npm install git://github.com:eclipsesource/tabris-js-cli.git run-script-os -g"
+    command: "clear &&  ./launch.sh $example $dev"
+ports:
+  - port: 8080
+    onOpen: open-preview
