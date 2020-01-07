@@ -1,5 +1,9 @@
 # Example "itempicker"
 
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=itempicker,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/itempicker)
+
+## Description
+
 Demonstrates different approaches to feed the `ItemPicker` with items, provide texts to represent them, and handle selections.
 
 All `ItemPicker` instances are provided 3 items each. They can be selected by the user which displays a unique item id below.

@@ -2,8 +2,8 @@
 
 [![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=listview-cells,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/listview-cells)
 
-
 ## Description
+
 Demonstrates how to define the look of ListView cells with pure JSX syntax.
 
 All ListView instances are provided a static array of 20 items of different types.

@@ -1,5 +1,9 @@
 # Example "bind-itempicker-list"
 
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-itempicker-list,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-itempicker-list)
+
+## Description
+
 Demonstrates how to bind an ItemPicker to a `List` of mutable objects.
 
 `Person.ts` contains the models and a factory `generate` to create random items.

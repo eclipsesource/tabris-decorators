@@ -1,5 +1,9 @@
 # Example "bind-two-way"
 
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-two-way,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-two-way)
+
+## Description
+
 Demonstrates the use of the `@bind` decorator to create two-way bindings between a custom component instance and its children. This app creates an instance of the included `ExampleComponent` class (grey background), which has properties that can be changed by interacting with the component. Below the component is a button to change the property values of that instance, and another one to print them on screen.
 
 The `ExampleComponent` property `myNumber` is bound the `selection` property of a `Slider` with the id `source1`. Moving the slider changes the value of `myNumber`, as can be seen by pressing the "print current values" button. If `myNumber` is changed from outside the component - e.g. by pressing "change values", the slider position is updated accordingly.
