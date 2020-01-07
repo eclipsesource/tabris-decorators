@@ -1,5 +1,9 @@
 # Example "bind-and-convert"
 
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-and-convert,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-and-convert)
+
+## Description
+
 Demonstrates the use of converter functions and template syntax in one-way bindings. This app creates an instance of the included `ExampleComponent` class and a checkbox that allows to change the property values of that instance.
 
 The `ExampleComponent` property `myTime` is of the type `Date` and is converted to a string to bind to the `text` properties of multiple `TextView` children. Three variations are included, one directly using the `to` helper function, one using a custom converter function (`toTimeString`), and one using the raw data binding configuration object.
