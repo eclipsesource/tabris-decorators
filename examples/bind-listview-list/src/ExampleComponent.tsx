@@ -14,7 +14,7 @@ export class ExampleComponent extends Composite {
     this.append(
       <Stack spacing={12} padding={12} stretch>
         <TextView font={{size: 18}}>Binding string List to plain ListView:</TextView>
-        <ListView stretch bind-items='stringList'/>
+        <ListView stretch cellHeight={24} bind-items='stringList'/>
       </Stack>
     );
   }
