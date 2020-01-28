@@ -12,11 +12,14 @@
     "sourceMap": true,
     "noUnusedLocals": true,
     "jsx": "react",
-    "jsxFactory": "JSX.createElement"
+    "jsxFactory": "JSX.createElement",
+    "allowJs": true
   },
   "include": [
     "./src/**/*.ts",
     "./test/**/*.ts",
-    "./test/**/*.tsx"
+    "./test/**/*.tsx",
+    "./test/**/*.js",
+    "./test/**/*.jsx"
   ]
 }

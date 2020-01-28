@@ -1,17 +1,7 @@
-import {
-  Action,
-  Button,
-  CheckBox,
-  Color,
-  Composite,
-  contentView,
-  PropertyChangedEvent,
-  StackLayout,
-  Tab,
-  TabFolder,
-  TextView
-  } from 'tabris';
-import { Cell, ItemAction, ListView, ListViewSelectEvent, property, to } from 'tabris-decorators';
+import { Button, CheckBox, Color, Composite, contentView, PropertyChangedEvent, StackLayout, Tab, TabFolder, TextView } from 'tabris';
+import { Cell, injector, ItemAction, ListView, ListViewSelectEvent, property, to } from 'tabris-decorators';
+
+injector.jsxProcessor.strictMode = true;
 
 class Item {
   @property public text: string;

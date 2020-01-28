@@ -82,5 +82,92 @@
       "options": 300
     },
     "no-boolean-literal-compare": true
+  },
+  "jsRules": {
+    "ordered-imports": [
+      false
+    ],
+    "object-literal-sort-keys": false,
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "trailing-comma": [
+      true,
+      {
+        "multiline": "never",
+        "singleline": "never"
+      }
+    ],
+    "no-default-export": true,
+    "await-promise": true,
+    "indent": [true, "spaces"],
+    "forin": false,
+    "interface-name": [
+      false
+    ],
+    "one-line": false,
+    "arrow-parens": false,
+    "only-arrow-functions": [
+      true,
+      "allow-declarations",
+      "allow-named-functions"
+    ],
+    "prefer-const": false,
+    "no-namespace": false,
+    "match-default-export-name": true,
+    "max-line-length": [
+      true,
+      {
+        "limit": 120,
+        "ignore-pattern": "^import"
+      }
+    ],
+    "max-classes-per-file": false,
+    "whitespace": [
+      true,
+      "check-module"
+    ],
+    "interface-over-type-literal": false,
+    "variable-name": false,
+    "no-conditional-assignment": false,
+    "typedef": [
+      true,
+      "member-variable-declaration",
+      "parameter",
+      "property-declaration"
+    ],
+    "member-ordering": [
+      true,
+      {
+        "order": [
+          "public-static-field",
+          "private-static-field",
+          "public-static-method",
+          "public-instance-field",
+          "protected-instance-field",
+          "private-instance-field",
+          "public-constructor",
+          "protected-constructor",
+          "private-constructor",
+          "public-instance-method",
+          "protected-instance-method",
+          "private-instance-method",
+          "private-static-method"
+        ]
+      }
+    ],
+    "promise-function-async": true,
+    "no-floating-promises": true,
+    "encoding": true,
+    "linebreak-style": true,
+    "max-file-line-count": {
+      "options": 300
+    },
+    "no-boolean-literal-compare": true,
+    "jsdoc-format": {
+      "severity": "error",
+      "options": [true, "check-multiline-start"]
+    }
   }
 }

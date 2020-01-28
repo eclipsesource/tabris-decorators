@@ -1,5 +1,7 @@
 import { contentView, Stack, TextView } from 'tabris';
-import { ItemPicker, ItemPickerSelectEvent, List } from 'tabris-decorators';
+import { injector, ItemPicker, ItemPickerSelectEvent, List } from 'tabris-decorators';
+
+injector.jsxProcessor.strictMode = true;
 
 class Item {
 

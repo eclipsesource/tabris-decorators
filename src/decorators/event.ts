@@ -16,7 +16,7 @@ interface TargetInstance {[key: string]: ListenersStore; }
  */
 export function event(targetProto: object, propertyName: string): void {
   let propertyType = Reflect.getMetadata('design:type', targetProto, propertyName);
-  if (propertyType !== Listeners && propertyType !== ChangeListeners) {
+  if ((propertyType !== Object) && (propertyType !== Listeners) && (propertyType !== ChangeListeners)) {
     throw new Error(`@event: Invalid type for property ${propertyName}` );
   }
   if (!/^on[A-Z]/.test(propertyName)) {

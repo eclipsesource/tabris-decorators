@@ -1,5 +1,8 @@
 import { contentView, ProgressBar, PropertyChangedEvent, Stack, TextView } from 'tabris';
+import { injector } from 'tabris-decorators';
 import { ExampleComponent, Model } from './ExampleComponent';
+
+injector.jsxProcessor.strictMode = true;
 
 const model = new Model();
 

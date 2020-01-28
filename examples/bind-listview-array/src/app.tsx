@@ -1,6 +1,8 @@
 import { Color, contentView, Stack, TextView } from 'tabris';
-import { List } from 'tabris-decorators';
+import { injector } from 'tabris-decorators';
 import { ExampleComponent } from './ExampleComponent';
+
+injector.jsxProcessor.strictMode = true;
 
 let count = 0;
 let items: string[] = Array.from(generate(20));
