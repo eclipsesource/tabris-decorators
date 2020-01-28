@@ -7,12 +7,17 @@ const placeholder = /\$\{[^\}]+\}/g;
 
 export interface JsxBindings { [targetProperty: string]: string; }
 
-export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings) {
+export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings, strictMode: boolean) {
   let oneWayBindings: OneWayBinding[] = [];
   for (let attribute in bindings) {
     try {
       oneWayBindings.push(
-        createOneWayBindingDesc(targetInstance as WidgetInterface, attribute, asBinding(bindings[attribute]))
+        createOneWayBindingDesc(
+          targetInstance as WidgetInterface,
+          attribute,
+          asBinding(bindings[attribute]),
+          strictMode
+        )
       );
     } catch (ex) {
       throwBindingFailedError({
@@ -41,7 +46,12 @@ function asBinding(value: any): Binding {
   };
 }
 
-function createOneWayBindingDesc(target: WidgetInterface, attribute: string, binding: Binding): OneWayBinding {
+function createOneWayBindingDesc(
+  target: WidgetInterface,
+  attribute: string,
+  binding: Binding,
+  strictMode: boolean
+): OneWayBinding {
   const type = getBindingType(attribute);
   const targetProperty = getTargetProperty(attribute);
   const bindingString = binding.path;
@@ -53,7 +63,14 @@ function createOneWayBindingDesc(target: WidgetInterface, attribute: string, bin
   const path = pathString.split('.');
   checkPropertyExists(target, targetProperty);
   if (isUnchecked(target, targetProperty)) {
-    throw new Error(`Can not bind to property "${targetProperty}" without type guard.`);
+    if (strictMode) {
+      throw new Error(`Can not bind to property "${targetProperty}" without type guard.`);
+    }
+    // tslint:disable-next-line: no-console
+    console.warn(
+        `Unsafe binding "${targetProperty}" -> "${bindingString}": `
+      + `Property "${targetProperty}" has no type guard.`
+    );
   }
   const fallbackValue = target[targetProperty];
   const converter = type === 'template' ? compileTemplate(bindingString) : (binding.converter || (v => v));

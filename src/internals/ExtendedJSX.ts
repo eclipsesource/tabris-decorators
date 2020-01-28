@@ -25,6 +25,8 @@ export function getJsxTemplate(source: any): JsxTemplate {
 
 export class ExtendedJSX extends JsxProcessor {
 
+  public strictMode: boolean = false;
+
   constructor(private readonly injector: Injector) {
     super();
   }
@@ -66,7 +68,7 @@ export class ExtendedJSX extends JsxProcessor {
       miscAttributes || {}
     );
     if (bindings && result instanceof Widget) {
-      applyJsxBindings(result, bindings);
+      applyJsxBindings(result, bindings, this.strictMode);
     }
     return result;
   }

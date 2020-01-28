@@ -6,21 +6,22 @@ import { expect, restoreSandbox, stub } from './test';
 import { component, event, injector, property, to } from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
 
+export interface Item {
+  text: string;
+  int: number;
+  otherItem?: Item;
+}
+
 describe('component', () => {
 
   beforeEach(() => {
     tabris._init(new ClientMock());
+    injector.jsxProcessor.strictMode = true;
   });
 
   afterEach(() => {
     restoreSandbox();
   });
-
-  interface Item {
-    text: string;
-    int: number;
-    otherItem?: Item;
-  }
 
   class ItemB implements Item {
     @event public onOtherItemChanged: ChangeListeners<ItemB, 'otherItem'>;
