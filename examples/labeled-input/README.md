@@ -1,6 +1,6 @@
 # Example "labeled-input"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=labeled-input,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/labeled-input)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=labeled-input/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/labeled-input)
 
 ## Description
 

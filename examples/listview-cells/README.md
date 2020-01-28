@@ -1,6 +1,6 @@
 # Example "listview-cells"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=listview-cells,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/listview-cells)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=listview-cells/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/listview-cells)
 
 ## Description
 

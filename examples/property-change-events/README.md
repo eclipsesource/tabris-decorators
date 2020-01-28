@@ -1,6 +1,6 @@
 # Example "property-change-events"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=property-change-events,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/property-change-events)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=property-change-events/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/property-change-events)
 
 ## Description
 

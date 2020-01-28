@@ -1,6 +1,6 @@
 # Example "tri-state-button"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=tri-state-button,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/tri-state-button)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=tri-state-button/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/tri-state-button)
 
 ## Description
 

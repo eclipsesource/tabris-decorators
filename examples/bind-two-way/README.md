@@ -1,6 +1,6 @@
 # Example "bind-two-way"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-two-way,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-two-way)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-two-way/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-two-way)
 
 ## Description
 

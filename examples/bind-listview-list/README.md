@@ -1,6 +1,6 @@
 # Example "bind-listview-list"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-listview-list,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-listview-list)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-listview-list/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-listview-list)
 
 ## Description
 

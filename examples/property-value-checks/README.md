@@ -1,6 +1,6 @@
 # Example "property-value-checks"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=property-value-checks,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/property-value-checks)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=property-value-checks/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/property-value-checks)
 
 ## Description
 

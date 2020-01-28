@@ -1,6 +1,6 @@
 # Example "bind-and-convert"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-and-convert,dev=--dev/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-and-convert)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-and-convert/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-and-convert)
 
 ## Description
 
