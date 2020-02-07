@@ -8,7 +8,7 @@ Makes the decorated widget class a "custom component" with the following feature
 
 ## Encapsulation
 
-A widget class decorated with `@component` will not allow its own children to be selected by public API or by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using [@getById](./@getById.md) on a private/protected property.
+A widget class decorated with `@component` will not allow its own children to be selected by API or by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using [@getById](./@getById.md) on a private/protected property.
 
 ```tsx
 @component
@@ -21,7 +21,7 @@ class CustomComponent extends Composite {
     );
   }
 
-  public getFoo() {
+  getFoo() {
     return this._find('#foo').only(TextInput).text;
   }
 
@@ -59,7 +59,7 @@ Example:
 @component
 class CustomComponent extends Composite {
 
-  @property public myText: string = 'foo';
+  @property myText: string = 'foo';
 
   constructor(properties?: Properties<Composite>) {
     super();
@@ -80,7 +80,7 @@ import { component, event } from 'tabris-decorators';
 @component
 export class CustomComponent extends Composite {
 
-  @event public onMyTextChanged: ChangeListeners<CustomComponent, 'myText'>;
+  @event onMyTextChanged: ChangeListeners<CustomComponent, 'myText'>;
   private _myText: string = 'foo';
 
   constructor(properties?: Properties<Composite>) {
@@ -90,12 +90,12 @@ export class CustomComponent extends Composite {
     );
   }
 
-  public set myText(value: string) {
+  set myText(value: string) {
     this._myText = value;
     this.onMyTextChanged.trigger({value});
   }
 
-  public get myText() {
+  get myText() {
     return this._myText;
   }
 
@@ -110,13 +110,13 @@ The *source property* of a binding can also be a property of a *component proper
 
 ```tsx
 class MyItem {
-  @property public myText: string = 'foo';
+  @property myText: string = 'foo';
 }
 
 @component
 class CustomComponent extends Composite {
 
-  @property public item: MyItem = new MyItem();
+  @property item: MyItem = new MyItem();
 
   constructor(properties?: Properties<Composite>) {
     super();
@@ -147,7 +147,7 @@ That last line would not update the binding if `MyItem` was implemented like thi
 
 ```ts
 class MyItem {
-  public myText: string = 'foo';
+  myText: string = 'foo';
 }
 ```
 
@@ -220,7 +220,7 @@ Example:
   @component
   class CustomComponent extends Composite {
 
-    @property public name: string = 'Peter';
+    @property name: string = 'Peter';
 
     constructor(properties: CompositeProperties) {
       super(properties);

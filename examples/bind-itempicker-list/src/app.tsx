@@ -1,7 +1,7 @@
-import { Color, contentView, Stack, TextView } from 'tabris';
-import { injector, List } from 'tabris-decorators';
-import { ExampleComponent } from './ExampleComponent';
-import { generate, Person } from './Person';
+import {Color, contentView, Stack, TextView} from 'tabris';
+import {injector, List} from 'tabris-decorators';
+import {ExampleComponent} from './ExampleComponent';
+import {generate, Person} from './Person';
 
 injector.jsxProcessor.strictMode = true;
 

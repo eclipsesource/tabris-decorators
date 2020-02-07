@@ -1,29 +1,29 @@
 import 'mocha';
 import 'sinon';
-import { ChangeListeners, Composite, Properties, tabris } from 'tabris';
+import {ChangeListeners, Composite, Properties, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { expect, stub } from './test';
-import { event, property } from '../src';
+import {expect, stub} from './test';
+import {event, property} from '../src';
 /* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
 
 describe('property', () => {
 
   class CustomComponent extends Composite {
 
-    @property public foo: string;
+    @property foo: string;
 
-    @property public bar: number;
+    @property bar: number;
 
-    @property public baz: number | boolean = true;
+    @property baz: number | boolean = true;
 
     @property(v => ['a', 'b', 'c'].indexOf(v) > -1)
-    public specificStrings: string = 'a';
+    specificStrings: string = 'a';
 
     @property(v => v instanceof Array || (!isNaN(v) && v >= 0))
-    public mixedType: number[] | number = 0;
+    mixedType: number[] | number = 0;
 
     @property(v => {if (v !== true) { throw new Error('only true allowed'); } return true;})
-    public trueType: boolean = true;
+    trueType: boolean = true;
 
     constructor(properties?: Properties<CustomComponent>) {
       super(properties);
@@ -36,20 +36,20 @@ describe('property', () => {
   });
 
   it('support set via constructor', () => {
-    let component = new CustomComponent({foo: 'foo1', bar: 23});
+    const component = new CustomComponent({foo: 'foo1', bar: 23});
     expect(component.foo).to.equal('foo1');
     expect(component.bar).to.equal(23);
   });
 
   it('support set via set method', () => {
-    let component = new CustomComponent().set({foo: 'foo1', bar: 23});
+    const component = new CustomComponent().set({foo: 'foo1', bar: 23});
     expect(component.foo).to.equal('foo1');
     expect(component.bar).to.equal(23);
   });
 
   it('fires change event on widget', () => {
-    let listener = stub();
-    let component = new CustomComponent().on('fooChanged', listener);
+    const listener = stub();
+    const component = new CustomComponent().on('fooChanged', listener);
 
     component.foo = 'foo2';
 
@@ -59,12 +59,12 @@ describe('property', () => {
   });
 
   it('fires change event on plain object', () => {
-    let listener = stub();
+    const listener = stub();
     class MyModel {
-      @property public myBool: boolean = false;
-      @event public onMyBoolChanged: ChangeListeners<MyModel, 'myBool'>;
+      @property myBool: boolean = false;
+      @event onMyBoolChanged: ChangeListeners<MyModel, 'myBool'>;
     }
-    let myModel = new MyModel();
+    const myModel = new MyModel();
     myModel.onMyBoolChanged(listener);
 
     myModel.myBool = true;
@@ -76,12 +76,12 @@ describe('property', () => {
   });
 
   it('does not fire event on plain object without matching listeners', () => {
-    let listener = stub();
+    const listener = stub();
     class MyModel {
-      @property public myBool: boolean = false;
-      @event public onOtherPropChanged: ChangeListeners<MyModel, 'myBool'>;
+      @property myBool: boolean = false;
+      @event onOtherPropChanged: ChangeListeners<MyModel, 'myBool'>;
     }
-    let myModel = new MyModel();
+    const myModel = new MyModel();
     myModel.onOtherPropChanged(listener);
 
     myModel.myBool = true;
@@ -90,8 +90,8 @@ describe('property', () => {
   });
 
   it('do not fire change event if values are identical', () => {
-    let listener = stub();
-    let component = new CustomComponent({foo: 'foo2'}).on('fooChanged', listener);
+    const listener = stub();
+    const component = new CustomComponent({foo: 'foo2'}).on('fooChanged', listener);
 
     component.foo = 'foo2';
 
@@ -99,7 +99,7 @@ describe('property', () => {
   });
 
   it('throws if type check fails on checkable type', () => {
-    let component = new CustomComponent({foo: 'foo', bar: 23}) as any;
+    const component = new CustomComponent({foo: 'foo', bar: 23}) as any;
     expect(() => component.foo = 24).to.throw(
       'Failed to set property "foo": Expected value "24" to be of type string, but found number'
     );
@@ -111,7 +111,7 @@ describe('property', () => {
   });
 
   it('does no type check on uncheckable type', () => {
-    let component = new CustomComponent() as any;
+    const component = new CustomComponent() as any;
 
     component.baz = 'foo';
 
@@ -119,7 +119,7 @@ describe('property', () => {
   });
 
   it('throws if type standard check would succeed but type guard fails', () => {
-    let component = new CustomComponent();
+    const component = new CustomComponent();
     expect(() => component.specificStrings = 'd').to.throw(
       'Failed to set property "specificStrings": Type guard check failed'
     );
@@ -127,7 +127,7 @@ describe('property', () => {
   });
 
   it('accepts value if type standard check is not possible but type guard succeeds', () => {
-    let component = new CustomComponent();
+    const component = new CustomComponent();
 
     component.mixedType = [];
     component.mixedType = 12;
@@ -136,7 +136,7 @@ describe('property', () => {
   });
 
   it('throws if type standard check is not possible but type guard fails', () => {
-    let component = new CustomComponent();
+    const component = new CustomComponent();
     expect(() => component.mixedType = -1).to.throw(
       'Failed to set property "mixedType": Type guard check failed'
     );
@@ -144,7 +144,7 @@ describe('property', () => {
   });
 
   it('accepts value if type standard check would fail but type guard succeeds', () => {
-    let component = new CustomComponent();
+    const component = new CustomComponent();
 
     (component as any).mixedType = ['a'];
 
@@ -152,7 +152,7 @@ describe('property', () => {
   });
 
   it('throws if type type guard throws', () => {
-    let component = new CustomComponent();
+    const component = new CustomComponent();
     expect(() => component.trueType = false).to.throw(
       'Failed to set property "trueType": only true allowed'
     );

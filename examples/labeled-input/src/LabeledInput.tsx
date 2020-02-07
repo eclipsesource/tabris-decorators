@@ -1,14 +1,14 @@
-import { ChangeListeners, Composite, Listeners, Properties, TextInput, TextView } from 'tabris';
-import { bind, component, event, property } from 'tabris-decorators';
+import {ChangeListeners, Composite, Listeners, Properties, TextInput, TextView} from 'tabris';
+import {bind, component, event, property} from 'tabris-decorators';
 
 @component
 export class LabeledInput extends Composite {
 
-  @bind('#input.text') public text: string;
-  @event public readonly onTextChanged: ChangeListeners<LabeledInput, 'text'>;
-  @property public labelText: string;
-  @event public readonly onLabelTextChanged: ChangeListeners<LabeledInput, 'labelText'>;
-  @event public readonly onAccept: Listeners<{target: LabeledInput}>;
+  @bind('#input.text') text: string;
+  @event readonly onTextChanged: ChangeListeners<LabeledInput, 'text'>;
+  @property labelText: string;
+  @event readonly onLabelTextChanged: ChangeListeners<LabeledInput, 'labelText'>;
+  @event readonly onAccept: Listeners<{target: LabeledInput}>;
 
   constructor(properties: Properties<LabeledInput>) {
     super();

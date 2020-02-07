@@ -1,4 +1,4 @@
-import { property } from 'tabris-decorators';
+import {property} from 'tabris-decorators';
 
 export class Person {
 
@@ -14,7 +14,7 @@ export class Person {
 
 /**
  * @param {any} value
- * @returns value is number
+ * @returns {boolean}
  */
 function isPositiveNumber(value) {
   return value > 0 && isFinite(value) && !isNaN(value);
@@ -22,7 +22,7 @@ function isPositiveNumber(value) {
 
 /**
  * @param {number} length
- * @returns (value: any) => value is string
+ * @returns {boolean}
  */
 function hasMinLength(length) {
   return value => {

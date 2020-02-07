@@ -1,9 +1,9 @@
-import { ChangeListeners, CollectionView, EventObject, JSXAttributes, Listeners, Properties, Widget } from 'tabris';
-import { Cell, ItemCheck, ItemTypeDef, TextCell } from './Cell';
-import { ListLike, Mutation } from './List';
-import { component } from '../decorators/component';
-import { event } from '../decorators/event';
-import { ListLikeObvserver } from '../internals/ListLikeObserver';
+import {ChangeListeners, CollectionView, EventObject, JSXAttributes, Listeners, Properties, Widget} from 'tabris';
+import {Cell, ItemCheck, ItemTypeDef, TextCell} from './Cell';
+import {ListLike, Mutation} from './List';
+import {component} from '../decorators/component';
+import {event} from '../decorators/event';
+import {ListLikeObvserver} from '../internals/ListLikeObserver';
 
 type CellFactoryDef<T> = {
   itemType: ItemTypeDef<T>,
@@ -22,10 +22,10 @@ export enum ItemAction {
 export class ListViewSelectEvent<ItemType> extends EventObject<ListView<ItemType>> {
 
   constructor(
-    public readonly item: ItemType,
-    public readonly itemIndex: number,
-    public readonly originalEvent: EventObject<Widget>,
-    public readonly action: number
+    readonly item: ItemType,
+    readonly itemIndex: number,
+    readonly originalEvent: EventObject<Widget>,
+    readonly action: number
   ) {
     super();
   }
@@ -35,23 +35,23 @@ export class ListViewSelectEvent<ItemType> extends EventObject<ListView<ItemType
 @component
 export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
 
-  public static selectPrimary(ev: EventObject<Widget>) {
+  static selectPrimary(ev: EventObject<Widget>) {
     ListView.select(ev, ItemAction.Primary);
   }
 
-  public static selectSecondary(ev: EventObject<Widget>) {
+  static selectSecondary(ev: EventObject<Widget>) {
     ListView.select(ev, ItemAction.Secondary);
   }
 
-  public static selectToggle(ev: EventObject<Widget>) {
+  static selectToggle(ev: EventObject<Widget>) {
     ListView.select(ev, ItemAction.Toggle);
   }
 
-  public static selectDismiss(ev: EventObject<Widget>) {
+  static selectDismiss(ev: EventObject<Widget>) {
     ListView.select(ev, ItemAction.Dismiss);
   }
 
-  public static select(ev: EventObject<Widget>, action: number = 0) {
+  static select(ev: EventObject<Widget>, action: number = 0) {
     const listView = ev.target.parent(ListView);
     const itemIndex = listView.itemIndex(ev.target);
     listView.onSelect.trigger(new ListViewSelectEvent(
@@ -62,9 +62,9 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
     ));
   }
 
-  public jsxAttributes: JSXAttributes<this> & {children?: Cell[]};
-  @event public onItemsChanged: ChangeListeners<this, 'items'>;
-  @event public onSelect: Listeners<ListViewSelectEvent<ItemType>>;
+  jsxAttributes: JSXAttributes<this> & {children?: Cell[]};
+  @event onItemsChanged: ChangeListeners<this, 'items'>;
+  @event onSelect: Listeners<ListViewSelectEvent<ItemType>>;
 
   private _observer: ListLikeObvserver<ItemType>;
 
@@ -76,7 +76,7 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
       .set(properties);
   }
 
-  public set items(value: ListLike<ItemType>) {
+  set items(value: ListLike<ItemType>) {
     if (value === this._observer.source) {
       return;
     }
@@ -84,7 +84,7 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
     this.onItemsChanged.trigger({value});
   }
 
-  public get items() {
+  get items() {
     return this._observer.source;
   }
 
@@ -107,15 +107,15 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
         cell.itemIndex = newIndex;
       }
     });
-  }
+  };
 
-  // tslint:disable-next-line
-  public [JSX.jsxFactory](Type, attributes) {
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  [JSX.jsxFactory](Type, attributes) {
     const {children, ...pureAttributes} = attributes;
     const result: ListView<unknown>
       = CollectionView.prototype[JSX.jsxFactory].call(this, Type, pureAttributes);
     if (children instanceof Array) {
-      const factories: Array<CellFactoryDef<unknown>> = children.map((child, index) => ({
+      const factories: Array<CellFactoryDef<unknown>> = children.map((child) => ({
         itemType: child.itemType,
         itemCheck: child.itemCheck,
         itemHeight: child.height,
@@ -133,7 +133,7 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
 function getCellTypeCallback(
   listView: ListView<unknown>,
   factories: Array<CellFactoryDef<unknown>>
-): ((index: number) => string ) {
+): ((index: number) => string) {
   const cellFactoryIndex = (itemIndex: number) => {
     const item = listView.items[itemIndex];
     const factoryIndex = factories.findIndex(entry => factorySupportsItem(entry, item));

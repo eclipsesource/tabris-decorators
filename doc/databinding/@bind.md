@@ -18,7 +18,7 @@ Binds the decorated *component property* to the property `<targetProperty>` of t
 
 ```ts
 @bind({path: '#source.selection'})
-public myNumber: number = 50;
+myNumber: number = 50;
 ```
 
 This establishes a two-way binding from the `myNumber` property to the property `selection` of the child with the id `'source'`. The binding is established after `append` is called the first time on the component, there needs to be exactly one descendant widget with the given id, and it has to have a property of the same type.
@@ -41,7 +41,7 @@ Example:
 
 ```ts
 @bind('#source.selection')
-public myNumber: number = 50;
+myNumber: number = 50;
 ```
 
 ## @bind({all: Bindings, typeGuard?: Function})
@@ -59,7 +59,7 @@ Establish a two-way binding between the property `<sourceProperty>` of the *obje
   myText: '#input1.text',
   myNumber: '#input2.selection'
 }})
-public model: Model;
+model: Model;
 ```
 
 This establishes 2 two-way bindings:
@@ -80,8 +80,8 @@ Both source and target property need to generate change events for the two-way b
 
 ```ts
 class Model {
-  @property public myText: string;
-  @property public myNumber: number;
+  @property myText: string;
+  @property myNumber: number;
 }
 ```
 
@@ -90,17 +90,17 @@ Note that there is no need to explicitly create an event API, `@bind` can 'talk'
 ```ts
 class Model {
 
-  @event public onMyTextChanged: ChangeListeners<Model, 'myText'>;
+  @event onMyTextChanged: ChangeListeners<Model, 'myText'>;
   private _myText: string;
 
-  public set myText(value: string) {
+  set myText(value: string) {
     if (this._myText !== value) {
       this._myText = value;
       this.onMyTextChanged.trigger({value});
     }
   }
 
-  public get myText() {
+  get myText() {
     return this._myText;
   }
 

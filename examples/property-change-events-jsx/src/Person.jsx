@@ -1,5 +1,4 @@
-import { ChangeListeners } from 'tabris';
-import { event, property } from 'tabris-decorators';
+import {event, property} from 'tabris-decorators';
 
 export class Person {
 
@@ -9,10 +8,10 @@ export class Person {
   /** @type {number} */
   @property age = 50;
 
-  /** @type {ChangeListeners<Person, 'age'>} */
+  /** @type {import('tabris').ChangeListeners<Person, 'age'>} */
   @event onAgeChanged;
 
-  /** @type {ChangeListeners<Person, 'name'>} */
+  /** @type {import('tabris').ChangeListeners<Person, 'name'>} */
   @event onNameChanged;
 
 }

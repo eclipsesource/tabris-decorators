@@ -1,4 +1,3 @@
-// tslint:disable-next-line:ban-types
 export type BaseConstructor<T> = Function & { prototype: T };
 export type Constructor<T> = new(...args: any[]) => T;
 export type ParameterDecoratorFactory = (target: Constructor<any>, property: string, index: number) => void;
@@ -14,11 +13,11 @@ const paramInfoKey = Symbol();
  * appropriate error message.
  */
 export function applyDecorator(name: string, args: any[], factory: DecoratorFactory): DecoratorFactory | void {
-  let impl = (widgetProto: any, property: string, index: number) => {
+  const impl = (widgetProto: any, property: string, index: number) => {
     try {
       factory(widgetProto, property, index);
     } catch (error) {
-      let target = property ? `"${property}"` : `parameter ${index} of ${widgetProto.name} constructor`;
+      const target = property ? `"${property}"` : `parameter ${index} of ${widgetProto.name} constructor`;
       throw new Error(`Could not apply decorator "${name}" to ${target}: ${error.message}`);
     }
   };
@@ -39,7 +38,7 @@ export function applyClassDecorator<T>(
   args: any[],
   factory: ClassDecoratorFactory<T>
 ): ClassDecoratorFactory<T> | void {
-  let impl = (type: Constructor<any>) => {
+  const impl = (type: Constructor<any>) => {
     try {
       factory(type);
     } catch (error) {
@@ -58,8 +57,8 @@ export function applyClassDecorator<T>(
  * or without (static, e.g. "@foo").
  */
 export function areStaticDecoratorArgs(args: any[]): boolean {
-  let hasClassTarget = (typeof args[0] === 'function') && !!args[0].prototype;
-  let hasProtoTarget = (typeof args[0] === 'object') && !!args[0].constructor;
+  const hasClassTarget = (typeof args[0] === 'function') && !!args[0].prototype;
+  const hasProtoTarget = (typeof args[0] === 'object') && !!args[0].constructor;
   return (hasClassTarget || hasProtoTarget) && args.length >= 2;
 }
 
@@ -91,7 +90,7 @@ export function defineGetter(proto: any, property: string, get: () => any): void
  * it returns the Object constructor.
  */
 export function getPropertyType(proto: any, property: string): Constructor<any> {
-  let result = Reflect.getMetadata('design:type', proto, property);
+  const result = Reflect.getMetadata('design:type', proto, property);
   if (!result) {
     throw new Error('Property type is undefined: Do you have circular dependency issues?');
   }
@@ -102,7 +101,7 @@ export function getPropertyType(proto: any, property: string): Constructor<any> 
  * Gets the type of the parameter. If the type can not be represented properly at runtime this throw an error.
  */
 export function getParameterType(fn: any, index: number): Constructor<any> {
-  let result = Reflect.getMetadata('design:paramtypes', fn)[index];
+  const result = Reflect.getMetadata('design:paramtypes', fn)[index];
   if (result === Object) {
     throw new Error('Parameter type could not be inferred. Only classes and primitive types are supported.');
   }
@@ -140,7 +139,7 @@ export function hasInjections(fn: any): boolean {
   if (!paramInfoArr || !paramInfoArr.length) {
     return false;
   }
-  for (let paramInfo of paramInfoArr) {
+  for (const paramInfo of paramInfoArr) {
     if (paramInfo && paramInfo.inject) {
       return true;
     }

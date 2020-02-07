@@ -1,5 +1,5 @@
-import { CheckBox, CheckBoxSelectEvent, Color, contentView, Stack } from 'tabris';
-import { ExampleComponent, Model } from './ExampleComponent';
+import {CheckBox, Color, contentView, Stack} from 'tabris';
+import {ExampleComponent, Model} from './ExampleComponent';
 
 const model = new Model();
 
@@ -15,7 +15,7 @@ contentView.append(
   </Stack>
 );
 
-/** @param {CheckBoxSelectEvent} ev */
+/** @param {tabris.CheckBoxSelectEvent} ev */
 function toggleComponentValues({checked}) {
   $(ExampleComponent).set({
     myText: checked ? 'My Text' : undefined,
@@ -23,7 +23,7 @@ function toggleComponentValues({checked}) {
   });
 }
 
-/** @param {CheckBoxSelectEvent} ev */
+/** @param {tabris.CheckBoxSelectEvent} ev */
 function toggleModelValues({checked}) {
   model.someNumber = checked ? 90 : 10;
   model.otherModel.someString = checked ? 'Another Hello' : 'Hello World';

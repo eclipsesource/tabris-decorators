@@ -1,5 +1,5 @@
-import { Color, contentView, Stack, TextView } from 'tabris';
-import { ExampleComponent } from './ExampleComponent';
+import {Color, contentView, Stack, TextView} from 'tabris';
+import {ExampleComponent} from './ExampleComponent';
 
 /** @type {number} */
 let count = 0;
@@ -45,7 +45,7 @@ function modify(type) {
 
 /**
  * @param {number} num
- * @returns string[]
+ * @returns {string[]}
  */
 function generate(num) {
   const arr = [];
@@ -55,6 +55,7 @@ function generate(num) {
   return arr;
 }
 
+/** @returns {number} */
 function randomIndex() {
   return Math.round(Math.random() * (items.length - 1));
 }

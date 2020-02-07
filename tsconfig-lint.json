@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es6",
+    "rootDirs": ["src", "test"],
+    "lib": ["es6"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictNullChecks": true,
+    "alwaysStrict": true,
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "jsx": "react",
+    "jsxFactory": "JSX.createElement",
+    "allowJs": true
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./test/**/*.ts",
+    "./test/**/*.tsx",
+    "./test/**/*.js",
+    "./test/**/*.jsx",
+    "./examples/**/*.ts",
+    "./examples/**/*.tsx",
+    "./examples/**/*.js",
+    "./examples/**/*.jsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

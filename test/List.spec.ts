@@ -1,8 +1,7 @@
 import 'mocha';
 import 'sinon';
-import { expect, spy } from './test';
-import { List, ListLike, ListLikeConstructor, listObservers, Mutation } from '../src/api/List';
-/* tslint:disable:no-unused-expression max-classes-per-file max-file-line-count no-empty*/
+import {expect, spy} from './test';
+import {List, ListLike, ListLikeConstructor, listObservers, Mutation} from '../src/api/List';
 
 describe('List', () => {
 
@@ -781,7 +780,7 @@ describe('List', () => {
             expect(last).to.deep.equal(11);
           });
 
-      });
+        });
 
       });
 

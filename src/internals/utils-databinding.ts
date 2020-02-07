@@ -1,5 +1,5 @@
-import { Composite, Listeners, NativeObject, Selector, Widget, WidgetCollection } from 'tabris';
-import { BaseConstructor, Constructor } from './utils';
+import {Composite, Listeners, NativeObject, Selector, Widget, WidgetCollection} from 'tabris';
+import {BaseConstructor, Constructor} from './utils';
 
 const uncheckedProperty: unique symbol = Symbol();
 const changeEventsSupport: unique symbol = Symbol();
@@ -14,10 +14,10 @@ export type EventTarget = {
   [changeEventsSupport]: {[prop: string]: true|undefined}
 };
 export type WidgetInterface = {
+  [prop: string]: any,
   [originalAppendKey]: typeof Composite.prototype.append,
   [wasAppendedKey]: boolean,
-  [uncheckedProperty]: any,
-  [prop: string]: any
+  [uncheckedProperty]: any
 } & Widget & WidgetProtected & EventTarget;
 export type TypeGuard = (v: any) => boolean;
 export interface WidgetProtected {
@@ -111,7 +111,7 @@ export function isAppended(widget: WidgetInterface) {
 
 export function checkAppended(widget: WidgetInterface) {
   if (!isAppended(widget)) {
-    throw new Error(`No widgets have been appended yet.`);
+    throw new Error('No widgets have been appended yet.');
   }
 }
 
@@ -131,7 +131,7 @@ export function parseTargetPath(path: string) {
 }
 
 export function checkPathSyntax(targetPath: string) {
-  if (/\s|\[|\]|\(|\)|\<|\>/.test(targetPath)) {
+  if (/\s|\[|\]|\(|\)|<|>/.test(targetPath)) {
     throw new Error('Binding path contains invalid characters.');
   }
 }
@@ -147,7 +147,7 @@ export function checkIsComponent(widget: Widget) {
 }
 
 export function getChild(base: WidgetInterface, selector: string) {
-  let results = (base as any)._find(selector) as WidgetCollection<Widget>;
+  const results = (base as any)._find(selector) as WidgetCollection<Widget>;
   if (results.length === 0) {
     throw new Error(`No widget matching "${selector}" was appended.`);
   } else if (results.length > 1) {

@@ -1,20 +1,19 @@
 import 'mocha';
-import { match } from 'sinon';
-import { ChangeListeners, Composite, ImageView, JSXAttributes, Properties, Stack, tabris, TextView, Widget, WidgetCollection } from 'tabris';
+import {match} from 'sinon';
+import {Composite, ImageView, Stack, tabris, TextView, Widget, WidgetCollection} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { expect, restoreSandbox, spy } from './test';
-import { injector, property } from '../src';
-import { Cell, TextCell } from '../src/api/Cell';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
+import {expect, restoreSandbox, spy} from './test';
+import {injector, property} from '../src';
+import {Cell, TextCell} from '../src/api/Cell';
 
 describe('Cell', () => {
 
   class MyItem {
-    public foo: string = 'bar';
+    foo: string = 'bar';
   }
 
   class MyCell extends Cell<MyItem> {
-    constructor(properties: Properties<MyCell>) {
+    constructor() {
       super({highlightOnTouch: true});
     }
   }
@@ -70,7 +69,7 @@ describe('Cell', () => {
 
     it ('throws for non "Cell" instance argument', () => {
       class NotCell extends Composite {
-        @property public item: MyItem;
+        @property item: MyItem;
       }
       expect(() => Cell.factory(<NotCell/>)).to.throw();
     });
@@ -82,18 +81,18 @@ describe('Cell', () => {
     describe('from Cell element', () => {
 
       it ('returns same factory every time', () => {
-        let cell: Cell<MyItem> = <Cell/>;
+        const cell: Cell<MyItem> = <Cell/>;
         expect(Cell.factory(cell)).to.equal(Cell.factory(cell));
         expect(Cell.factory(Cell.factory(cell)())).to.equal(Cell.factory(cell));
       });
 
       it ('returns source element first', () => {
-        let cell: Cell<MyItem> = <Cell/>;
+        const cell: Cell<MyItem> = <Cell/>;
         expect(Cell.factory(cell)()).to.equal(cell);
       });
 
       it ('returns new elements after first', () => {
-        let cell: Cell<MyItem> = <Cell/>;
+        const cell: Cell<MyItem> = <Cell/>;
         const first = Cell.factory(cell)();
 
         const second = Cell.factory(cell)();

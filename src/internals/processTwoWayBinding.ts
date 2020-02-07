@@ -1,8 +1,8 @@
-import { subscribe } from './subscribe';
-import { checkPropertyExists, getChild, isUnchecked, WidgetInterface } from './utils-databinding';
+import {subscribe} from './subscribe';
+import {checkPropertyExists, getChild, isUnchecked, WidgetInterface} from './utils-databinding';
 
 export type TwoWayBindings = {
-  [sourceProperty: string]: {selector: string, targetProperty: string};
+  [sourceProperty: string]: {selector: string, targetProperty: string}
 };
 
 export function processTwoWayBindings(

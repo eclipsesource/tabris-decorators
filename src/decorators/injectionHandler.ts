@@ -1,5 +1,5 @@
-import { Injection, Injector } from '../api/Injector';
-import { applyDecorator, BaseConstructor, Constructor } from '../internals/utils';
+import {Injection, Injector} from '../api/Injector';
+import {applyDecorator, BaseConstructor, Constructor} from '../internals/utils';
 
 export type IHFunction<T> = (injection: Injection) => T | void;
 export type IHDescriptor<T> = TypedPropertyDescriptor<IHFunction<T>>;
@@ -17,7 +17,7 @@ export function bindDecoratorInjectionHandler(injector: Injector): typeof unboun
  * Registers a static method to handle injections for the given type:
  * ```
  * ‍@injectionHandler(MyServiceClass)
- * public static createMyServiceClass(injection: Injection) {
+ * static createMyServiceClass(injection: Injection) {
  *   return new MyServiceClass(someArg);
  * }
  * ```
@@ -32,9 +32,9 @@ export function bindDecoratorInjectionHandler(injector: Injector): typeof unboun
  * - `injector`: The `Injector` instance the injection handler is registered with.
  * - `param`: An injection parameter that may have been passed via `@inject(param)` or `resolve(type, param)`
  */
-// tslint:disable:unified-signatures
 export function unboundInjectionHandler<T>(targetType: BaseConstructor<T>): CoreInjectionHandlerDecorator<T>;
 export function unboundInjectionHandler<T>(
+  // eslint-disable-next-line @typescript-eslint/unified-signatures
   param: {targetType: BaseConstructor<T>, priority?: number}
 ): CoreInjectionHandlerDecorator<T>;
 export function unboundInjectionHandler(this: Injector, ...args: any[]): any {

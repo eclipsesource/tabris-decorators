@@ -1,5 +1,5 @@
-import { contentView, Stack, TextView } from 'tabris';
-import { injector, ItemPicker, ItemPickerSelectEvent, List } from 'tabris-decorators';
+import {contentView, Stack, TextView} from 'tabris';
+import {injector, ItemPicker, ItemPickerSelectEvent, List} from 'tabris-decorators';
 
 injector.jsxProcessor.strictMode = true;
 
@@ -10,7 +10,7 @@ class Item {
     public id: string
   ) { }
 
-  public toString() {
+  toString() {
     return this.name;
   }
 

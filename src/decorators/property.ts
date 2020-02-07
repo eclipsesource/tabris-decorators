@@ -1,7 +1,7 @@
-import { checkType } from '../api/checkType';
-import { TypeGuard } from '../index';
-import { applyDecorator, Constructor, getPropertyType } from '../internals/utils';
-import { getPropertyStore, markAsUnchecked, markSupportsChangeEvents, trigger } from '../internals/utils-databinding';
+import {checkType} from '../api/checkType';
+import {TypeGuard} from '../index';
+import {applyDecorator, Constructor, getPropertyType} from '../internals/utils';
+import {getPropertyStore, markAsUnchecked, markSupportsChangeEvents, trigger} from '../internals/utils-databinding';
 
 export type CustomPropertyDecorator = (target: object, property: string | symbol) => void;
 
@@ -24,7 +24,7 @@ export type CustomPropertyDecorator = (target: object, property: string | symbol
  * The type guard is called whenever the property is set and must return `true`
  * if `value` is of the expected type. This is required for some types to enable databinding.
  */
-export function property(targetProto: object, property: string | symbol): void;
+export function property(targetProto: object, propertyName: string | symbol): void;
 /**
  * This decorator makes a property fire change events, thereby making it bindable.
  *
@@ -81,7 +81,7 @@ function setterTypeCheck(
   try {
     if (check) {
       if (!check(value)) {
-        throw new Error(`Type guard check failed`);
+        throw new Error('Type guard check failed');
       }
     } else {
       checkType(value, targetType);

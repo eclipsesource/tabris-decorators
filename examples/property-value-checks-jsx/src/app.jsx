@@ -1,6 +1,6 @@
-import { Button, contentView, Stack, TextInput, TextView } from 'tabris';
-import { injector } from 'tabris-decorators';
-import { Person } from './Person';
+import {Button, contentView, Stack, TextInput, TextView} from 'tabris';
+import {injector} from 'tabris-decorators';
+import {Person} from './Person';
 
 injector.jsxProcessor.strictMode = true;
 
@@ -36,7 +36,6 @@ function changeAge() {
 
 /** @param {string} message */
 function log(message) {
-  // tslint:disable-next-line: no-console
   console.log(message);
   $(TextView).only().text = message;
 }

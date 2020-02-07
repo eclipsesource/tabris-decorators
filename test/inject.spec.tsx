@@ -1,11 +1,10 @@
 import 'mocha';
 import 'sinon';
-import { SinonSpy } from 'sinon';
-import { Composite, Constraint, Properties, tabris, TextInput, WidgetCollection } from 'tabris';
+import {SinonSpy} from 'sinon';
+import {Composite, Constraint, Properties, tabris, TextInput, WidgetCollection} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { expect, restoreSandbox, spy } from './test';
-import { Constructor, create, inject, injectable, Injection, injectionHandler, injector, shared } from '../src';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct max-file-line-count max-line-length*/
+import {expect, restoreSandbox, spy} from './test';
+import {Constructor, create, inject, injectable, Injection, injectionHandler, injector, shared} from '../src';
 
 describe('inject', () => {
 
@@ -14,44 +13,44 @@ describe('inject', () => {
   }
 
   @injectable({shared: true}) class MySingletonClass {
-    public saySomething() { return 'baz1'; }
+    saySomething() { return 'baz1'; }
   }
 
   @shared class MyOtherSingletonClass {}
 
   class BaseClass {
-    public saySomething() { return 'baz1'; }
+    saySomething() { return 'baz1'; }
   }
 
   @injectable({implements: BaseClass, priority: 2})
   class CompatibleClass {
-    public saySomething() { return 'baz3'; }
+    saySomething() { return 'baz3'; }
   }
 
   @injectable({implements: BaseClass, priority: 1})
   class LowPriorityClass {
-    public saySomething() { return 'baz4'; }
+    saySomething() { return 'baz4'; }
   }
 
   abstract class ColorClass {
-    public abstract readonly color: string;
+    abstract readonly color: string;
   }
 
   @injectable({param: 'blue'})
-  class BlueClass extends ColorClass{
-    public readonly color: string = '#0000ff';
+  class BlueClass extends ColorClass {
+    readonly color: string = '#0000ff';
   }
 
   @injectable({param: 'green'})
   class GreenClass extends ColorClass {
-    public readonly color: string = '#00ff00';
+    readonly color: string = '#00ff00';
   }
 
   class ConstructorWithInjection {
 
-    public service: MyServiceClass;
-    public number: number;
-    public str: string;
+    service: MyServiceClass;
+    number: number;
+    str: string;
 
     constructor(
       str: string | undefined,
@@ -72,7 +71,7 @@ describe('inject', () => {
   class MyServiceClassInjectionHandlerTwo {
 
     @injectionHandler({targetType: MyServiceClass, priority: 2})
-    public static createMyServiceClass(injection: Injection) {
+    static createMyServiceClass(injection: Injection) {
       return serviceHandler(injection);
     }
 
@@ -81,16 +80,16 @@ describe('inject', () => {
   class MyServiceClassInjectionHandler {
 
     @injectionHandler(MyServiceClass)
-    public static createMyServiceClass() {
+    static createMyServiceClass() {
       throw new Error('will never be called');
     }
 
   }
 
   let serviceHandler: (injection: Injection) => MyServiceClass;
-  let numberHandler: (injection: Injection) => number | Number;
-  let stringHandler: (injection: Injection) => string | String;
-  let booleanHandler: (injection: Injection) => boolean | Boolean;
+  let numberHandler: (injection: Injection) => number | number;
+  let stringHandler: (injection: Injection) => string | string;
+  let booleanHandler: (injection: Injection) => boolean | boolean;
   let instance: ConstructorWithInjection;
 
   injector.addHandler(Number, (injection: Injection) => numberHandler(injection));
@@ -111,7 +110,7 @@ describe('inject', () => {
   });
 
   it('ignored on direct constructor call', () => {
-    let instance2 = new ConstructorWithInjection('foo', new MyServiceClass('bar'), 23, new MyServiceClass('foo'));
+    const instance2 = new ConstructorWithInjection('foo', new MyServiceClass('bar'), 23, new MyServiceClass('foo'));
     expect(instance2.number).to.equal(23);
     expect(instance2.str).to.equal('foo');
     expect(instance2.service.param).equal('bar');
@@ -121,7 +120,7 @@ describe('inject', () => {
   it('injects when used with create', () => {
     numberHandler = (injection) => 44;
 
-    let instance2 = create(ConstructorWithInjection);
+    const instance2 = create(ConstructorWithInjection);
 
     expect(instance2.number).to.equal(44);
   });
@@ -132,17 +131,17 @@ describe('inject', () => {
         str: string | undefined,
         @inject('foo2') service: MyServiceClass,
         @inject num: number,
-        @inject public otherService: MyServiceClass,
-        @inject public singleton1?: MySingletonClass,
-        @inject public singleton2?: MyOtherSingletonClass,
-        @inject public baseClass?: BaseClass
+        @inject otherService: MyServiceClass,
+        @inject singleton1?: MySingletonClass,
+        @inject singleton2?: MyOtherSingletonClass,
+        @inject baseClass?: BaseClass
       ) {
         super(str, service, num, otherService, singleton1, singleton2, baseClass);
       }
     }
     numberHandler = (injection) => 44;
 
-    let instance2 = create(ConstructorWithInjectionExtended);
+    const instance2 = create(ConstructorWithInjectionExtended);
 
     expect(instance2.number).to.equal(44);
   });
@@ -152,19 +151,19 @@ describe('inject', () => {
       constructor(
         str: string | undefined,
         @inject('foo2') service: MyServiceClass,
-        @inject public otherService: MyServiceClass,
+        @inject otherService: MyServiceClass,
         @inject num: number,
-        @inject public singleton2?: MyOtherSingletonClass,
-        @inject public singleton1?: MySingletonClass,
-        @inject public baseClass?: BaseClass
+        @inject singleton2?: MyOtherSingletonClass,
+        @inject singleton1?: MySingletonClass,
+        @inject baseClass?: BaseClass
       ) {
         super(str, service, num, otherService, singleton1, singleton2, baseClass);
       }
     }
     numberHandler = (injection) => 44;
 
-    let instance2 = create(ConstructorWithInjection);
-    let instance3 = create(ConstructorWithInjectionExtended);
+    const instance2 = create(ConstructorWithInjection);
+    const instance3 = create(ConstructorWithInjectionExtended);
 
     expect(instance2.number).to.equal(44);
     expect(instance2.str).to.equal('');
@@ -177,18 +176,18 @@ describe('inject', () => {
       constructor(
         @inject('foo2') service: MyServiceClass,
         @inject num: number,
-        @inject public otherService: MyServiceClass,
-        @inject public singleton2?: MyOtherSingletonClass,
-        @inject public singleton1?: MySingletonClass,
-        @inject public baseClass?: BaseClass
+        @inject otherService: MyServiceClass,
+        @inject singleton2?: MyOtherSingletonClass,
+        @inject singleton1?: MySingletonClass,
+        @inject baseClass?: BaseClass
       ) {
         super('foo3', service, num, otherService, singleton1, singleton2, baseClass);
       }
     }
     numberHandler = (injection) => 44;
 
-    let instance2 = create(ConstructorWithInjection);
-    let instance3 = create(ConstructorWithInjectionExtended);
+    const instance2 = create(ConstructorWithInjection);
+    const instance3 = create(ConstructorWithInjectionExtended);
 
     expect(instance2.number).to.equal(44);
     expect(instance2.str).to.equal('');
@@ -197,7 +196,6 @@ describe('inject', () => {
   });
 
   it('fails for unsupported type', () => {
-    // tslint:disable-next-line:no-empty-interface
     interface UndefinedService { }
     const UndefinedService: Constructor<UndefinedService> = undefined as any;
     expect(() => {
@@ -207,13 +205,12 @@ describe('inject', () => {
         ) { /* should not go here */ }
       }
     }).to.throw(
-        'Could not apply decorator "inject" to parameter 0 of HasMissingType constructor: '
+      'Could not apply decorator "inject" to parameter 0 of HasMissingType constructor: '
       + 'Parameter type could not be inferred. Only classes and primitive types are supported.'
     );
   });
 
   it('fails for undefined type', () => {
-    // tslint:disable-next-line:no-empty-interface
     class UndefinedService {}
     (UndefinedService as any) = null;
     expect(() => {
@@ -223,19 +220,19 @@ describe('inject', () => {
         ) { /* should not go here */ }
       }
     }).to.throw(
-        'Could not apply decorator "inject" to parameter 0 of HasMissingType constructor: '
+      'Could not apply decorator "inject" to parameter 0 of HasMissingType constructor: '
       + 'Parameter type is undefined: Do you have circular dependency issues?'
     );
   });
 
   it('injects with injection parameter', () => {
-    let instance2 = create(ConstructorWithInjection, 'foo');
+    const instance2 = create(ConstructorWithInjection, 'foo');
     expect(instance2.service.param).to.equal('foo2');
   });
 
   it('gives Injection infos to handler', () => {
-    let fooInjection: Injection = (serviceHandler as SinonSpy).args[0][0];
-    let otherInjection: Injection = (serviceHandler as SinonSpy).args[1][0];
+    const fooInjection: Injection = (serviceHandler as SinonSpy).args[0][0];
+    const otherInjection: Injection = (serviceHandler as SinonSpy).args[1][0];
     expect(fooInjection.param).to.equal('foo2');
     expect(fooInjection.type).to.equal(MyServiceClass);
     expect(otherInjection.param).to.be.null;
@@ -243,15 +240,15 @@ describe('inject', () => {
   });
 
   it('does not inject when not decorated', () => {
-    let instance2 = create(ConstructorWithInjection, undefined, undefined, 34);
+    const instance2 = create(ConstructorWithInjection, undefined, undefined, 34);
     expect(instance2.str).to.equal('');
     expect(instance2.service).to.be.instanceOf(MyServiceClass);
     expect(instance2.number).to.equal(34);
   });
 
   it('create passes explicit construction parameter to super constructor', () => {
-    class ExtendedConstrutorWithInjection extends ConstructorWithInjection {}
-    let instance2 = create(ExtendedConstrutorWithInjection, 'foo3', undefined, 34);
+    class ExtendedConstructorWithInjection extends ConstructorWithInjection {}
+    const instance2 = create(ExtendedConstructorWithInjection, 'foo3', undefined, 34);
     expect(instance2.str).to.equal('foo3');
     expect(instance2.service).to.be.instanceOf(MyServiceClass);
     expect(instance2.number).to.equal(34);
@@ -262,12 +259,12 @@ describe('inject', () => {
   });
 
   it('does not share non-singletons', () => {
-    let instance2 = create(ConstructorWithInjection);
+    const instance2 = create(ConstructorWithInjection);
     expect(instance2.otherService).not.to.equal(instance.otherService);
   });
 
   it('shares singletons', () => {
-    let instance2 = create(ConstructorWithInjection);
+    const instance2 = create(ConstructorWithInjection);
     expect(instance2.singleton1).to.equal(instance.singleton1);
     expect(instance2.singleton2).to.equal(instance.singleton2);
   });
@@ -280,11 +277,11 @@ describe('inject', () => {
   it('injects by param filter', () => {
     class Colors {
       constructor(
-        @inject('blue') public readonly b: ColorClass,
-        @inject('green') public readonly g: ColorClass
+        @inject('blue') readonly b: ColorClass,
+        @inject('green') readonly g: ColorClass
       ) {}
     }
-    let colors = create(Colors);
+    const colors = create(Colors);
     expect(colors.g).to.be.instanceOf(GreenClass);
     expect(colors.b).to.be.instanceOf(BlueClass);
   });
@@ -293,16 +290,16 @@ describe('inject', () => {
 
     class MyCustomWidget extends Composite {
 
-      public service: MyServiceClass;
-      public foo: string;
-      public nonInjected: number;
+      service: MyServiceClass;
+      foo: string;
+      nonInjected: number;
 
       constructor(
         properties: Properties<Composite>,
         @inject service: MyServiceClass,
         @inject('foo') foo: string,
         nothingToInject: number,
-        @inject('bar') public implicitField: string
+        @inject('bar') implicitField: string
       ) {
         super(properties);
         this.foo = foo;
@@ -318,9 +315,9 @@ describe('inject', () => {
       JSX.install(injector.jsxProcessor);
       stringHandler = injection => new String(injection.param);
       widget = (
-      <MyCustomWidget left={3} top={4}>
-        <Composite/>
-      </MyCustomWidget>
+        <MyCustomWidget left={3} top={4}>
+          <Composite/>
+        </MyCustomWidget>
       );
     });
 
@@ -353,11 +350,15 @@ describe('inject', () => {
       function ComponentFoo(prop: {bar: string, children: string[]}) {
         return new WidgetCollection([new TextInput({text: prop.bar}), new TextInput({text: prop.children[0]})]);
       }
-      let ti = <ComponentFoo bar='foo'>
-        hello
-        {'test'}
-        world
-      </ComponentFoo>;
+      /* eslint-disable react/jsx-curly-brace-presence */
+      const ti = (
+        <ComponentFoo bar='foo'>
+          hello
+          {'test'}
+          world
+        </ComponentFoo>
+      );
+      /* eslint-enable react/jsx-curly-brace-presence */
       expect(ti[0].text).to.equal('foo');
       expect(ti[1].text).to.equal('hello');
     });

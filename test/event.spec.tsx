@@ -1,9 +1,8 @@
-import { expect } from 'chai';
-import { Listeners, NativeObject, tabris } from 'tabris';
+import {expect} from 'chai';
+import {Listeners, NativeObject, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { restoreSandbox, stub } from './test';
-import { event } from '../src';
-// tslint:disable:no-unused-expression
+import {restoreSandbox, stub} from './test';
+import {event} from '../src';
 
 describe('event', () => {
 
@@ -13,7 +12,6 @@ describe('event', () => {
     foo?: string;
   }
 
-  // tslint:disable-next-line:variable-name only-arrow-functions no-empty no-any
   const PseudoNativeObject: new() => NativeObject = function() {} as any;
   PseudoNativeObject.prototype = NativeObject.prototype;
 
@@ -30,10 +28,10 @@ describe('event', () => {
 
   it('injects working Listeners', () => {
     class PlainClass {
-      @event public readonly onMyEvent: Listeners<{target: PlainClass}>;
+      @event readonly onMyEvent: Listeners<{target: PlainClass}>;
     }
 
-    let object = new PlainClass();
+    const object = new PlainClass();
     object.onMyEvent(listener);
     object.onMyEvent.trigger({});
 
@@ -42,19 +40,18 @@ describe('event', () => {
 
   it('fails for other types', () => {
     expect(() => {
-      // tslint:disable-next-line:no-unused-variable
       class PlainClass {
-        @event public readonly onMyEvent: Date;
+        @event readonly onMyEvent: Date;
       }
     }).to.throw(/onMyEvent/);
   });
 
   it('synthesizes tabris events on NativeObjects', () => {
     class MyNativeObject extends PseudoNativeObject {
-      @event public readonly onMyEvent: Listeners<{target: MyNativeObject}>;
+      @event readonly onMyEvent: Listeners<{target: MyNativeObject}>;
     }
 
-    let object = new MyNativeObject();
+    const object = new MyNativeObject();
     object.on({myEvent: listener});
     object.onMyEvent.trigger({});
 
@@ -63,10 +60,10 @@ describe('event', () => {
 
   it('receives events on NativeObjects', () => {
     class MyNativeObject extends PseudoNativeObject {
-      @event public readonly onMyEvent: Listeners<{target: MyNativeObject}>;
+      @event readonly onMyEvent: Listeners<{target: MyNativeObject}>;
     }
 
-    let object = new MyNativeObject();
+    const object = new MyNativeObject();
     object.onMyEvent(listener);
     object.trigger('myEvent', {foo: 'bar'});
 
@@ -76,12 +73,12 @@ describe('event', () => {
 
   it('forwards given event object to tabris event', () => {
     class MyNativeObject extends PseudoNativeObject {
-      @event public readonly onMyEvent: Listeners<MyEvent>;
+      @event readonly onMyEvent: Listeners<MyEvent>;
     }
 
-    let object = new MyNativeObject();
+    const object = new MyNativeObject();
     object.on({myEvent: typedListener});
-    let eventData = {target: object, type: 'myEvent', foo: 'bar'};
+    const eventData = {target: object, type: 'myEvent', foo: 'bar'};
     object.onMyEvent.trigger(eventData);
 
     expect(typedListener).to.have.been.calledWithMatch({target: object, type: 'myEvent', foo: 'bar'});
@@ -89,12 +86,12 @@ describe('event', () => {
 
   it('adjusts target and type on forwarded event', () => {
     class MyNativeObject extends PseudoNativeObject {
-      @event public readonly onMyEvent: Listeners<MyEvent>;
+      @event readonly onMyEvent: Listeners<MyEvent>;
     }
 
-    let object = new MyNativeObject();
+    const object = new MyNativeObject();
     object.on({myEvent: typedListener});
-    let eventData = {target: new Date(), type: 'baz', foo: 'bar'};
+    const eventData = {target: new Date(), type: 'baz', foo: 'bar'};
     object.onMyEvent.trigger(eventData);
 
     expect(typedListener).to.have.been.calledWithMatch({target: object, type: 'myEvent', foo: 'bar'});
@@ -102,22 +99,18 @@ describe('event', () => {
 
   it('fails if property does not match pattern types', () => {
     expect(() => {
-      // tslint:disable-next-line:no-unused-variable
       class PlainClass {
-        @event public readonly onmyEvent: Listeners<{target: PlainClass}>;
+        @event readonly onmyEvent: Listeners<{target: PlainClass}>;
       }
     }).to.throw(/onmyEvent/);
     expect(() => {
-      // tslint:disable-next-line:no-unused-variable
       class PlainClass {
-        // tslint:disable-next-line:variable-name
-        @event public readonly MyEvent: Listeners<{target: PlainClass}>;
+        @event readonly MyEvent: Listeners<{target: PlainClass}>;
       }
     }).to.throw(/MyEvent/);
     expect(() => {
-      // tslint:disable-next-line:no-unused-variable
       class PlainClass {
-        @event public readonly myEvent: Listeners<{target: PlainClass}>;
+        @event readonly myEvent: Listeners<{target: PlainClass}>;
       }
     }).to.throw(/myEvent/);
   });

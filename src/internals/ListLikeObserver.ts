@@ -1,4 +1,4 @@
-import { getValueString, List, ListLike, listObservers, Mutation } from '..';
+import {getValueString, List, ListLike, listObservers, Mutation} from '..';
 
 export class ListLikeObvserver<T> {
 
@@ -8,7 +8,7 @@ export class ListLikeObvserver<T> {
     private _callback: (ev: Mutation<T>) => void
   ) { }
 
-  public set source(value: ListLike<T>) {
+  set source(value: ListLike<T>) {
     if (value === this._source) {
       return;
     }
@@ -26,7 +26,7 @@ export class ListLikeObvserver<T> {
     }
   }
 
-  public get source() {
+  get source() {
     return this._source;
   }
 
@@ -37,7 +37,7 @@ export class ListLikeObvserver<T> {
         deleteCount: (prevSource || []).length,
         target: this._source || [],
         items: Array.from(this._source || [])
-     });
+      });
     }
     const source = this._source as T[];
     if (source.length === prevSource.length) {

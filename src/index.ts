@@ -1,8 +1,8 @@
-import { CreateFunction, injector, ResolveFunction } from './api/Injector';
-import { InjectDecorator } from './decorators/inject';
-import { InjectableDecorator } from './decorators/injectable';
-import { InjectionHandlerDecorator } from './decorators/injectionHandler';
-import { SharedDecorator } from './decorators/shared';
+import {CreateFunction, injector, ResolveFunction} from './api/Injector';
+import {InjectDecorator} from './decorators/inject';
+import {InjectableDecorator} from './decorators/injectable';
+import {InjectionHandlerDecorator} from './decorators/injectionHandler';
+import {SharedDecorator} from './decorators/shared';
 
 // NOTE: The JsDoc for decorators in this file are necessary duplicates from those attached to the implementation.
 // Those here are displayed in VS code when using the decorator without parameters.
@@ -63,7 +63,7 @@ export const shared: SharedDecorator = injector.shared;
  * Registers a static method to handle injections for the given type:
  * ```
  * ‍@injectionHandler(MyServiceClass)
- * public static createMyServiceClass(injection: Injection) {
+ * static createMyServiceClass(injection: Injection) {
  *   return new MyServiceClass(someArg);
  * }
  * ```

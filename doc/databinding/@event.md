@@ -10,8 +10,8 @@ Apply this decorators to a property of the type `Listeners` (or `ChangeListeners
 
 ```ts
 class SomeClass extends SomeOtherClass {
-  @event public onMyEvent: Listeners<{target: SomeClass}>; // issues plain EventObject instances
-  @event public onFoo: Listeners<{<target: SomeClass, foo: string}>; // EventObject with additional event data
+  @event onMyEvent: Listeners<{target: SomeClass}>; // issues plain EventObject instances
+  @event onFoo: Listeners<{<target: SomeClass, foo: string}>; // EventObject with additional event data
 }
 ```
 
@@ -19,7 +19,7 @@ class SomeClass extends SomeOtherClass {
 
 ```ts
 class SomeClass extends SomeOtherClass {
-  @event public onSelectionChanged: ChangeListeners<SomeClass, 'selection'>;
-  @property public selection: number; // will (due to the naming) fire 'selectionChanged'
+  @event onSelectionChanged: ChangeListeners<SomeClass, 'selection'>;
+  @property selection: number; // will (due to the naming) fire 'selectionChanged'
 }
 ```

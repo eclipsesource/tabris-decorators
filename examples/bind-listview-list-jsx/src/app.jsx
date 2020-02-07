@@ -1,6 +1,6 @@
-import { Color, contentView, Stack, TextView } from 'tabris';
-import { List } from 'tabris-decorators';
-import { ExampleComponent } from './ExampleComponent';
+import {Color, contentView, Stack, TextView} from 'tabris';
+import {List} from 'tabris-decorators';
+import {ExampleComponent} from './ExampleComponent';
 
 /** @type {number} */
 let count = 0;
@@ -54,6 +54,7 @@ function generate(num) {
   return arr;
 }
 
+/** @returns {number} */
 function randomIndex() {
   return Math.round(Math.random() * (items.length - 1));
 }

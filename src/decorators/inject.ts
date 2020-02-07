@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { Injector } from '../api/Injector';
-import { applyDecorator, Constructor, getOwnParamInfo, getParameterType, ParameterDecoratorFactory } from '../internals/utils';
+import {Injector} from '../api/Injector';
+import {applyDecorator, Constructor, getOwnParamInfo, getParameterType, ParameterDecoratorFactory} from '../internals/utils';
 
 export type InjectDecorator = typeof unboundInject;
 

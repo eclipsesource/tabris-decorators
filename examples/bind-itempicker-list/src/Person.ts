@@ -1,4 +1,4 @@
-import { property } from 'tabris-decorators';
+import {property} from 'tabris-decorators';
 
 const NAMES = [
   'James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Thomas',
@@ -11,17 +11,17 @@ const FAMILIES = [
 ];
 
 export class Name {
-  @property public given: string;
-  @property public family: string;
-  public toString() {
+  @property given: string;
+  @property family: string;
+  toString() {
     return `${this.given} ${this.family}`;
   }
 }
 
 export class Person {
 
-  @property public name: Name;
-  @property public age: number;
+  @property name: Name;
+  @property age: number;
 
   constructor(firstName: string, lastName: string, age: number) {
     this.name = new Name();

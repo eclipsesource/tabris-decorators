@@ -1,44 +1,44 @@
-import { Listeners } from 'tabris';
+import {Listeners} from 'tabris';
 
 const data: unique symbol = Symbol('data');
 const observers: unique symbol = Symbol('observers');
 const init: unique symbol = Symbol('init');
 
 export type ListLike<T> = {
-  length: number;
-  [index: number]: T;
-  [Symbol.iterator](): IterableIterator<T>;
-  entries(): IterableIterator<[number, T]>;
-  // tslint:disable-next-line: max-line-length
-  find<S extends T>(predicate: (this: void, value: T, index: number, obj: ListLike<T>) => value is S, thisArg?: any): S | undefined;
-  find(predicate: (value: T, index: number, obj: ListLike<T>) => unknown, thisArg?: any): T | undefined;
-  findIndex(predicate: (value: T, index: number, obj: ListLike<T>) => unknown, thisArg?: any): number;
-  forEach(callbackfn: (value: T, index: number, array: ListLike<T>) => void, thisArg?: any): void;
-  indexOf(searchElement: T, fromIndex?: number): number;
-  join(separator?: string): string;
-  keys(): IterableIterator<number>;
-  lastIndexOf(searchElement: T, fromIndex?: number): number;
-  pop(): T | undefined;
-  push(...items: T[]): number;
-  shift(): T | undefined;
-  splice(start: number, deleteCount?: number, ...items: T[]): T[];
-  unshift(...items: T[]): number;
-  values(): IterableIterator<T>;
+  length: number,
+  [index: number]: T,
+  [Symbol.iterator](): IterableIterator<T>,
+  entries(): IterableIterator<[number, T]>,
+  // eslint-disable-next-line max-len
+  find<S extends T>(predicate: (this: void, value: T, index: number, obj: ListLike<T>) => value is S, thisArg?: any): S | undefined,
+  find(predicate: (value: T, index: number, obj: ListLike<T>) => unknown, thisArg?: any): T | undefined,
+  findIndex(predicate: (value: T, index: number, obj: ListLike<T>) => unknown, thisArg?: any): number,
+  forEach(callbackfn: (value: T, index: number, array: ListLike<T>) => void, thisArg?: any): void,
+  indexOf(searchElement: T, fromIndex?: number): number,
+  join(separator?: string): string,
+  keys(): IterableIterator<number>,
+  lastIndexOf(searchElement: T, fromIndex?: number): number,
+  pop(): T | undefined,
+  push(...items: T[]): number,
+  shift(): T | undefined,
+  splice(start: number, deleteCount?: number, ...items: T[]): T[],
+  unshift(...items: T[]): number,
+  values(): IterableIterator<T>
 };
 
 export type ListLikeConstructor = {
-  new(arrayLength?: number): (any[] | ListLike<any>);
-  new<T>(...items: T[]): (T[] | ListLike<T>);
-  from<T>(arrayLike: ArrayLike<T> | Iterable<T>): ListLike<T>;
-  from<T, U>(arrayLike: ArrayLike<T>, mapfn?: (v: T, k: number) => U, thisArg?: any): ListLike<U>
-  of<T>(...items: T[]): ListLike<T>;
+  new(arrayLength?: number): (any[] | ListLike<any>),
+  new<T>(...items: T[]): (T[] | ListLike<T>),
+  from<T>(arrayLike: ArrayLike<T> | Iterable<T>): ListLike<T>,
+  from<T, U>(arrayLike: ArrayLike<T>, mapfn?: (v: T, k: number) => U, thisArg?: any): ListLike<U>,
+  of<T>(...items: T[]): ListLike<T>
 };
 
 export type Mutation<T> = {
-  start: number;
-  deleteCount: number;
-  items: T[];
-  target: ListLike<T>;
+  start: number,
+  deleteCount: number,
+  items: T[],
+  target: ListLike<T>
 };
 
 export function listObservers<T>(list: List<T>): Listeners<Mutation<T>> {
@@ -47,16 +47,14 @@ export function listObservers<T>(list: List<T>): Listeners<Mutation<T>> {
 
 export class List<T> implements ListLike<T> {
 
-  public static from<T,U>(
-    arrayLike: ArrayLike<T> | Iterable<T>,
-    mapfn?: (v: T, k: number) => U,
-    thisArg?: any
-  ): List<T> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static from<T,U>(arrayLike: ArrayLike<T> | Iterable<T>, mapfn?: (v: T, k: number) => U, thisArg?: any): List<T> {
     const initData = Array.from.apply(Array, arguments);
     return new List<T>({[init]: initData});
   }
 
-  public static of<T>(...items: T[]): List<T> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static of<T>(...items: T[]): List<T> {
     const initData = Array.of.apply(Array, arguments);
     return new List<T>({[init]: initData});
   }
@@ -96,52 +94,52 @@ export class List<T> implements ListLike<T> {
     });
   }
 
-  public [Symbol.iterator]() {
+  [Symbol.iterator]() {
     return this[data][Symbol.iterator]();
   }
 
-  public entries(): IterableIterator<[number, T]> {
+  entries(): IterableIterator<[number, T]> {
     return this[data].entries();
   }
 
-  // tslint:disable-next-line: max-line-length
-  public find<S extends T>(predicate: (this: void, value: T, index: number, obj: List<T>) => value is S, thisArg?: any): S | undefined;
-  public find(predicate: (value: T, index: number, obj: List<T>) => unknown, thisArg?: any): T | undefined {
+  // eslint-disable-next-line max-len
+  find<S extends T>(predicate: (this: void, value: T, index: number, obj: List<T>) => value is S, thisArg?: any): S | undefined;
+  find(predicate: (value: T, index: number, obj: List<T>) => unknown, thisArg?: any): T | undefined {
     return this[data].find((value, index) => predicate.call(thisArg, value, index, this));
   }
 
-  public findIndex(predicate: (value: T, index: number, obj: List<T>) => unknown, thisArg?: any): number {
+  findIndex(predicate: (value: T, index: number, obj: List<T>) => unknown, thisArg?: any): number {
     return this[data].findIndex((value, index) => predicate.call(thisArg, value, index, this));
   }
 
-  public forEach(callbackfn: (value: T, index: number, array: List<T>) => void, thisArg?: any): void {
+  forEach(callbackfn: (value: T, index: number, array: List<T>) => void, thisArg?: any): void {
     this[data].forEach((value, index) => callbackfn.call(thisArg, value, index, this));
   }
 
-  public indexOf(searchElement: T, fromIndex?: number): number {
+  indexOf(searchElement: T, fromIndex?: number): number {
     return this[data].indexOf(searchElement, fromIndex);
   }
 
-  public join(separator?: string): string {
+  join(separator?: string): string {
     return this[data].join(separator);
   }
 
-  public keys(): IterableIterator<number> {
+  keys(): IterableIterator<number> {
     return this[data].keys();
   }
 
-  public lastIndexOf(searchElement: T, fromIndex?: number): number {
+  lastIndexOf(searchElement: T, fromIndex?: number): number {
     return this[data].lastIndexOf(searchElement, arguments.length > 1 ? fromIndex : this.length - 1);
   }
 
-  public pop(): T | undefined {
+  pop(): T | undefined {
     const oldLength = this[data].length;
     const result = this[data].pop();
     this[observers].trigger({start: oldLength - 1, deleteCount: 1, items: []});
     return result;
   }
 
-  public push(...items: T[]): number {
+  push(...items: T[]): number {
     const oldLength = this[data].length;
     const result = this[data].push.apply(this[data], items);
     if (items.length) {
@@ -150,13 +148,13 @@ export class List<T> implements ListLike<T> {
     return result;
   }
 
-  public shift(): T | undefined {
+  shift(): T | undefined {
     const result = this[data].shift();
     this[observers].trigger({start: 0, deleteCount: 1, items: []});
     return result;
   }
 
-  public splice(start: number, deleteCount?: number, ...items: T[]): T[] {
+  splice(start: number, deleteCount?: number, ...items: T[]): T[] {
     if (arguments.length === 0) {
       return [];
     }
@@ -179,7 +177,7 @@ export class List<T> implements ListLike<T> {
     return result;
   }
 
-  public unshift(...items: T[]): number {
+  unshift(...items: T[]): number {
     const result = this[data].unshift.apply(this[data], arguments);
     if (items.length) {
       this[observers].trigger({start: 0, deleteCount: 0, items});
@@ -187,7 +185,7 @@ export class List<T> implements ListLike<T> {
     return result;
   }
 
-  public values(): IterableIterator<T> {
+  values(): IterableIterator<T> {
     return this[data].values();
   }
 
@@ -282,7 +280,7 @@ function isInt(value: unknown): value is string | number {
 }
 
 function toInt(value: any): number {
-  // tslint:disable-next-line: no-construct
+  // eslint-disable-next-line no-new-wrappers
   const num = typeof value === 'number' ? value : new Number(value).valueOf();
   if (isNaN(value)) {
     return 0;

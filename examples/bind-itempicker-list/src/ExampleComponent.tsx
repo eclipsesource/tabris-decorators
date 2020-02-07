@@ -1,12 +1,12 @@
-import { Composite, Properties, Stack, TextView } from 'tabris';
-import { bind, component, ItemPicker, List, property, to } from 'tabris-decorators';
-import { Person } from './Person';
+import {Composite, Properties, Stack, TextView} from 'tabris';
+import {bind, component, ItemPicker, List, property} from 'tabris-decorators';
+import {Person} from './Person';
 
 @component
 export class ExampleComponent extends Composite {
 
-  @bind('#picker.selection') public details: Person = null;
-  @property public persons: List<Person>;
+  @bind('#picker.selection') details: Person = null;
+  @property persons: List<Person>;
 
   constructor(properties: Properties<ExampleComponent>) {
     super();

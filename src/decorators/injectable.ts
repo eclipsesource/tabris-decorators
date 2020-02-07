@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { Injection, InjectionParameter, Injector } from '../api/Injector';
-import { applyClassDecorator, areStaticClassDecoratorArgs, BaseConstructor, ClassDecoratorFactory, Constructor } from '../internals/utils';
+import {Injection, InjectionParameter, Injector} from '../api/Injector';
+import {applyClassDecorator, areStaticClassDecoratorArgs, BaseConstructor, ClassDecoratorFactory, Constructor} from '../internals/utils';
 
 export type InjectableDecorator = typeof unboundInjectable;
 
@@ -55,7 +55,7 @@ class DefaultInjectionHandler<T> {
 
   constructor(private type: Constructor<T>, private config: InjectableConfig<T> = {}) { }
 
-  public handleInjection = (injection: Injection) => {
+  handleInjection = (injection: Injection) => {
     if ('param' in this.config && injection.param !== this.config.param) {
       return null;
     }
@@ -66,7 +66,7 @@ class DefaultInjectionHandler<T> {
       this.instance = injection.injector.create(this.type);
     }
     return this.instance;
-  }
+  };
 
 }
 

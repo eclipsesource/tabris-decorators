@@ -15,26 +15,26 @@ For one-way bindings these type guards are required only on the target property,
 When using the `@property` decorator the type guard can be given as the sole parameter, as can be seen in the `TriStateButton` where the `isState` type guard function is implemented and applied in this line:
 
 ```ts
-@property(isState) public state: State = false;
+@property(isState) state: State = false;
 ```
 
 The `textColor` and `font` properties can use the type guards for their respective types provided by the `'tabris'` module:
 
 ```ts
-@property(Color.isColorValue) public textColor: ColorValue = 'black';
+@property(Color.isColorValue) textColor: ColorValue = 'black';
 ```
 
 A property with `@bind` needs to provide a parameter object with a `typeGuard` entry, as seen in the `Survey` component:
 
 ```ts
 @bind({path: '#pizza.state', typeGuard: isState})
-public pizza: State;
+pizza: State;
 ```
 
 If a property is implemented with explicit setter and getter the type guard must be called explicitly in the setter. However, this is not enforced. Here is how an explicit setter for the `TriStateButton` property `textColor` would look like:
 
 ```ts
-  public set textColor(value: ColorValue) {
+  set textColor(value: ColorValue) {
     if (!Color.isColorValue(value)) {
       throw new Error('Invalid value ' + value);
     }

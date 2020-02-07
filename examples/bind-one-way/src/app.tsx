@@ -1,6 +1,6 @@
-import { CheckBox, CheckBoxSelectEvent, Color, contentView, Stack } from 'tabris';
-import { injector } from 'tabris-decorators';
-import { ExampleComponent, Model } from './ExampleComponent';
+import {CheckBox, CheckBoxSelectEvent, Color, contentView, Stack} from 'tabris';
+import {injector} from 'tabris-decorators';
+import {ExampleComponent, Model} from './ExampleComponent';
 
 injector.jsxProcessor.strictMode = true;
 

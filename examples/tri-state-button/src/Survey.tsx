@@ -1,21 +1,21 @@
-import { ColorValue, Composite, FontValue, Properties, Stack } from 'tabris';
-import { bind, component, property } from 'tabris-decorators';
-import { isState, State, TriStateButton } from './TriStateButton';
+import {ColorValue, Composite, FontValue, Properties, Stack} from 'tabris';
+import {bind, component, property} from 'tabris-decorators';
+import {isState, State, TriStateButton} from './TriStateButton';
 
 @component
 export class Survey extends Composite {
 
   @bind({path: '#pizza.state', typeGuard: isState})
-  public pizza: State;
+  pizza: State;
 
   @bind({path: '#milk.state', typeGuard: isState})
-  public milk: State;
+  milk: State;
 
   @bind({path: '#apples.state', typeGuard: isState})
-  public apples: State;
+  apples: State;
 
-  @property public font: FontValue;
-  @property public textColor: ColorValue;
+  @property font: FontValue;
+  @property textColor: ColorValue;
 
   constructor(properties: Properties<Survey>) {
     super();

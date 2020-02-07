@@ -1,18 +1,18 @@
-import { ChangeListeners, EventObject, JSXAttributes, Listeners, Picker, PickerSelectEvent, Properties, PropertyChangedEvent } from 'tabris';
-import { checkType } from './checkType';
-import { List, ListLike, Mutation } from './List';
-import { Binding } from './to';
-import { event } from '../decorators/event';
-import { ListLikeObvserver } from '../internals/ListLikeObserver';
-import { subscribe } from '../internals/subscribe';
-import { checkPathSyntax } from '../internals/utils-databinding';
+import {ChangeListeners, EventObject, JSXAttributes, Listeners, Picker, PickerSelectEvent, Properties, PropertyChangedEvent} from 'tabris';
+import {checkType} from './checkType';
+import {List, ListLike, Mutation} from './List';
+import {Binding} from './to';
+import {event} from '../decorators/event';
+import {ListLikeObvserver} from '../internals/ListLikeObserver';
+import {subscribe} from '../internals/subscribe';
+import {checkPathSyntax} from '../internals/utils-databinding';
 
 export class ItemPickerSelectEvent<ItemType> extends EventObject<ItemPicker<ItemType>> {
 
   constructor(
-    public readonly item: ItemType,
-    public readonly itemIndex: number,
-    public readonly itemText: string
+    readonly item: ItemType,
+    readonly itemIndex: number,
+    readonly itemText: string
   ) {
     super();
   }
@@ -27,11 +27,11 @@ export type ItemPickerProperties<ItemType>
 
 export class ItemPicker<ItemType> extends Picker {
 
-  public jsxAttributes: JSXAttributes<this> & {children?: ListLike<ItemType> | string};
-  @event public onItemSelect: Listeners<ItemPickerSelectEvent<ItemType>>;
-  @event public onItemsChanged: Listeners<PropertyChangedEvent<this, ListLike<ItemType>>>;
-  @event public onSelectionChanged: Listeners<PropertyChangedEvent<this, ItemType>>;
-  @event public onTextSourceChanged: ChangeListeners<this, 'textSource'>;
+  jsxAttributes: JSXAttributes<this> & {children?: ListLike<ItemType> | string};
+  @event onItemSelect: Listeners<ItemPickerSelectEvent<ItemType>>;
+  @event onItemsChanged: Listeners<PropertyChangedEvent<this, ListLike<ItemType>>>;
+  @event onSelectionChanged: Listeners<PropertyChangedEvent<this, ItemType>>;
+  @event onTextSourceChanged: ChangeListeners<this, 'textSource'>;
 
   private _observer: ListLikeObvserver<ItemType>;
   private _textSource: TextSource<ItemType> | null;
@@ -49,7 +49,7 @@ export class ItemPicker<ItemType> extends Picker {
     this.onSelectionIndexChanged(this._handleSelectionIndexChanged);
   }
 
-  public set items(value: ListLike<ItemType>) {
+  set items(value: ListLike<ItemType>) {
     if (value === this._observer.source) {
       return;
     }
@@ -57,19 +57,19 @@ export class ItemPicker<ItemType> extends Picker {
     this.onItemsChanged.trigger({value});
   }
 
-  public get items() {
+  get items() {
     return this._observer.source;
   }
 
-  public set selection(value: ItemType) {
+  set selection(value: ItemType) {
     this.selectionIndex = (this.items || []).indexOf(value);
   }
 
-  public get selection() {
+  get selection() {
     return (this.items || [])[this.selectionIndex] || null;
   }
 
-  public set textSource(value: TextSource<ItemType>) {
+  set textSource(value: TextSource<ItemType>) {
     if (value === this._textSource) {
       return;
     }
@@ -91,7 +91,7 @@ export class ItemPicker<ItemType> extends Picker {
     this._computeTexts();
   }
 
-  public get textSource() {
+  get textSource() {
     return this._textSource;
   }
 
@@ -107,7 +107,7 @@ export class ItemPicker<ItemType> extends Picker {
     } else if (ev.start <= this.selectionIndex) {
       this.selectionIndex = -1;
     }
-  }
+  };
 
   protected _computeTexts() {
     this._unbindItems();
@@ -133,7 +133,6 @@ export class ItemPicker<ItemType> extends Picker {
             checkType(textValue, String, true);
             texts[index] = textValue;
           } catch (ex) {
-            // tslint:disable-next-line: no-console
             console.warn(`ItemPicker can not compute value of ${binding.path} for item ${index}: ${ex.message}`);
             texts[index] = 'undefined';
           }
@@ -142,7 +141,6 @@ export class ItemPicker<ItemType> extends Picker {
           }
         });
       } catch(ex) {
-        // tslint:disable-next-line: no-console
         console.warn(`ItemPicker can not compute value of ${binding.path} for item ${index}: ${ex.message}`);
         texts[index] = 'undefined';
         return () => undefined;
@@ -161,13 +159,13 @@ export class ItemPicker<ItemType> extends Picker {
     if (!this._inRefresh) {
       this.onSelectionChanged.trigger({value: this.selection});
     }
-  }
+  };
 
   protected _handleSelect = ({index}: PickerSelectEvent) => {
     this.onItemSelect.trigger(new ItemPickerSelectEvent(
       this.items[index], index, this.itemText(index)
     ));
-  }
+  };
 
   protected _refresh() {
     if (this._inRefresh) {
@@ -196,8 +194,8 @@ export class ItemPicker<ItemType> extends Picker {
     return super._reorderProperties(reOrdrered);
   }
 
-  // tslint:disable-next-line
-  public [JSX.jsxFactory](Type, attributes) {
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  [JSX.jsxFactory](Type, attributes) {
     const {children, selection, selectionIndex, ...pureAttributes} = attributes;
     const content = children ? children[0] : null;
     const result: ItemPicker<any>

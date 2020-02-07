@@ -1,9 +1,8 @@
 import 'mocha';
 import 'sinon';
 import 'tabris';
-import { expect, restoreSandbox } from './test';
-import { InjectionHandlerFunction, Injector } from '../src';
-/* tslint:disable:no-unused-expression max-classes-per-file */
+import {expect, restoreSandbox} from './test';
+import {InjectionHandlerFunction, Injector} from '../src';
 
 class MyClass {
 
@@ -14,8 +13,8 @@ class MyClass {
 describe('Injector', () => {
 
   let instance: Injector;
-  let numberHandler: InjectionHandlerFunction<number> = () => 23;
-  let stringHandler: InjectionHandlerFunction<string> = () => 'foo';
+  const numberHandler: InjectionHandlerFunction<number> = () => 23;
+  const stringHandler: InjectionHandlerFunction<string> = () => 'foo';
 
   beforeEach(() => {
     instance = new Injector();
@@ -62,7 +61,7 @@ describe('Injector', () => {
     });
 
     it('last added handler returning a non-null, non-undefined value wins', () => {
-      let numberHandler2 = () => 24;
+      const numberHandler2 = () => 24;
       instance.addHandler(Number, numberHandler);
       instance.addHandler(Number, numberHandler2);
       instance.addHandler(Number, () => null);
@@ -72,7 +71,7 @@ describe('Injector', () => {
     });
 
     it('handler with highest priority wins', () => {
-      let numberHandler2 = () => 24;
+      const numberHandler2 = () => 24;
       instance.addHandler({targetType: Number, handler: numberHandler, priority: 1});
       instance.addHandler({targetType: Number, handler: numberHandler2});
       instance.addHandler({targetType: Number, handler: () => null});
@@ -102,12 +101,12 @@ describe('Injector', () => {
 
     it('throws for undefined type', () => {
       expect(() => instance.resolve(null as any)).to.throw(
-        `Could not inject value since type is null. Do you have circular module dependencies?`
+        'Could not inject value since type is null. Do you have circular module dependencies?'
       );
     });
 
     it('supports singleton pattern', () => {
-      let serviceObject = new MyClass('foo');
+      const serviceObject = new MyClass('foo');
       instance.addHandler(MyClass, () => serviceObject);
 
       expect(instance.resolve(MyClass)).to.equal(serviceObject);
@@ -127,7 +126,7 @@ describe('Injector', () => {
 
     it('supports equal interface pattern', () => {
       class MyClass2 {
-        public bar: string = 'bar';
+        bar: string = 'bar';
         constructor(readonly value: any) {}
       }
       instance.addHandler(MyClass, () => new MyClass2('foo'));
