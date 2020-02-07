@@ -1,10 +1,9 @@
 import 'mocha';
-import { useFakeTimers } from 'sinon';
-import { Button, Composite, tabris } from 'tabris';
+import {useFakeTimers} from 'sinon';
+import {Button, Composite, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { expect, restoreSandbox, spy } from './test';
-import { component, getById } from '../src';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
+import {expect, restoreSandbox, spy} from './test';
+import {component, getById} from '../src';
 
 describe('getById', () => {
 
@@ -19,13 +18,13 @@ describe('getById', () => {
   @component class CustomComponent extends Composite {
 
     @getById
-    public readonly button1: Button;
+    readonly button1: Button;
 
     @getById(v => v instanceof Button || v.class === 'button')
-    public readonly button2: Button;
+    readonly button2: Button;
 
     @getById
-    public readonly composite1: Composite;
+    readonly composite1: Composite;
 
   }
 
@@ -50,7 +49,7 @@ describe('getById', () => {
 
   it('caches after append', () => {
     widget.append(composite1, button1, button2);
-    let button1_2 = new Button({id: 'button1'});
+    const button1_2 = new Button({id: 'button1'});
     button1.dispose();
     widget.append(button1_2);
 
@@ -61,11 +60,11 @@ describe('getById', () => {
   it('fails to decorate unknown type', () => {
     expect(() => {
       @component class FailedComponent extends Composite {
-        @getById public readonly button1: Button | null | Composite;
+        @getById readonly button1: Button | null | Composite;
       }
     }).to.throw(
-        Error,
-        'Could not apply decorator "getById" to "button1": '
+      Error,
+      'Could not apply decorator "getById" to "button1": '
       + 'Property button1 can not be resolved without a type guard.'
     );
   });
@@ -87,19 +86,18 @@ describe('getById', () => {
     it('prints an error', () => {
       spy(console, 'error');
       class FailedComponent extends Composite {
-        @getById public readonly button1: Button;
+        @getById readonly button1: Button;
       }
       clock.tick(now + 100);
-      // tslint:disable-next-line:no-console
       expect(console.error).to.have.been.calledWith(
-       'Decorator "getById" could not resolve property "button1": FailedComponent is not a @component'
+        'Decorator "getById" could not resolve property "button1": FailedComponent is not a @component'
       );
     });
 
     it('throws on access', () => {
       class FailedComponent extends Composite {
 
-        @getById public readonly button1: Button;
+        @getById readonly button1: Button;
 
         constructor() {
           super({});
@@ -128,13 +126,13 @@ describe('getById', () => {
 
   it('throws if getters finds wrong type after first append', () => {
     expect(() => widget.append(composite1, button2, new Composite({id: 'button1'}))).to.throw(
-        'Decorator "getById" could not resolve property "button1": '
+      'Decorator "getById" could not resolve property "button1": '
       + 'Expected value to be of type Button, but found Composite'
     );
   });
 
   it('reject value when typeGuard rejects', () => {
-    let notReallyAButton = new Composite({id: 'button1'});
+    const notReallyAButton = new Composite({id: 'button1'});
 
     expect(() => {
       widget.append(composite1, button1, notReallyAButton);
@@ -144,7 +142,7 @@ describe('getById', () => {
   });
 
   it('accepts incompatible types when typeGuard allows it', () => {
-    let notReallyAButton = new Composite({id: 'button2', class: 'button'});
+    const notReallyAButton = new Composite({id: 'button2', class: 'button'});
 
     widget.append(composite1, button1, notReallyAButton);
 

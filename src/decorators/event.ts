@@ -1,5 +1,5 @@
-import { ChangeListeners, Listeners } from 'tabris';
-import { getPropertyStore } from '../internals/utils-databinding';
+import {ChangeListeners, Listeners} from 'tabris';
+import {getPropertyStore} from '../internals/utils-databinding';
 
 interface ListenersStore {[name: string]: Listeners<any>; }
 interface TargetInstance {[key: string]: ListenersStore; }
@@ -15,18 +15,18 @@ interface TargetInstance {[key: string]: ListenersStore; }
  * the existing event system. Events triggered via one API will also be issued via the other.
  */
 export function event(targetProto: object, propertyName: string): void {
-  let propertyType = Reflect.getMetadata('design:type', targetProto, propertyName);
+  const propertyType = Reflect.getMetadata('design:type', targetProto, propertyName);
   if ((propertyType !== Object) && (propertyType !== Listeners) && (propertyType !== ChangeListeners)) {
-    throw new Error(`@event: Invalid type for property ${propertyName}` );
+    throw new Error(`@event: Invalid type for property ${propertyName}`);
   }
   if (!/^on[A-Z]/.test(propertyName)) {
-    throw new Error(`@event: Invalid name for property ${propertyName}` );
+    throw new Error(`@event: Invalid name for property ${propertyName}`);
   }
   Object.defineProperty(targetProto, propertyName, {
     get() {
-      let targetInstance = this as TargetInstance;
-      let eventType = propertyName.charAt(2).toLowerCase() + propertyName.slice(3);
-      let store = getPropertyStore(targetInstance);
+      const targetInstance = this as TargetInstance;
+      const eventType = propertyName.charAt(2).toLowerCase() + propertyName.slice(3);
+      const store = getPropertyStore(targetInstance);
       if (!store[propertyName]) {
         store[propertyName] = new Listeners<any>(targetInstance, eventType);
       }

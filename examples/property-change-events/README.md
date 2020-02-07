@@ -10,9 +10,9 @@ Both `Person` properties are decorated with `@property` and have a matching `Cha
 
 The `@event` decorator only creates the actual `ChangeListeners` instance, it is not required. The line
 ```ts
-@event public onAgeChanged: ChangeListeners<Person, 'age'>;
+@event onAgeChanged: ChangeListeners<Person, 'age'>;
 ```
 could be replaced with:
 ```ts
-public onAgeChanged: ChangeListeners<Person, 'age'> = new ChangeListeners(this, 'age');`
+onAgeChanged: ChangeListeners<Person, 'age'> = new ChangeListeners(this, 'age');`
 ```

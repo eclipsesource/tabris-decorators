@@ -1,11 +1,11 @@
-import { Button, CheckBox, Color, Composite, contentView, PropertyChangedEvent, StackLayout, Tab, TabFolder, TextView } from 'tabris';
-import { Cell, injector, ItemAction, ListView, ListViewSelectEvent, property, to } from 'tabris-decorators';
+import {Button, CheckBox, Color, Composite, contentView, PropertyChangedEvent, StackLayout, Tab, TabFolder, TextView} from 'tabris';
+import {Cell, injector, ItemAction, ListView, ListViewSelectEvent, property, to} from 'tabris-decorators';
 
 injector.jsxProcessor.strictMode = true;
 
 class Item {
-  @property public text: string;
-  @property public color: Color;
+  @property text: string;
+  @property color: Color;
 }
 
 contentView.append(
@@ -14,7 +14,7 @@ contentView.append(
       <ListView stretch items={generate(20)}>
         <Cell padding={8} height={52}>
           <TextView centerY template-text='The color of ${item.text}:' font='24px'/>
-          <Composite  stretchY left='prev() 24' width={80} bind-background='item.color'/>
+          <Composite stretchY left='prev() 24' width={80} bind-background='item.color'/>
         </Cell>
       </ListView>
     </Tab>

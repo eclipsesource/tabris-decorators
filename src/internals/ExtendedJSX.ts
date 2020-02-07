@@ -1,8 +1,7 @@
-import { JsxProcessor, NativeObject, Widget } from 'tabris';
-import { applyJsxBindings, JsxBindings } from './applyJsxBindings';
-import { Injector } from '../api/Injector';
-import { Constructor, hasInjections } from '../internals/utils';
-/* tslint:disable no-namespace ban-types only-arrow-functions */
+import {JsxProcessor, NativeObject, Widget} from 'tabris';
+import {applyJsxBindings, JsxBindings} from './applyJsxBindings';
+import {Injector} from '../api/Injector';
+import {Constructor, hasInjections} from '../internals/utils';
 
 export interface Properties { [property: string]: any; }
 export type JsxConstructor = {prototype: JSX.ElementClass, new(): object};
@@ -25,13 +24,13 @@ export function getJsxTemplate(source: any): JsxTemplate {
 
 export class ExtendedJSX extends JsxProcessor {
 
-  public strictMode: boolean = false;
+  strictMode: boolean = false;
 
   constructor(private readonly injector: Injector) {
     super();
   }
 
-  public createCustomComponent(type: JsxConstructor, attributes: any): JSX.ElementClass | string {
+  createCustomComponent(type: JsxConstructor, attributes: any): JSX.ElementClass | string {
     const result = super.createCustomComponent(type, attributes);
     if (result instanceof Object) {
       const {children, ...pureAttributes} = attributes;
@@ -46,7 +45,7 @@ export class ExtendedJSX extends JsxProcessor {
     return result;
   }
 
-  public createFunctionalComponent(type: ((param: object) => any), attributes: any): JSX.ElementClass | string {
+  createFunctionalComponent(type: ((param: object) => any), attributes: any): JSX.ElementClass | string {
     const result = super.createFunctionalComponent(type, attributes);
     if (result instanceof Object) {
       const {children, ...pureAttributes} = attributes;
@@ -61,9 +60,9 @@ export class ExtendedJSX extends JsxProcessor {
     return result;
   }
 
-  public createNativeObject(Type: JsxNativeType, attributes: Properties) {
-    let {miscAttributes, bindings} = this.extractBindings(attributes);
-    let result = super.createNativeObject(
+  createNativeObject(Type: JsxNativeType, attributes: Properties) {
+    const {miscAttributes, bindings} = this.extractBindings(attributes);
+    const result = super.createNativeObject(
       this.convertType(Type),
       miscAttributes || {}
     );
@@ -76,7 +75,7 @@ export class ExtendedJSX extends JsxProcessor {
   private extractBindings(attributes: Properties) {
     let miscAttributes: Properties | void;
     let bindings: JsxBindings | void;
-    for (let attribute in attributes) {
+    for (const attribute in attributes) {
       if (attribute.startsWith('bind-') || attribute.startsWith('template-')) {
         if (!bindings) {
           bindings = {};

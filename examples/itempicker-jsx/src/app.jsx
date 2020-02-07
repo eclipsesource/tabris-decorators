@@ -1,5 +1,5 @@
-import { contentView, Stack, TextView } from 'tabris';
-import { ItemPicker, ItemPickerSelectEvent, List, property } from 'tabris-decorators';
+import {contentView, Stack, TextView} from 'tabris';
+import {ItemPicker, List, property} from 'tabris-decorators';
 
 class Item {
 
@@ -16,7 +16,7 @@ class Item {
   constructor(name, id) {
     this.name = name;
     this.id = id;
-   }
+  }
 
   toString() {
     return this.name;
@@ -46,12 +46,14 @@ contentView.append(
   </Stack>
 );
 
-/** @param {ItemPickerSelectEvent<Item | string>} ev */
+/** @param {import('tabris-decorators').ItemPickerSelectEvent<Item | string>} ev */
 function handleSelection({item, itemIndex}) {
   $('#output').only(TextView).text = typeof item === 'string' ? `person#${itemIndex}` : item.id;
 }
 
-/** @returns List<Item> */
+/**
+ * @returns {List<Item>}
+ */
 function generateItemInstances() {
   return List.from([
     new Item('David', 'person#6'),

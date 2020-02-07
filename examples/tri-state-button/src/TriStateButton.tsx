@@ -1,5 +1,5 @@
-import { Color, ColorValue, Composite, Font, FontValue, LayoutData, Properties, TextView } from 'tabris';
-import { component, property, to } from 'tabris-decorators';
+import {Color, ColorValue, Composite, Font, FontValue, LayoutData, Properties, TextView} from 'tabris';
+import {component, property, to} from 'tabris-decorators';
 
 export type State = boolean | 'neutral';
 
@@ -10,10 +10,10 @@ export function isState(value: unknown): value is State {
 @component
 export class TriStateButton extends Composite {
 
-  @property(isState) public state: State = false;
-  @property(Color.isColorValue) public textColor: ColorValue = 'black';
-  @property(Font.isFontValue) public font: FontValue = 'initial';
-  @property public text: string = '';
+  @property(isState) state: State = false;
+  @property(Color.isColorValue) textColor: ColorValue = 'black';
+  @property(Font.isFontValue) font: FontValue = 'initial';
+  @property text: string = '';
 
   constructor(properties: Properties<TriStateButton>) {
     super();
@@ -38,7 +38,7 @@ export class TriStateButton extends Composite {
     } else {
       this.state = true;
     }
-  }
+  };
 
 }
 

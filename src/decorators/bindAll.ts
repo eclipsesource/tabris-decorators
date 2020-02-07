@@ -1,4 +1,4 @@
-import { bind, AllBindings, BindAllDecorator } from './bind';
+import {AllBindings, bind, BindAllDecorator} from './bind';
 
 /**
  * A shorthand for `bind({all: bindings})`
@@ -10,7 +10,7 @@ import { bind, AllBindings, BindAllDecorator } from './bind';
  *  someTypePropertyA: '#childId1.property'
  *  someTypePropertyB: '#childId2.property'
  * })
- * public componentProperty: SomeType = initialValue;
+ * componentProperty: SomeType = initialValue;
  * ```
  */
 export function bindAll<ValidKeys extends string>(bindings: AllBindings<ValidKeys>): BindAllDecorator<ValidKeys> {

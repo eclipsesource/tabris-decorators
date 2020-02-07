@@ -1,16 +1,15 @@
 import 'mocha';
 import 'sinon';
-import { Button, Composite, Properties, tabris, Widget } from 'tabris';
+import {Button, Composite, Properties, tabris, Widget} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { expect, restoreSandbox } from './test';
-import { component, getById } from '../src';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file */
+import {expect, restoreSandbox} from './test';
+import {component, getById} from '../src';
 
 @component
 class CustomComponent extends Composite {
 
   @getById
-  public readonly foo3: Widget;
+  readonly foo3: Widget;
 
   constructor(properties: Properties<Composite>, containSelf: boolean) {
     super(properties);
@@ -23,15 +22,15 @@ class CustomComponent extends Composite {
     );
   }
 
-  public protectedFind() {
+  protectedFind() {
     return this._find();
   }
 
-  public protectedChildren() {
+  protectedChildren() {
     return this._children();
   }
 
-  public protectedApply(map: any) {
+  protectedApply(map: any) {
     return this._apply(map);
   }
 
@@ -96,7 +95,7 @@ describe('component', () => {
         this.append(new Composite());
       }
     }
-    let myWidget = new MyComponent();
+    const myWidget = new MyComponent();
     expect(myWidget.children().length).to.equal(0);
   });
 

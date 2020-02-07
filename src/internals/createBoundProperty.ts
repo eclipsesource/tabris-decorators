@@ -1,8 +1,8 @@
-import { PropertyChangedEvent } from 'tabris';
-import { BaseConstructor, getPropertyType } from './utils';
-import { checkIsComponent, checkPropertyExists, getChild, getPropertyStore, isAppended, isUnchecked, parseTargetPath, postAppendHandlers, WidgetInterface } from './utils-databinding';
-import { checkType } from '../api/checkType';
-import { TypeGuard } from '../index';
+import {PropertyChangedEvent} from 'tabris';
+import {BaseConstructor, getPropertyType} from './utils';
+import {checkIsComponent, checkPropertyExists, getChild, getPropertyStore, isAppended, isUnchecked, parseTargetPath, postAppendHandlers, WidgetInterface} from './utils-databinding';
+import {checkType} from '../api/checkType';
+import {TypeGuard} from '../index';
 
 export function createBoundProperty(
   baseProto: WidgetInterface,
@@ -14,7 +14,7 @@ export function createBoundProperty(
   if (!typeGuard && basePropertyType === Object) {
     throw new Error(`Can not bind to property "${baseProperty}" without type guard.`);
   }
-  let typeChecker = createTypeChecker(basePropertyType, typeGuard);
+  const typeChecker = createTypeChecker(basePropertyType, typeGuard);
   const binding = createBoundPropertyDesc(targetPath, baseProperty, typeChecker);
   Object.defineProperty(baseProto, baseProperty, {
     get(this: WidgetInterface) {
@@ -54,7 +54,6 @@ export function createBoundProperty(
     try {
       checkIsComponent(baseProto);
     } catch (ex) {
-      // tslint:disable-next-line:no-console
       console.error(getBindingFailedErrorMessage(binding, 'initialize', ex));
     }
   });
@@ -96,7 +95,7 @@ function initBoundProperty(base: WidgetInterface, binding: BoundProperty) {
         binding.basePropertyChecker(value);
         base.trigger(binding.baseChangeEvent, {value});
       } catch (ex) {
-        let action = `update ${child.constructor.name} property "${binding.targetProperty}"`;
+        const action = `update ${child.constructor.name} property "${binding.targetProperty}"`;
         throw new Error(getBindingFailedErrorMessage(binding, action, ex)
         );
       }

@@ -1,4 +1,4 @@
-import { property } from 'tabris-decorators';
+import {property} from 'tabris-decorators';
 
 const NAMES = [
   'James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Thomas',
@@ -47,7 +47,7 @@ export class Person {
 
 /**
  * @param {number} num
- * @returns Person[]
+ * @returns {Person[]}
  */
 export function generate(num) {
   const arr = [];

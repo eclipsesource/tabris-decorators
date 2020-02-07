@@ -1,12 +1,11 @@
 import 'mocha';
-import { match, SinonSpy, stub } from 'sinon';
-import { EventObject, Image, ImageView, Picker, tabris, TextView, ToggleButton, Widget, WidgetCollection } from 'tabris';
+import {match} from 'sinon';
+import {Picker, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { expect, restoreSandbox, spy } from './test';
-import { injector, property } from '../src';
-import { ItemPicker, ItemPickerSelectEvent } from '../src/api/ItemPicker';
-import { List } from '../src/api/List';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
+import {expect, restoreSandbox, spy} from './test';
+import {injector, property} from '../src';
+import {ItemPicker} from '../src/api/ItemPicker';
+import {List} from '../src/api/List';
 
 describe('ItemPicker', () => {
 
@@ -240,7 +239,7 @@ describe('ItemPicker', () => {
   describe('textSource', () => {
 
     class ItemClass {
-      @property public test: number;
+      @property test: number;
     }
 
     it('is null initially', () => {
@@ -258,7 +257,6 @@ describe('ItemPicker', () => {
 
       itemPicker.textSource = 'foo';
 
-      // tslint:disable-next-line: no-console
       expect(console.warn).to.have.been.calledOnce;
       expect(itemPicker.itemText(0)).to.equal('undefined');
     });

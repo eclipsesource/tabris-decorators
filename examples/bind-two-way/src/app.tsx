@@ -1,6 +1,6 @@
-import { Button, contentView, Stack, TextView } from 'tabris';
-import { injector } from 'tabris-decorators';
-import { ExampleComponent } from './ExampleComponent';
+import {Button, contentView, Stack, TextView} from 'tabris';
+import {injector} from 'tabris-decorators';
+import {ExampleComponent} from './ExampleComponent';
 
 injector.jsxProcessor.strictMode = true;
 
@@ -22,9 +22,10 @@ function changeValues() {
 }
 
 function printValues() {
-  $(TextView).only().text =
-  <$>
-    myNumber: {example.myNumber}<br/>
-    myText: "{example.myText}"
-  </$>;
+  $(TextView).only().text = (
+    <$>
+      myNumber: {example.myNumber}<br/>
+      myText: "{example.myText}"
+    </$>
+  );
 }

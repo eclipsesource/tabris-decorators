@@ -1,16 +1,15 @@
 import 'mocha';
 import 'sinon';
-import { ChangeListeners, Composite, Properties, tabris, TextInput } from 'tabris';
+import {ChangeListeners, Composite, Properties, tabris, TextInput} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { expect, stub } from './test';
-import { bind, bindAll, component, event, property } from '../src';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
+import {expect, stub} from './test';
+import {bind, bindAll, component, event, property} from '../src';
 
 describe('component', () => {
 
   class Item {
-    @event public onTextChanged: ChangeListeners<Item, 'text'>;
-    @property public text: string = 'Hello';
+    @event onTextChanged: ChangeListeners<Item, 'text'>;
+    @property text: string = 'Hello';
   }
 
   let item: Item;
@@ -29,7 +28,7 @@ describe('component', () => {
       @bind({all: {
         text: '#foo.text'
       }})
-      public item: Item;
+      item: Item;
 
       constructor(properties?: Properties<CustomComponent>) {
         super(properties);
@@ -50,7 +49,7 @@ describe('component', () => {
       expect(() => {
         class Test extends Composite {
           @bind({all: {length: '#bar.foo'}})
-          public item: string;
+          item: string;
         }
       }).to.throw(Error, 'Property type needs to extend Object');
     });
@@ -59,7 +58,7 @@ describe('component', () => {
       expect(() => {
         class Test extends Composite {
           @bind({all: {}})
-          public item: Item;
+          item: Item;
         }
       }).to.throw(Error, 'Missing binding path(s)');
     });
@@ -67,19 +66,19 @@ describe('component', () => {
     it('fails to decorate with invalid path', () => {
       expect(() => {class Test extends Composite {
         @bind({all: {text: 'foo'}})
-        public item: Item;
+        item: Item;
       }}).to.throw(Error, 'Could not apply decorator "bind" to "item": Binding path needs to start with "#".');
       expect(() => {class Test extends Composite {
         @bind({all: {text: '#foo.bar.baz'}})
-        public item: Item;
+        item: Item;
       }}).to.throw(Error, 'Could not apply decorator "bind" to "item": Binding path has too many segments.');
       expect(() => {class Test extends Composite {
         @bind({all: {text: '#foo[bar]'}})
-        public item: Item;
+        item: Item;
       }}).to.throw(Error, 'Could not apply decorator "bind" to "item": Binding path contains invalid characters.');
       expect(() => {class Test extends Composite {
         @bind({all: {text: ' #foo.bar'}})
-        public item: Item;
+        item: Item;
       }}).to.throw(Error, 'Could not apply decorator "bind" to "item": Binding path contains invalid characters.');
     });
 
@@ -94,7 +93,7 @@ describe('component', () => {
     });
 
     it('fires change event on widget', () => {
-      let listener = stub();
+      const listener = stub();
       widget.on({itemChanged: listener});
 
       widget.item = item;
@@ -309,7 +308,7 @@ describe('component', () => {
 
     it('fails on append if target property is marked unchecked', () => {
       class TargetComponent extends Composite {
-        @property public text: true | string;
+        @property text: true | string;
       }
       expect(() => {
         widget.append(new TargetComponent({id: 'foo'} as any));
@@ -319,9 +318,9 @@ describe('component', () => {
     });
 
     it('fails setting item when source property does not exist', () => {
-      class ItemB { public text: string; }
+      class ItemB { text: string; }
       @component class CustomComponentB extends Composite {
-        @bind({all: {text: '#foo.text'}}) public item: ItemB;
+        @bind({all: {text: '#foo.text'}}) item: ItemB;
       }
 
       expect(() => {
@@ -331,9 +330,9 @@ describe('component', () => {
     });
 
     it('fails setting item when source property has no setter', () => {
-      class ItemB { public text: string = 'Hello'; }
+      class ItemB { text: string = 'Hello'; }
       @component class CustomComponentB extends Composite {
-        @bind({all: {text: '#foo.text'}}) public item: ItemB;
+        @bind({all: {text: '#foo.text'}}) item: ItemB;
       }
 
       expect(() => {
@@ -342,9 +341,9 @@ describe('component', () => {
     });
 
     it('fails setting item when source property is marked unchecked', () => {
-      class ItemB { @property public text: string | boolean = 'Hello'; }
+      class ItemB { @property text: string | boolean = 'Hello'; }
       @component class CustomComponentB extends Composite {
-        @bind({all: {text: '#foo.text'}}) public item: ItemB;
+        @bind({all: {text: '#foo.text'}}) item: ItemB;
       }
 
       expect(() => {
@@ -362,7 +361,7 @@ describe('component', () => {
         all: {text: '#foo.bar'},
         typeGuard: v => (typeof v.text === 'string') || v === undefined
       })
-      public value: {text: string};
+      value: {text: string};
     }
 
     class PlainItem {
@@ -403,7 +402,7 @@ describe('component', () => {
       @bindAll({
         text: '#foo.text'
       })
-      public item: Item;
+      item: Item;
 
     }
 

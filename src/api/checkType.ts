@@ -1,4 +1,4 @@
-import { BaseConstructor, isPrimitiveType } from '../internals/utils';
+import {BaseConstructor, isPrimitiveType} from '../internals/utils';
 
 /**
  * Performs type checks on the given value. If the check fails the function throws an error message stating the reason.
@@ -52,7 +52,7 @@ function isPrimitiveOfType(value: any, type: BaseConstructor<any>): boolean {
 }
 
 function getTypeName(type: BaseConstructor<any>) {
-  let name = type.name;
+  const name = type.name;
   if (isPrimitiveType(type)) {
     return name.toLowerCase();
   }

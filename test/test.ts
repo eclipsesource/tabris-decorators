@@ -1,18 +1,17 @@
-import { expect, use } from 'chai';
+import {expect, use} from 'chai';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
-import { tabris } from 'tabris';
+import {tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-/* tslint:disable no-namespace */
 
 use(sinonChai);
 
-let sandbox = sinon.sandbox.create();
-let spy = sandbox.spy.bind(sandbox) as sinon.SinonSpyStatic;
-let stub = sandbox.stub.bind(sandbox) as sinon.SinonStubStatic;
-let mock = sandbox.mock.bind(sandbox) as sinon.SinonMockStatic;
-let restoreSandbox: () => void = sandbox.restore.bind(sandbox) as () => void;
+const sandbox = sinon.sandbox.create();
+const spy = sandbox.spy.bind(sandbox) as sinon.SinonSpyStatic;
+const stub = sandbox.stub.bind(sandbox) as sinon.SinonStubStatic;
+const mock = sandbox.mock.bind(sandbox) as sinon.SinonMockStatic;
+const restoreSandbox: () => void = sandbox.restore.bind(sandbox) as () => void;
 
 tabris._init(new ClientMock());
 
-export { expect, spy, stub, mock, restoreSandbox };
+export {expect, spy, stub, mock, restoreSandbox};

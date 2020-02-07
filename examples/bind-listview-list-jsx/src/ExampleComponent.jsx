@@ -1,15 +1,13 @@
-import { Composite, Properties, Stack, TextView } from 'tabris';
-import { component, property } from 'tabris-decorators';
-import { ListView } from 'tabris-decorators';
-import { List } from 'tabris-decorators';
+import {Composite, Stack, TextView} from 'tabris';
+import {component, property, ListView} from 'tabris-decorators';
 
 @component
 export class ExampleComponent extends Composite {
 
-  /** @type {List<string>} */
+  /** @type {import('tabris-decorators').List<string>} */
   @property stringList;
 
-  /** @type {Properties<ExampleComponent>} */
+  /** @type {tabris.Properties<ExampleComponent>} */
   constructor(properties) {
     super();
     this.set(properties);

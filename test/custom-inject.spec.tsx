@@ -1,11 +1,10 @@
 import 'mocha';
 import 'sinon';
-import { Composite, Properties, tabris } from 'tabris';
+import {Composite, Properties, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { create, inject, injectable, injectionHandler, injector, JSX, resolve, shared } from './customInjector';
-import { expect, restoreSandbox } from './test';
-import { Injection, injector as orgInjector, Injector } from '../src';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file ban-types no-construct*/
+import {create, inject, injectable, injectionHandler, injector, JSX, resolve, shared} from './customInjector';
+import {expect, restoreSandbox} from './test';
+import {Injection, injector as orgInjector, Injector} from '../src';
 
 @injectable class MyServiceClass { }
 
@@ -14,7 +13,7 @@ import { Injection, injector as orgInjector, Injector } from '../src';
 class MyServiceClassInjectionHandler {
 
   @injectionHandler(MyServiceClassInjectionHandler)
-  public static createMyServiceClass(injection: Injection) {
+  static createMyServiceClass(injection: Injection) {
     return new MyServiceClassInjectionHandler();
   }
 
@@ -36,7 +35,7 @@ describe('custom injector inject', () => {
   });
 
   it('injects when used with matching create', () => {
-    let instance = create(ConstructorWithInjection);
+    const instance = create(ConstructorWithInjection);
 
     expect(instance).to.be.instanceOf(ConstructorWithInjection);
     expect(instance.service).to.be.instanceOf(MyServiceClass);
@@ -47,7 +46,7 @@ describe('custom injector inject', () => {
     expect(() => {
       orgInjector.create(ConstructorWithInjection);
     }).to.throw(
-        'Could not create instance of ConstructorWithInjection:\n'
+      'Could not create instance of ConstructorWithInjection:\n'
       + 'Could not inject value of type MyServiceClass since no compatible injection handler exists for this type.'
     );
   });
@@ -93,19 +92,18 @@ describe('custom injector inject', () => {
     });
 
     it('fails with default JSX object', () => {
-      // tslint:disable-next-line:no-shadowed-variable
-      let JSX = orgInjector.jsxProcessor;
+      // eslint-disable-next-line no-shadow
+      const JSX = orgInjector.jsxProcessor;
       expect(() => {
         <MyCustomWidget/>;
       }).to.throw(
-         'Could not create instance of MyCustomWidget:\n'
+        'Could not create instance of MyCustomWidget:\n'
        + 'Could not inject value of type MyServiceClass since no compatible injection handler exists for this type.'
       );
     });
 
     it('works with custom JSX object', () => {
-      // tslint:disable-next-line:no-shadowed-variable
-      let widget: MyCustomWidget = <MyCustomWidget/>;
+      const widget: MyCustomWidget = <MyCustomWidget/>;
       expect(widget.service).to.be.instanceOf(MyServiceClass);
     });
 

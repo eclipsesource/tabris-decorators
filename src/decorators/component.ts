@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { Widget, WidgetCollection } from 'tabris';
-import { Composite } from 'tabris';
-import { applyClassDecorator, BaseConstructor, ClassDecoratorFactory } from '../internals//utils';
-import { isAppended, markAsAppended, markAsComponent, originalAppendKey, postAppendHandlers, WidgetInterface } from '../internals//utils-databinding';
-import { processOneWayBindings } from '../internals/processOneWayBindings';
+import {Widget, WidgetCollection} from 'tabris';
+import {Composite} from 'tabris';
+import {applyClassDecorator, BaseConstructor, ClassDecoratorFactory} from '../internals//utils';
+import {isAppended, markAsAppended, markAsComponent, originalAppendKey, postAppendHandlers, WidgetInterface} from '../internals//utils-databinding';
+import {processOneWayBindings} from '../internals/processOneWayBindings';
 
 /**
  * A decorator for classes extending `Widget`.
@@ -52,7 +52,7 @@ function returnEmptyCollection() {
 }
 
 function patchAppend(type: BaseConstructor<Widget>) {
-  let widgetProto = type.prototype as WidgetInterface;
+  const widgetProto = type.prototype as WidgetInterface;
   if (widgetProto.append !== customAppend) {
     widgetProto[originalAppendKey] = widgetProto.append;
     widgetProto.append = customAppend;
@@ -60,7 +60,7 @@ function patchAppend(type: BaseConstructor<Widget>) {
 }
 
 function customAppend(this: WidgetInterface): any {
-  let result = this[originalAppendKey].apply(this, arguments);
+  const result = this[originalAppendKey].apply(this, arguments);
   if (!isAppended(this)) {
     markAsAppended(this);
     runPostAppendHandler(this);
@@ -69,7 +69,7 @@ function customAppend(this: WidgetInterface): any {
 }
 
 function runPostAppendHandler(widgetInstance: WidgetInterface) {
-  for (let fn of postAppendHandlers(widgetInstance)) {
+  for (const fn of postAppendHandlers(widgetInstance)) {
     fn(widgetInstance);
   }
 }

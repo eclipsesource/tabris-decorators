@@ -1,5 +1,5 @@
-import { Button, CheckBox, Color, Composite, contentView, PropertyChangedEvent, StackLayout, Tab, TabFolder, TextView } from 'tabris';
-import { Cell, injector, ItemAction, ListView, ListViewSelectEvent, property, to } from 'tabris-decorators';
+import {Button, CheckBox, Color, Composite, contentView, StackLayout, Tab, TabFolder, TextView} from 'tabris';
+import {Cell, injector, ItemAction, ListView, property, to} from 'tabris-decorators';
 
 injector.jsxProcessor.strictMode = true;
 
@@ -19,7 +19,7 @@ contentView.append(
       <ListView stretch items={generate(20)}>
         <Cell padding={8} height={52}>
           <TextView centerY template-text='The color of ${item.text}:' font='24px'/>
-          <Composite  stretchY left='prev() 24' width={80} bind-background='item.color'/>
+          <Composite stretchY left='prev() 24' width={80} bind-background='item.color'/>
         </Cell>
       </ListView>
     </Tab>
@@ -65,12 +65,12 @@ contentView.append(
   </TabFolder>
 );
 
-/** @param {ListViewSelectEvent<Item>} ev */
+/** @param {import('tabris-decorators').ListViewSelectEvent<Item>} ev */
 function handleSelection(ev) {
   $('#output1').only(TextView).text = 'Selected ' + ev.item.text;
 }
 
-/** @param {ListViewSelectEvent<Item>} ev */
+/** @param {import('tabris-decorators').ListViewSelectEvent<Item>} ev */
 function handleAction(ev) {
   const textView = $('#output2').only(TextView);
   textView.text = ItemAction[ev.action] + ' Action on  ' + ev.item.text;
@@ -83,7 +83,7 @@ function handleAction(ev) {
 /**
  * @param {number} num
  * @param {{mixed: boolean}} options
- * @returns Array<Item|string>
+ * @returns {Array<Item|string>}
  */
 function generate(num, options = null) {
   let count = 0;
@@ -102,12 +102,15 @@ function generate(num, options = null) {
   return arr;
 }
 
-/** @param {PropertyChangedEvent<Cell, number>} ev */
+/** @param {tabris.PropertyChangedEvent<Cell, number>} ev */
 function alternateBackground({target, value}) {
   target.background = value % 2 === 0 ? '#fff' : '#ddd';
 }
 
-/** @param {string} path */
+/**
+ * @param {string} path
+ * @returns {import('tabris-decorators').Binding}
+ */
 function toForeground(path) {
   return to(path, (index) => index % 2 === 0 ? '#999' : '#000');
 }

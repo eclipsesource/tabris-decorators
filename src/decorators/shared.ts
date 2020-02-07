@@ -1,5 +1,5 @@
-import { Injector } from '../api/Injector';
-import { Constructor } from '../internals/utils';
+import {Injector} from '../api/Injector';
+import {Constructor} from '../internals/utils';
 
 export type SharedDecorator = typeof unboundShared;
 

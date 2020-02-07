@@ -11,7 +11,7 @@ npm-debug.log*
 .rpt2_cache
 ts*.json
 *.config.json
-tslint.json
+.eslintrc.json
 tsconfig*.json
 .npmignore
 doc

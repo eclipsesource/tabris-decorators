@@ -1,9 +1,9 @@
-import { Composite } from 'tabris';
-import { property } from './property';
-import { createBoundProperty } from '../internals/createBoundProperty';
-import { processTwoWayBindings, TwoWayBindings } from '../internals/processTwoWayBinding';
-import { applyDecorator, getPropertyType, isPrimitiveType } from '../internals/utils';
-import { checkIsComponent, checkPropertyExists, isUnchecked, parseTargetPath, postAppendHandlers, TypeGuard, WidgetInterface } from '../internals/utils-databinding';
+import {Composite} from 'tabris';
+import {property} from './property';
+import {createBoundProperty} from '../internals/createBoundProperty';
+import {processTwoWayBindings, TwoWayBindings} from '../internals/processTwoWayBinding';
+import {applyDecorator, getPropertyType, isPrimitiveType} from '../internals/utils';
+import {checkIsComponent, checkPropertyExists, isUnchecked, parseTargetPath, postAppendHandlers, TypeGuard, WidgetInterface} from '../internals/utils-databinding';
 
 export interface BindAllConfig<ValidKeys extends string> {
   typeGuard?: TypeGuard;
@@ -35,7 +35,7 @@ export type BindSingleDecorator = (target: Composite, property: string) => void;
  *
  *  ```
  * ‍@bind(path: '#childId.property')
- * public componentProperty: SomeType = initialValue;
+ * componentProperty: SomeType = initialValue;
  * ```
  *
  * It's also possible to bind to properties of the object in the component property:
@@ -45,7 +45,7 @@ export type BindSingleDecorator = (target: Composite, property: string) => void;
  *  someTypePropertyA: '#childId1.property'
  *  someTypePropertyB: '#childId2.property'
  * }})
- * public componentProperty: SomeType = initialValue;
+ * componentProperty: SomeType = initialValue;
  * ```
  *
  * The bindings are established after `append` is called the first time on the base widget.
@@ -78,7 +78,6 @@ export function bind(...args: any[]): any {
       try {
         checkIsComponent(baseProto);
       } catch (ex) {
-        // tslint:disable-next-line:no-console
         console.error('Can not apply @bind to property ' + baseProperty, ex);
       }
     });

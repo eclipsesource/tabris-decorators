@@ -1,9 +1,8 @@
 import 'mocha';
 import 'sinon';
 import 'tabris';
-import { expect } from './test';
-import { checkType } from '../src';
-// tslint:disable:no-construct
+import {expect} from './test';
+import {checkType} from '../src';
 
 describe('checkType', () => {
 
@@ -42,7 +41,7 @@ describe('checkType', () => {
       checkType(new Date(), Date);
       checkType(() => null, Function);
       checkType(class {}, Function);
-      // tslint:disable-next-line:only-arrow-functions no-empty
+      // eslint-disable-next-line prefer-arrow-callback
       checkType(function() { }, Function);
     }).not.to.throw();
   });

@@ -7,12 +7,17 @@
     ".project": true
   },
   "javascript.implicitProjectConfig.experimentalDecorators": true,
+  "typescript.tsdk": "./node_modules/typescript/lib",
   "typescript.extension.sortImports.sortMethod": "path",
   "typescript.extension.sortImports.pathSortOrder": [
     "package",
     "relativeDownLevel",
     "relativeUpLevel"
   ],
+  "typescript.extension.sortImports.bracketWhitespace": false,
   "typescript.extension.sortImports.sortOnSave": true,
-  "typescript.extension.sortImports.maxNamedImportsInSingleLine": 10
+  "typescript.extension.sortImports.maxNamedImportsInSingleLine": 10,
+  "eslint.alwaysShowStatus": true,
+  "eslint.lintTask.enable": true,
+  "eslint.enable": true
 }

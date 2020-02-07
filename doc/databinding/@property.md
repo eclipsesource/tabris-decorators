@@ -14,8 +14,8 @@ Triggers change events and performs implicit runtime checks on any value the pro
 
 ```ts
 class Foo {
-  @property public myText: string = 'foo';
-  @event public onMyTextChanged: ChangeListeners<Foo, 'myText'>;
+  @property myText: string = 'foo';
+  @event onMyTextChanged: ChangeListeners<Foo, 'myText'>;
 }
 
 const foo = new Foo();
@@ -28,7 +28,7 @@ The implicit runtime check only works with primitive types and classes. [Advance
 
 ```ts
 class Foo {
-  @property public myItem: {bar: string};
+  @property myItem: {bar: string};
 }
 
 const foo = new Foo();
@@ -55,7 +55,7 @@ Example for a type guard more strict than the compiler:
   class CustomComponent extends Composite {
 
     @property(v => v instanceof Array || (!isNaN(v) && v >= 0))
-    public mixedType: number[] | number = 0; // compiler would allow -1, but not the type guard
+    mixedType: number[] | number = 0; // compiler would allow -1, but not the type guard
 
   }
 ```

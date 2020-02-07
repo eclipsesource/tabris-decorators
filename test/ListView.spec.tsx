@@ -1,18 +1,17 @@
 import 'mocha';
-import { match, SinonSpy, stub } from 'sinon';
-import { CollectionView, EventObject, Image, ImageView, tabris, TextView, ToggleButton, Widget, WidgetCollection } from 'tabris';
+import {match, SinonSpy, stub} from 'sinon';
+import {CollectionView, Image, ImageView, tabris, TextView, ToggleButton, Widget, WidgetCollection} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { expect, restoreSandbox, spy } from './test';
-import { injector } from '../src';
-import { Cell, TextCell } from '../src/api/Cell';
-import { List } from '../src/api/List';
-import { ItemAction, ListView, ListViewSelectEvent } from '../src/api/ListView';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
+import {expect, restoreSandbox, spy} from './test';
+import {injector} from '../src';
+import {Cell, TextCell} from '../src/api/Cell';
+import {List} from '../src/api/List';
+import {ItemAction, ListView, ListViewSelectEvent} from '../src/api/ListView';
 
 describe('ListView', () => {
 
   class MyItem {
-    public foo: string = 'bar';
+    foo: string = 'bar';
   }
 
   function items() {

@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { Composite } from 'tabris';
-import { Widget } from 'tabris';
-import { checkType } from '../api/checkType';
-import { applyDecorator, defineGetter, getPropertyType } from '../internals//utils';
-import { checkAppended, checkIsComponent, getPropertyStore, postAppendHandlers, TypeGuard, WidgetInterface } from '../internals//utils-databinding';
+import {Composite} from 'tabris';
+import {Widget} from 'tabris';
+import {checkType} from '../api/checkType';
+import {applyDecorator, defineGetter, getPropertyType} from '../internals//utils';
+import {checkAppended, checkIsComponent, getPropertyStore, postAppendHandlers, TypeGuard, WidgetInterface} from '../internals//utils-databinding';
 
 /**
  * A decorator for readonly properties on classes extending `Widget`.
@@ -16,7 +16,7 @@ import { checkAppended, checkIsComponent, getPropertyStore, postAppendHandlers, 
  * This is necessary if the exact type of the widget is not known:
  * ```
  * ‍@getById(widget => typeof widget.text === 'string')
- * public readonly widgetId: Widget & {text: string};
+ * readonly widgetId: Widget & {text: string};
  * ```
  *
  * This decorator only works on classes decorated with `@component`.
@@ -33,16 +33,16 @@ export function getById(targetProto: Composite, property: string): void;
  * This is necessary if the exact type of the widget is not known:
  * ```
  * ‍@getById(widget => typeof widget.text === 'string')
- * public readonly widgetId: Widget & {text: string};
+ * readonly widgetId: Widget & {text: string};
  * ```
  *
  * This decorator only works on classes decorated with `@component`.
  */
 export function getById(check: TypeGuard): PropertyDecorator;
-export function getById(...args: any[]): void | PropertyDecorator{
+export function getById(...args: any[]): void | PropertyDecorator {
   return applyDecorator('getById', args, (widgetProto: any, property: string) => {
     const check = args[0] instanceof Function ? args[0] : null;
-    let type = getPropertyType(widgetProto, property);
+    const type = getPropertyType(widgetProto, property);
     if (type === Object && !check) {
       throw new Error(`Property ${property} can not be resolved without a type guard.`);
     }
@@ -67,7 +67,6 @@ export function getById(...args: any[]): void | PropertyDecorator{
       try {
         checkIsComponent(widgetProto);
       } catch (ex) {
-        // tslint:disable-next-line:no-console
         console.error(getErrorMessage('getById', property, ex.message));
       }
     });
@@ -75,7 +74,7 @@ export function getById(...args: any[]): void | PropertyDecorator{
 }
 
 function getByIdImpl(widgetInstance: WidgetInterface, property: string, typeGuard: TypeGuard): Widget {
-  let results = widgetInstance._find('#' + property);
+  const results = widgetInstance._find('#' + property);
   if (results.length === 0) {
     throw new Error(`No widget with id "${property}" appended.`);
   }

@@ -1,10 +1,9 @@
 import 'mocha';
 import 'sinon';
-import { ChangeListeners, Composite, tabris, TextInput, TextView, WidgetCollection } from 'tabris';
+import {ChangeListeners, Composite, tabris, TextInput, TextView, WidgetCollection} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { expect, restoreSandbox, stub } from './test';
-import { component, event, injector, property, to } from '../src';
-/* tslint:disable:no-unused-expression no-unused-variable max-classes-per-file max-file-line-count*/
+import {expect, restoreSandbox, stub} from './test';
+import {component, event, injector, property, to} from '../src';
 
 export interface Item {
   text: string;
@@ -24,32 +23,32 @@ describe('component', () => {
   });
 
   class ItemB implements Item {
-    @event public onOtherItemChanged: ChangeListeners<ItemB, 'otherItem'>;
-    @property public text: string;
-    @property public int: number;
-    public otherItem: Item;
+    @event onOtherItemChanged: ChangeListeners<ItemB, 'otherItem'>;
+    @property text: string;
+    @property int: number;
+    otherItem: Item;
   }
 
   class ItemA implements Item {
-    @property public text: string;
-    @property public int: number;
-    @property public otherItem: Item;
+    @property text: string;
+    @property int: number;
+    @property otherItem: Item;
   }
 
   @component
   class CustomComponent extends Composite {
-    @property public myText: string = 'foo';
-    @property public myNumber: number = 0;
-    @property public myItem: Item = null;
+    @property myText: string = 'foo';
+    @property myNumber: number = 0;
+    @property myItem: Item = null;
   }
 
   @component
   class CustomComponent2 extends Composite {
-    @property public someProperty: string | boolean;
+    @property someProperty: string | boolean;
     @property(v => (typeof v === 'string' && v !== 'rejectMe') || typeof v === 'boolean' || v === undefined)
-    public checkedSomeProperty: string | boolean;
-    public someField: string;
-    @property public numberProperty: number;
+    checkedSomeProperty: string | boolean;
+    someField: string;
+    @property numberProperty: number;
   }
 
   let widget: CustomComponent;
@@ -121,9 +120,9 @@ describe('component', () => {
 
     it('fails to bind non-existing property', () => {
       expect(() => {
-        widget.append(<CustomComponent bind-someField='myText' />);
+        widget.append(<CustomComponent bind-someField='myText'/>);
       }).to.throw(
-          'Binding "someField" -> "myText" failed: '
+        'Binding "someField" -> "myText" failed: '
         + 'Target does not have a property "someField"'
       );
     });
@@ -138,15 +137,15 @@ describe('component', () => {
 
     it('fails to bind to unserializable child property type without type guard', () => {
       expect(() => {
-        widget.append(<CustomComponent2 bind-someProperty='myText' />);
+        widget.append(<CustomComponent2 bind-someProperty='myText'/>);
       }).to.throw(
-          'Binding "someProperty" -> "myText" failed: '
+        'Binding "someProperty" -> "myText" failed: '
         + 'Can not bind to property "someProperty" without type guard.'
       );
     });
 
     it('allows to bind to unserializable child property type with type guard', () => {
-      let target: CustomComponent2 = <CustomComponent2 bind-checkedSomeProperty='myText' />;
+      const target: CustomComponent2 = <CustomComponent2 bind-checkedSomeProperty='myText'/>;
       widget.append(target);
       widget.myText = 'foo';
 
@@ -154,30 +153,30 @@ describe('component', () => {
     });
 
     it('fails if child type guard rejects', () => {
-      let target: CustomComponent2 = <CustomComponent2 bind-checkedSomeProperty='myText' />;
+      const target: CustomComponent2 = <CustomComponent2 bind-checkedSomeProperty='myText'/>;
       widget.append(target);
       widget.myText = 'foo';
 
       expect(() => {
         widget.myText = 'rejectMe';
       }).to.throw(
-          'Binding "checkedSomeProperty" -> "myText" failed: Failed to set property "checkedSomeProperty": '
+        'Binding "checkedSomeProperty" -> "myText" failed: Failed to set property "checkedSomeProperty": '
         + 'Type guard check failed'
       );
     });
 
     it('fails to bind with incompatible property type', () => {
       expect(() => {
-        widget.append(<CustomComponent2 bind-numberProperty='myText' />);
+        widget.append(<CustomComponent2 bind-numberProperty='myText'/>);
       }).to.throw(
-          'Binding "numberProperty" -> "myText" failed: Failed to set property "numberProperty": '
+        'Binding "numberProperty" -> "myText" failed: Failed to set property "numberProperty": '
         + 'Expected value "foo" to be of type number, but found string.'
       );
     });
 
     it('fails to bind when changing to incompatible property type', () => {
       widget2 = new CustomComponent2();
-      widget2.append(<CustomComponent bind-myText='someProperty' />);
+      widget2.append(<CustomComponent bind-myText='someProperty'/>);
       expect(() => {
         widget2.someProperty = false;
       }).to.throw(
@@ -192,19 +191,19 @@ describe('component', () => {
         '#foo': 'JSX binding path can currently not contain a selector.',
         '.foo': 'JSX binding path can currently not contain a selector.'
       };
-      for (let path in badPaths) {
+      for (const path in badPaths) {
         expect(() => {
-          widget.append(<CustomComponent2 bind-numberProperty={path} />);
+          widget.append(<CustomComponent2 bind-numberProperty={path}/>);
         }).to.throw(`Binding "numberProperty" -> "${path}" failed: ${badPaths[path]}`);
       }
     });
 
     it('throws on appear when applied to an non-@component', () => {
       class NotAComponent extends Composite {
-        @property public myText: string = 'foo';
+        @property myText: string = 'foo';
       }
-      let widget3 = new NotAComponent();
-      let widget4 = <TextView bind-text='myText' /> as TextView;
+      const widget3 = new NotAComponent();
+      const widget4 = <TextView bind-text='myText'/> as TextView;
       widget3.append(widget4);
       expect(() => {
         widget4.trigger('resize', {target: widget4});
@@ -214,7 +213,7 @@ describe('component', () => {
     });
 
     it('does not throw on appear when applied to a @component', () => {
-      let widget4 = <TextView bind-text='myText' /> as TextView;
+      const widget4 = <TextView bind-text='myText'/> as TextView;
       widget.append(widget4);
       expect(() => {
         widget4.trigger('resize', {target: widget4});
@@ -307,7 +306,7 @@ describe('component', () => {
     describe('to', () => {
 
       it('applies changes of source property value', () => {
-        widget.append(textInput = <TextInput bind-text={to('myText', v => v)} />);
+        widget.append(textInput = <TextInput bind-text={to('myText', v => v)}/>);
 
         widget.myText = 'bar';
 
@@ -318,7 +317,7 @@ describe('component', () => {
         const converter = stub().returns('foo');
         widget.myText = 'bar';
 
-        widget.append(textInput = <TextInput bind-text={to('myText', converter)} />);
+        widget.append(textInput = <TextInput bind-text={to('myText', converter)}/>);
 
         expect(converter).to.have.been.calledOnce;
         expect(converter).to.have.been.calledWith('bar');
@@ -327,18 +326,18 @@ describe('component', () => {
 
       it('fails to bind with converter returning incompatible type', () => {
         expect(() => {
-          widget.append(<CustomComponent2 bind-numberProperty={to('myText', v => !!v)} />);
+          widget.append(<CustomComponent2 bind-numberProperty={to('myText', v => !!v)}/>);
         }).to.throw(
-            'Binding "numberProperty" -> "myText" failed: Failed to set property "numberProperty": '
+          'Binding "numberProperty" -> "myText" failed: Failed to set property "numberProperty": '
           + 'Expected value "true" to be of type number, but found boolean.'
         );
       });
 
       it('fails to bind with converter throwing', () => {
         expect(() => {
-          widget.append(<CustomComponent2 bind-numberProperty={to('myText', v => { throw new Error('fooerror'); })} />);
+          widget.append(<CustomComponent2 bind-numberProperty={to('myText', v => { throw new Error('fooerror'); })}/>);
         }).to.throw(
-            'Binding "numberProperty" -> "myText" failed: Converter exception: fooerror'
+          'Binding "numberProperty" -> "myText" failed: Converter exception: fooerror'
         );
       });
 
@@ -360,11 +359,11 @@ describe('component', () => {
         'hello ${#foo}': 'JSX binding path can currently not contain a selector.',
         'hello ${.foo}': 'JSX binding path can currently not contain a selector.'
       };
-      for (let path in badPaths) {
+      for (const path in badPaths) {
         expect(() => {
           widget.dispose();
           widget = new CustomComponent();
-          widget.append(<TextView template-text={path} />);
+          widget.append(<TextView template-text={path}/>);
         }).to.throw(`Template binding "text" -> "${path}" failed: ${badPaths[path]}`);
       }
     });

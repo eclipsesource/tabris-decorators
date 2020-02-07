@@ -1,6 +1,6 @@
-import { Composite, Properties, Stack, TextView } from 'tabris';
-import { bind, component, ItemPicker, List, property, to } from 'tabris-decorators';
-import { Person } from './Person';
+import {Composite, Stack, TextView} from 'tabris';
+import {bind, component, ItemPicker, property} from 'tabris-decorators';
+import {Person} from './Person';
 
 @component
 export class ExampleComponent extends Composite {
@@ -11,10 +11,10 @@ export class ExampleComponent extends Composite {
     typeGuard: value => value === null || value instanceof Person
   }) details = null;
 
-  /** @type {List<Person>} */
+  /** @type {import('tabris-decorators').List<Person>} */
   @property persons;
 
-  /** @param {Properties<ExampleComponent>} properties */
+  /** @param {tabris.Properties<ExampleComponent>} properties */
   constructor(properties) {
     super();
     this.set(properties);

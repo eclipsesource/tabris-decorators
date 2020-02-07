@@ -1,9 +1,9 @@
-import { ChangeListeners, Composite, JSXAttributes, JSXChildren, Properties, TextView, Widget } from 'tabris';
-import { component } from '../decorators/component';
-import { event } from '../decorators/event';
-import { property } from '../decorators/property';
-import { getJsxTemplate, JsxTemplate } from '../internals/ExtendedJSX';
-import { Constructor } from '../internals/utils';
+import {ChangeListeners, Composite, JSXAttributes, JSXChildren, Properties, TextView, Widget} from 'tabris';
+import {component} from '../decorators/component';
+import {event} from '../decorators/event';
+import {property} from '../decorators/property';
+import {getJsxTemplate, JsxTemplate} from '../internals/ExtendedJSX';
+import {Constructor} from '../internals/utils';
 
 const factory: unique symbol = Symbol('factory');
 
@@ -19,7 +19,7 @@ export type CellCreationArgs<ItemType> = {
 @component
 export class Cell<ItemType = unknown> extends Composite {
 
-  public static factory(original: Cell): () => Cell {
+  static factory(original: Cell): () => Cell {
     if (!(original instanceof Cell)) {
       throw new Error('A cell factory can only be created from a Cell element');
     }
@@ -40,18 +40,18 @@ export class Cell<ItemType = unknown> extends Composite {
     return original[factory];
   }
 
-  public jsxAttributes: JSXAttributes<this>
+  jsxAttributes: JSXAttributes<this>
     & {children?: JSXChildren<Widget>}
     & CellCreationArgs<ItemType>;
 
-  @event public onItemChanged: ChangeListeners<this, 'item'>;
-  @event public onItemIndexChanged: ChangeListeners<this, 'itemIndex'>;
+  @event onItemChanged: ChangeListeners<this, 'item'>;
+  @event onItemIndexChanged: ChangeListeners<this, 'itemIndex'>;
 
-  @property public readonly selectable: boolean = false;
-  @property public readonly itemType: ItemTypeDef<ItemType>;
-  @property public readonly itemCheck: ItemCheck<ItemType>;
-  @property public item: ItemType = null;
-  @property(num => num >= -1) public itemIndex: number = -1;
+  @property readonly selectable: boolean = false;
+  @property readonly itemType: ItemTypeDef<ItemType>;
+  @property readonly itemCheck: ItemCheck<ItemType>;
+  @property item: ItemType = null;
+  @property(num => num >= -1) itemIndex: number = -1;
 
   private [factory]: () => this;
 
@@ -63,8 +63,7 @@ export class Cell<ItemType = unknown> extends Composite {
     this.set<Composite & CellCreationArgs<ItemType>>(properties || {});
   }
 
-  // tslint:disable-next-line
-  public [JSX.jsxFactory](Type, attributes) {
+  [JSX.jsxFactory](Type, attributes) {
     return Composite.prototype[JSX.jsxFactory].call(this, Type, attributes);
   }
 

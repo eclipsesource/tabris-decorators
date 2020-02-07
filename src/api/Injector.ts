@@ -1,9 +1,9 @@
-import { bindDecoratorInject, InjectDecorator } from '../decorators/inject';
-import { bindDecoratorInjectable, InjectableDecorator } from '../decorators/injectable';
-import { bindDecoratorInjectionHandler, InjectionHandlerDecorator } from '../decorators/injectionHandler';
-import { bindDecoratorShared, SharedDecorator } from '../decorators/shared';
-import { ExtendedJSX } from '../internals/ExtendedJSX';
-import { BaseConstructor, getParamInfo } from '../internals/utils';
+import {bindDecoratorInject, InjectDecorator} from '../decorators/inject';
+import {bindDecoratorInjectable, InjectableDecorator} from '../decorators/injectable';
+import {bindDecoratorInjectionHandler, InjectionHandlerDecorator} from '../decorators/injectionHandler';
+import {bindDecoratorShared, SharedDecorator} from '../decorators/shared';
+import {ExtendedJSX} from '../internals/ExtendedJSX';
+import {BaseConstructor, getParamInfo} from '../internals/utils';
 
 export type InjectionParameter = object | string | number | boolean | null;
 export type CreateFunction = typeof Injector.prototype.create;
@@ -37,7 +37,7 @@ export class Injector {
   /**
    * Returns the instance of Injector that was used to create the given object.
    */
-  public static get(object: object): Injector {
+  static get(object: object): Injector {
     if (!object || !(object instanceof Object)) {
       throw new Error('Injector.get does not accept values of type ' + typeof object);
     }
@@ -47,10 +47,10 @@ export class Injector {
     throw new Error('Object was not created by an Injector');
   }
 
-  public readonly injectionHandler: InjectionHandlerDecorator = bindDecoratorInjectionHandler(this);
-  public readonly inject: InjectDecorator = bindDecoratorInject(this);
-  public readonly injectable: InjectableDecorator = bindDecoratorInjectable(this);
-  public readonly shared: SharedDecorator = bindDecoratorShared(this);
+  readonly injectionHandler: InjectionHandlerDecorator = bindDecoratorInjectionHandler(this);
+  readonly inject: InjectDecorator = bindDecoratorInject(this);
+  readonly injectable: InjectableDecorator = bindDecoratorInjectable(this);
+  readonly shared: SharedDecorator = bindDecoratorShared(this);
 
   /**
    * This object needs to be present in the module namespace to allow JSX expressions that
@@ -63,16 +63,16 @@ export class Injector {
    *   JSX.install(injector.jsxProcessor);
    * ```
    */
-  public readonly jsxProcessor: ExtendedJSX = new ExtendedJSX(this);
+  readonly jsxProcessor: ExtendedJSX = new ExtendedJSX(this);
   private handlers: HandlersMap = new Map();
 
   /**
    * Explicitly registers a new injection handler. Same as using the attached `injectionHandler`
    * decorator.
    */
-  public addHandler: {
-    <T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandlerFunction<U>): void;
-    <T, U extends T>(param: HandlerRegistration<T, U>): void;
+  addHandler: {
+    <T, U extends T>(targetType: BaseConstructor<T>, handler: InjectionHandlerFunction<U>): void,
+    <T, U extends T>(param: HandlerRegistration<T, U>): void
   } = <T, U extends T>(arg1: HandlerRegistration<T, U> | BaseConstructor<T>, arg2?: InjectionHandlerFunction<U>) => {
     const param = (arg1 instanceof Function ? {targetType: arg1, handler: arg2} : arg1) as HandlerRegistration<T, U>;
     if (!param.targetType || !param.handler) {
@@ -84,22 +84,22 @@ export class Injector {
       targetTypeHandlers.splice(ref < 0 ? targetTypeHandlers.length : ref, 0, param);
       this.handlers.set(prototype, targetTypeHandlers);
     });
-  }
+  };
 
   /**
    * Returns an instance for an injectable type, just like using the `@inject` decorator
    * would do in a constructor.
    */
-  public resolve = <T>(type: BaseConstructor<T>, param: InjectionParameter = null): T => {
-    let regs = this.findHandlerRegistrations(type);
+  resolve = <T>(type: BaseConstructor<T>, param: InjectionParameter = null): T => {
+    const regs = this.findHandlerRegistrations(type);
     if (!regs.length) {
       throw new Error(
         `Could not inject value of type ${type.name} since no compatible injection handler exists for this type.`
       );
     }
-    let unbox = this.getUnboxer(type);
-    for (let reg of regs) {
-      let result = unbox(reg.handler({type, injector: this, param}));
+    const unbox = this.getUnboxer(type);
+    for (const reg of regs) {
+      const result = unbox(reg.handler({type, injector: this, param}));
       if (result !== null && result !== undefined) {
         return this.tagResult(result);
       }
@@ -107,7 +107,7 @@ export class Injector {
     throw new Error(
       `Could not inject value of type ${type.name} since no compatible injection handler returned a value.`
     );
-  }
+  };
 
   /**
    * `create(type: Class, ...parameters: any[])`
@@ -116,7 +116,7 @@ export class Injector {
    * Parameters given after the type will be passed to the constructor, potentially overriding
    * the injection value.
    */
-  public create = <T, U, V, W>(
+  create = <T, U, V, W>(
     type: new(arg1?: U, arg2?: V, arg3?: W, ...remaining: any[]) => T,
     arg1?: U,
     arg2?: V,
@@ -127,10 +127,10 @@ export class Injector {
       throw new Error('No type to create was given');
     }
     try {
-      let args = [arg1, arg2, arg3].concat(remaining);
-      let finalArgs: any[] = [];
-      let paramInfo = getParamInfo(type) || [];
-      let paramCount = Math.max(type.length, args.length, paramInfo.length);
+      const args = [arg1, arg2, arg3].concat(remaining);
+      const finalArgs: any[] = [];
+      const paramInfo = getParamInfo(type) || [];
+      const paramCount = Math.max(type.length, args.length, paramInfo.length);
       for (let i = 0; i < paramCount; i++) {
         if (args[i] === undefined && paramInfo[i]) {
           finalArgs[i] = this.resolve(paramInfo[i].type, paramInfo[i].injectParam || null);
@@ -142,7 +142,7 @@ export class Injector {
     } catch (ex) {
       throw new Error(`Could not create instance of ${type.name}:\n${ex.message}`);
     }
-  }
+  };
 
   private findHandlerRegistrations<T>(type: BaseConstructor<T>): Array<HandlerRegistration<T, T>> {
     if (!type) {

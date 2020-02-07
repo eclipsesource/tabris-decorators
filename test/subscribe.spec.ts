@@ -1,12 +1,11 @@
 import 'mocha';
 import 'sinon';
-import { SinonSpy } from 'sinon';
-import { ChangeListeners, Composite, Listeners, tabris, TextInput, TextView, WidgetCollection } from 'tabris';
+import {SinonSpy} from 'sinon';
+import {ChangeListeners, Composite, Listeners, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import { expect, restoreSandbox, spy, stub } from './test';
-import { property } from '../src';
-import { subscribe } from '../src/internals/subscribe';
-/* tslint:disable:no-unused-expression max-classes-per-file max-file-line-count no-empty*/
+import {expect, spy} from './test';
+import {property} from '../src';
+import {subscribe} from '../src/internals/subscribe';
 
 describe('subscribe', () => {
 
@@ -185,14 +184,14 @@ describe('subscribe', () => {
   describe('@property subscriber', () => {
 
     class ModelA {
-      @property public foo: number;
+      @property foo: number;
       @property(() => true)
-      public b: any;
+      b: any;
     }
 
     class ModelB {
-      @property public bar: string;
-      @property public a: ModelA;
+      @property bar: string;
+      @property a: ModelA;
     }
 
     let target: ModelA;

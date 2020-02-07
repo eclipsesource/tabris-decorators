@@ -1,13 +1,13 @@
 import 'reflect-metadata';
-import { Widget } from 'tabris';
-import { clearOneWayBindings, getOneWayBindings, OneWayBinding } from './applyJsxBindings';
-import { subscribe } from './subscribe';
-import { checkPropertyExists, WidgetInterface } from './utils-databinding';
+import {Widget} from 'tabris';
+import {clearOneWayBindings, getOneWayBindings, OneWayBinding} from './applyJsxBindings';
+import {subscribe} from './subscribe';
+import {checkPropertyExists, WidgetInterface} from './utils-databinding';
 
 export function processOneWayBindings(base: WidgetInterface, target: Widget) {
-  let bindings = getOneWayBindings(target);
+  const bindings = getOneWayBindings(target);
   if (bindings) {
-    for (let binding of bindings) {
+    for (const binding of bindings) {
       initOneWayBinding(base, binding);
     }
     clearOneWayBindings(target);

@@ -1,5 +1,5 @@
-import { Composite, ProgressBar, Properties, Stack, TextView } from 'tabris';
-import { component, property } from 'tabris-decorators';
+import {Composite, ProgressBar, Stack, TextView} from 'tabris';
+import {component, property} from 'tabris-decorators';
 
 export class OtherModel {
   /** @type {string} */
@@ -24,12 +24,12 @@ export class ExampleComponent extends Composite {
   /** @type {Model} */
   @property myObject;
 
-  /** @param {Properties<ExampleComponent>} properties */
+  /** @param {tabris.Properties<ExampleComponent>} properties */
   constructor(properties) {
     super();
     this.set(properties);
     this.append(
-      <Stack spacing={12} padding={12} >
+      <Stack spacing={12} padding={12}>
 
         <TextView>Binding to a component property:</TextView>
         <TextView background='yellow'

@@ -1,7 +1,7 @@
-import { Button, contentView, Stack, TextView } from 'tabris';
-import { injector } from 'tabris-decorators';
-import { Survey } from './Survey';
-import { State } from './TriStateButton';
+import {Button, contentView, Stack, TextView} from 'tabris';
+import {injector} from 'tabris-decorators';
+import {Survey} from './Survey';
+import {State} from './TriStateButton';
 
 injector.jsxProcessor.strictMode = true;
 

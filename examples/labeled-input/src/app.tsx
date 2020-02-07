@@ -1,6 +1,6 @@
-import { AlertDialog, contentView } from 'tabris';
-import { injector } from 'tabris-decorators';
-import { LabeledInput } from './LabeledInput';
+import {AlertDialog, contentView} from 'tabris';
+import {injector} from 'tabris-decorators';
+import {LabeledInput} from './LabeledInput';
 
 injector.jsxProcessor.strictMode = true;
 

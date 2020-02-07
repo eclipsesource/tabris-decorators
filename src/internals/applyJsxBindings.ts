@@ -1,15 +1,15 @@
 import 'reflect-metadata';
-import { Widget, WidgetResizeEvent } from 'tabris';
-import { checkPathSyntax, checkPropertyExists, isUnchecked, WidgetInterface } from './utils-databinding';
-import { Binding } from '../api/to';
+import {Widget, WidgetResizeEvent} from 'tabris';
+import {checkPathSyntax, checkPropertyExists, isUnchecked, WidgetInterface} from './utils-databinding';
+import {Binding} from '../api/to';
 
-const placeholder = /\$\{[^\}]+\}/g;
+const placeholder = /\$\{[^}]+\}/g;
 
 export interface JsxBindings { [targetProperty: string]: string; }
 
 export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings, strictMode: boolean) {
-  let oneWayBindings: OneWayBinding[] = [];
-  for (let attribute in bindings) {
+  const oneWayBindings: OneWayBinding[] = [];
+  for (const attribute in bindings) {
     try {
       oneWayBindings.push(
         createOneWayBindingDesc(
@@ -66,9 +66,8 @@ function createOneWayBindingDesc(
     if (strictMode) {
       throw new Error(`Can not bind to property "${targetProperty}" without type guard.`);
     }
-    // tslint:disable-next-line: no-console
     console.warn(
-        `Unsafe binding "${targetProperty}" -> "${bindingString}": `
+      `Unsafe binding "${targetProperty}" -> "${bindingString}": `
       + `Property "${targetProperty}" has no type guard.`
     );
   }
@@ -83,7 +82,7 @@ function extractPath(type: 'bind' | 'template', bindingString: string) {
   if (type === 'bind') {
     return bindingString;
   }
-  let matches = bindingString.match(placeholder);
+  const matches = bindingString.match(placeholder);
   if (!matches) {
     throw new Error(`Template "${bindingString}" does not contain a valid placeholder`);
   }
