@@ -4,6 +4,8 @@
 
 ## Description
 
+Note: A JavaScript/JSX variant of the this TypeScript/JSX example can be found [here](../tri-state-button-jsx).
+
 Demonstrates the use of one-way and two-way bindings with [advanced types](https://www.typescriptlang.org/docs/handbook/advanced-types.html). It includes two example components, `TriStateButton` and `Survey`. The former component consists of a (emoji) icon and label. When tapped it cycles through three different states as indicated by the icon.
 
 This component is then used in the `Survey` component to give the user three yes/no questions with a third option to remain neutral. The answers are available on public properties of `Survey` via two-way bindings. In `app.tsx` they are read when the "print results" button is pressed.

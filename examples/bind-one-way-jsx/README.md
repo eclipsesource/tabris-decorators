@@ -1,6 +1,6 @@
-# Example "bind-one-way"
+# Example "bind-one-way-jsx"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-one-way/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-one-way-js)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-one-way-jsx/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-one-way-jsx)
 
 ## Description
 
