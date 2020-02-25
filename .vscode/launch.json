@@ -14,10 +14,7 @@
       "runtimeArgs": [
         "-p",
         "./tsconfig-test.json",
-        "./test/*.spec.ts",
-         "./test/*.spec.tsx",
-         "./test/*.spec.jsx",
-         "./test/*.spec.js"
+        "${file}"
       ],
       "internalConsoleOptions": "openOnSessionStart"
     },
