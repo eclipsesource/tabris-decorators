@@ -12,8 +12,9 @@ call npm install
 call npm run build
 rmdir examples\%1\node_modules\tabris /S /Q
 rmdir examples\%1\node_modules\tabris-decorators /S /Q
-call npm install tabris@nightly --no-save --prefix examples/%1
+mkdir examples\%1\node_modules\tabris
 mkdir examples\%1\node_modules\tabris-decorators
 copy dist\* examples\%1\node_modules\tabris-decorators\
+copy node_modules\tabris\* examples\%1\node_modules\tabris\
 :launch
 call npm start --prefix examples/%1
