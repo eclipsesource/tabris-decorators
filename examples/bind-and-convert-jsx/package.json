@@ -1,6 +1,6 @@
 {
   "name": "bind-and-convert",
-  "version": "3.1.0",
+  "version": "3.4.0",
   "dependencies": {
     "reflect-metadata": "^0.1.13"
   },
