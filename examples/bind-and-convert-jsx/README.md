@@ -1,8 +1,10 @@
-# Example "bind-and-convert"
+# Example "bind-and-convert-jsx"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-and-convert/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-and-convert)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-and-convert-jsx/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-and-convert-jsx)
 
 ## Description
+
+Note: This is a JavaScript/JSX variant of the [bind-and-convert](../bind-and-convert) TypeScript/JSX example.
 
 Demonstrates the use of converter functions and template syntax in one-way bindings. This app creates an instance of the included `ExampleComponent` class and a checkbox that allows to change the property values of that instance.
 

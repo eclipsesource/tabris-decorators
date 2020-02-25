@@ -4,6 +4,8 @@
 
 ## Description
 
+Note: A JavaScript/JSX variant of the this TypeScript/JSX example can be found [here](../bind-listview-list-jsx).
+
 Demonstrates how to bind a minimal ListView to a `List` of strings.
 
 In `ExampleComponent.tsx` we define a data-binding enabled component using the `@component` decorator. It contains a `ListView` with its `items` property bound to the component's `stringList` property.

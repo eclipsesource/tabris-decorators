@@ -1,13 +1,15 @@
-# Example "bind-one-way"
+# Example "bind-two-way-model"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-one-way/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-one-way)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-two-way-model/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-two-way-model)
 
 ## Description
 
-Demonstrates the use of the `bind` JSX attribute prefix to create one-way bindings from a custom component instance to its children. This app creates an instance of the included `ExampleComponent` class and a checkbox that allows to change the property values of that instance.
+Note: A JavaScript/JSX variant of the this TypeScript/JSX example can be found [here](../bind-two-way-model-jsx).
 
-The `ExampleComponent` property `myText` is bound to the `text` properties of multiple `TextView` children. The first two variants have the same effect, just using different syntax. The third variant demonstrates how to define a fallback value. It will be displayed when the property `myText` is set to `undefined`, which is the case when the checkbox is not checked.
+Demonstrates the use of the `@bindAll` decorator to create two-way bindings between a model assigned to a component and the children of that component. The app creates an instance of the `ExampleComponent` class (grey background), which has a `model` property that can be assigned a `Model` instance by tapping the check box at the top.
 
-The other property `myObject` is of the type `Model`, which is defined in the same file as `ExampleComponent`. In the component the `Model` field `someString` is bound to the `TextView` property `text` and `someNumber` to the `ProgressBar` property `selection` properties, once with and without a fallback value.
+In `ExampleComponent` the `model` property is configured via `@bindAll` to establish two two-way bindings. The model property `myText` is bound to the `text` property of the `TextInput` with the id `input1`. The other property `myNumber` is bound to the `selection` property of the `Slider` with the id `input2`.
 
-One-way bindings require the `@component` decorator on the custom component class and the `@property` decorator on the component properties.
+By interacting with the two input widgets the user can change the values of the model, if it is currently assigned to the component. If the `model` is property is set to `null` the two widget properties are set back to their initial values. In case of the `TextView` this is the a placeholder text, and for the `Slider` selection it is `0`. The `Model` instance keeps the modified values, so if it is assigned again the widgets will display them again.
+
+Two-way bindings require the `@component` decorator on the custom component class and `@property` decorators on the model properties.

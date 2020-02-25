@@ -4,6 +4,8 @@
 
 ## Description
 
+Note: A JavaScript/JSX variant of the this TypeScript/JSX example can be found [here](../property-value-checks-jsx).
+
 Demonstrates how `@property` can be used with type guards to narrow down the accepted values more than the type definition allows. This app provides a UI to change the `name` and `age` properties (on button press) of an instance of the class `Person`. Doing so only works if the age is a positive number and if the name has at least two characters.
 
 Both `Person` properties are decorated with `@property` which has one parameter - the type guard function. A type guard function is a function that takes one argument and returns a boolean indicating whether it is of a specific type or not. In this case the type guards also only allow a specific subset of that type:

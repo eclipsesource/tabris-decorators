@@ -4,6 +4,8 @@
 
 ## Description
 
+Note: A JavaScript/JSX variant of the this TypeScript/JSX example can be found [here](../itempicker-jsx).
+
 Demonstrates different approaches to feed the `ItemPicker` with items, provide texts to represent them, and handle selections.
 
 All `ItemPicker` instances are provided 3 items each. They can be selected by the user which displays a unique item id below.

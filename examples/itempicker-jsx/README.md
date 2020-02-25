@@ -1,8 +1,10 @@
-# Example "itempicker"
+# Example "itempicker-jsx"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=itempicker/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/itempicker)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=itempicker-jsx/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/itempicker-jsx)
 
 ## Description
+
+Note: This is the JavaScript/JSX variant of the [itempicker](../itempicker) TypeScript/JSX example.
 
 Demonstrates different approaches to feed the `ItemPicker` with items, provide texts to represent them, and handle selections.
 

@@ -4,6 +4,8 @@
 
 ## Description
 
+Note: A JavaScript/JSX variant of the this TypeScript/JSX example can be found [here](../listview-cells-jsx).
+
 Demonstrates how to define the look of ListView cells with pure JSX syntax.
 
 All ListView instances are provided a static array of 20 items of different types.

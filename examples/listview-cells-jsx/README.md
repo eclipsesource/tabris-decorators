@@ -1,8 +1,10 @@
-# Example "listview-cells"
+# Example "listview-cells-jsx"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=listview-cells/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/listview-cells)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=listview-cells-jsx/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/listview-cells-jsx)
 
 ## Description
+
+Note: This is the JavaScript/JSX variant of the [listview-cells](../listview-cells) TypeScript/JSX example.
 
 Demonstrates how to define the look of ListView cells with pure JSX syntax.
 

@@ -4,6 +4,8 @@
 
 ## Description
 
+Note: This is the JavaScript/JSX variant of the [bind-itempicker-list](../bind-itempicker-list) TypeScript/JSX example.
+
 Demonstrates how to bind an ItemPicker to a `List` of mutable objects.
 
 `Person.ts` contains the models and a factory `generate` to create random items.
