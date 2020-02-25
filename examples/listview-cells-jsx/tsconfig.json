@@ -7,11 +7,10 @@
     "jsxFactory": "JSX.createElement",
     "outDir": "dist",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "typeRoots": ["./node_modules/@types"]
   },
   "include": [
-    "./src/*.ts",
-    "./src/*.tsx", "src/app.jsx"
+    "./src/*.js",
+    "./src/*.jsx"
   ]
 }

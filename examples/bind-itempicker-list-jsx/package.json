@@ -1,6 +1,6 @@
 {
   "name": "bind-itempicker-list",
-  "version": "3.2.1",
+  "version": "3.4.0",
   "dependencies": {
     "reflect-metadata": "^0.1.13"
   },
