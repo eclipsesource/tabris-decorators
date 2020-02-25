@@ -12,7 +12,7 @@
     "clean": "rm -rf ./dist/*",
     "build": "webpack --mode=production && npm run dts",
     "dts": "dts-generator --name tabris-decorators --project ./tsconfig-dts.json --out ./dist/index.d.ts --main tabris-decorators/index",
-    "test": "npm run lint && ts-mocha -p ./tsconfig-test.json ./test/*.spec.ts ./test/*.spec.tsx",
+    "test": "npm run lint && ts-mocha -p ./tsconfig-test.json ./test/*.spec.ts ./test/*.spec.tsx ./test/*.spec.js ./test/*.spec.jsx",
     "test:file": "ts-mocha -p ./tsconfig-test.json",
     "lint": "eslint --color --f visualstudio --ext .js,.jsx,.ts,.tsx src test examples",
     "safePublish": "npm test && npm run build && npm publish",
