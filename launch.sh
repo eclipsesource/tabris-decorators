@@ -6,15 +6,15 @@ if [ $# -lt 1 ]; then
   echo "-----------------------------------------------------------------------------"
   exit
 fi
-npm install --prefix examples/$1
 if [ "$2" == '--dev' ]; then # ./launch.sh <example> --dev
-  npm install
-  npm run build
-  rm examples/$1/node_modules/tabris -rf
-  rm examples/$1/node_modules/tabris-decorators -rf
+  rm examples/$1/node_modules -rf
   npm install tabris@nightly --no-save --prefix examples/$1
+  rm examples/$1/node_modules/tabris-decorators -rf
   mkdir examples/$1/node_modules/tabris-decorators
+  npm run build
   cp ./dist/* examples/$1/node_modules/tabris-decorators
+else
+  npm install --prefix examples/$1
 fi
 if [ "$GITPOD_HOST" != '' ]; then
   npm run gitpod --prefix examples/$1
