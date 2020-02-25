@@ -86,15 +86,20 @@ export function defineGetter(proto: any, property: string, get: () => any): void
 }
 
 /**
- * Gets the type of the property. If the type can not be represented properly at runtime
- * it returns the Object constructor.
+ * Gets the type (constructor) of the property as emitted by tsc.
+ * Returns the Object constructor if the type can not be represented
+ * by tsc properly at runtime, OR if the compiler option
+ * emitDecoratorMetadata is not enabled.
  */
 export function getPropertyType(proto: any, property: string): Constructor<any> {
-  const result = Reflect.getMetadata('design:type', proto, property);
-  if (!result) {
-    throw new Error('Property type is undefined: Do you have circular dependency issues?');
-  }
-  return result;
+  return Reflect.getMetadata('design:type', proto, property) || Object;
+}
+
+/**
+ * Returns true if type information was emitted by tsc for this property.
+ */
+export function hasPropertyType(proto: any, property: string): boolean {
+  return !!Reflect.getMetadata('design:type', proto, property);
 }
 
 /**

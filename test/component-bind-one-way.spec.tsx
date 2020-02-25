@@ -15,7 +15,6 @@ describe('component', () => {
 
   beforeEach(() => {
     tabris._init(new ClientMock());
-    injector.jsxProcessor.strictMode = true;
   });
 
   afterEach(() => {
@@ -140,7 +139,7 @@ describe('component', () => {
         widget.append(<CustomComponent2 bind-someProperty='myText'/>);
       }).to.throw(
         'Binding "someProperty" -> "myText" failed: '
-        + 'Can not bind to property "someProperty" without type guard.'
+        + 'Can not bind to property "someProperty" without explicit type check.'
       );
     });
 
@@ -217,7 +216,7 @@ describe('component', () => {
       widget.append(widget4);
       expect(() => {
         widget4.trigger('resize', {target: widget4});
-      }).not.to.throw;
+      }).not.to.throw();
     });
 
     it('can bind to object property', () => {

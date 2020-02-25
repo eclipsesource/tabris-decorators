@@ -64,11 +64,11 @@ function createOneWayBindingDesc(
   checkPropertyExists(target, targetProperty);
   if (isUnchecked(target, targetProperty)) {
     if (strictMode) {
-      throw new Error(`Can not bind to property "${targetProperty}" without type guard.`);
+      throw new Error(`Can not bind to property "${targetProperty}" without explicit type check.`);
     }
     console.warn(
       `Unsafe binding "${targetProperty}" -> "${bindingString}": `
-      + `Property "${targetProperty}" has no type guard.`
+      + `Property "${targetProperty}" has no type check.`
     );
   }
   const fallbackValue = target[targetProperty];

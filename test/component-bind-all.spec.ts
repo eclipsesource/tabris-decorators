@@ -313,7 +313,7 @@ describe('component', () => {
       expect(() => {
         widget.append(new TargetComponent({id: 'foo'} as any));
       }).to.throw(Error,
-        'Binding "item.text" <-> "#foo.text" failed: Target property "text" needs a type guard.'
+        'Binding "item.text" <-> "#foo.text" failed: Target property "text" requires an explicit type check.'
       );
     });
 
@@ -348,7 +348,7 @@ describe('component', () => {
 
       expect(() => {
         new CustomComponentB().item = new ItemB();
-      }).to.throw(Error, 'Failed to set property "item": Object property "text" needs a type guard.'
+      }).to.throw(Error, 'Failed to set property "item": Object property "text" requires an explicit type check.'
       );
     });
 

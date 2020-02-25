@@ -7,17 +7,17 @@ export interface Properties { [property: string]: any; }
 export type JsxConstructor = {prototype: JSX.ElementClass, new(): object};
 export type JsxNativeType = {prototype: JSX.ElementClass, new(): NativeObject};
 
-export type JsxTemplate = {source: unknown} | {
-  jsx: ExtendedJSX,
+export type JsxInfo = {source: unknown} | {
+  processor: ExtendedJSX,
   componentType: JsxConstructor,
   sfc: ((param: object) => any),
   attributes: object,
-  children: JsxTemplate[]
+  children: JsxInfo[]
 };
 
-export function getJsxTemplate(source: any): JsxTemplate {
-  if (source instanceof Object && source[jsxTemplateKey]) {
-    return source[jsxTemplateKey];
+export function getJsxInfo(source: any): JsxInfo {
+  if (source instanceof Object && source[jsxInfo]) {
+    return source[jsxInfo];
   }
   return {source};
 }
@@ -34,13 +34,13 @@ export class ExtendedJSX extends JsxProcessor {
     const result = super.createCustomComponent(type, attributes);
     if (result instanceof Object) {
       const {children, ...pureAttributes} = attributes;
-      result[jsxTemplateKey] = {
-        jsx: this,
+      result[jsxInfo] = {
+        processor: this,
         componentType: type,
         sfc: null,
         attributes: pureAttributes,
-        children: children ? children.map(getJsxTemplate) : null
-      } as JsxTemplate;
+        children: children ? children.map(getJsxInfo) : null
+      } as JsxInfo;
     }
     return result;
   }
@@ -49,13 +49,13 @@ export class ExtendedJSX extends JsxProcessor {
     const result = super.createFunctionalComponent(type, attributes);
     if (result instanceof Object) {
       const {children, ...pureAttributes} = attributes;
-      result[jsxTemplateKey] = {
-        jsx: this,
+      result[jsxInfo] = {
+        processor: this,
         componentType: null,
         sfc: type,
         attributes: pureAttributes,
-        children: (children || []).map(getJsxTemplate)
-      } as JsxTemplate;
+        children: (children || []).map(getJsxInfo)
+      } as JsxInfo;
     }
     return result;
   }
@@ -103,4 +103,4 @@ export class ExtendedJSX extends JsxProcessor {
 
 }
 
-const jsxTemplateKey = Symbol('jsxTemplate');
+const jsxInfo = Symbol('jsxInfo');

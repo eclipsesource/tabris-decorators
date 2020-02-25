@@ -38,12 +38,21 @@ describe('event', () => {
     expect(listener).to.have.been.calledOnce;
   });
 
-  it('fails for other types', () => {
+  it('fails for incompatible types', () => {
     expect(() => {
       class PlainClass {
         @event readonly onMyEvent: Date;
       }
     }).to.throw(/onMyEvent/);
+  });
+
+  it('accepts missing type', () => {
+    expect(() => {
+      class PlainClass {
+        readonly onMyEvent;
+      }
+      event(PlainClass.prototype, 'onMyEvent');
+    }).not.to.throw();
   });
 
   it('synthesizes tabris events on NativeObjects', () => {

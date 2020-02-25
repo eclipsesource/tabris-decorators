@@ -19,7 +19,8 @@ export type WidgetInterface = {
   [wasAppendedKey]: boolean,
   [uncheckedProperty]: any
 } & Widget & WidgetProtected & EventTarget;
-export type TypeGuard = (v: any) => boolean;
+export type TypeGuard<T = any> = (v: T) => boolean;
+export type UserType<T> = Constructor<T>;
 export interface WidgetProtected {
   _find(selector?: Selector): WidgetCollection<Widget>;
   _find<U extends Widget>(constructor: new (...args: any[]) => U): WidgetCollection<U>;

@@ -37,12 +37,15 @@ export class Injector {
   /**
    * Returns the instance of Injector that was used to create the given object.
    */
-  static get(object: object): Injector {
+  static get(object: object, fallback?: Injector): Injector {
     if (!object || !(object instanceof Object)) {
       throw new Error('Injector.get does not accept values of type ' + typeof object);
     }
     if (injectorKey in object) {
       return object[injectorKey];
+    }
+    if (fallback) {
+      return fallback;
     }
     throw new Error('Object was not created by an Injector');
   }
