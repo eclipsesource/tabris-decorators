@@ -51,8 +51,10 @@ describe('checkType', () => {
     expect(() => checkType(new Date(), Function)).to.throw('Expected value to be of type Function, but found Date.');
   });
 
-  it('fails when type is missing', () => {
-    expect(() => checkType(-1, null)).to.throw('No type given');
+  it('passes any value when type is Object', () => {
+    expect(() => checkType(-1, Object)).not.to.throw();
+    expect(() => checkType('foo', Object)).not.to.throw();
+    expect(() => checkType(new Date(), Object)).not.to.throw();
   });
 
   it('null and undefined always pass', () => {

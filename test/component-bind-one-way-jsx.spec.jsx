@@ -77,6 +77,7 @@ describe('component', () => {
 
   afterEach(() => {
     restoreSandbox();
+    injector.jsxProcessor.strictMode = true;
   });
 
   /** @type {CustomComponent} */
@@ -172,7 +173,7 @@ describe('component', () => {
       widget.append(<CustomComponent2 bind-numberProperty='myText'/>);
 
       expect(console.warn).to.have.been.calledWith(
-        'Unsafe binding "numberProperty" -> "myText": Property "numberProperty" has no type guard.'
+        'Unsafe binding "numberProperty" -> "myText": Property "numberProperty" has no type check.'
       );
     });
 
@@ -235,7 +236,7 @@ describe('component', () => {
       widget.append(widget4);
       expect(() => {
         widget4.trigger('resize', {target: widget4});
-      }).not.to.throw;
+      }).not.to.throw();
     });
 
     it('can bind to object property', () => {

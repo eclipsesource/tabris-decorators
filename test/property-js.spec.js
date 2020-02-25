@@ -1,34 +1,69 @@
 import 'mocha';
 import 'sinon';
-import {ChangeListeners, Composite, Properties, tabris} from 'tabris';
+import {Composite, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, stub} from './test';
 import {event, property} from '../src';
 
-describe('property', () => {
+class Example {
 
-  class CustomComponent extends Composite {
+  /** @type {Date} */
+  @property({type: Date})
+  checked;
 
-    @property foo: string;
+  @property({
+    typeGuard: date => date.getFullYear() > 2000,
+    type: Date
+  })
+  withTypeGuard;
 
-    @property bar: number;
+}
 
-    @property baz: number | boolean = true;
+class CustomComponent extends Composite {
 
-    @property(v => ['a', 'b', 'c'].indexOf(v as string) > -1)
-    specificStrings: string = 'a';
+  /** @type {string} */
+  @property foo;
 
-    @property(v => v instanceof Array || (!isNaN(v as number) && v >= 0))
-    mixedType: number[] | number = 0;
+  /** @type {number} */
+  @property bar;
 
-    @property(v => {if (v !== true) { throw new Error('only true allowed'); } return true;})
-    trueType: boolean = true;
+  /** @type {number | boolean} */
+  @property baz = true;
 
-    constructor(properties?: Properties<CustomComponent>) {
-      super(properties);
-    }
+  /** @type {string} */
+  @property(v => ['a', 'b', 'c'].indexOf(v) > -1)
+  specificStrings = 'a';
 
+  /** @type {number[] | number} */
+  @property(v => v instanceof Array || (!isNaN(v) && v >= 0))
+  mixedType = 0;
+
+  /** @type {boolean} */
+  @property(v => {if (v !== true) { throw new Error('only true allowed'); } return true;})
+  trueType = true;
+
+  /** @param {tabris.Properties<CustomComponent>=} properties */
+  constructor(properties) {
+    super(properties);
   }
+
+}
+
+class MyModel {
+  /** @type {boolean} */
+  @property myBool = false;
+  /** @type {tabris.ChangeListeners<MyModel, 'myBool'>} */
+  @event onOtherPropChanged;
+}
+
+class MyModel2 {
+  /** @type {boolean} */
+  @property myBool = false;
+  /** @type {tabris.ChangeListeners<MyModel2, 'myBool'>} */
+  @event onMyBoolChanged;
+}
+
+describe('property', () => {
 
   beforeEach(() => {
     tabris._init(new ClientMock());
@@ -59,11 +94,7 @@ describe('property', () => {
 
   it('fires change event on plain object', () => {
     const listener = stub();
-    class MyModel {
-      @property myBool: boolean = false;
-      @event onMyBoolChanged: ChangeListeners<MyModel, 'myBool'>;
-    }
-    const myModel = new MyModel();
+    const myModel = new MyModel2();
     myModel.onMyBoolChanged(listener);
 
     myModel.myBool = true;
@@ -76,10 +107,6 @@ describe('property', () => {
 
   it('does not fire event on plain object without matching listeners', () => {
     const listener = stub();
-    class MyModel {
-      @property myBool: boolean = false;
-      @event onOtherPropChanged: ChangeListeners<MyModel, 'myBool'>;
-    }
     const myModel = new MyModel();
     myModel.onOtherPropChanged(listener);
 
@@ -97,29 +124,9 @@ describe('property', () => {
     expect(listener).to.not.have.been.called;
   });
 
-  it('throws if type check fails on checkable type', () => {
-    const component = new CustomComponent({foo: 'foo', bar: 23}) as any;
-    expect(() => component.foo = 24).to.throw(
-      'Failed to set property "foo": Expected value "24" to be of type string, but found number'
-    );
-    expect(() => component.bar = 'foo2').to.throw(
-      'Failed to set property "bar": Expected value "foo2" to be of type number, but found string'
-    );
-    expect(component.foo).to.equal('foo');
-    expect(component.bar).to.equal(23);
-  });
-
-  it('does no type check on uncheckable type', () => {
-    const component = new CustomComponent() as any;
-
-    component.baz = 'foo';
-
-    expect(component.baz).to.equal('foo');
-  });
-
   describe('with type guard', () => {
 
-    it('throws if type standard check would succeed but type guard fails', () => {
+    it('throws if guard fails', () => {
       const component = new CustomComponent();
       expect(() => component.specificStrings = 'd').to.throw(
         'Failed to set property "specificStrings": Type guard check failed'
@@ -127,27 +134,10 @@ describe('property', () => {
       expect(component.specificStrings).to.equal('a');
     });
 
-    it('accepts value if type standard check is not possible but type guard succeeds', () => {
+    it('accepts value if type guard succeeds', () => {
       const component = new CustomComponent();
 
-      component.mixedType = [];
-      component.mixedType = 12;
-
-      expect(component.mixedType).to.equal(12);
-    });
-
-    it('throws if type standard check is not possible but type guard fails', () => {
-      const component = new CustomComponent();
-      expect(() => component.mixedType = -1).to.throw(
-        'Failed to set property "mixedType": Type guard check failed'
-      );
-      expect(component.specificStrings).to.equal('a');
-    });
-
-    it('accepts value if type standard check would fail but type guard succeeds', () => {
-      const component = new CustomComponent();
-
-      (component as any).mixedType = ['a'];
+      component.mixedType = ['a'];
 
       expect(component.mixedType).to.deep.equal(['a']);
     });
@@ -164,32 +154,16 @@ describe('property', () => {
 
   describe('with type parameter', () => {
 
-    class Example {
-
-      @property({type: Date as any})
-      explicitTypeStricter: number;
-
-      @property({type: Object})
-      implicitTypeStricter: Date;
-
-      @property({
-        typeGuard: date => date.getFullYear() > 2000,
-        type: Date
-      })
-      withTypeGuard: any;
-
-    }
-
-    let example: Example;
+    /** @type {Example} */
+    let example;
 
     beforeEach(() => {
       example = new Example();
     });
 
-    it('throws only if explicit type check fails ', () => {
-      expect(() => (example as any).implicitTypeStricter = {}).not.to.throw();
-      expect(() => (example.explicitTypeStricter as any) = {}).to.throw(
-        'Failed to set property "explicitTypeStricter": Expected value to be of type Date, but found Object'
+    it('throws if type check fails ', () => {
+      expect(() => example.checked = {}).to.throw(
+        'Failed to set property "checked": Expected value to be of type Date, but found Object'
       );
     });
 

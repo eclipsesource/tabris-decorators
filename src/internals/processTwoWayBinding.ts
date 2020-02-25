@@ -1,22 +1,24 @@
+import {getJsxInfo} from './ExtendedJSX';
 import {subscribe} from './subscribe';
 import {checkPropertyExists, getChild, isUnchecked, WidgetInterface} from './utils-databinding';
+import {injector} from '../api/Injector';
+import {TwoWayBinding} from '../decorators/bind';
 
-export type TwoWayBindings = {
+export type TwoWayBindingPaths = {
   [sourceProperty: string]: {selector: string, targetProperty: string}
 };
 
 export function processTwoWayBindings(
   base: WidgetInterface,
-  baseProperty: string,
-  bindings: TwoWayBindings
+  binding: TwoWayBinding
 ) {
-  for (const sourceProperty in bindings) {
+  for (const sourceProperty in binding.all) {
     initTwoWayBinding(
       base,
-      baseProperty,
+      binding.baseProperty,
       sourceProperty,
-      bindings[sourceProperty].selector,
-      bindings[sourceProperty].targetProperty
+      binding.all[sourceProperty].selector,
+      binding.all[sourceProperty].targetProperty
     );
   }
 }
@@ -31,8 +33,16 @@ function initTwoWayBinding(
   try {
     const target = getChild(base, selector);
     checkPropertyExists(target, targetProperty);
+    const jsxInfo = getJsxInfo(target);
+    const processor = 'processor' in jsxInfo ? jsxInfo.processor : injector.jsxProcessor;
     if (isUnchecked(target, targetProperty)) {
-      throw new Error(`Target property "${targetProperty}" needs a type guard.`);
+      if (processor.strictMode) {
+        throw new Error(`Target property "${targetProperty}" requires an explicit type check.`);
+      }
+      console.warn(
+        `Unsafe binding "${baseProperty}.${sourceProperty}" <-> "${selector}.${targetProperty}": `
+        + `Target property "${targetProperty}" has no type check.`
+      );
     }
     let suspend = false;
     const fallback = target[targetProperty];

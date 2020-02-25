@@ -2,7 +2,7 @@ import {ChangeListeners, Composite, JSXAttributes, JSXChildren, Properties, Text
 import {component} from '../decorators/component';
 import {event} from '../decorators/event';
 import {property} from '../decorators/property';
-import {getJsxTemplate, JsxTemplate} from '../internals/ExtendedJSX';
+import {getJsxInfo, JsxInfo} from '../internals/ExtendedJSX';
 import {Constructor} from '../internals/utils';
 
 const factory: unique symbol = Symbol('factory');
@@ -25,8 +25,8 @@ export class Cell<ItemType = unknown> extends Composite {
     }
     if (!original[factory]) {
       let consumedOriginal = false;
-      const template = getJsxTemplate(original);
-      if (!('jsx' in template)) {
+      const jsxInfo = getJsxInfo(original);
+      if (!('processor' in jsxInfo)) {
         throw new Error('Can not clone a non-JSX object');
       }
       original[factory] = () => {
@@ -34,7 +34,7 @@ export class Cell<ItemType = unknown> extends Composite {
           consumedOriginal = true;
           return original;
         }
-        return createFromTemplate(template);
+        return createFromTemplate(jsxInfo);
       };
     }
     return original[factory];
@@ -82,9 +82,9 @@ export class TextCell extends Cell<any> {
 
 }
 
-function createFromTemplate(template: JsxTemplate): any {
-  if ('jsx' in template) {
-    const {jsx, componentType, sfc, attributes, children} = template;
+function createFromTemplate(template: JsxInfo): any {
+  if ('processor' in template) {
+    const {processor: jsx, componentType, sfc, attributes, children} = template;
     const finalAttributes = Object.assign({}, attributes) as any;
     if (children) {
       finalAttributes.children = children.map(createFromTemplate);

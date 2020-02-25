@@ -4,6 +4,7 @@ import {BaseConstructor, isPrimitiveType} from '../internals/utils';
  * Performs type checks on the given value. If the check fails the function throws an error message stating the reason.
  *
  * The following rules apply:
+ * * Object constructor passes any value
  * * Object values may be an instance of the given class or any class extending it.
  * * Primitive types are represented by their boxed type, e.g. a number is `Number`.
  * * Null and undefined pass unless 'strict' is true
@@ -17,6 +18,9 @@ export function checkType(value: any, type: BaseConstructor<any>, strict?: boole
     throw new Error('Boxed values are forbidden');
   }
   if (!strict && (value === null || value === undefined)) {
+    return;
+  }
+  if (type === Object) {
     return;
   }
   if (value instanceof type || isPrimitiveOfType(value, type)) {

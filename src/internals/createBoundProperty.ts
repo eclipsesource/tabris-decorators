@@ -1,102 +1,94 @@
 import {PropertyChangedEvent} from 'tabris';
+import {getJsxInfo} from './ExtendedJSX';
 import {BaseConstructor, getPropertyType} from './utils';
-import {checkIsComponent, checkPropertyExists, getChild, getPropertyStore, isAppended, isUnchecked, parseTargetPath, postAppendHandlers, WidgetInterface} from './utils-databinding';
+import {checkIsComponent, checkPropertyExists, getChild, getPropertyStore, isAppended, isUnchecked, markAsUnchecked, parseTargetPath, postAppendHandlers, WidgetInterface} from './utils-databinding';
 import {checkType} from '../api/checkType';
-import {TypeGuard} from '../index';
+import {injector} from '../api/Injector';
+import {TwoWayBinding} from '../decorators/bind';
 
-export function createBoundProperty(
-  baseProto: WidgetInterface,
-  baseProperty: string,
-  targetPath: string,
-  typeGuard: TypeGuard
-) {
-  const basePropertyType = getPropertyType(baseProto, baseProperty);
-  if (!typeGuard && basePropertyType === Object) {
-    throw new Error(`Can not bind to property "${baseProperty}" without type guard.`);
+interface BoundProperty {
+  path: string;
+  baseProperty: string;
+  selector: string;
+  targetProperty: string;
+  targetKey: symbol;
+  fallbackValueKey: symbol;
+  targetChangeEvent: string;
+  baseChangeEvent: string;
+  basePropertyValueCheck: (value: any) => void;
+}
+
+export function createBoundProperty(config: TwoWayBinding) {
+  const basePropertyType = getPropertyType(config.baseProto, config.baseProperty);
+  const checkValue = createValueChecker(config.userType || basePropertyType, config.typeGuard);
+  const binding = createBoundPropertyDesc(config.path, config.baseProperty, checkValue);
+  const unchecked = basePropertyType === Object && !config.typeGuard && !config.userType;
+  if (unchecked) {
+    markAsUnchecked(config.baseProto, config.baseProperty);
   }
-  const typeChecker = createTypeChecker(basePropertyType, typeGuard);
-  const binding = createBoundPropertyDesc(targetPath, baseProperty, typeChecker);
-  Object.defineProperty(baseProto, baseProperty, {
+  Object.defineProperty(config.baseProto, config.baseProperty, {
     get(this: WidgetInterface) {
       try {
         checkIsComponent(this);
         let value: any;
         if (!isAppended(this)) {
-          value = getPropertyStore(this).get(baseProperty);
+          value = getPropertyStore(this).get(config.baseProperty);
         } else {
           value = getPropertyStore(this).get(binding.targetKey)[binding.targetProperty];
         }
-        typeChecker(value);
+        checkValue(value);
         return value;
       } catch (ex) {
         throw new Error(
-          getBindingFailedErrorMessage(binding, `provide ${baseProto.constructor.name} property "${baseProperty}"`, ex)
+          failedMsg(
+            binding,
+            `provide ${config.baseProto.constructor.name} property "${config.baseProperty}"`,
+            ex.message
+          )
         );
       }
     },
     set(this: WidgetInterface, value: any) {
       try {
         checkIsComponent(this);
-        typeChecker(value);
+        checkValue(value);
         if (!isAppended(this)) {
-          getPropertyStore(this).set(baseProperty, value);
+          getPropertyStore(this).set(config.baseProperty, value);
           this.trigger(binding.baseChangeEvent, {value});
           return;
         }
         applyValue(this, binding, value);
       } catch (ex) {
-        throw new Error(getBindingFailedErrorMessage(binding, 'update target value', ex));
+        throw new Error(failedMsg(binding, 'update target value', ex.message));
       }
     }, enumerable: true, configurable: true
   });
-  postAppendHandlers(baseProto).push(base => initBoundProperty(base, binding));
+  postAppendHandlers(config.baseProto).push(base => initBoundProperty(base, binding));
   setTimeout(() => {
     try {
-      checkIsComponent(baseProto);
+      checkIsComponent(config.baseProto);
     } catch (ex) {
-      console.error(getBindingFailedErrorMessage(binding, 'initialize', ex));
+      console.error(failedMsg(binding, 'initialize', ex.message));
     }
   });
-}
-
-function createBoundPropertyDesc(
-  path: string,
-  baseProperty: string,
-  basePropertyChecker: (value: any) => void
-): BoundProperty {
-  const {selector, targetProperty} = parseTargetPath(path);
-  return {
-    path,
-    selector,
-    targetProperty,
-    baseProperty,
-    basePropertyChecker,
-    targetKey: Symbol(baseProperty + 'Target'),
-    fallbackValueKey: Symbol(baseProperty + 'FallbackValue'),
-    targetChangeEvent: targetProperty + 'Changed',
-    baseChangeEvent: baseProperty + 'Changed'
-  };
 }
 
 function initBoundProperty(base: WidgetInterface, binding: BoundProperty) {
   try {
     const child = getChild(base, binding.selector);
+    checkBindingSafety(child, binding, base);
     const propertyStore = getPropertyStore(base);
-    checkPropertyExists(child, binding.targetProperty);
-    if (isUnchecked(child, binding.targetProperty)) {
-      throw new Error(`Can not bind to property "${binding.targetProperty}" without type guard.`);
-    }
     propertyStore.set(binding.targetKey, child);
     const initialValue = child[binding.targetProperty];
-    binding.basePropertyChecker(initialValue);
+    binding.basePropertyValueCheck(initialValue);
     propertyStore.set(binding.fallbackValueKey, initialValue);
     child.on({[binding.targetChangeEvent]: ({value}: PropertyChangedEvent<any, any>) => {
       try {
-        binding.basePropertyChecker(value);
+        binding.basePropertyValueCheck(value);
         base.trigger(binding.baseChangeEvent, {value});
       } catch (ex) {
         const action = `update ${child.constructor.name} property "${binding.targetProperty}"`;
-        throw new Error(getBindingFailedErrorMessage(binding, action, ex)
+        throw new Error(failedMsg(binding, action, ex.message)
         );
       }
     }});
@@ -110,8 +102,31 @@ function initBoundProperty(base: WidgetInterface, binding: BoundProperty) {
       );
     }
   } catch (ex) {
-    throw new Error(getBindingFailedErrorMessage(binding, 'initialize', ex));
+    throw new Error(failedMsg(binding, 'initialize', ex.message));
   }
+}
+
+function checkBindingSafety(child: WidgetInterface, binding: BoundProperty, base: WidgetInterface) {
+  checkPropertyExists(base, binding.baseProperty);
+  if (isUnchecked(base, binding.baseProperty)) {
+    if (inStrictMode(base)) {
+      throw new Error('Left hand property requires explicit type check.');
+    }
+    console.warn(unsafeMsg(binding, base, 'Left hand property has no type check.'));
+  }
+  checkPropertyExists(child, binding.targetProperty);
+  if (isUnchecked(child, binding.targetProperty)) {
+    if (inStrictMode(child)) {
+      throw new Error('Right hand property requires explicit type check.');
+    }
+    console.warn(unsafeMsg(binding, base, 'Right hand property has no type check.'));
+  }
+}
+
+function inStrictMode(child: WidgetInterface) {
+  const jsxInfo = getJsxInfo(child);
+  const processor = 'processor' in jsxInfo ? jsxInfo.processor : injector.jsxProcessor;
+  return processor.strictMode;
 }
 
 function applyValue(base: WidgetInterface, binding: BoundProperty, value: any) {
@@ -120,11 +135,34 @@ function applyValue(base: WidgetInterface, binding: BoundProperty, value: any) {
   propertyStore.get(binding.targetKey)[binding.targetProperty] = finalValue;
 }
 
-function getBindingFailedErrorMessage(binding: BoundProperty, action: string, ex: Error) {
-  return `Binding "${binding.baseProperty}" <-> "${binding.path}" failed to ${action}: ${ex.message}`;
+function unsafeMsg(binding: BoundProperty, base: WidgetInterface, msg: string) {
+  return `Unsafe two-way binding "${base}.${binding.baseProperty}" <-> "${binding.path}": ${msg}`;
 }
 
-function createTypeChecker(type: BaseConstructor<any>, typeGuard: (v: any) => boolean) {
+function failedMsg(binding: BoundProperty, action: string, msg: string) {
+  return `Binding "${binding.baseProperty}" <-> "${binding.path}" failed to ${action}: ${msg}`;
+}
+
+function createBoundPropertyDesc(
+  path: string,
+  baseProperty: string,
+  basePropertyValueCheck: (value: any) => void
+): BoundProperty {
+  const {selector, targetProperty} = parseTargetPath(path);
+  return {
+    path,
+    selector,
+    targetProperty,
+    baseProperty,
+    basePropertyValueCheck,
+    targetKey: Symbol(baseProperty + 'Target'),
+    fallbackValueKey: Symbol(baseProperty + 'FallbackValue'),
+    targetChangeEvent: targetProperty + 'Changed',
+    baseChangeEvent: baseProperty + 'Changed'
+  };
+}
+
+function createValueChecker(type: BaseConstructor<any>, typeGuard: (v: any) => boolean) {
   if (typeGuard) {
     return (value: any) => {
       if (!typeGuard(value)) {
@@ -135,16 +173,4 @@ function createTypeChecker(type: BaseConstructor<any>, typeGuard: (v: any) => bo
   return (value: any) => {
     checkType(value, type);
   };
-}
-
-interface BoundProperty {
-  path: string;
-  baseProperty: string;
-  selector: string;
-  targetProperty: string;
-  targetKey: symbol;
-  fallbackValueKey: symbol;
-  targetChangeEvent: string;
-  baseChangeEvent: string;
-  basePropertyChecker: (value: any) => void;
 }

@@ -1,47 +1,70 @@
 import 'mocha';
 import 'sinon';
 import {useFakeTimers} from 'sinon';
-import {Composite, tabris, TextInput} from 'tabris';
+import {Composite, tabris, TextInput, LayoutData} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy, stub} from './test';
-import {bind, component, property} from '../src';
+import {bind, component, property, injector} from '../src';
+
+@component class CustomComponent extends Composite {
+
+  /** @type {string} */
+  @bind({path: '#textInput1.text', type: String})
+  myText;
+
+  @bind({
+    path: '#textInput1.layoutData',
+    typeGuard: value => value.width !== 23
+  })
+  myObject;
+
+}
+
+@component class ComponentWithInitialValue extends Composite {
+
+  /** @type {string} */
+  @bind({path: '#foo.text', type: String})
+  foo = 'foo';
+}
+
+@component class ComponentWithTypeGuard extends Composite {
+  /** @type {string | number} */
+  @bind({
+    path: '#foo.bar',
+    typeGuard: v => (typeof v === 'string') || v === undefined
+  })
+  value;
+}
+
+class MyItem {
+  /** @type {string} */
+  @property foo;
+}
 
 describe('component', () => {
 
   beforeEach(() => {
+    injector.jsxProcessor.strictMode = true;
     tabris._init(new ClientMock());
   });
 
   afterEach(() => {
+    injector.jsxProcessor.strictMode = true;
     restoreSandbox();
   });
 
-  @component class CustomComponent extends Composite {
+  describe('@bind({path, type})', () => {
 
-    @bind('#textInput1.text')
-    myText: string;
+    /** @type {CustomComponent} */
+    let widget;
 
-    @bind({
-      path: '#textInput1.layoutData',
-      typeGuard: value => value.width !== 23
-    })
-    myObject: object;
+    /** @type {TextInput} */
+    let textInput1;
 
-  }
-
-  @component class ComponentWithInitialValue extends Composite {
-    @bind('#foo.text') foo: string = 'foo';
-  }
-
-  let widget: CustomComponent;
-  let textInput1: TextInput;
-
-  beforeEach(() => {
-    widget = new CustomComponent();
-    textInput1 = new TextInput({id: 'textInput1', text: 'foo'});
-  });
-
-  describe('@bind(path)', () => {
+    beforeEach(() => {
+      widget = new CustomComponent();
+      textInput1 = new TextInput({id: 'textInput1', text: 'foo'});
+    });
 
     it('returns the target property value', () => {
       widget.append(textInput1);
@@ -91,7 +114,12 @@ describe('component', () => {
       it('prints an error', () => {
         spy(console, 'error');
         class FailedComponent extends Composite {
-          @bind('#textInput1.text') myText: string;
+          /** @type {string} */
+          @bind({
+            path: '#textInput1.text',
+            typeGuard: str => typeof str === 'string'
+          })
+          myText;
         }
         clock.tick(now + 100);
         expect(console.error).to.have.been.calledWith(
@@ -102,8 +130,12 @@ describe('component', () => {
       it('throws on access', () => {
         class FailedComponent extends Composite {
 
-          @bind('#textInput1.text')
-          myText: string;
+          /** @type {string} */
+          @bind({
+            path: '#textInput1.text',
+            typeGuard: str => !str || typeof str === 'string'
+          })
+          myText;
 
           constructor() {
             super({});
@@ -120,7 +152,8 @@ describe('component', () => {
     });
 
     it('fails to decorate with invalid binding path', () => {
-      const badPaths: {[path: string]: string} = {
+      /** @type {Object.<string, string>} */
+      const badPaths = {
         'foo.bar': 'Binding path needs to start with "#".',
         '#foo.bar.baz': 'Binding path has too many segments.',
         '#foo': 'Binding path needs at least two segments.',
@@ -131,7 +164,11 @@ describe('component', () => {
       for (const path in badPaths) {
         expect(() => {
           @component class FailedComponent extends Composite {
-            @bind(path) readonly value: string;
+            /** @type {string} */
+            @bind({
+              path,
+              type: String
+            }) value;
           }
         }).to.throw('Could not apply decorator "bind" to "value": ' + badPaths[path]);
       }
@@ -158,7 +195,8 @@ describe('component', () => {
 
     it('throws if a binding target can not be resolved after first append', () => {
       expect(() => widget.append(new TextInput({id: 'textInput2'}))).to.throw(
-        'Binding "myText" <-> "#textInput1.text" failed to initialize: No widget matching "#textInput1" was appended.'
+        'Binding "myText" <-> "#textInput1.text" failed to initialize: '
+        + 'No widget matching "#textInput1" was appended.'
       );
     });
 
@@ -189,10 +227,8 @@ describe('component', () => {
       );
     });
 
-    it('throws if binding to advanced type without type guard', () => {
-      class TargetComponent extends Composite {
-        @property text: string | number;
-      }
+    it('throws if binding to unknown type without type guard', () => {
+      class TargetComponent extends Composite { @property text; }
       const target = new TargetComponent({id: 'textInput1'});
       expect(() => widget.append(target)).to.throw(
         'Binding "myText" <-> "#textInput1.text" failed to initialize: '
@@ -200,10 +236,43 @@ describe('component', () => {
       );
     });
 
+    it('warns in non-strict mode if binding to unknown type (emitDecoratorMetadata: true)', () => {
+      injector.jsxProcessor.strictMode = false;
+      class TargetComponent extends Composite { @property text; }
+      spy(console, 'warn');
+      const target = new TargetComponent({id: 'textInput1'});
+
+      widget.append(target);
+
+      expect(console.warn).to.have.been.calledOnce;
+      expect(console.warn).to.have.been.calledWithMatch(
+        // eslint-disable-next-line max-len
+        /Unsafe two-way binding "CustomComponent.*\.myText" <-> "#textInput1\.text". Right hand property has no type check\./
+      );
+    });
+
+    it('warns in non-strict mode if binding to to unknown (emitDecoratorMetadata: false)', () => {
+      injector.jsxProcessor.strictMode = false;
+      class TargetComponent extends Composite {}
+      property(TargetComponent.prototype, 'text');
+      spy(console, 'warn');
+
+      const target = new TargetComponent({id: 'textInput1'});
+
+      widget.append(target);
+
+      expect(console.warn).to.have.been.calledOnce;
+      expect(console.warn).to.have.been.calledWithMatch(
+        // eslint-disable-next-line max-len
+        /Unsafe two-way binding "CustomComponent.*\.myText" <-> "#textInput1\.text". Right hand property has no type check\./
+      );
+    });
+
     it('allows binding to advanced type with type guard', () => {
       class TargetComponent extends Composite {
+        /** @type {string | number} */
         @property(v => typeof v === 'string' || typeof v === 'number')
-        text: string | number;
+        text;
       }
       const target = new TargetComponent({id: 'textInput1'});
 
@@ -292,7 +361,8 @@ describe('component', () => {
 
     it('throws if target value changes to wrong type', () => {
       @component class CustomChild extends Composite {
-        @property(v => true) text: string | number;
+        /** @type {string | number} */
+        @property(v => true) text;
       }
       const child = new CustomChild({id: 'textInput1'});
       child.text = 'foo';
@@ -306,11 +376,13 @@ describe('component', () => {
 
     it('throws if target value has changed to wrong type', () => {
       class CustomChild extends Composite {
-        private _text: string | number;
-        get text(): string | number {
+        /** @type {string | number} */
+        _text;
+        /** @type {string | number} */
+        get text() {
           return this._text;
         }
-        set text(value: string | number) {
+        set text(value) {
           this._text = value;
         }
       }
@@ -329,9 +401,9 @@ describe('component', () => {
     it('throws if own value changes to wrong type', () => {
       widget.append(textInput1);
 
-      expect(() => (widget as any).myText = 23).to.throw(
+      expect(() => widget.myText = 23).to.throw(
         'Binding "myText" <-> "#textInput1.text" failed to update target value: '
-       + 'Expected value "23" to be of type string, but found number.'
+      + 'Expected value "23" to be of type string, but found number.'
       );
     });
 
@@ -349,20 +421,71 @@ describe('component', () => {
 
   });
 
+  describe('@bind(\'path\')', () => {
+
+    /** @type {TextInput} */
+    let textInput;
+
+    beforeEach(() => {
+      textInput = new TextInput({id: 'textInput1', text: 'foo'});
+    });
+
+    it('throws in strict mode (emitDecoratorMetadata: true)', () => {
+      @component class FailedComponent extends Composite {
+        @bind('#textInput1.text') myText;
+      }
+
+      expect(() => new FailedComponent().append(textInput)).to.throw();
+    });
+
+    it('throws in strict mode (emitDecoratorMetadata: false)', () => {
+      @component class FailedComponent extends Composite { myText; }
+      bind('#textInput1.text')(FailedComponent.prototype, 'myText');
+
+      expect(() => new FailedComponent().append(textInput)).to.throw();
+    });
+
+    it('warns in non-strict mode (emitDecoratorMetadata: true)', () => {
+      @component class FailedComponent extends Composite {
+        @bind('#textInput1.text') myText;
+      }
+      injector.jsxProcessor.strictMode = false;
+      const widget = new FailedComponent();
+      spy(console, 'warn');
+
+      widget.append(textInput);
+
+      expect(console.warn).to.have.been.calledWithMatch(
+        // eslint-disable-next-line max-len
+        /Unsafe two-way binding "FailedComponent.*\.myText" <-> "#textInput1\.text". Left hand property has no type check\./
+      );
+      expect(widget.myText).to.equal('foo');
+    });
+
+    it('warns in non-strict mode (emitDecoratorMetadata: false)', () => {
+      @component class FailedComponent extends Composite { myText; }
+      bind('#textInput1.text')(FailedComponent.prototype, 'myText');
+      injector.jsxProcessor.strictMode = false;
+      const widget = new FailedComponent();
+      spy(console, 'warn');
+
+      widget.append(textInput);
+
+      expect(console.warn).to.have.been.calledWithMatch(
+        // eslint-disable-next-line max-len
+        /Unsafe two-way binding "FailedComponent.*\.myText" <-> "#textInput1\.text". Left hand property has no type check\./
+      );
+      expect(widget.myText).to.equal('foo');
+    });
+
+  });
+
   describe('@bind({path, typeGuard})', () => {
 
-    @component class ComponentWithTypeGuard extends Composite {
-      @bind({
-        path: '#foo.bar',
-        typeGuard: v => (typeof v === 'string') || v === undefined
-      })
-      value: string | number;
-    }
-
     it('throws if target value has changed w/o event to value rejected by type guard', () => {
-      let value: number;
+      let value;
       class CustomChild extends Composite {
-        set bar(v: number) { value = v; }
+        set bar(v) { value = v; }
         get bar() { return value; }
       }
       const guarded = new ComponentWithTypeGuard();
@@ -378,9 +501,11 @@ describe('component', () => {
     });
 
     it('throws if target value changes to value rejected by type guard', () => {
-      let value: number;
+      /** @type {number} */
+      let value;
       class CustomChild extends Composite {
-        @property bar: number;
+        /** @type {number} */
+        @property({type: Number}) bar;
       }
       const guarded = new ComponentWithTypeGuard();
       const child = new CustomChild({id: 'foo'});
@@ -393,9 +518,11 @@ describe('component', () => {
     });
 
     it('throws if initial target value is rejected by type guard', () => {
-      let value: number;
+      /** @type {number} */
+      let value;
       class CustomChild extends Composite {
-        @property bar: number;
+        /** @type {number} */
+        @property(() => true) bar;
       }
       const guarded = new ComponentWithTypeGuard();
       const child = new CustomChild({id: 'foo'});
@@ -416,12 +543,12 @@ describe('component', () => {
     });
 
     it('throws if "all" key is also present"', () => {
-      class MyItem { @property foo: string; }
       expect(() => {
         @component
         class WrongComponent extends Composite {
-          @bind({path: 'foo', all: {foo: '#bar.baz'}} as any)
-          @property myItem: MyItem;
+          @bind({path: 'foo', all: {foo: '#bar.baz'}})
+          /** @type {MyItem} */
+          @property myItem;
         }
       }).to.throw(Error, '@bind can not have "path" and "all" option simultaneously');
     });
