@@ -11,7 +11,7 @@ contentView.append(
   </Stack>
 );
 
-/** @param {import('tabris').CheckBoxSelectEvent} ev */
+/** @param {tabris.CheckBoxSelectEvent} ev */
 function toggleValues({checked}) {
   $(ExampleComponent).set({
     myText: checked ? 'World' : 'darkness my old friend',
