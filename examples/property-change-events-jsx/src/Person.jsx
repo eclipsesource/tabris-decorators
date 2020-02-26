@@ -8,10 +8,10 @@ export class Person {
   /** @type {number} */
   @property age = 50;
 
-  /** @type {import('tabris').ChangeListeners<Person, 'age'>} */
+  /** @type {tabris.ChangeListeners<Person, 'age'>} */
   @event onAgeChanged;
 
-  /** @type {import('tabris').ChangeListeners<Person, 'name'>} */
+  /** @type {tabris.ChangeListeners<Person, 'name'>} */
   @event onNameChanged;
 
 }
