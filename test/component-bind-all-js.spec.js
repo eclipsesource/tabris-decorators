@@ -72,14 +72,14 @@ describe('component', () => {
   let textInput;
 
   beforeEach(() => {
-    injector.jsxProcessor.strictMode = true;
+    injector.jsxProcessor.unsafeBindings = 'error';
     tabris._init(new ClientMock());
     item = new Item();
   });
 
   afterEach(() => {
     restoreSandbox();
-    injector.jsxProcessor.strictMode = true;
+    injector.jsxProcessor.unsafeBindings = 'error';
   });
 
   describe('@bind({type, all})', () => {
@@ -407,7 +407,7 @@ describe('component', () => {
     });
 
     it('accepts item in non-strict mode when source property is unchecked', () => {
-      injector.jsxProcessor.strictMode = false;
+      injector.jsxProcessor.unsafeBindings = 'warn';
       class ItemB { @property text = 'Hello'; }
       @component class CustomComponentB extends Composite {
         @bind({all: {text: '#foo.text'}}) item;
@@ -702,7 +702,7 @@ describe('component', () => {
     });
 
     it('succeeds with warning on append in non-strict mode if target widget property is marked unchecked', () => {
-      injector.jsxProcessor.strictMode = false;
+      injector.jsxProcessor.unsafeBindings = 'warn';
       spy(console, 'warn');
       widget.append(new UncheckedTargetComponent({id: 'foo'}));
       expect(console.warn).to.have.been.calledWith(
@@ -774,7 +774,7 @@ describe('component', () => {
     });
 
     it('warns in non-strict mode when source property is marked unchecked (emitDecoratorMetadata: false)', () => {
-      injector.jsxProcessor.strictMode = false;
+      injector.jsxProcessor.unsafeBindings = 'warn';
       spy(console, 'warn');
       class ItemB { }
       property(ItemB.prototype, 'text');

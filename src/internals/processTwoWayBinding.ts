@@ -36,7 +36,7 @@ function initTwoWayBinding(
     const jsxInfo = getJsxInfo(target);
     const processor = 'processor' in jsxInfo ? jsxInfo.processor : injector.jsxProcessor;
     if (isUnchecked(target, targetProperty)) {
-      if (processor.strictMode) {
+      if (processor.unsafeBindings === 'error') {
         throw new Error(`Target property "${targetProperty}" requires an explicit type check.`);
       }
       console.warn(

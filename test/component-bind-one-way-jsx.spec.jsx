@@ -72,12 +72,12 @@ describe('component', () => {
 
   beforeEach(() => {
     tabris._init(new ClientMock());
-    injector.jsxProcessor.strictMode = false;
+    injector.jsxProcessor.unsafeBindings = 'warn';
   });
 
   afterEach(() => {
     restoreSandbox();
-    injector.jsxProcessor.strictMode = true;
+    injector.jsxProcessor.unsafeBindings = 'error';
   });
 
   /** @type {CustomComponent} */

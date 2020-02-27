@@ -44,12 +44,12 @@ class MyItem {
 describe('component', () => {
 
   beforeEach(() => {
-    injector.jsxProcessor.strictMode = true;
+    injector.jsxProcessor.unsafeBindings = 'error';
     tabris._init(new ClientMock());
   });
 
   afterEach(() => {
-    injector.jsxProcessor.strictMode = true;
+    injector.jsxProcessor.unsafeBindings = 'error';
     restoreSandbox();
   });
 
@@ -237,7 +237,7 @@ describe('component', () => {
     });
 
     it('warns in non-strict mode if binding to unknown type (emitDecoratorMetadata: true)', () => {
-      injector.jsxProcessor.strictMode = false;
+      injector.jsxProcessor.unsafeBindings = 'warn';
       class TargetComponent extends Composite { @property text; }
       spy(console, 'warn');
       const target = new TargetComponent({id: 'textInput1'});
@@ -252,7 +252,7 @@ describe('component', () => {
     });
 
     it('warns in non-strict mode if binding to to unknown (emitDecoratorMetadata: false)', () => {
-      injector.jsxProcessor.strictMode = false;
+      injector.jsxProcessor.unsafeBindings = 'warn';
       class TargetComponent extends Composite {}
       property(TargetComponent.prototype, 'text');
       spy(console, 'warn');
@@ -449,7 +449,7 @@ describe('component', () => {
       @component class FailedComponent extends Composite {
         @bind('#textInput1.text') myText;
       }
-      injector.jsxProcessor.strictMode = false;
+      injector.jsxProcessor.unsafeBindings = 'warn';
       const widget = new FailedComponent();
       spy(console, 'warn');
 
@@ -465,7 +465,7 @@ describe('component', () => {
     it('warns in non-strict mode (emitDecoratorMetadata: false)', () => {
       @component class FailedComponent extends Composite { myText; }
       bind('#textInput1.text')(FailedComponent.prototype, 'myText');
-      injector.jsxProcessor.strictMode = false;
+      injector.jsxProcessor.unsafeBindings = 'warn';
       const widget = new FailedComponent();
       spy(console, 'warn');
 

@@ -14,6 +14,6 @@ const restoreSandbox: () => void = sandbox.restore.bind(sandbox) as () => void;
 
 tabris._init(new ClientMock());
 
-require('../src').injector.jsxProcessor.strictMode = true;
+require('../src').injector.jsxProcessor.unsafeBindings = 'error';
 
 export {expect, spy, stub, mock, restoreSandbox};

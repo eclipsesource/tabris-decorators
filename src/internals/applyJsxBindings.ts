@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import {Widget, WidgetResizeEvent} from 'tabris';
+import {Severity} from './ExtendedJSX';
 import {checkPathSyntax, checkPropertyExists, isUnchecked, WidgetInterface} from './utils-databinding';
 import {Binding} from '../api/to';
 
@@ -7,7 +8,7 @@ const placeholder = /\$\{[^}]+\}/g;
 
 export interface JsxBindings { [targetProperty: string]: string; }
 
-export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings, strictMode: boolean) {
+export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings, safety: Severity) {
   const oneWayBindings: OneWayBinding[] = [];
   for (const attribute in bindings) {
     try {
@@ -16,7 +17,7 @@ export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings, 
           targetInstance as WidgetInterface,
           attribute,
           asBinding(bindings[attribute]),
-          strictMode
+          safety
         )
       );
     } catch (ex) {
@@ -50,7 +51,7 @@ function createOneWayBindingDesc(
   target: WidgetInterface,
   attribute: string,
   binding: Binding,
-  strictMode: boolean
+  unsafe: Severity
 ): OneWayBinding {
   const type = getBindingType(attribute);
   const targetProperty = getTargetProperty(attribute);
@@ -63,7 +64,7 @@ function createOneWayBindingDesc(
   const path = pathString.split('.');
   checkPropertyExists(target, targetProperty);
   if (isUnchecked(target, targetProperty)) {
-    if (strictMode) {
+    if (unsafe === 'error') {
       throw new Error(`Can not bind to property "${targetProperty}" without explicit type check.`);
     }
     console.warn(
