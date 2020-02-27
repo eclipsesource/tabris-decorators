@@ -146,7 +146,7 @@ function createTypeGuard(binding: TwoWayBinding) {
       for (const sourceProperty of sourceProperties) {
         checkPropertyExists(value, sourceProperty, 'Object');
         if (isUnchecked(value, sourceProperty)) {
-          const strictMode = Injector.get(value, injector).jsxProcessor.strictMode;
+          const strictMode = Injector.get(value, injector).jsxProcessor.unsafeBindings === 'error';
           if (strictMode) {
             throw new Error(`Object property "${sourceProperty}" requires an explicit type check.`);
           }

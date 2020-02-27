@@ -22,9 +22,11 @@ export function getJsxInfo(source: any): JsxInfo {
   return {source};
 }
 
+export type Severity = 'warn' | 'error';
+
 export class ExtendedJSX extends JsxProcessor {
 
-  strictMode: boolean = false;
+  unsafeBindings: Severity = 'warn';
 
   constructor(private readonly injector: Injector) {
     super();
@@ -67,7 +69,7 @@ export class ExtendedJSX extends JsxProcessor {
       miscAttributes || {}
     );
     if (bindings && result instanceof Widget) {
-      applyJsxBindings(result, bindings, this.strictMode);
+      applyJsxBindings(result, bindings, this.unsafeBindings);
     }
     return result;
   }

@@ -126,7 +126,7 @@ function checkBindingSafety(child: WidgetInterface, binding: BoundProperty, base
 function inStrictMode(child: WidgetInterface) {
   const jsxInfo = getJsxInfo(child);
   const processor = 'processor' in jsxInfo ? jsxInfo.processor : injector.jsxProcessor;
-  return processor.strictMode;
+  return processor.unsafeBindings === 'error';
 }
 
 function applyValue(base: WidgetInterface, binding: BoundProperty, value: any) {
