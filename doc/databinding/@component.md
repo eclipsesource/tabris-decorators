@@ -4,41 +4,11 @@
 
 > :point_right: Make sure to first read the [introduction to data binding](./index.md).
 
-Makes the decorated widget class a "custom component" with the following features:
-
-## Encapsulation
-
-A widget class decorated with `@component` will not allow its own children to be selected by API or by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using [@getById](./@getById.md) on a private/protected property.
-
-```tsx
-@component
-class CustomComponent extends Composite {
-
-  constructor(properties?: Properties<Composite>) {
-    super();
-    this.set(properties).append(
-      <TextInput id='foo' text='bar'/>
-    );
-  }
-
-  getFoo() {
-    return this._find('#foo').only(TextInput).text;
-  }
-
-}
-
-const myComponent = new CustomComponent();
-
-// Prints 'bar':
-console.log(myComponent.getFoo());
-
-// Throws since no matching widget can be found:
-console.log(myComponent.find('#foo').only(TextInput).text);
-```
+A decorator for classes extending `Composite` (directly or indirectly), otherwise known as a "custom component". It provides the following features:
 
 ## One way bindings
 
-> See example app ["bind-one-way"](../../examples/bind-one-way).
+> See example apps ["bind-one-way"](../../examples/bind-one-way) (TypeScript) and ["bind-one-way-jsx"](../../examples/bind-one-way-jsx).
 
 For one-way bindings, `@component` enables JSX attributes of the following format:
 
@@ -51,7 +21,7 @@ Where `<Binding>` can be
  * an object of the type `{path: string, converter?: Function}`
  * or a call `to(path: string, converter: Function)` ("`to`" must be imported from `'tabris-decorators'`)
 
-This applies the value of the *source property* to the *target element property*. All future changes to the source property are reflected on the target property. The target element has to be a child (or indirect descendant) widget. All target elements are determined when `append` is called the first time. Appending or detaching widgets after that has no effect.
+This applies the value of the *source property* to the *target element property*. All future changes to the source property are reflected on the target property. The target element has to be a child (direct or indirect) of the component. All target elements are determined when `append` is called the first time. Appending or detaching widgets after that has no effect.
 
 Example:
 
@@ -71,7 +41,7 @@ class CustomComponent extends Composite {
 }
 ```
 
-This applies changes of the *component property* `myText` - the *source property* of this binding - to the *target property* `text` of the *target element* `TextView`. **The component property has to fire [change events](../widget-basics.md#widget-properties) for this to work.** That can be achieved by either adding a [`@property`](./@property.md) decorator to any field (as in the above example), or by explicitly implementing a setter like in this full example:
+This applies changes of the *component property* `myText` - the *source property* of this binding - to the *target property* `text` of the *target element* `TextView`. **The component property has to fire [change events](../widget-basics.md#widget-properties) for this to work.** That can be achieved by either adding a [`@property`](./@property.md) decorator to the component property (recommended, see above example), or by explicitly implementing a setter and getter like in this full example:
 
 ```tsx
 import { Composite, ChangeListeners, Properties, TextView } from 'tabris';
@@ -104,7 +74,7 @@ export class CustomComponent extends Composite {
 
 ### Binding to nested properties
 
-> See example app ["bind-one-way"](../../examples/bind-one-way).
+> See example apps ["bind-one-way"](../../examples/bind-one-way) (TypeScript) and ["bind-one-way-jsx"](../../examples/bind-one-way-jsx) (JavaScript/JSX).
 
 The *source property* of a binding can also be a property of a *component property* value if its an object:
 
@@ -162,7 +132,7 @@ component.item = item1; // OK even without @property
 
 ### Conversion
 
-> See example app ["bind-and-convert"](../../examples/bind-and-convert).
+> See example apps ["bind-and-convert"](../../examples/bind-and-convert) (TypeScript) and ["bind-and-convert-jsx"](../../examples/bind-and-convert-jsx) (JavaScript/JSX).
 
 The value of the *source property* can be manipulated or converted in a binding using a converter function.
 
@@ -225,7 +195,7 @@ Example:
     constructor(properties: CompositeProperties) {
       super(properties);
       this.append(
-        <textView template-text='Hello ${name}!' text='No one here?'/>
+        <TextView template-text='Hello ${name}!' text='No one here?'/>
       );
     }
 
@@ -234,20 +204,66 @@ Example:
 
 This results in `'Hello Peter!'` initially, and falls back to `'No one here?'` if `name` is set to `undefined`.
 
-### Notes on type safety
-
-> See example app ["tri-state-button"](../../examples/tri-state-button).
-
-The data binding enabled by `@component` can not rely on the TypeScript compiler to ensure type safety. Therefore runtime type value checks need to be performed.
-
-For all properties of built-in Tabris.js widgets this is already the case. Also, if a property is decorated with [`@property`](./@property.md) or [`@bind`](./@bind.md), type checks are added implicitly. However, if the property type is an [advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html) or an interface, this is not possible and the binding will fail as a precaution. In this case you need to set the [typeGuard](./@property.md) parameter of `@property`/`@bind` to perform the check explicitly.
-
-If the properties involved are not decorated by `@property` or `@bind` they are expected to perform the type check in the setter.
-
 ## Two way bindings
 
-See [@bind](./@bind.md).
+See [@bind](./@bind.md) and [@bindAll](./@bindAll.md)
 
 ## Direct Child Access
 
 See [@getById](./@getById.md).
+
+
+## Encapsulation
+
+A widget class decorated with `@component` will not allow its own children (direct or indirect) to be selected by API or by any of its parents, preventing accidental manipulation due to clashing `id` or `class` values. The class itself can still select its own children using the protected methods `_children`, `_find` and `_apply`, or by using [@getById](./@getById.md) on a private/protected property. The example below uses `_find`:
+
+TypeScript:
+
+```tsx
+@component
+class CustomComponent extends Composite {
+
+  constructor(properties?: Properties<Composite>) {
+    super();
+    this.set(properties).append(
+      <TextInput id='foo' text='bar'/>
+    );
+  }
+
+  getFoo() {
+    return this._find('#foo').only(TextInput).text;
+  }
+
+}
+
+const myComponent = new CustomComponent();
+
+// Prints 'bar':
+console.log(myComponent.getFoo());
+
+// Throws since no matching widget can be found:
+console.log(myComponent.find('#foo').only(TextInput).text);
+```
+
+The same component in JavaScript:
+
+```jsx
+@component
+class CustomComponent extends Composite {
+
+  /** @param {tabris.Properties<Composite>} properties */
+  constructor(properties) {
+    super();
+    this.set(properties).append(
+      <TextInput id='foo' text='bar'/>
+    );
+  }
+
+  getFoo() {
+    return this._find('#foo').only(TextInput).text;
+  }
+
+}
+```
+
+The only difference is how - if at all - the `properties` parameter is typed. In JavaScript JSDoc comments may be used, but this is optional. This is true for all examples below, so only the TypeScript variant will be given.
