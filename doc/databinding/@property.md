@@ -8,9 +8,9 @@ Makes the decorated object property fire change events and perform runtime value
 
 ## @property (no parameter)
 
-> See example app ["property-change-events"](../../examples/property-change-events).
+> See example apps ["property-change-events"](../../examples/property-change-events) (TypeScript) and ["property-change-events-jsx"](../../examples/property-change-events) (JavaScript/JSX).
 
-Triggers change events and performs implicit runtime checks on any value the property is set to.
+Triggers change events and (in TypeScript) performs implicit runtime checks on any value the property is set to.
 
 ```ts
 class Foo {
@@ -24,6 +24,8 @@ foo.myText = 'bar'; // logs "bar" due to the change event
 (foo as any).myText = 23; // throws due to the implicit value check
 ```
 
+[**In JavaScript these checks do not happen unless the `type` option is set.**](#configtype)
+
 The implicit runtime check only works with primitive types and classes. [Advanced type](http://www.typescriptlang.org/docs/handbook/advanced-types.html) and interfaces can not be checked:
 
 ```ts
@@ -36,15 +38,19 @@ foo.myItem = {bar: 'foo'}; // OK
 (foo as any).myItem = {foo: 'bar'}; // runtime check passes despite incorrect type
 ```
 
-In these cases it is recommended to use a type guard:
+In these cases it is recommended to use a [type guard](#configtypeguard).
 
-## @property(typeGuard)
+## @property(config)
+
+Like `@property`, but with more options.
+
+### config.typeGuard
 
 Where `typeGuard` is of the type `(value: any) => boolean`.
 
 > See example app ["property-value-checks"](../../examples/property-value-checks).
 
-Like `@property`, but uses the given function (type guard) to perform type checks. The type guard may be more strict than the TypeScript compiler (e.g. allowing only positive numbers where the compiler allows any number), but should never be less strict.
+Uses the given function (type guard) to perform type checks. The type guard may be more strict than the TypeScript compiler (e.g. allowing only positive numbers where the compiler allows any number), but should never be less strict.
 
 The function may return either a boolean (`true` indicates the value passes), or throw an error explaining why the value did not pass.
 
@@ -58,4 +64,37 @@ Example for a type guard more strict than the compiler:
     mixedType: number[] | number = 0; // compiler would allow -1, but not the type guard
 
   }
+```
+
+### config.type
+
+**This option is only useful in JavaScript/JSX files.**
+
+Where `type` is a constructor function.
+
+When providing this option the property will check that every assigned value (except `null`) is an instance of the given constructor function, such as `Date`. Primitives (`number`, `string`, `boolean`) are represented by the constructors of their [boxed/wrapped values](https://developer.mozilla.org/en-US/docs/Glossary/Primitive#Primitive_wrapper_objects_in_JavaScript).
+
+JavaScript Example:
+
+```ts
+class Foo {
+
+  /** @type {Date} */
+  @property({type: Date})
+  myDate = new Date();
+
+  /** @type {string} */
+  @property({type: String})
+  myText = 'foo';
+
+}
+```
+
+This is the exact equivalent of the following TypeScript code:
+
+```ts
+class Foo {
+  @property myDate: Date = new Date();
+  @property myText: string = 'foo';
+}
 ```

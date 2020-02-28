@@ -40,35 +40,44 @@ export type BindAllDecorator<ValidKeys extends string> = <
 export type BindSingleDecorator = (target: Composite, property: string) => void;
 
 /**
- * A decorator for instance properties on classes extending `Composite`.
+ * A decorator for instance properties of classes extending `Composite`, i.e. a custom component.
+ * It creates a two-way binding between the decorated property and a child (direct or indirect)
+ * of the component. Example:
  *
- * Creates a two-way binding between the decorated property and the property given via the path parameter:
- *
- *  ```
- * ‍@bind(path: '#childId.property')
- * componentProperty: SomeType = initialValue;
+ * ```ts
+ * ‍@bind('#childId.text')
+ * myProp: string = 'foo';
  * ```
  *
- * It's also possible to bind to properties of the object in the component property:
+ * *Notes:*
+ * * *`@bind` behaves like `@property` in most regards.*
+ * * *Like `@property` it also supports the `typeGuard` and `type` options.*
+ * * *Use`@bind({all: bindings})` or `@bindAll(bindings)` to create bindings to a model.*
+ * * *`@bind(path)` is the same as `@bind({path: path})`.*
+ */
+export function bind(config: BindSingleConfig | string): BindSingleDecorator;
+
+/**
+ * A decorator for instance properties of classes extending `Composite`, i.e. a custom component.
+ * It creates a two-way binding between properties of a model (e.g. an object using `@property`)
+ * and children (direct or indirect) of the component. Example:
  *
- *  ```
+ * ```ts
  * ‍@bind(all: {
- *  someTypePropertyA: '#childId1.property'
- *  someTypePropertyB: '#childId2.property'
+ *  modelPropA: '#childId1.text'
+ *  modelPropB: '#childId2.selection'
  * }})
- * componentProperty: SomeType = initialValue;
+ * myProp: MyModel;
  * ```
  *
- * The bindings are established after `append` is called the first time on the base widget.
- *
- * Like `@property` it supports type guards, which are required for some advanced types.
- *
- * `@bind` only works on classes decorated with `@component`.
- *
- * `@bindAll(bindings)` can be used al a shorthand for `@bind({all: bindings})`
+ * *Notes:*
+ * * *`@bind` behaves like `@property` in most regards.*
+ * * *Like `@property` it also supports the `typeGuard` and `type` options.*
+ * * *Use`@bind(path)` or `@bind({path: path})` to create bindings to the component property itself.*
+ * * *`@bindAll(bindings)` can be used as a shorthand for `@bind({all: bindings})`.*
  */
 export function bind<ValidKeys extends string>(config: BindAllConfig<ValidKeys>): BindAllDecorator<ValidKeys>;
-export function bind(config: BindSingleConfig | string): BindSingleDecorator;
+
 export function bind(...args: any[]): any {
   return applyDecorator('bind', args, (baseProto: WidgetInterface, baseProperty: string) => {
     const isShorthand = typeof args[0] === 'string';
