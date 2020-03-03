@@ -2,6 +2,8 @@
 ---
 # Dependency Injection
 
+A complete example Tabris.js application that uses data dependency injection can be found [here](https://github.com/eclipsesource/tabris-js-reddit-viewer).
+
 ## Introduction
 
 Tabris provides a [decorators](http://www.typescriptlang.org/docs/handbook/decorators.html)-based [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection)  via the `'tabris-decorators'` extension, which has to be installed in addition to the `tabris` module:

@@ -4,6 +4,10 @@ This module provides __data binding__ and  __dependency injection__ for [Tabris.
 
 Feature requests (and bug reports) via [GitHub issues](https://github.com/eclipsesource/tabris-decorators/issues) are very welcome.
 
-Documentation can be found [here for data binding](https://docs.tabris.com/latest/databinding/index.html) and [here for dependency injection](https://docs.tabris.com/latest/di/index.html). Some small example/demo apps can be found [here](https://github.com/eclipsesource/tabris-decorators/blob/master/examples).
+## Resources
+* [Data binding documentation](https://docs.tabris.com/latest/databinding/index.html)
+* [Dependency injection documentation](https://docs.tabris.com/latest/di/index.html)
+* [Technical example apps](https://github.com/eclipsesource/tabris-decorators/blob/master/examples)
+* [Comprehensive real-world example app](https://github.com/eclipsesource/tabris-js-reddit-viewer)
 
 Happy Coding!
