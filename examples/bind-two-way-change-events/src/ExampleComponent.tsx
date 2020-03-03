@@ -1,9 +1,23 @@
-import {ChangeListeners, Composite, Properties, Slider, Stack, TextInput, TextView} from 'tabris';
+import {Button, ChangeListeners, Composite, Properties, Slider, Stack, TextInput, TextView} from 'tabris';
 import {bind, bindAll, component, event, property} from 'tabris-decorators';
 
 export class Model {
   @event onMyTextChanged: ChangeListeners<Model, 'myText'>;
   @property myText: string;
+}
+
+@component
+class MyComponent extends Composite {
+
+  constructor(properties: Properties<ExampleComponent>) {
+    super();
+    this.set(properties).append(<Button id='button1'/>);
+  }
+
+  async fadeOut() {
+    await this.button1.animate({opacity: 0}, {duration: 100});
+  }
+
 }
 
 @component

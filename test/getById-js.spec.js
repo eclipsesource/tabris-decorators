@@ -5,6 +5,22 @@ import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy} from './test';
 import {component, getById} from '../src';
 
+@component class CustomComponent extends Composite {
+
+  /** @type {Button} */
+  @getById button1;
+
+  /** @type {Button} */
+  @getById(v => v instanceof Button || v.class === 'button')
+  button2;
+
+  /** @type {Composite} */
+  composite1;
+
+}
+// Emulate emitDecoratorMetadata: false
+getById(CustomComponent.prototype, 'composite1');
+
 describe('getById', () => {
 
   beforeEach(() => {
@@ -15,23 +31,17 @@ describe('getById', () => {
     restoreSandbox();
   });
 
-  @component class CustomComponent extends Composite {
+  /** @type {CustomComponent} */
+  let widget;
 
-    @getById
-    readonly button1: Button;
+  /** @type {Button} */
+  let button1;
 
-    @getById(v => v instanceof Button || v.class === 'button')
-    readonly button2: Button;
+  /** @type {Button} */
+  let button2;
 
-    @getById
-    readonly composite1: Composite;
-
-  }
-
-  let widget: CustomComponent;
-  let button1: Button;
-  let button2: Button;
-  let composite1: Composite;
+  /** @type {Composite} */
+  let composite1;
 
   beforeEach(() => {
     widget = new CustomComponent();
@@ -57,18 +67,6 @@ describe('getById', () => {
     expect(widget.button1).not.to.equal(button1_2);
   });
 
-  it('fails to decorate non-Widget type', () => {
-    expect(() => {
-      @component class FailedComponent extends Composite {
-        @getById readonly button1: Date;
-      }
-    }).to.throw(
-      Error,
-      'Could not apply decorator "getById" to "button1": '
-      + 'Type "Date" is not a widget.'
-    );
-  });
-
   describe('on a Widget that is not a @component', () => {
 
     let clock;
@@ -86,7 +84,7 @@ describe('getById', () => {
     it('prints an error', () => {
       spy(console, 'error');
       class FailedComponent extends Composite {
-        @getById readonly button1: Button;
+        @getById button1;
       }
       clock.tick(now + 100);
       expect(console.error).to.have.been.calledWith(
@@ -97,7 +95,7 @@ describe('getById', () => {
     it('throws on access', () => {
       class FailedComponent extends Composite {
 
-        @getById readonly button1: Button;
+        @getById button1;
 
         constructor() {
           super({});
@@ -121,13 +119,6 @@ describe('getById', () => {
   it('throws if a getter can not be resolved after first append', () => {
     expect(() => widget.append(composite1, button2, new Button({id: 'button3'}))).to.throw(
       'Decorator "getById" could not resolve property "button1": No widget with id "button1" appended.'
-    );
-  });
-
-  it('throws if getters finds wrong type after first append', () => {
-    expect(() => widget.append(composite1, button2, new Composite({id: 'button1'}))).to.throw(
-      'Decorator "getById" could not resolve property "button1": '
-      + 'Expected value to be of type Button, but found Composite'
     );
   });
 

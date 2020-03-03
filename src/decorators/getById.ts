@@ -6,39 +6,49 @@ import {applyDecorator, defineGetter, getPropertyType} from '../internals//utils
 import {checkAppended, checkIsComponent, getPropertyStore, postAppendHandlers, TypeGuard, WidgetInterface} from '../internals//utils-databinding';
 
 /**
- * A decorator for readonly properties on classes extending `Widget`.
+ * A decorator for instance properties of classes extending `Composite`,
+ * otherwise known as a "custom component".
  *
- * Lets the property return the descendant widget with the same id as the property name.
- * There must be exactly one match. The lookup happens on the first `append` call on the
- * decorated class.
+ * Makes the decorated property return a component-internal child element
+ * whose id is identical to the property name. This provides an alternative to
+ * the `_find` function. Example:
  *
- * The decorator can optionally also attach a type guard function to the property.
- * This is necessary if the exact type of the widget is not known:
+ * ```ts
+ * ‍@getById readonly button1: Button;
  * ```
- * ‍@getById(widget => typeof widget.text === 'string')
- * readonly widgetId: Widget & {text: string};
- * ```
- *
- * This decorator only works on classes decorated with `@component`.
+ * *
+ * *Notes:*
+ * * *The property will be read-only.*
+ * * *If there is no child with the correct id, or more than one, an error will be thrown.*
+ * * *In TypeScript the type of the widget will also be checked.*
+ * * *Use `@getById(typeGuard)` to implement an explicit type check instead. This is
+ *   especially useful in JavaScript where the is no implicit type check.*
  */
 export function getById(targetProto: Composite, property: string): void;
+
 /**
- * A decorator for readonly properties on classes extending `Widget`.
+ * A decorator for instance properties of classes extending `Composite`,
+ * otherwise known as a "custom component".
  *
- * Lets the property return the descendant widget with the same id as the property name.
- * There must be exactly one match. The lookup happens on the first `append` call on the
- * decorated class.
+ * Makes the decorated property return a component-internal child element
+ * whose id is identical to the property name and passes the type guard check.
+ * This is especially useful in JavaScript where the is no implicit type check.
+ * JavaScript example:
  *
- * The decorator can optionally also attach a type guard function to the property.
- * This is necessary if the exact type of the widget is not known:
+ * ```ts
+ * /⋆⋆ @type {Button} ⋆/
+ * ‍@getById(widget => widget instanceof Button)
+ * readonly buttonId;
  * ```
- * ‍@getById(widget => typeof widget.text === 'string')
- * readonly widgetId: Widget & {text: string};
- * ```
  *
- * This decorator only works on classes decorated with `@component`.
+ * *Notes:*
+ * * *The property will be read-only.*
+ * * *If there is no child with the correct id, or more than one, an error will be thrown.*
+ * * *In TypeScript this feature may be used to override the explicit type check.
+ * * *Use `@getById` if no type check is needed/desired.
  */
 export function getById(check: TypeGuard): PropertyDecorator;
+
 export function getById(...args: any[]): void | PropertyDecorator {
   return applyDecorator('getById', args, (widgetProto: any, property: string) => {
     const check = args[0] instanceof Function ? args[0] : null;
