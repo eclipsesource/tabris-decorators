@@ -2,6 +2,8 @@
 ---
 # Data Binding
 
+A complete example Tabris.js application that uses data binding comprehensively can be found [here]([here](https://github.com/eclipsesource/tabris-js-reddit-viewer).
+
 ## Setup
 
 Tabris provides [JSX](../JSX.md)/[decorators](http://www.typescriptlang.org/docs/handbook/decorators.html)-based declarative data binding via the `'tabris-decorators'` extension, which has to be installed in addition to the `tabris` module:
