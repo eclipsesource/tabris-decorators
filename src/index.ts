@@ -21,6 +21,8 @@ export * from './api/to';
 export * from './api/List';
 export * from './api/ListView';
 export * from './api/Cell';
+export * from './api/router/Route';
+export * from './api/router/Router';
 
 /**
  * A decorator that marks a constructor parameter for injections based on the type of the parameter:
