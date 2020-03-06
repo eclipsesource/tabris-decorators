@@ -1,24 +1,8 @@
-import { Page, Properties } from "tabris";
+import { Page } from "tabris";
 
-export interface RouteOptions {
-  enableDrawer?: boolean;
-  toolbarVisible?: boolean;
-}
+export type Dictionary<T> = { [key: string]: T };
 
-export interface RoutePage {
-  onPayload?(payload?: any): void;
-}
-
-export abstract class RoutePage extends Page {
-  constructor(properties?: Properties<RoutePage>) {
-    super(properties);
-  }
-}
-
-export abstract class Route {
-  page: RoutePage;
-  options: RouteOptions = {
-    enableDrawer: false,
-    toolbarVisible: true
-  }
+export class Route<PayloadType = Dictionary<string>> {
+  page: Page;
+  payload?: PayloadType;
 }
