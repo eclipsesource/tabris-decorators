@@ -53,8 +53,11 @@ export function getById(...args: any[]): void | PropertyDecorator {
   return applyDecorator('getById', args, (widgetProto: any, property: string) => {
     const check = args[0] instanceof Function ? args[0] : null;
     const type = getPropertyType(widgetProto, property);
-    if (type === Object && !check) {
-      throw new Error(`Property ${property} can not be resolved without a type guard.`);
+    if (type !== Object
+      && !(type.prototype instanceof Widget)
+      && type.prototype !== Widget.prototype
+    ) {
+      throw new Error(`Type "${type.name}" is not a widget.`);
     }
     postAppendHandlers(widgetProto).push((widget) => {
       try {
