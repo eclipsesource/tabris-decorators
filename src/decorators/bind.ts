@@ -1,10 +1,9 @@
 import {Composite} from 'tabris';
 import {property} from './property';
 import {Injector, injector} from '../api/Injector';
-import {createBoundProperty} from '../internals/createBoundProperty';
-import {processTwoWayBindings, TwoWayBindingPaths} from '../internals/processTwoWayBinding';
+import {TwoWayBinding} from '../internals/TwoWayBinding';
 import {applyDecorator, getPropertyType, isPrimitiveType} from '../internals/utils';
-import {checkIsComponent, checkPropertyExists, isUnchecked, parseTargetPath, postAppendHandlers, TypeGuard, UserType, WidgetInterface} from '../internals/utils-databinding';
+import {checkIsComponent, checkPropertyExists, isUnchecked, parseTargetPath, postAppendHandlers, TargetPath, TypeGuard, UserType, WidgetInterface} from '../internals/utils-databinding';
 
 export interface BindAllConfig<ValidKeys extends string> {
   typeGuard?: TypeGuard;
@@ -21,13 +20,17 @@ export interface BindSingleConfig {
   path: string;
 }
 
-export type TwoWayBinding = {
-  baseProto: WidgetInterface,
-  baseProperty: string,
-  path: string | null,
+export type BindSuperConfig = {
+  componentProto: WidgetInterface,
+  componentProperty: string,
+  targetPath: TargetPath | null,
   all: TwoWayBindingPaths | null,
   typeGuard: TypeGuard | null,
   userType: UserType<any> | null
+};
+
+export type TwoWayBindingPaths = {
+  [sourceProperty: string]: TargetPath
 };
 
 export type BindAllDecorator<ValidKeys extends string> = <
@@ -81,51 +84,48 @@ export function bind<ValidKeys extends string>(config: BindAllConfig<ValidKeys>)
 export function bind(...args: any[]): any {
   return applyDecorator('bind', args, (baseProto: WidgetInterface, baseProperty: string) => {
     const isShorthand = typeof args[0] === 'string';
-    const binding: TwoWayBinding = {
-      baseProto,
-      baseProperty,
-      path: isShorthand ? args[0] : args[0].path,
+    const pathString = isShorthand ? args[0] : args[0].path;
+    const config: BindSuperConfig = {
+      componentProto: baseProto,
+      componentProperty: baseProperty,
+      targetPath: pathString ? parseTargetPath(pathString) : null,
       all: parseAll(isShorthand ? null : args[0].all),
       typeGuard: isShorthand ? null : args[0].typeGuard,
       userType:  isShorthand ? null : args[0].type
     };
-    checkParameters(binding);
-    applyTwoWayBinding(binding);
-    setTimeout(() => {
-      try {
-        checkIsComponent(baseProto);
-      } catch (ex) {
-        console.error('Can not apply @bind to property ' + baseProperty, ex);
-      }
-    });
+    checkParameters(config);
+    preCheckComponentProperty(config);
+    configureComponentProperty(config);
+    postAppendHandlers(config.componentProto).push(
+      component => TwoWayBinding.create(component, config)
+    );
+    scheduleIsComponentCheck(config);
   });
 }
 
-function applyTwoWayBinding(binding: TwoWayBinding) {
-  if (binding.path) {
-    createBoundProperty(binding);
-  } else {
-    checkBasePropertyType(binding);
-    const propertyConfig = {
-      typeGuard: createTypeGuard(binding),
-      type: binding.userType
-    };
-    property(propertyConfig)(binding.baseProto, binding.baseProperty);
-    postAppendHandlers(binding.baseProto).push(base => processTwoWayBindings(base, binding));
-  }
+function configureComponentProperty(binding: BindSuperConfig) {
+  const propertyConfig = {
+    typeGuard: binding.all ? createBindAllTypeGuard(binding) : binding.typeGuard,
+    type: binding.userType
+  };
+  property(propertyConfig)(binding.componentProto, binding.componentProperty);
 }
 
-function checkParameters(binding: TwoWayBinding) {
-  if (binding.path && binding.all) {
+function checkParameters(binding: BindSuperConfig) {
+  if (binding.targetPath && binding.all) {
     throw new Error('@bind can not have "path" and "all" option simultaneously');
   }
-  if (!binding.path && !Object.keys(binding.all).length) {
+  if (!binding.targetPath && !Object.keys(binding.all).length) {
     throw new Error('Missing binding path(s)');
   }
 }
 
-function checkBasePropertyType(binding: TwoWayBinding) {
-  const {baseProto, baseProperty, userType} = binding;
+function preCheckComponentProperty(binding: BindSuperConfig) {
+  if (binding.targetPath) {
+    // Will be checked on initialization
+    return;
+  }
+  const {componentProto: baseProto, componentProperty: baseProperty, userType} = binding;
   const type = userType || getPropertyType(baseProto, baseProperty);
   if (isPrimitiveType(type)) {
     throw new Error('Property type needs to extend Object');
@@ -143,15 +143,15 @@ function parseAll(all: {[key: string]: string}): TwoWayBindingPaths | null {
   return bindings;
 }
 
-function createTypeGuard(binding: TwoWayBinding) {
+function createBindAllTypeGuard(binding: BindSuperConfig) {
   const sourceProperties = Object.keys(binding.all);
-  const baseProperty = binding.baseProperty;
+  const baseProperty = binding.componentProperty;
   return (value: any) => {
     if (value) {
       if (!(value instanceof Object)) {
         throw new Error('Value needs to extend Object');
       }
-      const className = binding.baseProto.constructor.name;
+      const className = binding.componentProto.constructor.name;
       for (const sourceProperty of sourceProperties) {
         checkPropertyExists(value, sourceProperty, 'Object');
         if (isUnchecked(value, sourceProperty)) {
@@ -170,4 +170,17 @@ function createTypeGuard(binding: TwoWayBinding) {
     }
     return binding.typeGuard ? binding.typeGuard(value) : true;
   };
+}
+
+function scheduleIsComponentCheck(binding: BindSuperConfig) {
+  setTimeout(() => {
+    try {
+      checkIsComponent(binding.componentProto);
+    } catch (ex) {
+      const target = binding.all ? JSON.stringify(binding.all) : binding.targetPath.join('.');
+      console.error(
+        `Binding "${binding.componentProperty}" <-> "${target}" failed to initialize: ` + ex.message
+      );
+    }
+  });
 }

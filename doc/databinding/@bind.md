@@ -49,12 +49,6 @@ In JavaScript the only difference is how - if at all - the decorated property is
 myNumber;
 ```
 
-Change events are fired for the decorated *component property* when the *target element* fires change events.
-
-> See example apps ["bind-two-way-change-events"](../../examples/bind-two-way-change-events) (TypeScript) and ["bind-two-way-change-events-jsx"](../../examples/bind-two-way-change-events-jsx) (JavaScript/JSX).
-
-As with one-way bindings, setting the *component property* to `undefined` resets the *target property* to its initial value for when the binding was first established.
-
 ## @bind(config)
 
 Like [`@bind(path)`](#bindpath) or [`@bindAll(bindings)`](./@bindAll.md), but allows to give additional options as supported by [`@property`](./@property.md).
@@ -104,3 +98,20 @@ A [`typeGuard`](./@property.md#configtypeguard) may be given to perform value ch
 
 A [`type`](./@property.md#configtype) may be given to enforce type checks in JavaScript.
 
+### Properties eligible for bindings
+
+Any *component property* can be used for two-way bindings, unless it's explicitly implemented with a setter and getter, or with `Object.defineProperty`. These are not supported. The target property needs to generate change events for the two-way binding to work. This is already the case for all built-in properties of Tabris.js widgets.
+
+> See example apps ["bind-two-way-change-events"](../../examples/bind-two-way-change-events) (TypeScript) and ["bind-two-way-change-events-jsx"](../../examples/bind-two-way-change-events-jsx) (JavaScript/JSX).
+
+If the target widget itself is a custom component the recommended way to implement change events is using [`@property`](./@property.md). Note that there is no need to [explicitly create an event API](./@event.md#event), `@bind` can 'talk' directly to `@property`. However, an explicit implementation is also possible.
+
+## Edge Cases
+
+As with one-way bindings, setting the *component property* to `undefined` resets the *target property* to its initial value from when the binding was first established. The component property will also adopt that value, so both stay in syc.
+
+If the *component property* converts or ignores the incoming value of the *target property*, the target property will follow and also bet set to the new component property value.
+
+If a *target property* converts or ignores the incoming value of the *component property*, the component property will ignore that and keep its own value. The two properties are out-of-sync in this case.
+
+If either property throws when set, the error will be propagated to the caller that originally caused the value change. In this case the two properties *may* end up out-of-sync.

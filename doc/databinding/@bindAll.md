@@ -69,7 +69,7 @@ class Model {
 }
 ```
 
-Note that there is no need to explicitly create an event API, `@bind` can 'talk' directly to `@property`. However, an explicit implementation is also possible:
+Note that there is no need to [explicitly create an event API](./@event.md#event), `@bind` can 'talk' directly to `@property`. However, an explicit implementation is also possible:
 
 ```ts
 class Model {
