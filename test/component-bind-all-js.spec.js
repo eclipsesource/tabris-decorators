@@ -348,7 +348,9 @@ describe('component', () => {
     it('fails on append if target property is missing', () => {
       expect(() => {
         widget.append(new Composite({id: 'foo'}));
-      }).to.throw(Error, 'Binding "item.text" <-> "#foo.text" failed: Target does not have a property "text".');
+      }).to.throw(Error,
+        'Binding "item.text" <-> "#foo.text" failed to initialize: Target does not have a property "text".'
+      );
     });
 
     it('fails on append if target property has no setter', () => {
@@ -357,7 +359,8 @@ describe('component', () => {
       expect(() => {
         widget.append(target);
       }).to.throw(Error,
-        'Binding "item.text" <-> "#foo.text" failed: Target property "text" does not perform type checks.'
+        'Binding "item.text" <-> "#foo.text" failed to initialize: Target property '
+        + '"text" has no setter, missing @property?'
       );
     });
 
@@ -365,7 +368,8 @@ describe('component', () => {
       expect(() => {
         widget.append(new UncheckedTargetComponent({id: 'foo'}));
       }).to.throw(Error,
-        'Binding "item.text" <-> "#foo.text" failed: Target property "text" requires an explicit type check.'
+        'Binding "item.text" <-> "#foo.text" failed to initialize: Right hand property '
+        + '"text" requires an explicit type check.'
       );
     });
 
@@ -392,7 +396,7 @@ describe('component', () => {
 
       expect(() => {
         new CustomComponentB().item = new ItemB();
-      }).to.throw(Error, 'Failed to set property "item": Object property "text" does not perform type checks.');
+      }).to.throw(Error, 'Failed to set property "item": Object property "text" has no setter, missing @property?');
     });
 
     it('fails setting item in strict mode when source property is unchecked', () => {
@@ -680,7 +684,9 @@ describe('component', () => {
     it('fails on append if target property is missing', () => {
       expect(() => {
         widget.append(new Composite({id: 'foo'}));
-      }).to.throw(Error, 'Binding "item.text" <-> "#foo.text" failed: Target does not have a property "text".');
+      }).to.throw(Error,
+        'Binding "item.text" <-> "#foo.text" failed to initialize: Target does not have a property "text".'
+      );
     });
 
     it('fails on append if target property has no setter', () => {
@@ -689,7 +695,8 @@ describe('component', () => {
       expect(() => {
         widget.append(target);
       }).to.throw(Error,
-        'Binding "item.text" <-> "#foo.text" failed: Target property "text" does not perform type checks.'
+        'Binding "item.text" <-> "#foo.text" failed to initialize: Target property "text" '
+        + 'has no setter, missing @property?'
       );
     });
 
@@ -697,7 +704,8 @@ describe('component', () => {
       expect(() => {
         widget.append(new UncheckedTargetComponent({id: 'foo'}));
       }).to.throw(Error,
-        'Binding "item.text" <-> "#foo.text" failed: Target property "text" requires an explicit type check.'
+        'Binding "item.text" <-> "#foo.text" failed to initialize: '
+        + 'Right hand property "text" requires an explicit type check.'
       );
     });
 
@@ -706,7 +714,7 @@ describe('component', () => {
       spy(console, 'warn');
       widget.append(new UncheckedTargetComponent({id: 'foo'}));
       expect(console.warn).to.have.been.calledWith(
-        'Unsafe binding "item.text" <-> "#foo.text": Target property "text" has no type check.'
+        'Unsafe two-way binding "item.text" <-> "#foo.text": Right hand property "text" has no type check.'
       );
     });
 
@@ -733,7 +741,7 @@ describe('component', () => {
 
       expect(() => {
         new CustomComponentB().item = new ItemB();
-      }).to.throw(Error, 'Failed to set property "item": Object property "text" does not perform type checks.');
+      }).to.throw(Error, 'Failed to set property "item": Object property "text" has no setter, missing @property?');
     });
 
     it('fails setting item when source property is marked unchecked (emitDecoratorMetadata: true)', () => {

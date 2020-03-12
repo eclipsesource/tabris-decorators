@@ -89,12 +89,12 @@ describe('component', () => {
       expect(widget.myText).to.equal('bar');
     });
 
-    it('value still linked after disposing the target', () => {
+    it('value stays after disposing the target', () => {
       widget.append(textInput1);
 
       textInput1.dispose();
 
-      expect(widget.myText).to.be.undefined;
+      expect(widget.myText).to.equal('foo');
     });
 
     describe('on a Widget that is not a @component', () => {
@@ -124,28 +124,6 @@ describe('component', () => {
         clock.tick(now + 100);
         expect(console.error).to.have.been.calledWith(
           'Binding "myText" <-> "#textInput1.text" failed to initialize: FailedComponent is not a @component'
-        );
-      });
-
-      it('throws on access', () => {
-        class FailedComponent extends Composite {
-
-          /** @type {string} */
-          @bind({
-            path: '#textInput1.text',
-            typeGuard: str => !str || typeof str === 'string'
-          })
-          myText;
-
-          constructor() {
-            super({});
-            this.append(new TextInput({id: 'textInput1'}));
-          }
-
-        }
-        expect(() => new FailedComponent().myText).to.throw(
-          'Binding "myText" <-> "#textInput1.text" failed to provide FailedComponent property "myText": '
-          + 'FailedComponent is not a @component'
         );
       });
 
@@ -214,8 +192,7 @@ describe('component', () => {
         get: () => 23
       });
       expect(() => widget.append(target)).to.throw(
-        'Binding "myText" <-> "#textInput1.text" failed to initialize: '
-        + 'Expected value "23" to be of type string, but found number.'
+        'Failed to set property "myText": Expected value "23" to be of type string, but found number.'
       );
     });
 
@@ -223,7 +200,7 @@ describe('component', () => {
       const target = new TextInput({id: 'textInput1', width: 23});
       expect(() => widget.append(target)).to.throw(
         Error,
-        /Type guard rejected value/
+        /Type guard check failed/
       );
     });
 
@@ -232,7 +209,7 @@ describe('component', () => {
       const target = new TargetComponent({id: 'textInput1'});
       expect(() => widget.append(target)).to.throw(
         'Binding "myText" <-> "#textInput1.text" failed to initialize: '
-        + 'Right hand property requires explicit type check.'
+        + 'Right hand property "text" requires an explicit type check.'
       );
     });
 
@@ -246,8 +223,8 @@ describe('component', () => {
 
       expect(console.warn).to.have.been.calledOnce;
       expect(console.warn).to.have.been.calledWithMatch(
-        // eslint-disable-next-line max-len
-        /Unsafe two-way binding "CustomComponent.*\.myText" <-> "#textInput1\.text". Right hand property has no type check\./
+        'Unsafe two-way binding "myText" <-> "#textInput1.text": '
+       + 'Right hand property "text" has no type check.'
       );
     });
 
@@ -263,8 +240,8 @@ describe('component', () => {
 
       expect(console.warn).to.have.been.calledOnce;
       expect(console.warn).to.have.been.calledWithMatch(
-        // eslint-disable-next-line max-len
-        /Unsafe two-way binding "CustomComponent.*\.myText" <-> "#textInput1\.text". Right hand property has no type check\./
+        'Unsafe two-way binding "myText" <-> "#textInput1.text": '
+        + 'Right hand property "text" has no type check.'
       );
     });
 
@@ -299,7 +276,7 @@ describe('component', () => {
       expect(foo.text).to.equal('foo');
     });
 
-    it('applies changes to target', () => {
+    it('applies component changes to target', () => {
       widget.append(textInput1);
 
       widget.myText = 'bar';
@@ -332,7 +309,7 @@ describe('component', () => {
       widget.myText = null;
 
       expect(textInput1.text).to.equal('');
-      expect(widget.myText).to.equal('');
+      expect(widget.myText).to.equal(null);
     });
 
     it('fires change event when target changes', () => {
@@ -340,22 +317,22 @@ describe('component', () => {
       const listener = stub();
       widget.on('myTextChanged', listener);
 
-      textInput1.text = 'foo';
+      textInput1.text = 'foobar';
 
       expect(listener).to.have.been.calledWithMatch({
-        target: widget, value: 'foo', type: 'myTextChanged'
+        target: widget, value: 'foobar', type: 'myTextChanged'
       });
     });
 
-    it('fires change event when target changes', () => {
+    it('fires change event when component changes', () => {
       widget.append(textInput1);
       const listener = stub();
       widget.on('myTextChanged', listener);
 
-      widget.myText = 'foo';
+      widget.myText = 'foobar';
 
       expect(listener).to.have.been.calledWithMatch({
-        target: widget, value: 'foo', type: 'myTextChanged'
+        target: widget, value: 'foobar', type: 'myTextChanged'
       });
     });
 
@@ -369,41 +346,9 @@ describe('component', () => {
       widget.append(child);
 
       expect(() => child.text = 23).to.throw(
-        'Binding "myText" <-> "#textInput1.text" failed to update CustomChild property "text": '
+        'Binding "myText" <-> "#textInput1.text" failed to update left hand property: '
+        + 'Failed to set property "myText": '
         + 'Expected value "23" to be of type string, but found number.'
-      );
-    });
-
-    it('throws if target value has changed to wrong type', () => {
-      class CustomChild extends Composite {
-        /** @type {string | number} */
-        _text;
-        /** @type {string | number} */
-        get text() {
-          return this._text;
-        }
-        set text(value) {
-          this._text = value;
-        }
-      }
-      const child = new CustomChild({id: 'textInput1'});
-      child.text = 'foo';
-      widget.append(child);
-
-      child.text = 23;
-
-      expect(() => widget.myText).to.throw(
-        'Binding "myText" <-> "#textInput1.text" failed to provide CustomComponent property "myText": '
-        + 'Expected value "23" to be of type string, but found number.'
-      );
-    });
-
-    it('throws if own value changes to wrong type', () => {
-      widget.append(textInput1);
-
-      expect(() => widget.myText = 23).to.throw(
-        'Binding "myText" <-> "#textInput1.text" failed to update target value: '
-      + 'Expected value "23" to be of type string, but found number.'
       );
     });
 
@@ -455,9 +400,8 @@ describe('component', () => {
 
       widget.append(textInput);
 
-      expect(console.warn).to.have.been.calledWithMatch(
-        // eslint-disable-next-line max-len
-        /Unsafe two-way binding "FailedComponent.*\.myText" <-> "#textInput1\.text". Left hand property has no type check\./
+      expect(console.warn).to.have.been.calledWith(
+        'Unsafe two-way binding "myText" <-> "#textInput1.text": Left hand property "myText" has no type check.'
       );
       expect(widget.myText).to.equal('foo');
     });
@@ -471,9 +415,8 @@ describe('component', () => {
 
       widget.append(textInput);
 
-      expect(console.warn).to.have.been.calledWithMatch(
-        // eslint-disable-next-line max-len
-        /Unsafe two-way binding "FailedComponent.*\.myText" <-> "#textInput1\.text". Left hand property has no type check\./
+      expect(console.warn).to.have.been.calledWith(
+        'Unsafe two-way binding "myText" <-> "#textInput1.text": Left hand property "myText" has no type check.'
       );
       expect(widget.myText).to.equal('foo');
     });
@@ -481,24 +424,6 @@ describe('component', () => {
   });
 
   describe('@bind({path, typeGuard})', () => {
-
-    it('throws if target value has changed w/o event to value rejected by type guard', () => {
-      let value;
-      class CustomChild extends Composite {
-        set bar(v) { value = v; }
-        get bar() { return value; }
-      }
-      const guarded = new ComponentWithTypeGuard();
-      const child = new CustomChild({id: 'foo'});
-      guarded.append(child);
-
-      child.bar = 12;
-
-      expect(() => guarded.value).to.throw(
-        'Binding "value" <-> "#foo.bar" failed to provide ComponentWithTypeGuard property "value": '
-        + 'Type guard rejected value "12".'
-      );
-    });
 
     it('throws if target value changes to value rejected by type guard', () => {
       /** @type {number} */
@@ -512,8 +437,8 @@ describe('component', () => {
       guarded.append(child);
 
       expect(() => child.bar = 12).to.throw(
-        'Binding "value" <-> "#foo.bar" failed to update CustomChild property "bar": '
-        + 'Type guard rejected value "12".'
+        'Binding "value" <-> "#foo.bar" failed to update left hand property: Failed to set '
+        + 'property "value": Type guard check failed'
       );
     });
 
@@ -530,15 +455,15 @@ describe('component', () => {
       child.bar = 12;
 
       expect(() => guarded.append(child)).to.throw(
-        'Binding "value" <-> "#foo.bar" failed to initialize: '
-        + 'Type guard rejected value "12".'
+        'Binding "value" <-> "#foo.bar" failed to initialize: Binding "value" <-> "#foo.bar" '
+        + 'failed to sync back value of right hand property: Failed to set property "value": '
+        + 'Type guard check failed'
       );
     });
 
     it('throws if own value is rejected by type guard', () => {
       expect(() => (new ComponentWithTypeGuard()).value = 12).to.throw(
-        'Binding "value" <-> "#foo.bar" failed to update target value: '
-      + 'Type guard rejected value "12"'
+        'Failed to set property "value": Type guard check failed'
       );
     });
 
@@ -546,7 +471,7 @@ describe('component', () => {
       expect(() => {
         @component
         class WrongComponent extends Composite {
-          @bind({path: 'foo', all: {foo: '#bar.baz'}})
+          @bind({path: '#foo.bar', all: {foo: '#bar.baz'}})
           /** @type {MyItem} */
           @property myItem;
         }

@@ -27,6 +27,7 @@ export interface WidgetProtected {
 }
 export interface ParamInfo {type: Constructor<any>; injectParam?: string; inject?: boolean;}
 export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
+export type TargetPath = [string, string];
 
 /**
  * Gets list of functions to be executed after first time append is called on instances of the given
@@ -55,7 +56,9 @@ export function checkPropertyExists(targetWidget: any, targetProperty: string, t
     const desc = Object.getOwnPropertyDescriptor(current, targetProperty);
     if (desc) {
       if (!desc.set) {
-        throw new Error(`${targetName} property "${targetProperty}" does not perform type checks.`);
+        throw new Error(
+          `${targetName} property "${targetProperty}" has no setter, missing @property?`
+        );
       }
       return;
     }
@@ -116,7 +119,7 @@ export function checkAppended(widget: WidgetInterface) {
   }
 }
 
-export function parseTargetPath(path: string) {
+export function parseTargetPath(path: string): TargetPath {
   checkPathSyntax(path);
   if (!path.startsWith('#')) {
     throw new Error('Binding path needs to start with "#".');
@@ -127,8 +130,7 @@ export function parseTargetPath(path: string) {
   } else if (segments.length > 2) {
     throw new Error('Binding path has too many segments.');
   }
-  const [selector, targetProperty] = segments;
-  return {selector, targetProperty};
+  return segments as TargetPath;
 }
 
 export function checkPathSyntax(targetPath: string) {
