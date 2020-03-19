@@ -2,7 +2,7 @@ import {Button, contentView, Slider, Stack, TextInput, TextView} from 'tabris';
 import {injector} from 'tabris-decorators';
 import {Person} from './Person';
 
-injector.jsxProcessor.strictMode = true;
+injector.jsxProcessor.unsafeBindings = 'error';
 
 const person = new Person();
 person.age = 22;

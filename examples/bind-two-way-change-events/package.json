@@ -6,7 +6,7 @@
   },
   "optionalDependencies": {
     "tabris": "^3.3.0",
-    "tabris-decorators": "3.3.0"
+    "tabris-decorators": "3.4.0"
   },
   "devDependencies": {
     "typescript": "3.3.x"

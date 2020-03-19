@@ -3,7 +3,7 @@ import {injector, List} from 'tabris-decorators';
 import {ExampleComponent} from './ExampleComponent';
 import {generate, Person} from './Person';
 
-injector.jsxProcessor.strictMode = true;
+injector.jsxProcessor.unsafeBindings = 'error';
 
 const items: List<Person> = List.from(generate(10));
 

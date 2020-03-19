@@ -2,7 +2,7 @@ import {Button, contentView, Stack, TextView} from 'tabris';
 import {injector} from 'tabris-decorators';
 import {ExampleComponent} from './ExampleComponent';
 
-injector.jsxProcessor.strictMode = true;
+injector.jsxProcessor.unsafeBindings = 'error';
 
 contentView.append(
   <Stack stretch alignment='stretchX' padding={12} spacing={12}>
