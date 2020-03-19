@@ -2,7 +2,7 @@ import {contentView, ProgressBar, PropertyChangedEvent, Stack, TextView} from 't
 import {injector} from 'tabris-decorators';
 import {ExampleComponent, Model} from './ExampleComponent';
 
-injector.jsxProcessor.strictMode = true;
+injector.jsxProcessor.unsafeBindings = 'error';
 
 const model = new Model();
 

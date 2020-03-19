@@ -2,7 +2,7 @@ import {CheckBox, CheckBoxSelectEvent, Color, contentView, Stack} from 'tabris';
 import {injector} from 'tabris-decorators';
 import {ExampleComponent} from './ExampleComponent';
 
-injector.jsxProcessor.strictMode = true;
+injector.jsxProcessor.unsafeBindings = 'error';
 
 const time1 = new Date(0, 0, 0, 10, 30);
 const time2 = new Date(0, 0, 0, 22, 45);

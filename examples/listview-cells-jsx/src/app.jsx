@@ -1,7 +1,7 @@
 import {Button, CheckBox, Color, Composite, contentView, StackLayout, Tab, TabFolder, TextView} from 'tabris';
 import {Cell, injector, ItemAction, ListView, property, to} from 'tabris-decorators';
 
-injector.jsxProcessor.strictMode = true;
+injector.jsxProcessor.unsafeBindings = 'error';
 
 class Item {
 

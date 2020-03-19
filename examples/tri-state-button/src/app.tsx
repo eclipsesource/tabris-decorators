@@ -3,7 +3,7 @@ import {injector} from 'tabris-decorators';
 import {Survey} from './Survey';
 import {State} from './TriStateButton';
 
-injector.jsxProcessor.strictMode = true;
+injector.jsxProcessor.unsafeBindings = 'error';
 
 contentView.append(
   <Stack stretch alignment='stretchX' padding={12} spacing={12}>
