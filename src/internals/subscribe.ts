@@ -1,5 +1,5 @@
-import {Listeners} from 'tabris';
-import {supportsChangeEvents} from './utils-databinding';
+import {Listeners, NativeObject} from 'tabris';
+import {CustomPropertyDescriptor} from './CustomPropertyDescriptor';
 
 const force = Symbol();
 
@@ -67,4 +67,20 @@ function removeChangeListener(target: any, property: string, listener: (value: u
   if (supportsChangeEvents(target, property)) {
     Listeners.getListenerStore(target).off(property + 'Changed', listener);
   }
+}
+
+export function supportsChangeEvents(target: Partial<EventTarget>, targetProperty: string): boolean {
+  if (target instanceof NativeObject) {
+    return true; // anyone could fire change events
+  }
+  const changeEvent = targetProperty + 'Changed';
+  const listenerProperty = 'on' + changeEvent.charAt(0).toUpperCase() + changeEvent.slice(1);
+  const listeners: any = target[listenerProperty];
+  if (listeners && listeners.original instanceof Listeners) {
+    if (listeners.original.target !== target || listeners.original.type !== changeEvent) {
+      throw new Error(listenerProperty + ' has wrong target or event type');
+    }
+    return true;
+  }
+  return CustomPropertyDescriptor.has(target, targetProperty);
 }

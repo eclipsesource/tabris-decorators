@@ -1,9 +1,10 @@
 import {Composite} from 'tabris';
 import {property} from './property';
 import {Injector, injector} from '../api/Injector';
+import {CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
 import {TwoWayBinding} from '../internals/TwoWayBinding';
 import {applyDecorator, getPropertyType, isPrimitiveType} from '../internals/utils';
-import {checkIsComponent, checkPropertyExists, isUnchecked, parseTargetPath, postAppendHandlers, TargetPath, TypeGuard, UserType, WidgetInterface} from '../internals/utils-databinding';
+import {checkIsComponent, checkPropertyExists, parseTargetPath, postAppendHandlers, TargetPath, TypeGuard, UserType, WidgetInterface} from '../internals/utils-databinding';
 
 export interface BindAllConfig<ValidKeys extends string> {
   typeGuard?: TypeGuard;
@@ -154,7 +155,7 @@ function createBindAllTypeGuard(binding: BindSuperConfig) {
       const className = binding.componentProto.constructor.name;
       for (const sourceProperty of sourceProperties) {
         checkPropertyExists(value, sourceProperty, 'Object');
-        if (isUnchecked(value, sourceProperty)) {
+        if (CustomPropertyDescriptor.isUnchecked(value, sourceProperty)) {
           const strictMode = Injector.get(value, injector).jsxProcessor.unsafeBindings === 'error';
           if (strictMode) {
             throw new Error(`Object property "${sourceProperty}" requires an explicit type check.`);

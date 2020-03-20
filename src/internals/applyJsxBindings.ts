@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import {Widget, WidgetResizeEvent} from 'tabris';
+import {CustomPropertyDescriptor} from './CustomPropertyDescriptor';
 import {Severity} from './ExtendedJSX';
-import {checkPathSyntax, checkPropertyExists, isUnchecked, WidgetInterface} from './utils-databinding';
+import {checkPathSyntax, checkPropertyExists, WidgetInterface} from './utils-databinding';
 import {Binding} from '../api/to';
 
 const placeholder = /\$\{[^}]+\}/g;
@@ -63,7 +64,7 @@ function createOneWayBindingDesc(
   }
   const path = pathString.split('.');
   checkPropertyExists(target, targetProperty);
-  if (isUnchecked(target, targetProperty)) {
+  if (CustomPropertyDescriptor.isUnchecked(target, targetProperty)) {
     if (unsafe === 'error') {
       throw new Error(`Can not bind to property "${targetProperty}" without explicit type check.`);
     }
