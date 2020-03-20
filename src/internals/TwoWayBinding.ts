@@ -1,6 +1,7 @@
+import {CustomPropertyDescriptor} from './CustomPropertyDescriptor';
 import {getJsxInfo} from './ExtendedJSX';
 import {subscribe} from './subscribe';
-import {checkPropertyExists, getChild, isUnchecked, TargetPath, WidgetInterface} from './utils-databinding';
+import {checkPropertyExists, getChild, TargetPath, WidgetInterface} from './utils-databinding';
 import {injector} from '../api/Injector';
 import {BindSuperConfig} from '../decorators/bind';
 
@@ -128,7 +129,7 @@ export class TwoWayBinding {
 
   private checkPropertySafety(target: WidgetInterface, property: string, dir: 'Left' | 'Right') {
     checkPropertyExists(target, property);
-    if (isUnchecked(target, property)) {
+    if (CustomPropertyDescriptor.isUnchecked(target, property)) {
       if (isInStrictMode(target)) {
         throw new Error(`${dir} hand property "${property}" requires an explicit type check.`);
       }

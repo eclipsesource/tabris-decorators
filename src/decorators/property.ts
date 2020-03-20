@@ -1,6 +1,6 @@
-import {checkType} from '../api/checkType';
-import {applyDecorator, Constructor, getPropertyType} from '../internals/utils';
-import {getPropertyStore, markAsUnchecked, markSupportsChangeEvents, trigger, TypeGuard, UserType} from '../internals/utils-databinding';
+import {CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
+import {applyDecorator} from '../internals/utils';
+import {TypeGuard, UserType} from '../internals/utils-databinding';
 
 export type CustomPropertyDecorator<T> = <
   Name extends keyof Target,
@@ -8,6 +8,11 @@ export type CustomPropertyDecorator<T> = <
 >(target: Target, property: Name) => void;
 
 export type PropertyDecoratorConfig<T> = TypeGuard<T> | UserType<T> | {
+  typeGuard?: TypeGuard<T>,
+  type?: UserType<T>
+};
+
+export type PropertySuperConfig<T> = {
   typeGuard?: TypeGuard<T>,
   type?: UserType<T>
 };
@@ -53,34 +58,10 @@ export function property(targetProto: object, propertyName: string | symbol): vo
 export function property<T>(check: PropertyDecoratorConfig<T>): CustomPropertyDecorator<T>;
 
 export function property(...args: any[]): PropertyDecorator | void {
-  return applyDecorator('property', args, (widgetProto: any, propertyName: string) => {
-    const changeEvent = propertyName + 'Changed';
-    const targetType = getPropertyType(widgetProto, propertyName);
-    const typeGuard = getTypeGuard(args[0]);
-    const userType = getUserType(args[0]);
-    const unchecked = targetType === Object && !typeGuard && !userType;
-    if (unchecked) {
-      markAsUnchecked(widgetProto, propertyName);
-    }
-    markSupportsChangeEvents(widgetProto, propertyName);
-    Object.defineProperty(widgetProto, propertyName, {
-      get() {
-        const target: object = this;
-        return getPropertyStore(target).get(propertyName);
-      },
-      set(value: any) {
-        const target: object = this;
-        const currentValue = getPropertyStore(this).get(propertyName);
-        if (currentValue !== value) {
-          if (!unchecked) {
-            setterTypeCheck(propertyName, value, targetType, userType, typeGuard);
-          }
-          getPropertyStore(this).set(propertyName, value);
-          trigger(target, changeEvent, {value});
-        }
-      },
-      enumerable: true,
-      configurable: true
+  return applyDecorator('property', args, (proto: object, propertyName: string) => {
+    CustomPropertyDescriptor.get(proto, propertyName as keyof typeof proto).addConfig({
+      typeGuard: getTypeGuard(args[0]),
+      type: getUserType(args[0])
     });
   });
 }
@@ -103,23 +84,4 @@ function getTypeGuard(arg: unknown): TypeGuard<any> | null {
     return (arg as any).typeGuard || null;
   }
   return null;
-}
-
-function setterTypeCheck(
-  propertyName: string, value: any, targetType: Constructor<any>, userType: UserType<any>, typeGuard: TypeGuard
-) {
-  try {
-    if (userType) { // unlike meta-data type, userType is checked first and regardless of typeGuard
-      checkType(value, userType);
-    }
-    if (typeGuard) {
-      if (!typeGuard(value)) {
-        throw new Error('Type guard check failed');
-      }
-    } else if (!userType) {
-      checkType(value, targetType);
-    }
-  } catch (ex) {
-    throw new Error(`Failed to set property "${propertyName}": ${ex.message}`);
-  }
 }
