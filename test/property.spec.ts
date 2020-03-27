@@ -213,4 +213,53 @@ describe('property', () => {
 
   });
 
+  describe('twice', () => {
+
+    it('does not throw', () => {
+      expect(() => {
+        class A {
+          @property @property
+          foo: string;
+        }
+      }).not.to.throw(Error);
+    });
+
+    it('throws when changing user type', () => {
+      expect(() => {
+        class A {
+          @property({type: String})
+          @property({type: Composite as any})
+          foo: string;
+        }
+      }).to.throw(Error);
+    });
+
+    it('does not throws when adding type guard', () => {
+      expect(() => {
+        class A {
+          @property(() => true)
+          @property(() => true)
+          foo: string;
+        }
+      }).not.to.throw(Error);
+    });
+
+    it('chains type guard', () => {
+      class A {
+        @property(value => value !== null)
+        @property((value: string) => value.length > 0)
+        @property((value: string) => value !== 'bar')
+        foo: string;
+      }
+      const a = new A();
+
+      expect(() => a.foo = null).to.throw(Error, 'check failed');
+      expect(() => a.foo = '').to.throw(Error, 'check failed');
+      expect(() => a.foo = 'bar').to.throw(Error, 'check failed');
+      expect(() => a.foo = undefined).not.to.throw(Error);
+      expect(() => a.foo = 'foo').not.to.throw(Error);
+    });
+
+  });
+
 });
