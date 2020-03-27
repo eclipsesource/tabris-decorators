@@ -1,5 +1,5 @@
 import {Constructor, getPropertyType} from './utils';
-import {getPropertyStore, trigger} from './utils-databinding';
+import {getPropertyStore, trigger, TypeGuard, UserType} from './utils-databinding';
 import {checkType} from '../api/checkType';
 import {PropertySuperConfig} from '../decorators/property';
 
@@ -28,7 +28,7 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
   ): boolean {
     const desc = Reflect.getMetadata(this.metaDataKey, target, propertyName);
     if (desc instanceof CustomPropertyDescriptor) {
-      return desc.unchecked;
+      return desc.isUnchecked();
     }
     return false;
   }
@@ -43,26 +43,26 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
   readonly configurable = true;
   readonly get: () => TargetType;
   readonly set: (value: TargetType) => void;
+  private userType: UserType<TargetType>;
+  private typeGuard: TypeGuard;
   private readonly changeEvent: string;
-  private readonly targetType: Constructor<TargetType>;
-  private readonly config: Array<PropertySuperConfig<TargetType>> = [];
-  private unchecked: boolean;
+  private readonly targetType = getPropertyType(this.proto, this.propertyName);
 
   constructor(private readonly proto: Proto, private readonly propertyName: keyof Proto & string) {
     const self = this;
     this.changeEvent = propertyName + 'Changed';
-    this.targetType = getPropertyType(this.proto, this.propertyName);
-    this.unchecked = this.targetType as Constructor<any> === Object;
     this.set = function(this: Proto, value) { self.setValue(this, value); };
     this.get = function(this: Proto) { return self.getValue(this); };
     Object.defineProperty(proto, propertyName, this);
   }
 
-  addConfig(config: PropertySuperConfig<TargetType>) {
-    if (config.type || config.typeGuard) {
-      this.unchecked = false;
+  addConfig({type, typeGuard}: PropertySuperConfig<TargetType>) {
+    if (type) {
+      this.setUserType(type);
     }
-    this.config.push(config);
+    if (typeGuard) {
+      this.addTypeGuard(typeGuard);
+    }
   }
   private getValue(instance: Proto) {
     return getPropertyStore(instance).get(this.propertyName);
@@ -71,7 +71,7 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
   private setValue(instance: Proto, value: any) {
     const currentValue = this.getValue(instance);
     if (currentValue !== value) {
-      if (!this.unchecked) {
+      if (!this.isUnchecked()) {
         this.checkType(value);
       }
       getPropertyStore(instance).set(this.propertyName, value);
@@ -79,22 +79,44 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     }
   }
 
+  private isUnchecked() {
+    return this.targetType as Constructor<any> === Object
+      && !this.userType
+      && !this.typeGuard;
+  }
+
   private checkType(value: any) {
     try {
-      if (this.config[0].type) { // unlike meta-data type, userType is checked first and regardless of typeGuard
-        checkType(value, this.config[0].type);
+      if (this.userType) { // unlike meta-data type, userType is checked first and regardless of typeGuard
+        checkType(value, this.userType);
       }
-      if (this.config[0].typeGuard) {
-        if (!this.config[0].typeGuard(value)) {
+      if (this.typeGuard) {
+        if (!this.typeGuard(value)) {
           throw new Error('Type guard check failed');
         }
       }
-      else if (!this.config[0].type) {
+      else if (!this.userType) {
         checkType(value, this.targetType);
       }
     }
     catch (ex) {
       throw new Error(`Failed to set property "${this.propertyName}": ${ex.message}`);
+    }
+  }
+
+  private setUserType(type: Constructor<TargetType>) {
+    if (this.userType) {
+      throw new Error('Can not re-define type of property');
+    }
+    this.userType = type;
+  }
+
+  private addTypeGuard(typeGuard: TypeGuard<TargetType>) {
+    if (!this.typeGuard) {
+      this.typeGuard = typeGuard;
+    } else {
+      const prevTypeGuard = this.typeGuard;
+      this.typeGuard = value => typeGuard(value) && prevTypeGuard(value);
     }
   }
 

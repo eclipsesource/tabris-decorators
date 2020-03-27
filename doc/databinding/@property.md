@@ -66,6 +66,8 @@ Example for a type guard more strict than the compiler:
   }
 ```
 
+By using multiple `@property` decorator on the same property you can give multiple type guards. They are executed in the given order.
+
 ### config.type
 
 **This option is only useful in JavaScript/JSX files.**
