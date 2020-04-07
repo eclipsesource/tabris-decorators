@@ -19,7 +19,10 @@ export enum ItemAction {
   Dismiss = 4
 }
 
-export class ListViewSelectEvent<ItemType> extends EventObject<ListView<ItemType>> {
+// Usage of 'any' for backwards compatibility with 3.4.0 where the Target parameter
+// did not exist yet. The change was necessary to work around circular type references
+// issues with TypeScript 3.8.
+export class ListViewSelectEvent<ItemType, Target = any> extends EventObject<Target> {
 
   constructor(
     readonly item: ItemType,
@@ -64,7 +67,7 @@ export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
 
   jsxAttributes: JSXAttributes<this> & {children?: Cell[]};
   @event onItemsChanged: ChangeListeners<this, 'items'>;
-  @event onSelect: Listeners<ListViewSelectEvent<ItemType>>;
+  @event onSelect: Listeners<ListViewSelectEvent<ItemType, this>>;
 
   private _observer: ListLikeObvserver<ItemType>;
 
