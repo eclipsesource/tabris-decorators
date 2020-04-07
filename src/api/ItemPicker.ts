@@ -1,4 +1,4 @@
-import {ChangeListeners, EventObject, JSXAttributes, Listeners, Picker, PickerSelectEvent, Properties, PropertyChangedEvent} from 'tabris';
+import {ChangeListeners, EventObject, JSXAttributes, Listeners, Picker, Properties, PropertyChangedEvent} from 'tabris';
 import {checkType} from './checkType';
 import {List, ListLike, Mutation} from './List';
 import {Binding} from './to';
@@ -7,7 +7,10 @@ import {ListLikeObvserver} from '../internals/ListLikeObserver';
 import {subscribe} from '../internals/subscribe';
 import {checkPathSyntax} from '../internals/utils-databinding';
 
-export class ItemPickerSelectEvent<ItemType> extends EventObject<ItemPicker<ItemType>> {
+// Usage of 'any' for backwards compatibility with 3.4.0 where the Target parameter
+// did not exist yet. The change was necessary to work around circular type references
+// issues with TypeScript 3.8.
+export class ItemPickerSelectEvent<ItemType, Target = any> extends EventObject<Target> {
 
   constructor(
     readonly item: ItemType,
@@ -28,7 +31,7 @@ export type ItemPickerProperties<ItemType>
 export class ItemPicker<ItemType> extends Picker {
 
   jsxAttributes: JSXAttributes<this> & {children?: ListLike<ItemType> | string};
-  @event onItemSelect: Listeners<ItemPickerSelectEvent<ItemType>>;
+  @event onItemSelect: Listeners<ItemPickerSelectEvent<ItemType, this>>;
   @event onItemsChanged: Listeners<PropertyChangedEvent<this, ListLike<ItemType>>>;
   @event onSelectionChanged: Listeners<PropertyChangedEvent<this, ItemType>>;
   @event onTextSourceChanged: ChangeListeners<this, 'textSource'>;
@@ -161,7 +164,7 @@ export class ItemPicker<ItemType> extends Picker {
     }
   };
 
-  protected _handleSelect = ({index}: PickerSelectEvent) => {
+  protected _handleSelect = ({index}: {index: number}) => {
     this.onItemSelect.trigger(new ItemPickerSelectEvent(
       this.items[index], index, this.itemText(index)
     ));
