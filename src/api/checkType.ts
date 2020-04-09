@@ -41,6 +41,14 @@ export function getValueString(value: any): string {
   return result;
 }
 
+export function getTypeName(type: BaseConstructor<any>) {
+  const name = type.name;
+  if (isPrimitiveType(type)) {
+    return name.toLowerCase();
+  }
+  return name;
+}
+
 function getValueTypeName(value: any) {
   if (value && value.constructor) {
     return getTypeName(value.constructor);
@@ -56,14 +64,6 @@ function isPrimitiveOfType(value: any, type: BaseConstructor<any>): boolean {
     return false;
   }
   return typeof value === getTypeName(type);
-}
-
-function getTypeName(type: BaseConstructor<any>) {
-  const name = type.name;
-  if (isPrimitiveType(type)) {
-    return name.toLowerCase();
-  }
-  return name;
 }
 
 function isBoxedValue(value: any) {
