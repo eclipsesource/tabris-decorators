@@ -45,6 +45,9 @@ function getValueTypeName(value: any) {
   if (value && value.constructor) {
     return getTypeName(value.constructor);
   }
+  if (value === null) {
+    return 'null';
+  }
   return typeof value;
 }
 

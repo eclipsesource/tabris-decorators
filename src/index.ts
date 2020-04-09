@@ -14,6 +14,7 @@ export * from './decorators/bindAll';
 export * from './decorators/getById';
 export * from './decorators/event';
 export * from './api/checkType';
+export * from './api/equals';
 export * from './api/Injector';
 export * from './api/ItemPicker';
 export * from './api/interfaces';
