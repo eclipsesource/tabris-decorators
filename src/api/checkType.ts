@@ -17,18 +17,24 @@ export function checkType(value: any, type: BaseConstructor<any>, strict?: boole
   if (isBoxedValue(value)) {
     throw new Error('Boxed values are forbidden');
   }
-  if (!strict && (value === null || value === undefined)) {
-    return;
+  if (!isType(value, type, strict)) {
+    throw new Error(
+      `Expected ${getValueString(value)} to be of type ${getTypeName(type)}, but found ${getValueTypeName(value)}.`
+    );
   }
-  if (type === Object) {
-    return;
+}
+
+export function isType(value: any, type: BaseConstructor<any>, strict?: boolean): boolean {
+  if (!type || type === Object) {
+    return true;
+  }
+  if (!strict && (value === null || value === undefined)) {
+    return true;
   }
   if (value instanceof type || isPrimitiveOfType(value, type)) {
-    return;
+    return true;
   }
-  throw new Error(
-    `Expected ${getValueString(value)} to be of type ${getTypeName(type)}, but found ${getValueTypeName(value)}.`
-  );
+  return false;
 }
 
 export function getValueString(value: any): string {

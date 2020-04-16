@@ -1,20 +1,22 @@
+import {CompareMode} from '../api/equals';
 import {CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
 import {applyDecorator} from '../internals/utils';
 import {TypeGuard, UserType} from '../internals/utils-databinding';
 
 export type CustomPropertyDecorator<T> = <
   Name extends keyof Target,
-  Target extends {[key in Name]: T},
+  Target extends {[key in Name]: T | unknown},
 >(target: Target, property: Name) => void;
 
-export type PropertyDecoratorConfig<T> = TypeGuard<T> | UserType<T> | {
-  typeGuard?: TypeGuard<T>,
-  type?: UserType<T>
-};
+export type Converter<T> = 'off' | 'auto' | ((value: unknown) => T);
+
+export type PropertyDecoratorConfig<T> = TypeGuard<T> | UserType<T> | PropertySuperConfig<T>;
 
 export type PropertySuperConfig<T> = {
   typeGuard?: TypeGuard<T>,
-  type?: UserType<T>
+  type?: UserType<T>,
+  convert?: Converter<T>,
+  equals?: CompareMode
 };
 
 /**
@@ -61,12 +63,24 @@ export function property(...args: any[]): PropertyDecorator | void {
   return applyDecorator('property', args, (proto: object, propertyName: string) => {
     CustomPropertyDescriptor.get(proto, propertyName as keyof typeof proto).addConfig({
       typeGuard: getTypeGuard(args[0]),
-      type: getUserType(args[0])
+      type: getUserType(args[0]),
+      convert: getConverter(args[0]),
+      equals: getCompareMode(args[0])
     });
   });
 }
 
-function getUserType(arg: unknown): UserType<any> | null{
+function getTypeGuard(arg: unknown): TypeGuard<any> | null {
+  if (arg instanceof Function) {
+    return arg as TypeGuard<any>;
+  }
+  if (arg instanceof Object && arg.constructor === Object) {
+    return (arg as any).typeGuard || null;
+  }
+  return null;
+}
+
+function getUserType(arg: unknown): UserType<any> | null {
   if (arg instanceof Function) {
     return null;
   }
@@ -76,12 +90,22 @@ function getUserType(arg: unknown): UserType<any> | null{
   return null;
 }
 
-function getTypeGuard(arg: unknown): TypeGuard<any> | null {
+function getCompareMode(arg: unknown): CompareMode {
   if (arg instanceof Function) {
-    return arg as TypeGuard<any>;
+    return null;
   }
   if (arg instanceof Object && arg.constructor === Object) {
-    return (arg as any).typeGuard || null;
+    return (arg as any).equals || null;
+  }
+  return null;
+}
+
+function getConverter(arg: unknown): (v: any) => any {
+  if (arg instanceof Function) {
+    return null;
+  }
+  if (arg instanceof Object && arg.constructor === Object) {
+    return (arg as any).convert || null;
   }
   return null;
 }

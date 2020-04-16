@@ -1,8 +1,8 @@
 import 'mocha';
 import 'sinon';
-import {ChangeListeners, Composite, Properties, tabris} from 'tabris';
+import {ChangeListeners, Color, ColorValue, Composite, Properties, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import {expect, stub} from './test';
+import {expect, spy, stub} from './test';
 import {event, property} from '../src';
 
 describe('property', () => {
@@ -117,7 +117,7 @@ describe('property', () => {
     expect(component.baz).to.equal('foo');
   });
 
-  describe('with type guard', () => {
+  describe('with typeGuard option', () => {
 
     it('throws if type standard check would succeed but type guard fails', () => {
       const component = new CustomComponent();
@@ -152,7 +152,7 @@ describe('property', () => {
       expect(component.mixedType).to.deep.equal(['a']);
     });
 
-    it('throws if type type guard throws', () => {
+    it('throws if type guard throws', () => {
       const component = new CustomComponent();
       expect(() => component.trueType = false).to.throw(
         'Failed to set property "trueType": only true allowed'
@@ -162,7 +162,7 @@ describe('property', () => {
 
   });
 
-  describe('with type parameter', () => {
+  describe('with type option', () => {
 
     class Example {
 
@@ -209,6 +209,240 @@ describe('property', () => {
       example.withTypeGuard = date2001;
 
       expect(example.withTypeGuard).to.equal(date2001);
+    });
+
+  });
+
+  describe('with convert option', () => {
+
+    class ConvertExample {
+
+      @property({convert: 'auto'})
+      auto: string;
+
+      @property({convert: 'off'})
+      none: number;
+
+      @property({convert: null})
+      off: number;
+
+      @property({convert: value => parseInt(value as any) + 2})
+      plusTwo: number;
+
+      @property({convert: (() => { throw new Error('foo'); }) as any})
+      fail: number;
+
+      @property({convert: v => String(v)})
+      buggy: number;
+
+      @property({
+        type: Number,
+        convert: v => parseInt(String(v)) - 100,
+        typeGuard: v => v > 0
+      })
+      withTypeGuard: any;
+
+      @event onColorChanged: ChangeListeners<this, 'color'>;
+
+      @property({type: Color, convert: 'auto', equals: 'auto'})
+      color: ColorValue;
+
+      @property({convert: 'auto'})
+      notype: any;
+
+    }
+
+    let example: ConvertExample;
+
+    beforeEach(() => {
+      example = new ConvertExample();
+    });
+
+    it('is off by default', () => {
+      expect(() => (example.none as any) = '3').to.throw(Error);
+    });
+
+    it('"off" rejects incorrect type', () => {
+      example.off = 2;
+      try {
+        (example as any).off = '3';
+        throw new Error('unexpected');
+      } catch (ex) {
+        expect(ex.message).to.include('Expected value "3" to be of type number');
+      } finally {
+        expect(example.off).to.equal(2);
+      }
+    });
+
+    it('"auto" converts automatically', () => {
+      (example as any).auto = {toString: () => 'foo'};
+      expect(example.auto).to.equal('foo');
+    });
+
+    it('"auto" converts null for primitive type', () => {
+      example.auto = 'foo';
+      example.auto = null;
+      expect(example.auto).to.equal('');
+    });
+
+    it('"auto" skips null for object type', () => {
+      example.color = Color.from('red');
+      example.color = null;
+      expect(example.color).to.equal(null);
+    });
+
+    it('converter is called for incorrect type', () => {
+      (example as any).plusTwo = '23';
+      expect(example.plusTwo).to.equal(25);
+    });
+
+    it('converter is called for null', () => {
+      (example as any).plusTwo = null;
+      expect(example.plusTwo).to.be.NaN;
+    });
+
+    it('converter is not called for correct type', () => {
+      example.plusTwo = 23;
+      expect(example.plusTwo).to.equal(23);
+    });
+
+    it('converter return type is checked', () => {
+      expect(() => (example as any).buggy = true).to.throw(Error, 'type number');
+    });
+
+    it('type guard is called with return value', () => {
+      example.withTypeGuard = 200;
+      expect(example.withTypeGuard).to.equal(200);
+      expect(() => example.withTypeGuard = '99').to.throw(Error, 'guard check failed');
+    });
+
+    it('converter error propagates', () => {
+      expect(() => (example as any).fail = '23').to.throw(Error, 'foo');
+    });
+
+    it('works with ColorValue', () => {
+      example.color = 'rgb(0, 1, 2)';
+      expect(example.color.toString()).to.equal('rgb(0, 1, 2)');
+    });
+
+    it('fires change event with converted value', () => {
+      let changeValue: ColorValue = null;
+      example.onColorChanged(ev => changeValue = ev.value);
+
+      example.color = 'rgb(0, 1, 2)';
+
+      expect(changeValue).to.be.instanceOf(Color);
+      expect(example.color).to.equal(changeValue);
+    });
+
+    it('detects change after conversion', () => {
+      const listener = spy();
+      example.color = 'rgb(0, 1, 2)';
+      example.onColorChanged(listener);
+
+      example.color = 'rgb(0, 1, 2)';
+
+      expect(listener).not.to.have.been.called;
+    });
+
+    it('warns if no type information is given', () => {
+      spy(console, 'warn');
+
+      example.notype = true;
+      example.notype = false;
+
+      expect(console.warn).to.have.been.calledOnceWith(
+        'Property "notype" of class "ConvertExample" requires an explicit type to function correctly'
+      );
+
+    });
+
+  });
+
+  describe('with equals option', () => {
+
+    class EqualsExample {
+
+      @event onDefaultChanged: ChangeListeners<this, 'default'>;
+      @property({equals: null})
+      default: Date;
+
+      @event onStrictChanged: ChangeListeners<this, 'strict'>;
+      @property({equals: 'strict'})
+      strict: Date;
+
+      @event onAutoChanged: ChangeListeners<this, 'auto'>;
+      @property({equals: 'auto'})
+      auto: Date;
+
+      @event onTimeChanged: ChangeListeners<this, 'time'>;
+      @property({
+        equals: (a: Date, b: Date) => (a && a.getHours()) === (b && b.getHours())
+      })
+      time: Date;
+
+    }
+
+    let example: EqualsExample;
+    let dateA: Date;
+    let dateB: Date;
+    let listener: () => void;
+
+    beforeEach(() => {
+      example = new EqualsExample();
+      dateA = new Date(0);
+      dateB = new Date(0);
+      listener = spy();
+    });
+
+    it('is strict by default', () => {
+      example.default = dateA;
+      example.onDefaultChanged(listener);
+
+      example.default = dateB;
+
+      expect(example.default).to.equal(dateB);
+      expect(listener).to.have.been.calledOnce;
+    });
+
+    it('"strict" always fires events unless values are identical', () => {
+      example.strict = dateA;
+      example.onStrictChanged(listener);
+
+      example.strict = dateB;
+      example.strict = dateA;
+      example.strict = dateA;
+      example.strict = dateB;
+
+      expect(example.strict).to.equal(dateB);
+      expect(listener).to.have.been.calledThrice;
+    });
+
+    it('"auto" fires no change events if values are detected as equal', () => {
+      example.auto = dateA;
+      example.onAutoChanged(listener);
+
+      example.auto = dateB;
+      example.auto = dateA;
+      example.auto = dateB;
+
+      expect(example.auto).to.equal(dateA);
+      expect(listener).not.to.have.been.called;
+    });
+
+    it('custom function is supported', () => {
+      dateA.setHours(20);
+      dateB.setHours(21);
+      const dateC = new Date(dateB);
+      dateC.setFullYear(2000);
+      example.time = dateA;
+      example.onTimeChanged(listener);
+
+      example.time = dateB;
+      example.time = dateC;
+
+      expect(example.time).to.equal(dateB);
+      expect(listener).to.have.been.calledOnce;
     });
 
   });

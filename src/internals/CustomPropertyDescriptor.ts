@@ -1,7 +1,9 @@
-import {Constructor, getPropertyType} from './utils';
+import {Constructor, getPropertyType, isPrimitiveType} from './utils';
 import {getPropertyStore, trigger, TypeGuard, UserType} from './utils-databinding';
-import {checkType} from '../api/checkType';
-import {PropertySuperConfig} from '../decorators/property';
+import {checkType, isType} from '../api/checkType';
+import {convert} from '../api/convert';
+import {CompareFn, CompareMode, equals} from '../api/equals';
+import {Converter, PropertySuperConfig} from '../decorators/property';
 
 export class CustomPropertyDescriptor<Proto extends object, TargetType> {
 
@@ -47,6 +49,9 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
   private typeGuard: TypeGuard;
   private readonly changeEvent: string;
   private readonly targetType = getPropertyType(this.proto, this.propertyName);
+  private equals: CompareFn;
+  private convert: (value: unknown, instance: object) => TargetType;
+  private youHaveBeenWarned: boolean = false;
 
   constructor(private readonly proto: Proto, private readonly propertyName: keyof Proto & string) {
     const self = this;
@@ -54,28 +59,38 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     this.set = function(this: Proto, value) { self.setValue(this, value); };
     this.get = function(this: Proto) { return self.getValue(this); };
     Object.defineProperty(proto, propertyName, this);
+    this.setCompareMode('strict');
+    this.setConverter('off');
   }
 
-  addConfig({type, typeGuard}: PropertySuperConfig<TargetType>) {
-    if (type) {
-      this.setUserType(type);
+  addConfig(config: PropertySuperConfig<TargetType>) {
+    if (config.type) {
+      this.setUserType(config.type);
     }
-    if (typeGuard) {
-      this.addTypeGuard(typeGuard);
+    if (config.typeGuard) {
+      this.addTypeGuard(config.typeGuard);
+    }
+    if (config.convert) {
+      this.setConverter(config.convert);
+    }
+    if (config.equals) {
+      this.setCompareMode(config.equals);
     }
   }
+
   private getValue(instance: Proto) {
     return getPropertyStore(instance).get(this.propertyName);
   }
 
   private setValue(instance: Proto, value: any) {
     const currentValue = this.getValue(instance);
-    if (currentValue !== value) {
+    const newValue = this.convert(value, instance);
+    if (!this.equals(currentValue, newValue)) {
       if (!this.isUnchecked()) {
-        this.checkType(value);
+        this.checkType(newValue);
       }
-      getPropertyStore(instance).set(this.propertyName, value);
-      trigger(instance, this.changeEvent, {value});
+      getPropertyStore(instance).set(this.propertyName, newValue);
+      trigger(instance, this.changeEvent, {value: newValue});
     }
   }
 
@@ -118,6 +133,56 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
       const prevTypeGuard = this.typeGuard;
       this.typeGuard = value => typeGuard(value) && prevTypeGuard(value);
     }
+  }
+
+  private setCompareMode(mode: CompareMode) {
+    this.equals = (a, b) => equals([a, b], mode);
+  }
+
+  private setConverter(modeOrFn: Converter<any>) {
+    if (modeOrFn === 'off') {
+      this.convert = value => value as any;
+    } else if (modeOrFn === 'auto') {
+      this.convert = (value, instance) => {
+        if (!this.isConvertible(value, instance)) {
+          return value;
+        }
+        return convert(value, this.getType());
+      };
+    } else if (modeOrFn instanceof Function) {
+      this.convert = (value, instance) => {
+        if (!this.isConvertible(value, instance)) {
+          return value;
+        }
+        return modeOrFn(value);
+      };
+    }
+  }
+
+  private isConvertible(value: unknown, instance: object) {
+    const type = this.getType();
+    if (!type) {
+      this.noTypeWarning(instance);
+      return false;
+    }
+    if (value == null && !isPrimitiveType(type)) {
+      return false;
+    }
+    return !isType(value, type, true);
+  }
+
+  private noTypeWarning(instance: object) {
+    if (!this.youHaveBeenWarned) {
+      const className = instance.constructor.name || '[anonymous]';
+      console.warn(
+        `Property "${this.propertyName}" of class "${className}" requires an explicit type to function correctly`
+      );
+      this.youHaveBeenWarned = true;
+    }
+  }
+
+  private getType(): Constructor<any> {
+    return this.userType || (this.targetType !== Object ? this.targetType : null);
   }
 
 }
