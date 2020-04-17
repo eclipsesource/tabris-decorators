@@ -9,7 +9,7 @@ type LocalPath = [string, string?];
 
 export class TwoWayBinding {
 
-  static create(component: WidgetInterface, config: BindSuperConfig) {
+  static create(component: WidgetInterface, config: BindSuperConfig<unknown>) {
     if (config.all) {
       for (const sourceProperty in config.all) {
         const localPath: LocalPath = [config.componentProperty, sourceProperty];

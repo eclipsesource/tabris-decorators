@@ -1,7 +1,7 @@
 import 'mocha';
 import 'sinon';
 import {useFakeTimers} from 'sinon';
-import {Composite, tabris, TextInput} from 'tabris';
+import {Color, ColorValue, Composite, tabris, TextInput} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy, stub} from './test';
 import {bind, component, property} from '../src';
@@ -23,7 +23,7 @@ describe('component', () => {
 
     @bind({
       path: '#textInput1.layoutData',
-      typeGuard: value => value.width !== 23
+      typeGuard: value => (value as any).width !== 23
     })
     myObject: object;
 
@@ -309,14 +309,26 @@ describe('component', () => {
 
   });
 
-  describe('@bind({path, typeGuard})', () => {
+  describe('@bind({path, ...)', () => {
 
-    @component class ComponentWithTypeGuard extends Composite {
+    @component class BindWithOptions extends Composite {
+
       @bind({
         path: '#foo.bar',
         typeGuard: v => (typeof v === 'string') || v === undefined
       })
       value: string | number;
+
+      @bind({
+        type: Color,
+        path: '#foo.background',
+        equals: 'auto',
+        convert: 'auto',
+        nullable: false,
+        default: Color.white
+      })
+      color: ColorValue;
+
     }
 
     it('throws if target value changes to value rejected by type guard', () => {
@@ -324,7 +336,7 @@ describe('component', () => {
       class CustomChild extends Composite {
         @property bar: number;
       }
-      const guarded = new ComponentWithTypeGuard();
+      const guarded = new BindWithOptions();
       const child = new CustomChild({id: 'foo'});
       guarded.append(child);
 
@@ -339,7 +351,7 @@ describe('component', () => {
       class CustomChild extends Composite {
         @property bar: number;
       }
-      const guarded = new ComponentWithTypeGuard();
+      const guarded = new BindWithOptions();
       const child = new CustomChild({id: 'foo'});
 
       child.bar = 12;
@@ -352,7 +364,7 @@ describe('component', () => {
     });
 
     it('throws if own value is rejected by type guard', () => {
-      expect(() => (new ComponentWithTypeGuard()).value = 12).to.throw(
+      expect(() => (new BindWithOptions()).value = 12).to.throw(
         'Failed to set property "value": Type guard check failed'
       );
     });
@@ -366,6 +378,26 @@ describe('component', () => {
           @property myItem: MyItem;
         }
       }).to.throw(Error, '@bind can not have "path" and "all" option simultaneously');
+    });
+
+    it('supports options nullable and default', () => {
+      const notNullable = new BindWithOptions();
+      notNullable.color = 'red';
+
+      notNullable.color = null;
+
+      expect(Color.from(notNullable.color).equals(Color.white)).to.be.true;
+    });
+
+    it('supports options type, convert and equals', () => {
+      const withConverter = new BindWithOptions();
+      withConverter.color = '#001122';
+      const converted = withConverter.color;
+
+      withConverter.color = '#001122';
+
+      expect(converted).to.be.instanceOf(Color);
+      expect(withConverter.color).to.equal(converted);
     });
 
   });

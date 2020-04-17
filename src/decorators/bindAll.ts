@@ -1,4 +1,5 @@
-import {AllBindings, bind, BindAllDecorator} from './bind';
+import {bind} from './bind';
+import {CustomPropertyDecorator} from './property';
 
 /**
  * A decorator for instance properties of classes extending `Composite`, i.e. a custom component.
@@ -19,6 +20,6 @@ import {AllBindings, bind, BindAllDecorator} from './bind';
  * also supports the `typeGuard` and `type` options.*
  * * *Use`@bind(path)` or `@bind({path: path})` to create bindings to the component property itself.*
  */
-export function bindAll<ValidKeys extends string>(bindings: AllBindings<ValidKeys>): BindAllDecorator<ValidKeys> {
+export function bindAll<T>(bindings: {[Property in keyof T]?: string}): CustomPropertyDecorator<T> {
   return bind({all: bindings});
 }
