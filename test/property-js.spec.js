@@ -2,7 +2,7 @@ import 'mocha';
 import 'sinon';
 import {Composite, tabris, Color} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import {expect, stub, spy} from './test';
+import {expect, stub, spy, restoreSandbox} from './test';
 import {event, property} from '../src';
 
 class Example {
@@ -68,6 +68,8 @@ describe('property', () => {
   beforeEach(() => {
     tabris._init(new ClientMock());
   });
+
+  afterEach(() => restoreSandbox());
 
   it('support set via constructor', () => {
     const component = new CustomComponent({foo: 'foo1', bar: 23});
@@ -263,9 +265,15 @@ describe('property', () => {
       expect(example.plusTwo).to.equal(23);
     });
 
-    it('converter is called for unknown type', () => {
-      example.noType = 23;
-      expect(example.noType).to.equal(24);
+    it('warns if no type information is given', () => {
+      spy(console, 'warn');
+
+      example.noType = true;
+      example.noType = false;
+
+      expect(console.warn).to.have.been.calledOnceWith(
+        'Property "noType" of class "ConvertExample" requires an explicit type to function correctly'
+      );
     });
 
     it('converter return type is checked', () => {

@@ -16,7 +16,9 @@ export type PropertySuperConfig<T> = {
   typeGuard?: TypeGuard<T>,
   type?: UserType<T>,
   convert?: Converter<T>,
-  equals?: CompareMode
+  equals?: CompareMode,
+  nullable?: boolean,
+  default?: T
 };
 
 /**
@@ -65,7 +67,9 @@ export function property(...args: any[]): PropertyDecorator | void {
       typeGuard: getTypeGuard(args[0]),
       type: getUserType(args[0]),
       convert: getConverter(args[0]),
-      equals: getCompareMode(args[0])
+      equals: getCompareMode(args[0]),
+      default: getDefaultValue(args[0]),
+      nullable: getNullable(args[0])
     });
   });
 }
@@ -108,4 +112,24 @@ function getConverter(arg: unknown): (v: any) => any {
     return (arg as any).convert || null;
   }
   return null;
+}
+
+function getNullable(arg: unknown): boolean | null {
+  if (arg instanceof Function) {
+    return null;
+  }
+  if (arg instanceof Object && arg.constructor === Object && 'nullable' in arg) {
+    return (arg as any).nullable;
+  }
+  return null;
+}
+
+function getDefaultValue(arg: unknown): any {
+  if (arg instanceof Function) {
+    return undefined;
+  }
+  if (arg instanceof Object && arg.constructor === Object && 'default' in arg) {
+    return (arg as any).default;
+  }
+  return undefined;
 }

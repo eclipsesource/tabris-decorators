@@ -52,6 +52,8 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
   private equals: CompareFn;
   private convert: (value: unknown, instance: object) => TargetType;
   private youHaveBeenWarned: boolean = false;
+  private defaultValue: TargetType | undefined;
+  private nullable: boolean;
 
   constructor(private readonly proto: Proto, private readonly propertyName: keyof Proto & string) {
     const self = this;
@@ -61,6 +63,8 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     Object.defineProperty(proto, propertyName, this);
     this.setCompareMode('strict');
     this.setConverter('off');
+    this.setNullable(true);
+    this.setDefaultValue(undefined);
   }
 
   addConfig(config: PropertySuperConfig<TargetType>) {
@@ -76,22 +80,50 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     if (config.equals) {
       this.setCompareMode(config.equals);
     }
-  }
-
-  private getValue(instance: Proto) {
-    return getPropertyStore(instance).get(this.propertyName);
+    if (config.nullable != null) {
+      this.setNullable(config.nullable);
+    }
+    if ('default' in config) {
+      this.setDefaultValue(config.default);
+    }
   }
 
   private setValue(instance: Proto, value: any) {
-    const currentValue = this.getValue(instance);
-    const newValue = this.convert(value, instance);
-    if (!this.equals(currentValue, newValue)) {
+    let newValue = this.convert(value, instance);
+    if (newValue == null && !this.nullable) {
+      if (this.defaultValue == null) {
+        throw new Error('Property is not nullable');
+      }
+      newValue = this.convert(this.defaultValue, instance);
+    }
+    if (!this.equals(this.getValue(instance), newValue)) {
       if (!this.isUnchecked()) {
         this.checkType(newValue);
       }
       getPropertyStore(instance).set(this.propertyName, newValue);
       trigger(instance, this.changeEvent, {value: newValue});
     }
+  }
+
+  private getValue(instance: Proto) {
+    const store = getPropertyStore(instance);
+    if (!store.has(this.propertyName)) {
+      if (this.defaultValue !== undefined) {
+        try {
+          const initValue = this.convert(this.defaultValue, instance);
+          if (!this.isUnchecked()) {
+            this.checkType(initValue);
+          }
+          store.set(this.propertyName, initValue);
+        } catch (ex) {
+          console.warn(`Failed to initialize property "${this.propertyName}" with default value: ${ex.message}`);
+          store.set(this.propertyName, undefined);
+        }
+      } else {
+        store.set(this.propertyName, undefined);
+      }
+    }
+    return store.get(this.propertyName);
   }
 
   private isUnchecked() {
@@ -159,14 +191,29 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     }
   }
 
+  private setNullable(nullable: boolean) {
+    this.nullable = nullable !== false;
+  }
+
+  private setDefaultValue(value: TargetType | undefined) {
+    if (this.defaultValue !== undefined) {
+      throw new Error('property default value can not be re-defined');
+    }
+    this.defaultValue = value;
+  }
+
+  private getType(): Constructor<any> {
+    return this.userType || (this.targetType !== Object ? this.targetType : null);
+  }
+
   private isConvertible(value: unknown, instance: object) {
     const type = this.getType();
     if (!type) {
       this.noTypeWarning(instance);
       return false;
     }
-    if (value == null && !isPrimitiveType(type)) {
-      return false;
+    if (value == null) {
+      return !this.nullable && isPrimitiveType(type) && this.defaultValue === undefined;
     }
     return !isType(value, type, true);
   }
@@ -179,10 +226,6 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
       );
       this.youHaveBeenWarned = true;
     }
-  }
-
-  private getType(): Constructor<any> {
-    return this.userType || (this.targetType !== Object ? this.targetType : null);
   }
 
 }

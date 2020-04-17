@@ -84,6 +84,9 @@ function compareValueOf(values: ValuePair<object>): boolean {
 }
 
 function isObjectPair(values: ValuePair): values is ValuePair<object> {
+  if (!values[0] || !values[1]) {
+    return false;
+  }
   if (typeof values[0] !== 'object' || typeof values[1] !== 'object') {
     return false;
   }

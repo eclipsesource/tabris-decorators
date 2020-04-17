@@ -2,7 +2,7 @@ import 'mocha';
 import 'sinon';
 import {ChangeListeners, Color, ColorValue, Composite, Properties, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import {expect, spy, stub} from './test';
+import {expect, restoreSandbox, spy, stub} from './test';
 import {event, property} from '../src';
 
 describe('property', () => {
@@ -33,6 +33,8 @@ describe('property', () => {
   beforeEach(() => {
     tabris._init(new ClientMock());
   });
+
+  afterEach(() => restoreSandbox());
 
   it('support set via constructor', () => {
     const component = new CustomComponent({foo: 'foo1', bar: 23});
@@ -220,6 +222,9 @@ describe('property', () => {
       @property({convert: 'auto'})
       auto: string;
 
+      @property({convert: 'auto', nullable: false})
+      nonNullable: string;
+
       @property({convert: 'off'})
       none: number;
 
@@ -279,16 +284,22 @@ describe('property', () => {
       expect(example.auto).to.equal('foo');
     });
 
-    it('"auto" converts null for primitive type', () => {
+    it('"auto" does not convert null for nullable primitive type', () => {
       example.auto = 'foo';
       example.auto = null;
-      expect(example.auto).to.equal('');
+      expect(example.auto).to.be.null;
     });
 
-    it('"auto" skips null for object type', () => {
+    it('"auto" converts null for non-nullable primitive type', () => {
+      example.nonNullable = 'foo';
+      example.nonNullable = null;
+      expect(example.nonNullable).to.equal('');
+    });
+
+    it('"auto" does not convert null for object type', () => {
       example.color = Color.from('red');
       example.color = null;
-      expect(example.color).to.equal(null);
+      expect(example.color).to.be.null;
     });
 
     it('converter is called for incorrect type', () => {
@@ -296,9 +307,9 @@ describe('property', () => {
       expect(example.plusTwo).to.equal(25);
     });
 
-    it('converter is called for null', () => {
+    it('converter for primitive nullable type is not called with null', () => {
       (example as any).plusTwo = null;
-      expect(example.plusTwo).to.be.NaN;
+      expect(example.plusTwo).to.be.null;
     });
 
     it('converter is not called for correct type', () => {
@@ -354,7 +365,6 @@ describe('property', () => {
       expect(console.warn).to.have.been.calledOnceWith(
         'Property "notype" of class "ConvertExample" requires an explicit type to function correctly'
       );
-
     });
 
   });
@@ -443,6 +453,173 @@ describe('property', () => {
 
       expect(example.time).to.equal(dateB);
       expect(listener).to.have.been.calledOnce;
+    });
+
+  });
+
+  describe('with default option', () => {
+
+    class DefaultValueExample {
+
+      @property({default: 1})
+      one: number;
+
+      @property({default: 1})
+      two: number = 2;
+
+      @property({default: '3', convert: 'auto', nullable: false})
+      three: number;
+
+      @property({default: '4'})
+      notFour: number;
+
+      @property({default: null})
+      null: Date;
+
+      @property
+      none: Date;
+
+    }
+
+    let example: DefaultValueExample;
+
+    beforeEach(() => {
+      example = new DefaultValueExample();
+    });
+
+    it('initializes with default value', () => {
+      expect(example.one).to.equal(1);
+    });
+
+    it('has lower priority than init value', () => {
+      expect(example.two).to.equal(2);
+    });
+
+    it('converts default on initialization', () => {
+      expect(example.three).to.equal(3);
+    });
+
+    it('converts default on reset', () => {
+      example.three = 2;
+
+      example.three = null;
+
+      expect(example.three).to.equal(3);
+    });
+
+    it('property can still contain null', () => {
+      example.one = null;
+      expect(example.one).to.be.null;
+    });
+
+    it('property can still contain undefined', () => {
+      example.one = undefined;
+      expect(example.one).to.be.undefined;
+    });
+
+    it('supports null', () => {
+      expect(example.null).to.be.null;
+    });
+
+    it('is undefined if not given', () => {
+      expect(example.none).to.be.undefined;
+    });
+
+    it('warns if default value does not pass type check', () => {
+      // the initialization happens on first access, therefore an exception would be unexpected
+      spy(console, 'warn');
+
+      const value = example.notFour;
+
+      expect(value).to.be.undefined;
+      expect(console.warn).to.have.been.calledWithMatch(/Failed to initialize property "notFour"/);
+
+    });
+
+  });
+
+  describe('with nullable option', () => {
+
+    class NullableExample {
+
+      @property({nullable: null})
+      default: number = 1;
+
+      @property({nullable: true})
+      nullable: number = 1;
+
+      @property({nullable: false})
+      notNullable: number = 1;
+
+      @property({nullable: false, default: null})
+      nullAsDefault;
+
+      @event onResetableChanged: ChangeListeners<this, 'resetable'>;
+
+      @property({nullable: false, default: 0})
+      resetable: number = 1;
+
+    }
+
+    let example: NullableExample;
+
+    beforeEach(() => {
+      example = new NullableExample();
+    });
+
+    it('allows null by default', () => {
+      example.default = null;
+      expect(example.default).to.be.null;
+    });
+
+    it('true allows null', () => {
+      example.nullable = null;
+      expect(example.nullable).to.be.null;
+    });
+
+    it('false disallows null', () => {
+      try {
+        example.notNullable = null;
+        throw new Error('unexpected');
+      } catch (ex) {
+        expect(ex.message).to.include('not nullable');
+      }
+      expect(example.nullable).to.equal(1);
+    });
+
+    it('false disallows undefined', () => {
+      try {
+        example.notNullable = undefined;
+        throw new Error('unexpected');
+      } catch (ex) {
+        expect(ex.message).to.include('not nullable');
+      }
+      expect(example.nullable).to.equal(1);
+    });
+
+    it('false allows null as default value', () => {
+      expect(example.nullAsDefault).to.be.null;
+      expect(() => example.nullAsDefault = null).to.throw(Error);
+    });
+
+    it('false uses non-null default value for reset', () => {
+      example.resetable = null;
+      expect(example.resetable).to.equal(0);
+    });
+
+    it('false uses non-null default value for reset', () => {
+      example.resetable = undefined;
+      expect(example.resetable).to.equal(0);
+    });
+
+    it('false fires change event on reset', () => {
+      const listener = spy();
+      example.onResetableChanged(listener);
+
+      example.resetable = null;
+
+      expect(listener).to.have.been.calledOnce;
+      expect(listener.args[0][0].value).to.equal(0);
     });
 
   });
