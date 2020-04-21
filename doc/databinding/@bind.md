@@ -90,13 +90,29 @@ model: Model;
 
 For details see [`@bindAll`](./@bindAll.md).
 
-### config.typeGuard
-
-A [`typeGuard`](./@property.md#configtypeguard) may be given to perform value checks.
-
 ### config.type
 
-A [`type`](./@property.md#configtype) may be given to enforce type checks in JavaScript.
+A [type](./@property.md#configtype) may be given to enforce type checks in JavaScript.
+
+### config.typeGuard
+
+A [type guard](./@property.md#configtypeguard) may be given to perform value checks.
+
+### config.default
+
+The [default](./@property.md#configdefault) value of the property.
+
+### config.nullable
+
+Whether or not the value is  [nullable](./@property.md#confignullable). Is `true` by default.
+
+### config.equals
+
+How the property determines whether a new value [equals](./@property.md#configequals) the current one.
+
+### config.convert
+
+Lets the property [convert](./@property.md#configconvert) the incoming value to the expected type.
 
 ### Properties eligible for bindings
 

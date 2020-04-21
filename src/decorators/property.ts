@@ -38,6 +38,10 @@ export type PropertySuperConfig<T> = {
  *   kind of value checks.*
  * * *Use `@property(typeGuard)` or `@property({typeGuard: typeGuard})`
  *   to perform explicit value checks in either TypeScript or JavaScript.*
+ * * *Use `@property({default: value})` to define the property default value.
+ * * *Use `@property({nullable: false})` to disallow `null` and `undefined`values.
+ * * *Use `@property({equals: 'auto'})` to relax equality check for objects.
+ * * *Use `@property({convert: 'auto'})` to automatically convert the value to the property's type.
  */
 export function property(targetProto: object, propertyName: string | symbol): void;
 
@@ -49,7 +53,7 @@ export function property(targetProto: object, propertyName: string | symbol): vo
  *
  * ```ts
  * ‍@property myText: string;
- * ‍@event readonly onMyTextChanged: ChangeListeners<MyComponent, 'myText'>;
+ * ‍@event readonly onMyTextChanged: ChangeListeners<string>;
  * ```
  *
  * *Notes:*
@@ -58,6 +62,10 @@ export function property(targetProto: object, propertyName: string | symbol): vo
  *   kind of value checks.*
  * * *Use `@property(typeGuard)` or `@property({typeGuard: typeGuard})`
  *   to perform explicit value checks in either TypeScript or JavaScript.*
+ * * *Use `@property({default: value})` to define the property default value.
+ * * *Use `@property({nullable: false})` to disallow `null` and `undefined`values.
+ * * *Use `@property({equals: 'auto'})` to relax equality check for objects.
+ * * *Use `@property({convert: 'auto'})` to automatically convert the value to the property's type.
  */
 export function property<T>(check: PropertyDecoratorConfig<T>): CustomPropertyDecorator<T>;
 

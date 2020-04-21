@@ -64,8 +64,7 @@ export function bind<T>(config: BindSingleConfig<T> | string): CustomPropertyDec
  * ```
  *
  * *Notes:*
- * * *`@bind` behaves like `@property` in most regards.*
- * * *Like `@property` it also supports the `typeGuard` and `type` options.*
+ * * *`@bind` behaves like `@property` and supports all the same configuration options.*
  * * *Use`@bind(path)` or `@bind({path: path})` to create bindings to the component property itself.*
  * * *`@bindAll(bindings)` can be used as a shorthand for `@bind({all: bindings})`.*
  */

@@ -4,7 +4,41 @@ import {CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
 import {applyDecorator} from '../internals/utils';
 import {TypeGuard, UserType} from '../internals/utils-databinding';
 
+/**
+ * This decorator makes an instance property fire change events, thereby making it bindable.
+ *
+ * `@prop` can be used on any class. A matching change event may (optionally)
+ * be declared explicitly to be able to attach listeners. Example:
+ *
+ * ```ts
+ * ‍@prop myText: string;
+ * ‍@event readonly onMyTextChanged: ChangeListeners<string>;
+ * ```
+ *
+ * *Notes:*
+ * * *In TypeScript files `@prop` will perform implicit value checks for most types.*
+ * * *In JavaScript files `@prop({type: Type})` or `@prop(Type)` can be used to enable the same
+ *   kind of value checks.*
+ * * *`@prop(config)` supports all the same options as `@property(config)`, but uses different defaults.*
+ */
 export function prop(targetProto: object, propertyName: string | symbol): void;
+/**
+ * This decorator makes an instance property fire change events, thereby making it bindable.
+ *
+ * `@prop` can be used on any class. A matching change event may (optionally)
+ * be declared explicitly to be able to attach listeners. Example:
+ *
+ * ```ts
+ * ‍@prop myText: string;
+ * ‍@event readonly onMyTextChanged: ChangeListeners<string>;
+ * ```
+ *
+ * *Notes:*
+ * * *In TypeScript files `@prop` will perform implicit value checks for most types.*
+ * * *In JavaScript files `@prop({type: Type})` or `@prop(Type)` can be used to enable the same
+ *   kind of value checks.*
+ * * *`@prop(config)` supports all the same options as `@property(config)`, but uses different defaults.*
+ */
 export function prop<T>(check: PropertyDecoratorConfig<T>): CustomPropertyDecorator<T>;
 export function prop(...args: any[]): PropertyDecorator | void {
   return applyDecorator('prop', args, (proto: object, propertyName: string) => {
