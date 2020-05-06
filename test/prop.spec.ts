@@ -20,7 +20,10 @@ describe('prop', () => {
       @prop foo: string;
 
       @event onBarChanged: ChangeListeners<this, 'bar'>;
-      @prop({}) bar: string;
+      @(prop as any)() bar: number;
+
+      @event onBazChanged: ChangeListeners<this, 'baz'>;
+      @prop({}) baz: boolean;
 
       @event onColorChanged: ChangeListeners<this, 'color'>;
       @prop(Color)
@@ -46,11 +49,13 @@ describe('prop', () => {
 
     it('uses "auto" convert', () => {
       (example as any).foo = 1;
-      (example as any).bar = 2;
+      (example as any).bar = '2';
+      (example as any).baz = 'true';
       example.color = 'red';
 
       expect(example.foo).to.equal('1');
-      expect(example.bar).to.equal('2');
+      expect(example.bar).to.equal(2);
+      expect(example.baz).to.be.true;
       expect(example.color).to.be.instanceOf(Color);
     });
 
@@ -63,7 +68,24 @@ describe('prop', () => {
       expect(listener).not.to.have.been.called;
     });
 
+    it('sets "default" depending on property type', () => {
+      expect(example.foo).to.equal('');
+      expect(example.bar).to.equal(0);
+      expect(example.baz).to.equal(false);
+      expect(example.color).to.be.null;
+    });
+
     it('is not nullable', () => {
+      example.foo = 'foo';
+      example.foo = null;
+      example.bar = 1;
+      example.bar = null;
+      example.baz = true;
+      example.baz = null;
+
+      expect(example.foo).to.equal('');
+      expect(example.bar).to.equal(0);
+      expect(example.baz).to.equal(false);
       expect(() => example.color = null).to.throw(Error, 'not nullable');
     });
 

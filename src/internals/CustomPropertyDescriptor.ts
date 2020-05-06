@@ -1,9 +1,11 @@
-import {Constructor, getPropertyType, isPrimitiveType} from './utils';
+import {Constructor, getPropertyType} from './utils';
 import {getPropertyStore, trigger, TypeGuard, UserType} from './utils-databinding';
 import {checkType, isType} from '../api/checkType';
 import {convert} from '../api/convert';
 import {CompareFn, CompareMode, equals} from '../api/equals';
 import {Converter, PropertySuperConfig} from '../decorators/property';
+
+export const autoDefault: unique symbol = Symbol('autoDefault');
 
 export class CustomPropertyDescriptor<Proto extends object, TargetType> {
 
@@ -175,18 +177,18 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     if (modeOrFn === 'off') {
       this.convert = value => value as any;
     } else if (modeOrFn === 'auto') {
-      this.convert = (value, instance) => {
-        if (!this.isConvertible(value, instance)) {
-          return value;
+      this.convert = value => {
+        if (this.isConvertible(value)) {
+          return convert(value, this.getType());
         }
-        return convert(value, this.getType());
+        return value;
       };
     } else if (modeOrFn instanceof Function) {
-      this.convert = (value, instance) => {
-        if (!this.isConvertible(value, instance)) {
-          return value;
+      this.convert = value => {
+        if (this.isConvertible(value)) {
+          return modeOrFn(value);
         }
-        return modeOrFn(value);
+        return value;
       };
     }
   }
@@ -195,32 +197,45 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     this.nullable = nullable !== false;
   }
 
-  private setDefaultValue(value: TargetType | undefined) {
+  private setDefaultValue(value: TargetType | undefined | typeof autoDefault) {
     if (this.defaultValue !== undefined) {
       throw new Error('property default value can not be re-defined');
     }
-    this.defaultValue = value;
+    if (value === autoDefault) {
+      const type = this.getType();
+      if (type == null) {
+        this.handleTypeMissing();
+      } else {
+        this.defaultValue =
+          type === Number ? 0 :
+            type === String ? '' :
+              type === Boolean ? false :
+          null as any;
+      }
+    } else {
+      this.defaultValue = value;
+    }
   }
 
   private getType(): Constructor<any> {
     return this.userType || (this.targetType !== Object ? this.targetType : null);
   }
 
-  private isConvertible(value: unknown, instance: object) {
+  private isConvertible(value: unknown) {
     const type = this.getType();
     if (!type) {
-      this.noTypeWarning(instance);
+      this.handleTypeMissing();
       return false;
     }
     if (value == null) {
-      return !this.nullable && isPrimitiveType(type) && this.defaultValue === undefined;
+      return false;
     }
     return !isType(value, type, true);
   }
 
-  private noTypeWarning(instance: object) {
+  private handleTypeMissing() {
     if (!this.youHaveBeenWarned) {
-      const className = instance.constructor.name || '[anonymous]';
+      const className = this.proto.constructor.name || '[anonymous]';
       console.warn(
         `Property "${this.propertyName}" of class "${className}" requires an explicit type to function correctly`
       );

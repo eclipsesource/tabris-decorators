@@ -1,6 +1,6 @@
-import {CustomPropertyDecorator, PropertyDecoratorConfig} from '..';
 import {CompareMode} from '../api/equals';
-import {CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
+import {CustomPropertyDecorator, PropertyDecoratorConfig} from '../decorators/property';
+import {autoDefault, CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
 import {applyDecorator} from '../internals/utils';
 import {TypeGuard, UserType} from '../internals/utils-databinding';
 
@@ -105,10 +105,10 @@ function getNullable(arg: unknown): boolean {
 
 function getDefaultValue(arg: unknown): any {
   if (arg instanceof Function) {
-    return undefined;
+    return autoDefault;
   }
   if (arg instanceof Object && arg.constructor === Object && 'default' in arg) {
     return (arg as any).default;
   }
-  return undefined;
+  return autoDefault;
 }

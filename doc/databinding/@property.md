@@ -187,7 +187,7 @@ If set to `'auto'` the property will attempt to convert any new value to the exp
 
 If set to a function, it will be called with the incoming value and must return a value of the expected type. If the value is already of the expected type the function will *not* be called, so it can for example not be used to convert a string to another string. The function may throw an exception if the incoming value can not be converted. The exception will be propagated to the code that is setting the property. If a [type guard](#configtypeguard) is present it will be called *after* the converter with the result of the conversion.
 
-The converter function will never be called with `null` or `undefined` *unless* the target type is a primitive, [nullable](#confignullable) is `false` and [default](#configdefault) is not set.
+The converter function will never be called with `null` or `undefined`.
 
 #### Usage with TypeScript
 
@@ -216,18 +216,16 @@ Below is a list of strategies for each target type.
 
 * `string`:
   * Primitives will be "stringified", e.g. `1` becomes `'1'`
-  * `null` and `undefined` become an empty string
   * Arrays will be joined
   * Objects will be converted by calling `toLocaleString()` or `toString()`, whichever is provided
 * `number`
   * A string will be parsed as a number if it contains a valid JavaScript number expression, including signed, floating point and hex numbers. It also includes `Infinity` and `NaN`
   * Empty strings become `0`
   * `true` becomes `1` and `false` becomes `0`
-  * `null` and `undefined` become `0`
   * `Date` will become a unix timestamp
 * `boolean`
   * String `'true'` becomes `true` and string `'false'` becomes `false`.
-  * `null`, `undefined`  and empty strings become `false`.
+  * Empty strings become `false`.
   * Any number greater than 0 becomes `true`, all other `false`
 * `Array`
   * Strings will be separated by comma in to a string array

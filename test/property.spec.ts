@@ -290,10 +290,10 @@ describe('property', () => {
       expect(example.auto).to.be.null;
     });
 
-    it('"auto" converts null for non-nullable primitive type', () => {
+    it('"auto" does not convert null for non-nullable primitive type', () => {
       example.nonNullable = 'foo';
-      example.nonNullable = null;
-      expect(example.nonNullable).to.equal('');
+
+      expect(() => example.nonNullable = null).to.throw(Error);
     });
 
     it('"auto" does not convert null for object type', () => {
