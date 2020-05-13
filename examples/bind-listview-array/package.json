@@ -1,15 +1,15 @@
 {
   "name": "bind-listview-array",
-  "version": "3.2.1",
+  "version": "3.5.0",
   "dependencies": {
     "reflect-metadata": "^0.1.13"
   },
   "optionalDependencies": {
-    "tabris": "^3.3.0",
-    "tabris-decorators": "3.4.0"
+    "tabris": "^3.5.0",
+    "tabris-decorators": "3.5.0"
   },
   "devDependencies": {
-    "typescript": "3.3.x"
+    "typescript": "3.8.x"
   },
   "main": "dist/app.js",
   "scripts": {

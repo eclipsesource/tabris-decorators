@@ -1,6 +1,6 @@
 {
   "name": "bind-one-way",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "dependencies": {
     "reflect-metadata": "^0.1.13"
   },
