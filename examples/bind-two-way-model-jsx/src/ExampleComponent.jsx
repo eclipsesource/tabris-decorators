@@ -1,13 +1,13 @@
 import {Composite, Properties, Slider, Stack, TextInput, TextView} from 'tabris';
-import {bindAll, component, property} from 'tabris-decorators';
+import {bindAll, component, prop} from 'tabris-decorators';
 
 export class Model {
 
   /** @type {string} */
-  @property({type: String}) myText;
+  @prop(String) myText;
 
   /** @type {number} */
-  @property({type: Number}) myNumber;
+  @prop(Number) myNumber;
 
 }
 
