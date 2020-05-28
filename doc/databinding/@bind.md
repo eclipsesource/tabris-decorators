@@ -12,7 +12,7 @@ This decorator creates two-way bindings within a custom component. Changes to th
 
 Where `path` is a string in the format `'#<targetElementId>.<targetProperty>'`.
 
-> This a shorthand for [`@bind({path: string})`](#config.path). It can be used for simple two-way bindings if no `typeGuard` or `type` option is needed.
+> This a shorthand for [`@bind({path: string})`](#configpath). It can be used for simple two-way bindings if no `typeGuard` or `type` option is needed.
 
 > See example apps ["bind-two-way"](../../examples/bind-two-way) (TypeScript) and ["bind-two-way-jsx"](../../examples/bind-two-way-jsx) (JavaScript/JSX).
 
