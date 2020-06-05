@@ -1,0 +1,22 @@
+{
+  "name": "connect",
+  "version": "3.6.0",
+  "dependencies": {
+    "redux": "^4.0.5",
+    "reflect-metadata": "^0.1.13"
+  },
+  "optionalDependencies": {
+    "tabris": "^3.5.0",
+    "tabris-decorators": "3.6.0"
+  },
+  "devDependencies": {
+    "typescript": "3.8.x"
+  },
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "tabris serve -w -a",
+    "build": "tsc -p .",
+    "watch": "tsc -p . -w --preserveWatchOutput --inlineSourceMap",
+    "gitpod": "tabris serve -a -w --no-intro --port 8080 --external $(gp url 8080):443"
+  }
+}
