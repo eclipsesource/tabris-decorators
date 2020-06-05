@@ -1,6 +1,6 @@
 import {combineReducers, createStore} from 'redux';
 import {CheckBox, Color, contentView, Stack} from 'tabris';
-import {shared, StateProvider} from 'tabris-decorators';
+import {register, StateProvider} from 'tabris-decorators';
 import {ExampleComponent} from './ExampleComponent';
 /* globals RootState, Actions */
 
@@ -20,15 +20,8 @@ const reducers = {
   }
 };
 
-const store = createStore(combineReducers(reducers));
-
-@shared
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-class MyStateProvider extends StateProvider {
-  constructor() {
-    super(store);
-  }
-}
+/** @type {import('redux').Store<RootState, Actions>} */
+const store = register(StateProvider, createStore(combineReducers(reducers)));
 
 contentView.append(
   <Stack stretch alignment='stretchX' padding={12} spacing={12}>

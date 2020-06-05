@@ -1,6 +1,6 @@
 const {combineReducers, createStore} = require('redux');
 const {CheckBox, Color, contentView, Stack} = require('tabris');
-const {shared, StateProvider} = require('tabris-decorators');
+const {register, StateProvider} = require('tabris-decorators');
 const {ExampleComponent} = require('./ExampleComponent');
 /* globals RootState, Actions */
 
@@ -20,13 +20,8 @@ const reducers = {
   }
 };
 
-const store = createStore(combineReducers(reducers));
-
-shared(class extends StateProvider {
-  constructor() {
-    super(store);
-  }
-});
+/** @type {import('redux').Store<RootState, Actions>} */
+const store = register(StateProvider, createStore(combineReducers(reducers)));
 
 contentView.append(
   new Stack({

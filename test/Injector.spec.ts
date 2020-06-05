@@ -33,6 +33,20 @@ describe('Injector', () => {
 
   });
 
+  describe('register', () => {
+
+    it('allows to add a shared injectable', () => {
+      instance.register(Number, 24);
+      expect(instance.resolve(Number)).to.equal(24);
+    });
+
+    it('returns value', () => {
+      const value = {};
+      expect(instance.register(Object, value)).to.equal(value);
+    });
+
+  });
+
   describe('resolve', () => {
 
     beforeEach(() => {

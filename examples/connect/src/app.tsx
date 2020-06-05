@@ -1,6 +1,7 @@
 import {combineReducers, createStore} from 'redux';
 import {CheckBox, CheckBoxSelectEvent, Color, contentView, Stack} from 'tabris';
-import {DefaultRootState, injector, shared, StateProvider} from 'tabris-decorators';
+import {DefaultRootState, injector, StateProvider} from 'tabris-decorators';
+import {register} from 'tabris-decorators';
 import {ExampleComponent} from './ExampleComponent';
 
 injector.jsxProcessor.unsafeBindings = 'error';
@@ -38,13 +39,7 @@ const store = createStore<RootState, Actions, unknown, unknown>(
   })
 );
 
-@shared
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-class MyStateProvider extends StateProvider<RootState> {
-  constructor() {
-    super(store);
-  }
-}
+register(StateProvider, store);
 
 contentView.append(
   <Stack stretch alignment='stretchX' padding={12} spacing={12}>
