@@ -1,9 +1,8 @@
 import 'reflect-metadata';
-import {Widget, WidgetCollection} from 'tabris';
-import {Composite} from 'tabris';
-import {applyClassDecorator, BaseConstructor, ClassDecoratorFactory} from '../internals//utils';
+import {Composite, Widget, WidgetCollection} from 'tabris';
 import {isAppended, markAsAppended, markAsComponent, originalAppendKey, postAppendHandlers, WidgetInterface} from '../internals//utils-databinding';
 import {processOneWayBindings} from '../internals/processOneWayBindings';
+import {applyDecorator, BaseConstructor, Constructor} from '../internals/utils';
 
 /**
  * A decorator for classes extending `Composite` (directly or indirectly),
@@ -27,11 +26,14 @@ import {processOneWayBindings} from '../internals/processOneWayBindings';
  *    using either `@getById` or the protected `_children`, `_find` and `_apply` methods.*
  * * *For creating two-way bindings use `@bind` and `@bindAll`.*
  */
-export function component(type: BaseConstructor<Composite>) {
-  markAsComponent(type);
-  isolate(type);
-  addOneWayBindingsProcessor(type);
-  patchAppend(type);
+export function component<T extends Constructor<Composite>>(arg: T): T {
+  return applyDecorator('component', [arg], (type: Constructor<Composite>) => {
+    markAsComponent(type);
+    isolate(type);
+    addOneWayBindingsProcessor(type);
+    patchAppend(type);
+    return type;
+  });
 }
 
 function isolate(type: BaseConstructor<Widget>) {
@@ -40,13 +42,15 @@ function isolate(type: BaseConstructor<Widget>) {
   }
 }
 
-function addOneWayBindingsProcessor(type: BaseConstructor<Widget>): void;
-function addOneWayBindingsProcessor(...args: any[]): void | ClassDecoratorFactory<Widget> {
-  return applyClassDecorator('bindingBase', args, (type: BaseConstructor<Widget>) => {
-    postAppendHandlers(type.prototype).push(base => {
-      base._find().forEach(child => processOneWayBindings(base, child));
-    });
-  });
+function addOneWayBindingsProcessor(type: BaseConstructor<Widget>): void {
+  const handlers = postAppendHandlers(type.prototype);
+  if (handlers.indexOf(oneWayBindingsProcessor) === -1) {
+    handlers.push(oneWayBindingsProcessor);
+  }
+}
+
+function oneWayBindingsProcessor(base: WidgetInterface) {
+  base._find().forEach(child => processOneWayBindings(base, child));
 }
 
 function returnEmptyCollection() {
