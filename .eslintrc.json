@@ -36,7 +36,9 @@
     "setTimeout": false,
     "module": false,
     "createImageBitmap": false,
-    "FormData": false
+    "FormData": false,
+    "require": false,
+    "exports": false
   },
   "rules": {
     "no-console": "off",
@@ -335,6 +337,14 @@
       ],
       "rules": {
         "@typescript-eslint/no-explicit-any": "error"
+      }
+    },
+    {
+      "files": [
+        "examples/*-js/**/*.js"
+      ],
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
       }
     },
     {

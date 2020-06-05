@@ -8,6 +8,7 @@ import {SharedDecorator} from './decorators/shared';
 // Those here are displayed in VS code when using the decorator without parameters.
 
 export * from './decorators/component';
+export * from './decorators/connect';
 export * from './decorators/property';
 export * from './decorators/prop';
 export * from './decorators/bind';
@@ -18,12 +19,16 @@ export * from './api/checkType';
 export * from './api/equals';
 export * from './api/convert';
 export * from './api/Injector';
+export * from './api/StateProvider';
 export * from './api/ItemPicker';
 export * from './api/interfaces';
 export * from './api/to';
 export * from './api/List';
 export * from './api/ListView';
 export * from './api/Cell';
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface DefaultRootState {}
 
 /**
  * A decorator that marks a constructor parameter for injections based on the type of the parameter:

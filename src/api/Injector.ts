@@ -96,6 +96,9 @@ export class Injector {
   resolve = <T>(type: BaseConstructor<T>, param: InjectionParameter = null): T => {
     const regs = this.findHandlerRegistrations(type);
     if (!regs.length) {
+      if (type === (Injector as any)) {
+        return this as any;
+      }
       throw new Error(
         `Could not inject value of type ${type.name} since no compatible injection handler exists for this type.`
       );

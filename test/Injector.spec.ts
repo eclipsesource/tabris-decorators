@@ -52,6 +52,10 @@ describe('Injector', () => {
       expect(instance.resolve(String)).to.equal('foo');
     });
 
+    it('can always inject itself', () => {
+      expect(instance.resolve(Injector)).to.equal(instance);
+    });
+
     it('passes param', () => {
       instance = new Injector();
       instance.addHandler(String, ({param}) => typeof param === 'string' ? param : '');
