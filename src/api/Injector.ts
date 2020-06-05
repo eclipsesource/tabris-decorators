@@ -8,6 +8,7 @@ import {BaseConstructor, getParamInfo} from '../internals/utils';
 export type InjectionParameter = object | string | number | boolean | null;
 export type CreateFunction = typeof Injector.prototype.create;
 export type ResolveFunction = typeof Injector.prototype.resolve;
+export type RegisterFunction = typeof Injector.prototype.register;
 
 export interface HandlerRegistration<Type, Result extends Type> {
   targetType: BaseConstructor<Type>;
@@ -68,6 +69,16 @@ export class Injector {
    */
   readonly jsxProcessor: ExtendedJSX = new ExtendedJSX(this);
   private handlers: HandlersMap = new Map();
+
+  /**
+   * Registers a value as a shared injectable for the given type.
+   * Equivalent to calling `addHandler(type, () => value)` or using
+   * `@shared`.
+   */
+  register = <T, U extends T>(targetType: BaseConstructor<T>, value: U): U => {
+    this.addHandler(targetType, () => value);
+    return value;
+  };
 
   /**
    * Explicitly registers a new injection handler. Same as using the attached `injectionHandler`

@@ -58,6 +58,14 @@ Explicitly registers a new injection handler for `targetType` Same as using the 
 
 Shorthand for `addHandler({targetType, handler})`.
 
+## register(targetType, value)
+
+Makes the given value available for injection as the given target type. This differs from `@shared` in that it registers an existing instance, not a class that will be instantiated by the framework.
+
+Same as calling `addHandler(targetType, () => value)`.
+
+The `register` method of the default global injector instance is also exported directly by `'tabris-decorators'`.
+
 ## Custom Injector instances
 
 For unit tests or libraries it may be useful to create a separate `Injector` instance to keep the registered injection handlers separate.

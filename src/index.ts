@@ -1,4 +1,4 @@
-import {CreateFunction, injector, ResolveFunction} from './api/Injector';
+import {CreateFunction, injector, RegisterFunction, ResolveFunction} from './api/Injector';
 import {InjectDecorator} from './decorators/inject';
 import {InjectableDecorator} from './decorators/injectable';
 import {InjectionHandlerDecorator} from './decorators/injectionHandler';
@@ -90,6 +90,7 @@ export const injectionHandler: InjectionHandlerDecorator = injector.injectionHan
 
 export const create: CreateFunction = injector.create;
 export const resolve: ResolveFunction = injector.resolve;
+export const register: RegisterFunction = injector.register;
 
 if (typeof JSX === 'object') { // check for unit testing only
   JSX.install(injector.jsxProcessor);
