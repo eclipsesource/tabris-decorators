@@ -1,5 +1,5 @@
 const {combineReducers, createStore} = require('redux');
-const {CheckBox, Color, contentView, Stack} = require('tabris');
+const {Color, contentView} = require('tabris');
 const {register, StateProvider} = require('tabris-decorators');
 const {ExampleComponent} = require('./ExampleComponent');
 /* globals RootState, Actions */
@@ -20,24 +20,6 @@ const reducers = {
   }
 };
 
-/** @type {import('redux').Store<RootState, Actions>} */
-const store = register(StateProvider, createStore(combineReducers(reducers)));
+register(StateProvider, createStore(combineReducers(reducers)));
 
-contentView.append(
-  new Stack({
-    layoutData: 'stretch',
-    alignment: 'stretchX',
-    padding: 12,
-    spacing: 12
-  }).append(
-    new CheckBox({font: '24px', text: 'Toggle Store Values'}).onSelect(toggleStoreValues),
-    new ExampleComponent({background: Color.silver})
-  )
-);
-
-/**
- * @param {tabris.CheckBoxSelectEvent} ev
- */
-function toggleStoreValues({checked}) {
-  store.dispatch({type: 'TOGGLE_VALUES', checked});
-}
+contentView.append(new ExampleComponent({background: Color.silver}));

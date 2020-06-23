@@ -20,6 +20,7 @@ export * from './api/equals';
 export * from './api/convert';
 export * from './api/Injector';
 export * from './api/StateProvider';
+export * from './api/ActionMapper';
 export * from './api/ItemPicker';
 export * from './api/interfaces';
 export * from './api/to';
@@ -27,8 +28,14 @@ export * from './api/List';
 export * from './api/ListView';
 export * from './api/Cell';
 
+// These interfaces are defined here directly for easy type augmentation
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface DefaultRootState {}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface DefaultActions {
+}
 
 /**
  * A decorator that marks a constructor parameter for injections based on the type of the parameter:
