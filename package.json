@@ -41,7 +41,6 @@
     "eslint-plugin-react": "^7.18.3",
     "install": "^0.12.2",
     "mocha": "^6.2.0",
-    "npm": "^6.9.0",
     "redux": "^4.0.5",
     "run-script-os": "^1.0.7",
     "sinon": "^7.4.1",
