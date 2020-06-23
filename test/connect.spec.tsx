@@ -1,6 +1,6 @@
 import 'mocha';
 import 'sinon';
-import {Composite, TextInput, TextView} from 'tabris';
+import {Composite, tabris, TextInput, TextView} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox} from './test';
 import {component, connect, Injector, property, StateProvider} from '../src';
@@ -11,18 +11,22 @@ interface RootState {
   stateNumber: number;
 }
 
+type Action = {type: 'foo' | 'bar'};
+
 describe('connect', () => {
 
   let injector: Injector;
   let JSX: ExtendedJSX;
   let currentState: RootState;
-  let stateProvider: StateProvider<RootState>;
+  let stateProvider: StateProvider<RootState, Action>;
   let subscribers: Array<() => void>;
+  let actions: Action[];
 
   beforeEach(() => {
     tabris._init(new ClientMock());
     injector = new Injector();
     subscribers = [];
+    actions = [];
     JSX = injector.jsxProcessor;
     currentState = {
       stateString: 'bar',
@@ -30,7 +34,8 @@ describe('connect', () => {
     };
     stateProvider = {
       getState: () => currentState,
-      subscribe: cb => subscribers.push(cb)
+      subscribe: cb => subscribers.push(cb),
+      dispatch: action => {actions.push(action); return action;}
     };
     injector.addHandler(StateProvider, () => stateProvider);
   });
@@ -43,13 +48,19 @@ describe('connect', () => {
 
     let instance: CustomComponent;
 
-    @connect<CustomComponent, RootState>(state => ({
-      myText: state.stateString,
-      myNumber: state.stateNumber
-    }))
+    @connect<CustomComponent, RootState, Action>(
+      state => ({
+        myText: state.stateString,
+        myNumber: state.stateNumber
+      }),
+      dispatch => ({
+        callback: (type: 'foo' | 'bar') => dispatch({type})
+      })
+    )
     class CustomComponent extends Composite {
       @property myText: string;
       @property myNumber: number;
+      @property callback: (type: string) => any;
     }
 
     beforeEach(() => {
@@ -76,6 +87,12 @@ describe('connect', () => {
       currentState.stateString = 'baz';
       subscribers.forEach(cb => cb());
       expect(instance.myText).to.equal('baz');
+    });
+
+    it('maps actions on creation', () => {
+      instance.callback('foo');
+
+      expect(actions).to.deep.equal([{type: 'foo'}]);
     });
 
   });
@@ -139,10 +156,15 @@ describe('connect', () => {
 
   describe('as function on built-in widget', function() {
 
-    const Connected = connect((state: RootState) => ({
-      text: state.stateString,
-      selection: [state.stateNumber, state.stateNumber]
-    }))(TextInput);
+    const Connected = connect<TextInput, RootState, Action>(
+      state => ({
+        text: state.stateString,
+        selection: [state.stateNumber, state.stateNumber]
+      }),
+      dispatch => ({
+        onInput: ev => dispatch({type: ev.text === 'foo' ? 'foo' : 'bar'})
+      })
+    )(TextInput);
 
     let instance: TextInput;
 
@@ -170,6 +192,11 @@ describe('connect', () => {
       expect(instance.text).to.equal('baz');
     });
 
+    it('maps actions on creation', () => {
+      instance.onInput.trigger({text: 'bar'});
+
+      expect(actions).to.deep.equal([{type: 'bar'}]);
+    });
   });
 
 });

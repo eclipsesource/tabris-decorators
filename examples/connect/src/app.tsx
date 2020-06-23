@@ -1,29 +1,30 @@
 import {combineReducers, createStore} from 'redux';
-import {CheckBox, CheckBoxSelectEvent, Color, contentView, Stack} from 'tabris';
-import {DefaultRootState, injector, StateProvider} from 'tabris-decorators';
-import {register} from 'tabris-decorators';
+import {Color, contentView} from 'tabris';
+import {AnyAction, DefaultRootState, injector, register, StateProvider} from 'tabris-decorators';
 import {ExampleComponent} from './ExampleComponent';
 
 injector.jsxProcessor.unsafeBindings = 'error';
 
 declare module 'tabris-decorators' {
 
+  // The state parameter provided by "@connect"
   export interface DefaultRootState {
     str: string;
     num: number;
   }
 
+  // The actions accepted by "@connect"
+  export interface DefaultActions {
+    toggle: {
+      type: 'TOGGLE_VALUES',
+      checked: boolean
+    };
+  }
+
 }
 
-type RootState = DefaultRootState;
-
-type Actions = {
-  type: 'TOGGLE_VALUES',
-  checked: boolean
-};
-
-const store = createStore<RootState, Actions, unknown, unknown>(
-  combineReducers<RootState, Actions>({
+const store = createStore<DefaultRootState, AnyAction, {}, {}>(
+  combineReducers<DefaultRootState, AnyAction>({
     num(state, action) {
       if (action.type === 'TOGGLE_VALUES') {
         return action.checked ? 90 : 10;
@@ -42,14 +43,5 @@ const store = createStore<RootState, Actions, unknown, unknown>(
 register(StateProvider, store);
 
 contentView.append(
-  <Stack stretch alignment='stretchX' padding={12} spacing={12}>
-    <CheckBox font={{size: 24}} onSelect={toggleStoreValues}>
-      Toggle Store Values
-    </CheckBox>
-    <ExampleComponent background={Color.silver}/>
-  </Stack>
+  <ExampleComponent background={Color.silver}/>
 );
-
-function toggleStoreValues({checked}: CheckBoxSelectEvent) {
-  store.dispatch({type: 'TOGGLE_VALUES', checked});
-}

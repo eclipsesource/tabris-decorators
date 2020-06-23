@@ -1,25 +1,26 @@
-import {DefaultRootState} from '..';
+import {Action as GenericAction, AnyAction, DefaultRootState} from '..';
 import 'reflect-metadata';
 import {Composite, Properties, Widget} from 'tabris';
 import {component} from './component';
+import {ActionMapper} from '../api/ActionMapper';
 import {injector as defaultInjector, Injector} from '../api/Injector';
-import {StateProvider} from '../api/StateProvider';
+import {StateMapper, StateProvider} from '../api/StateProvider';
 import {ParamInfo} from '../internals//utils-databinding';
 import {Constructor, getOwnParamInfo} from '../internals/utils';
-
-export type StateMapper<MappedState, RootState = DefaultRootState> = (state: RootState) => MappedState;
 
 const componentConfigKey = Symbol();
 
 export function connect<
-  MappedState,
-  RootState = DefaultRootState
->(mapState: StateMapper<MappedState extends Widget ? Properties<MappedState> : MappedState, RootState>):
-  <T extends Constructor<MappedState>>(target: T) => T
-{
+  Target extends {},
+  RootState = DefaultRootState,
+  Action extends GenericAction = AnyAction
+>(
+  mapState: StateMapper<Target extends Widget ? Properties<Target> : Partial<Target>, RootState> | null,
+  mapDispatchToProps?: ActionMapper<Target, Action>
+): <T extends Constructor<Target>>(target: T) => T {
   return target => {
     try {
-      const config = {mapState};
+      const config: Connection = {stateMapper: mapState, actionMapper: mapDispatchToProps};
       if (target.prototype instanceof Composite) {
         component(target as any);
       }
@@ -28,9 +29,7 @@ export function connect<
       addInjectorInjection(proxy, config);
       return proxy;
     } catch (error) {
-      throw new Error(
-        `Could not apply "connect" to ${target.name}: ${error.message}`
-      );
+      throw new Error(`Could not apply "connect" to ${target.name}: ${error.message}`);
     }
   };
 }
@@ -49,26 +48,32 @@ function updateConfig(target: Constructor<any>, config: Connection) {
     current = {};
     Reflect.defineMetadata(componentConfigKey, current, target);
   }
-  if (config.mapState) {
-    if (current.mapState) {
+  if (config.stateMapper) {
+    if (current.stateMapper) {
       throw new Error('Component is already connected');
     }
-    current.mapState = config.mapState;
+    current.stateMapper = config.stateMapper;
+  }
+  if (config.actionMapper) {
+    if (current.actionMapper) {
+      throw new Error('Component is already connected');
+    }
+    current.actionMapper = config.actionMapper;
   }
 }
 
 function construct(options: ConstructOptions) {
-  const config: Connection = Reflect.getOwnMetadata(componentConfigKey, options.proxy);
-  const instance = Reflect.construct(options.target, options.constructorArgs, options.protoTarget);
-  if (config.mapState) {
+  const {stateMapper, actionMapper}: Connection = Reflect.getOwnMetadata(componentConfigKey, options.proxy);
+  const target = Reflect.construct(options.target, options.constructorArgs, options.protoTarget);
+  if (stateMapper || actionMapper) {
     const stateProvider = getInjectable(StateProvider, options.constructorArgs);
-    StateProvider.hook(stateProvider, instance, config.mapState);
+    StateProvider.hook({stateProvider, target, stateMapper, actionMapper});
   }
-  return instance;
+  return target;
 }
 
 function addInjectorInjection(proxy: Constructor<any>, config: Connection) {
-  if (config.mapState) {
+  if (config.stateMapper) {
     pushParameterInfo(proxy, {type: Injector, inject: true});
   }
 }
@@ -97,4 +102,4 @@ type ConstructOptions = {
   proxy: Constructor<any>
 };
 
-type Connection = {mapState?: StateMapper<any>};
+type Connection = { stateMapper?: StateMapper<any>, actionMapper?: ActionMapper<any> };
