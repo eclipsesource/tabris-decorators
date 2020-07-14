@@ -10,6 +10,8 @@ import {Constructor, getOwnParamInfo} from '../internals/utils';
 
 const componentConfigKey = Symbol();
 
+export type Connectable<T> = Constructor<T> | ((attributes?: any) => T);
+
 export function connect<
   Target extends {},
   RootState = DefaultRootState,
@@ -17,7 +19,7 @@ export function connect<
 >(
   mapState: StateMapper<Target extends Widget ? Properties<Target> : Partial<Target>, RootState> | null,
   mapDispatchToProps?: ActionMapper<Target, Action>
-): <T extends Constructor<Target>>(target: T) => T {
+): <T extends Connectable<Target>>(target: T) => T {
   return target => {
     try {
       const config: Connection = {stateMapper: mapState, actionMapper: mapDispatchToProps};
@@ -29,20 +31,25 @@ export function connect<
       addInjectorInjection(proxy, config);
       return proxy;
     } catch (error) {
-      throw new Error(`Could not apply "connect" to ${target.name}: ${error.message}`);
+      throw new Error(`Could not apply "connect" to ${target.name || 'component'}: ${error.message}`);
     }
   };
 }
 
-function getProxy<T extends Constructor<any>>(type: T): T {
+function getProxy<T extends Connectable<any>>(type: T): T {
   const isProxy = !!Reflect.getOwnMetadata(componentConfigKey, type);
   const proxy = isProxy ? type : new Proxy(type, {
-    construct: (target, constructorArgs, protoTarget) => construct({target, proxy, constructorArgs, protoTarget})
+    construct: (target, constructorArgs, protoTarget) => construct(
+      {target: (target as Constructor<any>), proxy, creationArgs: constructorArgs, context: protoTarget}
+    ),
+    apply: (target, thisArg, callArgs) => apply(
+      {target: (target as Constructor<any>), proxy, creationArgs: callArgs, context: thisArg}
+    )
   });
   return proxy;
 }
 
-function updateConfig(target: Constructor<any>, config: Connection) {
+function updateConfig(target: Connectable<any>, config: Connection) {
   let current: Connection = Reflect.getOwnMetadata(componentConfigKey, target);
   if (!current) {
     current = {};
@@ -62,18 +69,36 @@ function updateConfig(target: Constructor<any>, config: Connection) {
   }
 }
 
-function construct(options: ConstructOptions) {
+function construct(options: ConnectedCreationOptions) {
   const {stateMapper, actionMapper}: Connection = Reflect.getOwnMetadata(componentConfigKey, options.proxy);
-  const target = Reflect.construct(options.target, options.constructorArgs, options.protoTarget);
+  const target = Reflect.construct(options.target, options.creationArgs, options.context);
   if (stateMapper || actionMapper) {
-    const stateProvider = getInjectable(StateProvider, options.constructorArgs);
+    const stateProvider = getInjectable(StateProvider, options.creationArgs);
     StateProvider.hook({stateProvider, target, stateMapper, actionMapper});
   }
   return target;
 }
 
-function addInjectorInjection(proxy: Constructor<any>, config: Connection) {
-  if (config.stateMapper) {
+function apply(options: ConnectedCreationOptions) {
+  const connection: Connection = Reflect.getOwnMetadata(componentConfigKey, options.proxy);
+  const target = Reflect.apply(options.target, options.context, options.creationArgs);
+  return connectTarget(target, connection, options);
+}
+
+function connectTarget(
+  target: object,
+  {stateMapper, actionMapper}: Connection,
+  {creationArgs}: ConnectedCreationOptions
+) {
+  if (target && (stateMapper || actionMapper)) {
+    const stateProvider = getInjectable(StateProvider, creationArgs);
+    StateProvider.hook({stateProvider, target, stateMapper, actionMapper});
+  }
+  return target;
+}
+
+function addInjectorInjection(proxy: Connectable<any>, config: Connection) {
+  if (proxy.prototype && config.stateMapper || config.actionMapper) {
     pushParameterInfo(proxy, {type: Injector, inject: true});
   }
 }
@@ -83,7 +108,7 @@ function getInjectable<T extends object>(type: Constructor<T>, args: any[]): T {
   return injector.resolve(type);
 }
 
-function pushParameterInfo(target: Constructor<any>, info: ParamInfo) {
+function pushParameterInfo(target: Connectable<any>, info: ParamInfo) {
   const paramInfo = getOwnParamInfo(target);
   if (paramInfo.find(entry => entry
     && entry.type === info.type
@@ -95,10 +120,10 @@ function pushParameterInfo(target: Constructor<any>, info: ParamInfo) {
   paramInfo[Math.max(1, paramInfo.length, target.length)] = info;
 }
 
-type ConstructOptions = {
+type ConnectedCreationOptions = {
   target: Constructor<any>,
-  constructorArgs: any[],
-  protoTarget: any,
+  creationArgs: any[],
+  context: any,
   proxy: Constructor<any>
 };
 

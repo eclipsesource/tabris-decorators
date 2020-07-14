@@ -1,6 +1,6 @@
 import 'mocha';
 import 'sinon';
-import {Composite, tabris, TextInput, TextView} from 'tabris';
+import {Attributes, Composite, tabris, TextInput, TextView, Widget} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox} from './test';
 import {component, connect, Injector, property, StateProvider} from '../src';
@@ -197,6 +197,51 @@ describe('connect', () => {
 
       expect(actions).to.deep.equal([{type: 'bar'}]);
     });
+  });
+
+  describe('as function on childless functional component', function() {
+
+    let CustomComponent: (attributes?: Attributes<TextInput>, injector?: Injector) => TextInput;
+    let instance: TextInput;
+
+    beforeEach(() => {
+      CustomComponent = connect<typeof CustomComponent, RootState, Action>(
+        state => ({
+          text: state.stateString,
+          maxChars: state.stateNumber
+        }),
+        dispatch => ({
+          onAccept: ({text}) => dispatch({type: text})
+        })
+      ) (
+        attr => <TextInput background='blue' {...attr}/>
+      );
+      instance = CustomComponent({}, injector);
+    });
+
+    it('can not connect result again', () => {
+      expect(() => connect(() => ({}))(CustomComponent)).to.throw(
+        Error,
+        'Could not apply "connect" to component: Component is already connected'
+      );
+    });
+
+    it('maps state on creation', () => {
+      expect(instance.text).to.equal('bar');
+    });
+
+    it('maps state on state change', () => {
+      currentState.stateString = 'baz';
+      subscribers.forEach(cb => cb());
+      expect(instance.text).to.equal('baz');
+    });
+
+    it('maps actions on creation', () => {
+      instance.onAccept.trigger({text: 'foo'});
+
+      expect(actions).to.deep.equal([{type: 'foo'}]);
+    });
+
   });
 
 });

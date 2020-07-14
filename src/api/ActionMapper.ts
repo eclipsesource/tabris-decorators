@@ -15,11 +15,11 @@ export type ActionMapperObject<Target extends object, Action extends GenericActi
   [Key in CallbackKeysOf<Target>]?: ActionCreator<Target[Key], Action>;
 };
 
-type Callbacks<T extends object> = {
+export type Callbacks<T extends object> = {
   [Key in CallbackKeysOf<T>]?: UnpackListeners<T[Key]>;
 };
 
-type Listener<T> = (ev: T) => any;
+export type Listener<T> = (ev: T) => any;
 
 type UnpackListeners<T> = T extends Listeners<infer U> ? Listener<U> : T;
 
