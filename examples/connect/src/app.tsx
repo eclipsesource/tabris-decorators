@@ -1,7 +1,8 @@
 import {combineReducers, createStore} from 'redux';
-import {Color, contentView} from 'tabris';
+import {Color, contentView, Stack} from 'tabris';
 import {AnyAction, DefaultRootState, injector, register, StateProvider} from 'tabris-decorators';
-import {ExampleComponent} from './ExampleComponent';
+import {ExampleComponent as ExampleComponent} from './ExampleComponent';
+import {FunctionalComponent} from './FunctionalComponent';
 
 injector.jsxProcessor.unsafeBindings = 'error';
 
@@ -15,8 +16,11 @@ declare module 'tabris-decorators' {
 
   // The actions accepted by "@connect"
   export interface DefaultActions {
-    toggle: {
-      type: 'TOGGLE_VALUES',
+    toggleNumber: {
+      type: 'SET_RANDOM_NUMBER'
+    };
+    toggleString: {
+      type: 'TOGGLE_STRING',
       checked: boolean
     };
   }
@@ -26,13 +30,13 @@ declare module 'tabris-decorators' {
 const store = createStore<DefaultRootState, AnyAction, {}, {}>(
   combineReducers<DefaultRootState, AnyAction>({
     num(state, action) {
-      if (action.type === 'TOGGLE_VALUES') {
-        return action.checked ? 90 : 10;
+      if (action.type === 'SET_RANDOM_NUMBER') {
+        return Math.round(Math.random() * 100);
       }
       return state || 0;
     },
     str(state, action) {
-      if (action.type === 'TOGGLE_VALUES') {
+      if (action.type === 'TOGGLE_STRING') {
         return action.checked ? 'Another Hello World' : 'Hello World';
       }
       return state || 'Hello World';
@@ -43,5 +47,8 @@ const store = createStore<DefaultRootState, AnyAction, {}, {}>(
 register(StateProvider, store);
 
 contentView.append(
-  <ExampleComponent background={Color.silver}/>
+  <Stack spacing={12} padding={12}>
+    <ExampleComponent background={Color.silver}/>
+    <FunctionalComponent background={Color.yellow}/>
+  </Stack>
 );

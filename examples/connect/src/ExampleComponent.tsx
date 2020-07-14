@@ -1,18 +1,16 @@
-import {CheckBox, CheckBoxSelectEvent, Composite, Listeners, ProgressBar, Properties, Stack, TextView} from 'tabris';
+import {CheckBox, CheckBoxSelectEvent, Composite, Listeners, Properties, Stack, TextView} from 'tabris';
 import {connect, event, prop} from 'tabris-decorators';
 
 @connect<ExampleComponent>(
   state => ({
-    selection: state.num,
     text: state.str
   }),
   dispatch => ({
-    onToggle: ev => dispatch({type: 'TOGGLE_VALUES', checked: ev.checked})
+    onToggle: ev => dispatch({type: 'TOGGLE_STRING', checked: ev.checked})
   })
 )
 export class ExampleComponent extends Composite {
 
-  @prop selection: number;
   @prop text: string;
   @event onToggle: Listeners<CheckBoxSelectEvent>;
 
@@ -22,19 +20,15 @@ export class ExampleComponent extends Composite {
     this.append(
       <Stack spacing={12} padding={12}>
 
-        <TextView>Binding to store value "num"</TextView>
-        <ProgressBar bind-selection='selection' width={200}/>
-
-        <TextView>Binding to store value "str":</TextView>
-        <TextView background='yellow' bind-text='text'/>
+        <TextView font='12px'>Binding to store value "str":</TextView>
+        <TextView font='12px' background='yellow' bind-text='text'/>
 
         <CheckBox top={24} font={{size: 24}} onSelect={this.onToggle.trigger}>
-          Toggle Store Values
+          Toggle Message
         </CheckBox>
 
       </Stack>
     );
-    this._find(TextView).set({font: {size: 18}});
   }
 
 }
