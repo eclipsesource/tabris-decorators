@@ -8,8 +8,11 @@ declare module 'tabris-decorators' {
 
   // The actions accepted by "@connect"
   export interface DefaultActions {
-    toggle: {
-      type: 'TOGGLE_VALUES',
+    toggleNumber: {
+      type: 'SET_RANDOM_NUMBER'
+    };
+    toggleString: {
+      type: 'TOGGLE_STRING',
       checked: boolean
     };
   }
