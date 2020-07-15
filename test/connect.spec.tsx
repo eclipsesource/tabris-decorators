@@ -48,6 +48,7 @@ describe('connect', () => {
 
     let instance: CustomComponent;
 
+    @component
     @connect<CustomComponent, RootState, Action>(
       state => ({
         myText: state.stateString,
@@ -74,7 +75,22 @@ describe('connect', () => {
       );
     });
 
-    it('implies @component', () => {
+    it('can be combined with @component before @connect', () => {
+      instance.append(<TextView/>);
+      expect(instance.children().length).to.equal(0);
+    });
+
+    it('can be combined with @component after @connect', () => {
+      @connect<CustomComponent2, RootState, Action>(
+        state => ({myText: state.stateString}),
+        dispatch => ({callback: (type: 'foo' | 'bar') => dispatch({type})})
+      )
+      @component
+      class CustomComponent2 extends Composite {
+        @property myText: string;
+        @property callback: (type: string) => any;
+      }
+      instance = <CustomComponent2/>;
       instance.append(<TextView/>);
       expect(instance.children().length).to.equal(0);
     });

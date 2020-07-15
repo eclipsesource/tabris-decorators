@@ -1,7 +1,6 @@
 import {Action as GenericAction, AnyAction, DefaultRootState} from '..';
 import 'reflect-metadata';
-import {Composite, Properties, Widget} from 'tabris';
-import {component} from './component';
+import {Properties, Widget} from 'tabris';
 import {ActionMapper} from '../api/ActionMapper';
 import {injector as defaultInjector, Injector} from '../api/Injector';
 import {StateMapper, StateProvider} from '../api/StateProvider';
@@ -23,9 +22,6 @@ export function connect<
   return target => {
     try {
       const config: Connection = {stateMapper: mapState, actionMapper: mapDispatchToProps};
-      if (target.prototype instanceof Composite) {
-        component(target as any);
-      }
       const proxy = getProxy(target);
       updateConfig(proxy, config);
       addInjectorInjection(proxy, config);

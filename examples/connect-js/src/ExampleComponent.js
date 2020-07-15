@@ -1,5 +1,5 @@
 const {Composite, Stack, TextView, CheckBox, Listeners} = require('tabris');
-const {connect} = require('tabris-decorators');
+const {connect, component} = require('tabris-decorators');
 /* globals StateToProps, DispatchToProps */
 
 /** @type {StateToProps<ExampleComponent>} */
@@ -12,7 +12,7 @@ const dispatchToProps = dispatch => ({
   onToggle: ev => dispatch({type: 'TOGGLE_STRING', checked: ev.checked})
 });
 
-class ExampleComponent extends Composite {
+const ExampleComponent = component(class ExampleComponent extends Composite {
 
   /**
    * @param {tabris.Properties<ExampleComponent>=} properties
@@ -27,15 +27,14 @@ class ExampleComponent extends Composite {
     this.append(
       new Stack({spacing: 23, padding: 23}).append(
 
-        new TextView({text: 'Binding to store value "str":'}),
-        this._msg = new TextView({background: 'yellow'}),
+        new TextView({font: '18px', text: 'Binding to store value "str":'}),
+        this._msg = new TextView({font: '18px', background: 'yellow'}),
 
         new CheckBox({top: 24, font: {size: 24}, text: 'Toggle Message'})
           .onSelect(this.onToggle.trigger)
 
       )
     );
-    this._find(TextView).set({font: {size: 18}});
   }
 
   set text(value) {
@@ -46,6 +45,6 @@ class ExampleComponent extends Composite {
     return this._msg.text;
   }
 
-}
+});
 
 exports.ExampleComponent = connect(stateToProps, dispatchToProps)(ExampleComponent);
