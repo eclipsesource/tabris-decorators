@@ -12,7 +12,7 @@ const dispatchToProps = dispatch => ({
   onToggle: ev => dispatch({type: 'TOGGLE_STRING', checked: ev.checked})
 });
 
-const ExampleComponent = component(class ExampleComponent extends Composite {
+const ExampleComponent = class ExampleComponent extends Composite {
 
   /**
    * @param {tabris.Properties<ExampleComponent>=} properties
@@ -45,6 +45,8 @@ const ExampleComponent = component(class ExampleComponent extends Composite {
     return this._msg.text;
   }
 
-});
+};
 
-exports.ExampleComponent = connect(stateToProps, dispatchToProps)(ExampleComponent);
+exports.ExampleComponent = connect(stateToProps, dispatchToProps)(
+  component({factory: true})(ExampleComponent)
+);

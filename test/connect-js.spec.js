@@ -81,11 +81,6 @@ describe('connect', () => {
     );
   });
 
-  it('implies @component', () => {
-    instance.append(new TextView());
-    expect(instance.children().length).to.equal(0);
-  });
-
   it('maps state on state change', () => {
     currentState.stateString = 'baz';
     subscribers.forEach(cb => cb());
