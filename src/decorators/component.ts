@@ -33,7 +33,7 @@ type ComponentAsFactory = <T extends Constructor<Composite>>(arg: T) => Callable
  *    using either `@getById` or the protected `_children`, `_find` and `_apply` methods.*
  * * *For creating two-way bindings use `@bind` and `@bindAll`.*
  */
-export function component<T extends Constructor<Composite>>(arg: T): CallableConstructor<T>;
+export function component<T extends Constructor<Composite>>(arg: T): T;
 export function component(options: ComponentNonFactoryOptions): ComponentDecorator;
 export function component(options: ComponentFactoryOptions): ComponentAsFactory;
 export function component<T>(arg: T): T | ComponentDecorator | ComponentAsFactory {

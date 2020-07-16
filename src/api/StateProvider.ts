@@ -1,6 +1,6 @@
 import {Action as GenericAction, DefaultActions, DefaultRootState} from '..';
-import {Listeners} from 'tabris';
-import {ActionMapper, ActionMapperFunction, Callbacks, Listener} from './ActionMapper';
+import {Listener, Listeners} from 'tabris';
+import {ActionMapper, ActionMapperFunction, Callbacks} from './ActionMapper';
 
 export type StateMapper<MappedState, RootState = DefaultRootState> = (state: RootState) => MappedState;
 
