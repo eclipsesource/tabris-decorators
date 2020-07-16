@@ -98,8 +98,8 @@ export class ExtendedJSX extends JsxProcessor {
   }
 
   private convertType(type: JsxNativeType): any {
-    const injector = type[jsxInjectorOverride] || this.injector;
-    if (hasInjections(type)) {
+    if (hasInjections(type) || type[jsxInjectorOverride]) {
+      const injector = type[jsxInjectorOverride] || this.injector;
       return function(props: any) {
         return injector.create(type as Constructor<any>, props);
       };

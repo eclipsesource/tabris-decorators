@@ -1,10 +1,11 @@
 import 'mocha';
 import 'sinon';
-import {Attributes, Composite, Listeners, tabris, TextInput, TextView} from 'tabris';
+import {asFactory, Attributes, CallableConstructor, Composite, Listeners, tabris, TextInput, TextView} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox} from './test';
-import {component, connect, event, Injector, property, StateProvider} from '../src';
+import {component, connect, event, Injector, injector as orgInjector, property, StateProvider} from '../src';
 import {ExtendedJSX} from '../src/internals/ExtendedJSX';
+const orgComponentKey: unique symbol = tabris.symbols.originalComponent as any;
 
 interface RootState {
   stateString: string;
@@ -24,6 +25,7 @@ describe('connect', () => {
 
   beforeEach(() => {
     tabris._init(new ClientMock());
+    global.JSX.install(new ExtendedJSX(orgInjector));
     injector = new Injector();
     subscribers = [];
     actions = [];
@@ -160,28 +162,36 @@ describe('connect', () => {
 
   describe('as function on component', function() {
 
-    @component
-    class CustomComponent extends Composite {
+    class CustomComponentImpl extends Composite {
       @property myText: string;
       @property myNumber: number;
     }
 
-    const ConnectedA = connect((state: RootState) => ({
-      myText: state.stateString,
-      myNumber: state.stateNumber
-    }))(CustomComponent);
+    type CustomComponent = CustomComponentImpl;
+    let CustomComponent: CallableConstructor<typeof CustomComponentImpl>;
+    let ConnectedA: CallableConstructor<typeof CustomComponentImpl>;
+    let ConnectedB: CallableConstructor<typeof CustomComponentImpl>;
 
-    const ConnectedB = connect<CustomComponent, RootState>(state => ({
-      myText: state.stateString + '1',
-      myNumber: state.stateNumber + 1
-    }))(CustomComponent);
+    beforeEach(() => {
+      CustomComponent = component({factory: true, injector})(CustomComponentImpl);
+
+      ConnectedA = connect((state: RootState) => ({
+        myText: state.stateString,
+        myNumber: state.stateNumber
+      }))(CustomComponent);
+
+      ConnectedB = connect<CustomComponent, RootState>(state => ({
+        myText: state.stateString + '1',
+        myNumber: state.stateNumber + 1
+      }))(CustomComponent);
+    });
 
     let instance: CustomComponent;
 
     it('can not connect result again', () => {
       expect(() => connect(state => ({}))(ConnectedA)).to.throw(
         Error,
-        'Could not apply "connect" to CustomComponent: Component is already connected'
+        'Could not apply "connect" to CustomComponentImpl: Component is already connected'
       );
     });
 
@@ -191,9 +201,15 @@ describe('connect', () => {
     });
 
     it('keeps @component behavior', () => {
-      instance = <ConnectedA myText='foo'/>;
+      instance = ConnectedA({myText: 'foo'});
       instance.append(<TextView/>);
       expect(instance.children().length).to.equal(0);
+    });
+
+    it('does not allow connected component to be made a factory afterwards', () => {
+      const connected = connect(() => ({myText: ''}))(CustomComponentImpl);
+      expect(() => asFactory(connected)).to.throw(Error);
+      expect(() => component({factory: true})(connected)).to.throw(Error);
     });
 
     it('maps state on creation', () => {

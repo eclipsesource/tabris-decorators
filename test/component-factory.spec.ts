@@ -1,9 +1,10 @@
 import 'mocha';
 import 'sinon';
-import {Button, Composite, Properties, tabris, Widget} from 'tabris';
+import {Composite, Properties, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy} from './test';
-import {component, getById, injector} from '../src';
+import {component, injector} from '../src';
+const orgComponentKey: unique symbol = tabris.symbols.originalComponent as any;
 
 class OriginalCustomComponent extends Composite {
 
@@ -25,7 +26,7 @@ describe('component({factory: true})', () => {
   beforeEach(() => {
     tabris._init(new ClientMock());
     parent = new Composite();
-    widget = new CustomComponent({}, true);
+    widget = new CustomComponent({});
     parent.append(widget);
   });
 
@@ -57,8 +58,8 @@ describe('component({factory: true})', () => {
 
   it('does not double-wrap', function() {
     const Component2 = component(CustomComponent);
-    expect(Component2[tabris.symbols.originalComponent]).to.equal(OriginalCustomComponent);
-    expect(Component2[tabris.symbols.originalComponent]).not.to.equal(CustomComponent);
+    expect(Component2[orgComponentKey]).to.equal(OriginalCustomComponent);
+    expect(Component2[orgComponentKey]).not.to.equal(CustomComponent);
   });
 
 });

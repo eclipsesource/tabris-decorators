@@ -1,11 +1,13 @@
 import {Action as GenericAction, AnyAction, DefaultRootState} from '..';
 import 'reflect-metadata';
-import {Properties, Widget} from 'tabris';
+import {asFactory, CallableConstructor, JSXCandidate, Properties, tabris, Widget} from 'tabris';
 import {ActionMapper} from '../api/ActionMapper';
 import {injector as defaultInjector, Injector} from '../api/Injector';
 import {StateMapper, StateProvider} from '../api/StateProvider';
 import {ParamInfo} from '../internals//utils-databinding';
 import {Constructor, getOwnParamInfo} from '../internals/utils';
+const orgComponentKey: unique symbol = tabris.symbols.originalComponent as any;
+const factoryProxyHandlerKey: unique symbol = tabris.symbols.proxyHandler as any;
 
 const componentConfigKey = Symbol();
 
@@ -33,16 +35,46 @@ export function connect<
 }
 
 function getProxy<T extends Connectable<any>>(type: T): T {
-  const isProxy = !!Reflect.getOwnMetadata(componentConfigKey, type);
-  const proxy = isProxy ? type : new Proxy(type, {
+  if (Reflect.getOwnMetadata(componentConfigKey, type)) {
+    return type;
+  }
+  if (type[orgComponentKey]) {
+    return wrapFactoryProxy(type);
+  }
+  return createNewProxy(type);
+}
+
+function createNewProxy<T extends Connectable<any>>(type: T): T {
+  const proxy = new Proxy(type, {
     construct: (target, constructorArgs, protoTarget) => construct(
       {target: (target as Constructor<any>), proxy, creationArgs: constructorArgs, context: protoTarget}
     ),
     apply: (target, thisArg, callArgs) => apply(
       {target: (target as Constructor<any>), proxy, creationArgs: callArgs, context: thisArg}
-    )
+    ),
+    get: (target, property, receiver) => {
+      if (receiver === proxy && property === orgComponentKey) {
+        throw new Error('Must call "asFactory"/"component" before "connect"');
+      }
+      return Reflect.get(target, property, receiver);
+    }
   });
   return proxy;
+}
+
+function wrapFactoryProxy<T extends Connectable<JSXCandidate>>(type: T): T {
+  const proxy: CallableConstructor<any> = asFactory(type as any);
+  const handler: ProxyHandler<T> = proxy[factoryProxyHandlerKey];
+  handler.construct = (target, constructorArgs, protoTarget) => construct(
+    {target: (target as Constructor<any>), proxy, creationArgs: constructorArgs, context: protoTarget}
+  );
+  handler.get = (target, property, receiver) => {
+    if (receiver === proxy && property === orgComponentKey) {
+      throw new Error('Must call "asFactory"/"component" before "connect"');
+    }
+    return Reflect.get(target, property, receiver);
+  };
+  return proxy as any;
 }
 
 function updateConfig(target: Connectable<any>, config: Connection) {
@@ -83,7 +115,7 @@ function connectTarget(
   {creationArgs}: ConnectedCreationOptions
 ) {
   if (target && (stateMapper || actionMapper)) {
-    const stateProvider = getInjectable(StateProvider, creationArgs);
+    const stateProvider = getInjectable(StateProvider, target, creationArgs);
     StateProvider.hook({stateProvider, target, stateMapper, actionMapper});
   }
   return target;
@@ -95,8 +127,8 @@ function addInjectorInjection(proxy: Connectable<any>, config: Connection) {
   }
 }
 
-function getInjectable<T extends object>(type: Constructor<T>, args: any[]): T {
-  const injector = args.find(arg => arg instanceof Injector) || defaultInjector;
+function getInjectable<T extends object>(type: Constructor<T>, target: object, args: any[]): T {
+  const injector = args.find(arg => arg instanceof Injector) || Injector.get(target, defaultInjector);
   return injector.resolve(type);
 }
 
