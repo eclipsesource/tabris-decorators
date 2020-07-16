@@ -99,6 +99,4 @@ export const create: CreateFunction = injector.create;
 export const resolve: ResolveFunction = injector.resolve;
 export const register: RegisterFunction = injector.register;
 
-if (typeof JSX === 'object') { // check for unit testing only
-  JSX.install(injector.jsxProcessor);
-}
+JSX.install(injector.jsxProcessor);

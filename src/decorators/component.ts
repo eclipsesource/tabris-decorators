@@ -1,10 +1,12 @@
 import 'reflect-metadata';
 import {asFactory, CallableConstructor, Composite, Widget, WidgetCollection} from 'tabris';
+import {Injector} from '../api/Injector';
 import {isAppended, markAsAppended, markAsComponent, originalAppendKey, postAppendHandlers, WidgetInterface} from '../internals//utils-databinding';
+import {setInjectorOverride} from '../internals/ExtendedJSX';
 import {processOneWayBindings} from '../internals/processOneWayBindings';
 import {applyDecorator, BaseConstructor, Constructor} from '../internals/utils';
 
-type ComponentOptions = {};
+type ComponentOptions = {injector?: Injector};
 type ComponentNonFactoryOptions = ComponentOptions & {factory?: false};
 type ComponentFactoryOptions = ComponentOptions & {factory: true};
 type ComponentOptionsUnion = ComponentOptions & {factory?: boolean};
@@ -43,6 +45,9 @@ export function component<T>(arg: T): T | ComponentDecorator | ComponentAsFactor
     isolate(type);
     addOneWayBindingsProcessor(type);
     patchAppend(type);
+    if (options.injector) {
+      setInjectorOverride(type, options.injector);
+    }
     if (options.factory) {
       return asFactory(type);
     }

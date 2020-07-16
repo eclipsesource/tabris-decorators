@@ -1,3 +1,4 @@
+import './test';
 import {Injector} from '../src';
 
 export const injector = new Injector();

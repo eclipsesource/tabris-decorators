@@ -4,7 +4,8 @@ import {Composite, Properties, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {create, inject, injectable, injectionHandler, injector, JSX, resolve, shared} from './customInjector';
 import {expect, restoreSandbox} from './test';
-import {Injection, injector as orgInjector, Injector} from '../src';
+import {component, Injection, injector as orgInjector, Injector} from '../src';
+import {ExtendedJSX} from '../src/internals/ExtendedJSX';
 
 @injectable class MyServiceClass { }
 
@@ -89,6 +90,9 @@ describe('custom injector inject', () => {
 
     beforeEach(() => {
       tabris._init(new ClientMock());
+      // tabris._init installs a non-extended processor that ignores injection completely
+      // For this test we want one that throws for missing injections
+      global.JSX.install(new ExtendedJSX(orgInjector));
     });
 
     it('fails with default JSX object', () => {
@@ -104,6 +108,40 @@ describe('custom injector inject', () => {
 
     it('works with custom JSX object', () => {
       const widget: MyCustomWidget = <MyCustomWidget/>;
+      expect(widget.service).to.be.instanceOf(MyServiceClass);
+    });
+
+    it('works with custom component injector override', () => {
+      // eslint-disable-next-line no-shadow
+      const JSX = orgInjector.jsxProcessor;
+      @component({injector})
+      class MyCustomComponent extends Composite {
+
+        constructor(
+          properties: Properties<Composite>,
+          @inject public service: MyServiceClass
+        ) {
+          super(properties);
+        }
+
+      }
+      const widget: MyCustomComponent = <MyCustomComponent/>;
+      expect(widget.service).to.be.instanceOf(MyServiceClass);
+    });
+
+    it('works with jsx-via-factory', () => {
+      class MyCustomComponent extends Composite {
+
+        constructor(
+          properties: Properties<Composite>,
+          @inject public service: MyServiceClass
+        ) {
+          super(properties);
+        }
+
+      }
+      const Factory = component({factory: true, injector})(MyCustomComponent);
+      const widget: MyCustomComponent = Factory();
       expect(widget.service).to.be.instanceOf(MyServiceClass);
     });
 

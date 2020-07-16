@@ -22,6 +22,10 @@ export function getJsxInfo(source: any): JsxInfo {
   return {source};
 }
 
+export function setInjectorOverride(target: JsxConstructor, injector: Injector) {
+  target[jsxInjectorOverride] = injector;
+}
+
 export type Severity = 'warn' | 'error';
 
 export class ExtendedJSX extends JsxProcessor {
@@ -94,7 +98,7 @@ export class ExtendedJSX extends JsxProcessor {
   }
 
   private convertType(type: JsxNativeType): any {
-    const injector = this.injector;
+    const injector = type[jsxInjectorOverride] || this.injector;
     if (hasInjections(type)) {
       return function(props: any) {
         return injector.create(type as Constructor<any>, props);
@@ -106,3 +110,4 @@ export class ExtendedJSX extends JsxProcessor {
 }
 
 const jsxInfo = Symbol('jsxInfo');
+const jsxInjectorOverride = Symbol('jsxInjectorOverride');
