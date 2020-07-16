@@ -1,9 +1,9 @@
 import 'mocha';
 import 'sinon';
-import {Attributes, Composite, tabris, TextInput, TextView, Widget} from 'tabris';
+import {Attributes, Composite, Listeners, tabris, TextInput, TextView} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox} from './test';
-import {component, connect, Injector, property, StateProvider} from '../src';
+import {component, connect, event, Injector, property, StateProvider} from '../src';
 import {ExtendedJSX} from '../src/internals/ExtendedJSX';
 
 interface RootState {
@@ -105,8 +105,53 @@ describe('connect', () => {
       expect(instance.myText).to.equal('baz');
     });
 
-    it('maps actions on creation', () => {
+    it('maps action dispatcher to callback on creation', () => {
       instance.callback('foo');
+
+      expect(actions).to.deep.equal([{type: 'foo'}]);
+    });
+
+    it('maps action creator to callback on creation', () => {
+      @connect<CustomComponent2, RootState, Action>(
+        null,
+        {callback: (type: 'foo' | 'bar') => ({type})}
+      )
+      @component
+      class CustomComponent2 extends Composite {
+        @property callback: (type: string) => any;
+      }
+
+      (<CustomComponent2/> as CustomComponent2).callback('foo');
+
+      expect(actions).to.deep.equal([{type: 'foo'}]);
+    });
+
+    it('maps action dispatcher to event on creation', () => {
+      @connect<CustomComponent2, RootState, Action>(
+        null,
+        dispatch => ({onCallback: ev => dispatch({type: ev.payload})})
+      )
+      @component
+      class CustomComponent2 extends Composite {
+        @event onCallback: Listeners<{target: CustomComponent2, payload: 'foo' | 'bar'}>;
+      }
+
+      (<CustomComponent2/> as CustomComponent2).onCallback.trigger({payload: 'foo'});
+
+      expect(actions).to.deep.equal([{type: 'foo'}]);
+    });
+
+    it('maps action creator to event on creation', () => {
+      @connect<CustomComponent2, RootState, Action>(
+        null,
+        {onCallback: ev => ({type: ev.payload})}
+      )
+      @component
+      class CustomComponent2 extends Composite {
+        @event onCallback: Listeners<{target: CustomComponent2, payload: 'foo' | 'bar'}>;
+      }
+
+      (<CustomComponent2/> as CustomComponent2).onCallback.trigger({payload: 'foo'});
 
       expect(actions).to.deep.equal([{type: 'foo'}]);
     });
