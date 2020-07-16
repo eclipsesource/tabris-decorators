@@ -3,11 +3,11 @@ const {connect} = require('tabris-decorators');
 /* globals StateToProps, DispatchToProps */
 
 exports.FunctionalComponent = connect(
-  /** @type {StateToProps<Button>} */
+  /** @type {StateToProps<tabris.Button>} */
   state => ({text: 'Random number: ' + state.num}),
-  /** @type {DispatchToProps<Button>} */
+  /** @type {DispatchToProps<tabris.Button>} */
   dispatch => ({onSelect: () => dispatch({type: 'SET_RANDOM_NUMBER'})})
 )(
-  /** @param {tabris.Properties<Button>} properties */
-  properties => new Button({font: '12px serif', textColor: 'black'}).set(properties)
+  /** @param {tabris.Attributes<tabris.Button>} attr */
+  attr => Button({font: '12px serif', textColor: 'black', ...attr})
 );

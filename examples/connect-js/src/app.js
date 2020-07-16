@@ -24,8 +24,12 @@ const reducers = {
 register(StateProvider, createStore(combineReducers(reducers)));
 
 contentView.append(
-  new Stack({padding: 12, spacing: 12}).append(
-    new ExampleComponent({background: Color.silver}),
-    FunctionalComponent({background: Color.yellow})
-  )
+  Stack({
+    padding: 12,
+    spacing: 12,
+    children: [
+      ExampleComponent({background: Color.silver}),
+      FunctionalComponent({background: Color.yellow})
+    ]
+  })
 );
