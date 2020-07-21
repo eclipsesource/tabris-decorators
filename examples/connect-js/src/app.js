@@ -29,7 +29,7 @@ contentView.append(
     spacing: 12,
     children: [
       ExampleComponent({background: Color.silver}),
-      FunctionalComponent({background: Color.yellow})
+      FunctionalComponent({background: Color.silver})
     ]
   })
 );

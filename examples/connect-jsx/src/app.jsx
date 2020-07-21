@@ -26,6 +26,6 @@ register(StateProvider, createStore(combineReducers(reducers)));
 contentView.append(
   <Stack spacing={12} padding={12}>
     <ExampleComponent background={Color.silver}/>
-    <FunctionalComponent background={Color.yellow}/>
+    <FunctionalComponent background={Color.silver}/>
   </Stack>
 );

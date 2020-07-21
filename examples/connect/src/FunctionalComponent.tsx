@@ -1,13 +1,20 @@
-import {Attributes, Button} from 'tabris';
+import {Attributes, Button, Color, Composite, Set} from 'tabris';
 import {connect} from 'tabris-decorators';
 
-export const FunctionalComponent = connect<Button>(
+export const FunctionalComponent = connect(
   state => ({
-    text: 'Random number: ' + state.num
+    apply: {
+      '#button': Set(Button, {text: 'Random number: ' + state.num})
+    }
   }),
   dispatch => ({
-    onSelect: () => dispatch({type: 'SET_RANDOM_NUMBER'})
+    apply: {
+      '#button': Set(Button, {onSelect: () => dispatch({type: 'SET_RANDOM_NUMBER'})})
+    }
   })
 )(
-  (attributes: Attributes<Button>) => <Button font='12px serif' textColor='black' {...attributes}/>
+  (attributes: Attributes<Composite>) =>
+    <Composite padding={12} {...attributes}>
+      <Button id='button' font='12px serif' textColor={Color.black} background={Color.yellow}/>
+    </Composite>
 );

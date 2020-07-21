@@ -1,7 +1,9 @@
 import 'mocha';
 import {createStore, Reducer, Store} from 'redux';
 import 'sinon';
+import {match} from 'sinon';
 import {EventObject, Listeners} from 'tabris';
+import {Widget} from 'tabris';
 import {expect, restoreSandbox, spy, stub} from './test';
 import {ActionMapper, Dispatch, Injector, StateProvider} from '../src';
 
@@ -39,9 +41,9 @@ describe('StateProvider', () => {
       const subscribe = stub();
       const dispatch = stub();
       const subscriber = stub();
-      const action = {type: 'FOO'};
+      const action: MyAction = {type: 'DO_FOO'};
 
-      const instance = new StateProvider({
+      const instance = new StateProvider<{}, MyAction>({
         getState: () => initialState, subscribe, dispatch
       });
       const state = instance.getState();
@@ -60,10 +62,10 @@ describe('StateProvider', () => {
         dispatch: stub()
       };
 
-      const instance = new StateProvider(original);
+      const instance = new StateProvider<{}, MyAction>(original);
       instance.getState();
       instance.subscribe(() => undefined);
-      instance.dispatch({type: 'FOO'});
+      instance.dispatch({type: 'DO_FOO'});
 
       expect(original.subscribe).to.have.been.calledOn(original);
       expect(original.getState).to.have.been.calledOn(original);
@@ -197,7 +199,7 @@ describe('StateProvider', () => {
   describe('hook', () => {
 
     type State = {foo: 'bar'};
-    type Target = {
+    type Target = Widget & {
       bar: string,
       cb: () => any,
       set(state: Partial<Target>),
@@ -209,7 +211,7 @@ describe('StateProvider', () => {
     let mappedState: Partial<Target>;
     let getState: () => State;
     let subscribe: sinon.SinonSpy;
-    let stateProvider: StateProvider<State>;
+    let stateProvider: StateProvider<State, MyAction>;
     let target: Target;
     let stateMapper: (state: State) => Target;
     let dispatch: Dispatch<MyAction> & sinon.SinonSpy;
@@ -225,8 +227,8 @@ describe('StateProvider', () => {
       subscribe = spy();
       set = stub().callsFake(function(props) {Object.assign(this, props);});
       dispatch = spy();
-      stateProvider = new StateProvider({getState, subscribe, dispatch});
-      target = {set, bar: '', cb: null, onFoo: null};
+      stateProvider = new StateProvider<State, MyAction>({getState, subscribe, dispatch});
+      target = Object.setPrototypeOf({set, bar: '', cb: null, onFoo: null}, Widget.prototype);
       stateMapper = stub().returns(mappedState);
       actionCreator = stub().returns(action);
       actionMapper = spy(_dispatch => ({cb: () => _dispatch(actionCreator())}));
@@ -256,7 +258,7 @@ describe('StateProvider', () => {
     });
 
     it('calls actionMapper with dispatch', () => {
-      StateProvider.hook({stateProvider, target, actionMapper});
+      StateProvider.hook<Target, State, MyAction>({stateProvider, target, actionMapper});
 
       expect(actionMapper).to.have.been.calledOnceWith(stateProvider.dispatch);
     });
@@ -300,7 +302,8 @@ describe('StateProvider', () => {
 
       target.onFoo.trigger();
 
-      expect(set).not.to.have.been.called;
+      expect(set).to.have.been.calledWith({});
+      expect(set).not.to.have.been.calledWith({onFoo: match.any});
       expect(evActionCreator).to.have.been.calledOnce;
       expect(dispatch).to.have.been.calledOnce;
       expect(dispatch.args[0][0].type).to.equal('foo');
@@ -317,7 +320,8 @@ describe('StateProvider', () => {
 
       target.onFoo.trigger();
 
-      expect(set).not.to.have.been.called;
+      expect(set).to.have.been.calledWith({});
+      expect(set).not.to.have.been.calledWith({onFoo: match.any});
       expect(evActionCreator).to.have.been.calledOnce;
       expect(dispatch).to.have.been.calledOnce;
       expect(dispatch.args[0][0].type).to.equal('foo');

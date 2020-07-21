@@ -1,22 +1,29 @@
-import {Action as GenericAction, AnyAction, Dispatch} from '..';
+import {Action as GenericAction, Dispatch} from '..';
 import {EventOfListeners, Listeners, UnpackListeners} from 'tabris';
+import {MappedRules} from './StateProvider';
 
 export type ActionMapper<
-  Target extends object,
-  Action extends GenericAction = AnyAction
+  Target extends {},
+  Action extends GenericAction
 > = ActionMapperFunction<Target, Action> | ActionMapperObject<Target, Action>;
 
 export type ActionMapperFunction<
-  Target extends object,
-  Action extends GenericAction = AnyAction
+  Target extends {},
+  Action extends GenericAction
 > = (dispatch: Dispatch<Action>) => Callbacks<Target>;
 
-export type ActionMapperObject<Target extends object, Action extends GenericAction = AnyAction> = {
+export type ActionMapperObject<Target extends {}, Action extends GenericAction> = {
   [Key in CallbackKeysOf<Target>]?: ActionCreator<Target[Key], Action>;
+} & {
+  apply?: MappedRules
 };
+
+export type Callback = (...args: any[]) => any;
 
 export type Callbacks<T extends object> = {
   [Key in CallbackKeysOf<T>]?: UnpackListeners<T[Key]>;
+} & {
+  apply?: MappedRules
 };
 
 type ActionCreator<TargetFunction extends (...args: any[]) => any, Action> = TargetFunction extends Listeners<any>

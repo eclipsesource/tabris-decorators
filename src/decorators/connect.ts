@@ -4,23 +4,23 @@ import {asFactory, CallableConstructor, JSXCandidate, Properties, tabris, Widget
 import {ActionMapper} from '../api/ActionMapper';
 import {injector as defaultInjector, Injector} from '../api/Injector';
 import {StateMapper, StateProvider} from '../api/StateProvider';
-import {ParamInfo} from '../internals//utils-databinding';
 import {Constructor, getOwnParamInfo} from '../internals/utils';
+import {ParamInfo} from '../internals/utils-databinding';
 const orgComponentKey: unique symbol = tabris.symbols.originalComponent as any;
 const factoryProxyHandlerKey: unique symbol = tabris.symbols.proxyHandler as any;
 
 const componentConfigKey = Symbol();
 
-export type Connectable<T> = Constructor<T> | ((attributes?: any) => T);
+export type Connectable<T, U = T & Widget> = Constructor<U> | ((attributes?: any) => U);
 
 export function connect<
-  Target extends {},
+  Mapped extends {},
   RootState = DefaultRootState,
   Action extends GenericAction = AnyAction
 >(
-  mapState: StateMapper<Target extends Widget ? Properties<Target> : Partial<Target>, RootState> | null,
-  mapDispatchToProps?: ActionMapper<Target, Action>
-): <T extends Connectable<Target>>(target: T) => T {
+  mapState: StateMapper<Mapped extends Widget ? Properties<Mapped> : Partial<Mapped>, RootState> | null,
+  mapDispatchToProps?: ActionMapper<Mapped extends Widget ? Mapped : object, Action>
+): <T extends Connectable<Mapped>>(target: T) => T {
   return target => {
     try {
       const config: Connection = {stateMapper: mapState, actionMapper: mapDispatchToProps};
@@ -110,7 +110,7 @@ function apply(options: ConnectedCreationOptions) {
 }
 
 function connectTarget(
-  target: object,
+  target: Widget,
   {stateMapper, actionMapper}: Connection,
   {creationArgs}: ConnectedCreationOptions
 ) {
@@ -151,4 +151,4 @@ type ConnectedCreationOptions = {
   proxy: Constructor<any>
 };
 
-type Connection = { stateMapper?: StateMapper<any>, actionMapper?: ActionMapper<any> };
+type Connection = { stateMapper?: StateMapper<any>, actionMapper?: ActionMapper<any, any> };

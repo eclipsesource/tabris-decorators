@@ -23,4 +23,4 @@ type RootState = import('tabris-decorators').DefaultRootState;
 type Actions = import('tabris-decorators').AnyAction;
 
 type StateToProps<T> = import('tabris-decorators').StateMapper<tabris.Properties<T>>;
-type DispatchToProps<T> = import('tabris-decorators').ActionMapperFunction<T>;
+type DispatchToProps<T> = import('tabris-decorators').ActionMapperFunction<T, Actions>;

@@ -1,3 +1,4 @@
+import {format} from 'tabris';
 import {bindDecoratorInject, InjectDecorator} from '../decorators/inject';
 import {bindDecoratorInjectable, InjectableDecorator} from '../decorators/injectable';
 import {bindDecoratorInjectionHandler, InjectionHandlerDecorator} from '../decorators/injectionHandler';
@@ -157,7 +158,7 @@ export class Injector {
       }
       return this.tagResult(new type(...finalArgs));
     } catch (ex) {
-      throw new Error(`Could not create instance of ${type.name}:\n${ex.message}`);
+      throw new Error(`Could not create instance of ${type.name}:\n${format(ex)}`);
     }
   };
 

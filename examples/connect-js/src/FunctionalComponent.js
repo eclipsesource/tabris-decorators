@@ -1,13 +1,24 @@
-const {Button} = require('tabris');
+const {Button, Set, Composite} = require('tabris');
 const {connect} = require('tabris-decorators');
 /* globals StateToProps, DispatchToProps */
 
-exports.FunctionalComponent = connect(
-  /** @type {StateToProps<tabris.Button>} */
-  state => ({text: 'Random number: ' + state.num}),
-  /** @type {DispatchToProps<tabris.Button>} */
-  dispatch => ({onSelect: () => dispatch({type: 'SET_RANDOM_NUMBER'})})
-)(
-  /** @param {tabris.Attributes<tabris.Button>} attr */
-  attr => Button({font: '12px serif', textColor: 'black', ...attr})
+/** @type {StateToProps<Composite>} */
+const stateToProps = state => ({
+  apply: {
+    '#button': Set(Button, {text: 'Random number: ' + state.num})
+  }
+});
+
+/** @type {DispatchToProps<Composite>} */
+const dispatchToProps = dispatch => ({
+  apply: {
+    '#button': Set(Button, {onSelect: () => dispatch({type: 'SET_RANDOM_NUMBER'})})
+  }
+});
+
+exports.FunctionalComponent = connect(stateToProps, dispatchToProps)(
+  /** @param {tabris.Attributes<tabris.Composite>} attr */
+  attr => Composite({padding: 12, ...attr, children: [
+    Button({font: '12px serif', id: 'button', textColor: 'black', background: 'yellow'})
+  ]})
 );

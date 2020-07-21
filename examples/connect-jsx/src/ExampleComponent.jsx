@@ -26,17 +26,13 @@ export class ExampleComponent extends Composite {
    */
   constructor(properties) {
     super();
-    this.set(properties);
-    this.append(
+    this.set(properties).append(
       <Stack spacing={12} padding={12}>
-
         <TextView font='18px'>Binding to store value "str":</TextView>
         <TextView font='18px' background='yellow' bind-text='text'/>
-
         <CheckBox top={24} font={{size: 24}} onSelect={this.onToggle.trigger}>
           Toggle Message
         </CheckBox>
-
       </Stack>
     );
   }

@@ -1,9 +1,21 @@
 import 'mocha';
 import 'sinon';
-import {asFactory, Attributes, CallableConstructor, Composite, Listeners, tabris, TextInput, TextView} from 'tabris';
+import {
+  asFactory,
+  Attributes,
+  CallableConstructor,
+  Composite,
+  Listeners,
+  ProgressBar,
+  Properties,
+  Set,
+  tabris,
+  TextInput,
+  TextView
+} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox} from './test';
-import {component, connect, event, Injector, injector as orgInjector, property, StateProvider} from '../src';
+import {ActionMapper, component, connect, event, Injector, injector as orgInjector, property, StateMapper, StateProvider} from '../src';
 import {ExtendedJSX} from '../src/internals/ExtendedJSX';
 const orgComponentKey: unique symbol = tabris.symbols.originalComponent as any;
 
@@ -25,7 +37,8 @@ describe('connect', () => {
 
   beforeEach(() => {
     tabris._init(new ClientMock());
-    global.JSX.install(new ExtendedJSX(orgInjector));
+    // eslint-disable-next-line no-undef
+    window.JSX.install(new ExtendedJSX(orgInjector));
     injector = new Injector();
     subscribers = [];
     actions = [];
@@ -309,6 +322,7 @@ describe('connect', () => {
 
     it('maps state on state change', () => {
       currentState.stateString = 'baz';
+
       subscribers.forEach(cb => cb());
       expect(instance.text).to.equal('baz');
     });
@@ -317,6 +331,100 @@ describe('connect', () => {
       instance.onAccept.trigger({text: 'foo'});
 
       expect(actions).to.deep.equal([{type: 'foo'}]);
+    });
+
+  });
+
+  describe('as function with "apply" on functional component', function() {
+
+    let CustomComponent: (attributes?: Attributes<Composite>, injector?: Injector) => Composite;
+    let Connected: typeof CustomComponent;
+    let instance: Composite;
+    let stateMapper: StateMapper<Properties<Composite>, RootState>;
+    let actionMapper: ActionMapper<Composite, Action>;
+
+    beforeEach(() => {
+      stateMapper = state => ({
+        apply: {
+          '#foo': Set(TextInput, {text: state.stateString}),
+          '.bar': Set(ProgressBar, {selection: state.stateNumber})
+        }
+      });
+      actionMapper = dispatch => ({
+        apply: {
+          '#foo': Set(TextInput, {
+            onAccept: ({text}) => dispatch({type: text === 'foo' ? text : 'bar'})
+          }),
+          '.bar': Set(ProgressBar, {data: () => 'baz'})
+        }
+      });
+      CustomComponent = (attr: Attributes<Composite>) => (
+        <Composite {...attr}>
+          <TextInput id='foo'/>
+          <ProgressBar class='bar'/>
+        </Composite>
+      );
+    });
+
+    it('throws for invalid apply return type', () => {
+      Connected = connect<Composite>(() => ({apply: 23}) as any)(CustomComponent);
+      expect(() => Connected({}, injector)).to.throw(TypeError);
+    });
+
+    it('applies rules on creation', () => {
+      Connected = connect<Composite>(stateMapper)(CustomComponent);
+
+      instance = Connected({}, injector);
+
+      expect(instance.find(TextInput).only().text).to.equal('bar');
+      expect(instance.find(ProgressBar).only().selection).to.equal(23);
+    });
+
+    it('applies rules on state change', () => {
+      Connected = connect<Composite>(stateMapper)(CustomComponent);
+      instance = Connected({}, injector);
+
+      currentState.stateString = 'baz';
+      currentState.stateNumber = 24;
+      subscribers.forEach(cb => cb());
+
+      expect(instance.find(TextInput).only().text).to.equal('baz');
+      expect(instance.find(ProgressBar).only().selection).to.equal(24);
+    });
+
+    it('applies rules in strict mode', () => {
+      Connected = connect<Composite>(
+        () => ({apply: {'#baz': {text: 'foo'}}})
+      )(CustomComponent);
+      expect(() => Connected({}, injector)).to.throw(Error, /match/);
+    });
+
+    it('applies action dispatcher to events and callbacks on creation', () => {
+      Connected = connect<Composite, {}, Action>(null, actionMapper)(CustomComponent);
+
+      instance = Connected({}, injector);
+      instance.find(TextInput).trigger('accept', {text: 'foo'});
+
+      expect(actions).to.deep.equal([{type: 'foo'}]);
+      expect(instance.find(ProgressBar).only().data.call()).to.equal('baz');
+    });
+
+    it('applies action creator to events and callbacks on creation', () => {
+      actionMapper = {
+        apply: {
+          '#foo': Set(TextInput, {
+            onAccept: ({text}) => ({type: text === 'foo' ? text : 'bar'})
+          }),
+          '.bar': Set(ProgressBar, {data: () => ({type: 'foo'})})
+        }
+      };
+      Connected = connect<Composite, {}, Action>(null, actionMapper)(CustomComponent);
+
+      instance = Connected({}, injector);
+      instance.find(TextInput).trigger('accept', {text: 'bar'});
+      instance.find(ProgressBar).only().data.call();
+
+      expect(actions).to.deep.equal([{type: 'bar'}, {type: 'foo'}]);
     });
 
   });

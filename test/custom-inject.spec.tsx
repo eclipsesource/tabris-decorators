@@ -47,8 +47,8 @@ describe('custom injector inject', () => {
     expect(() => {
       orgInjector.create(ConstructorWithInjection);
     }).to.throw(
-      'Could not create instance of ConstructorWithInjection:\n'
-      + 'Could not inject value of type MyServiceClass since no compatible injection handler exists for this type.'
+      'Could not create instance of ConstructorWithInjection:\nError: Could not '
+      + 'inject value of type MyServiceClass since no compatible injection handler exists for this type.'
     );
   });
 
@@ -92,7 +92,7 @@ describe('custom injector inject', () => {
       tabris._init(new ClientMock());
       // tabris._init installs a non-extended processor that ignores injection completely
       // For this test we want one that throws for missing injections
-      global.JSX.install(new ExtendedJSX(orgInjector));
+      (global as any).JSX.install(new ExtendedJSX(orgInjector));
     });
 
     it('fails with default JSX object', () => {
@@ -101,7 +101,7 @@ describe('custom injector inject', () => {
       expect(() => {
         <MyCustomWidget/>;
       }).to.throw(
-        'Could not create instance of MyCustomWidget:\n'
+        'Could not create instance of MyCustomWidget:\nError: '
        + 'Could not inject value of type MyServiceClass since no compatible injection handler exists for this type.'
       );
     });
