@@ -37,6 +37,8 @@ describe('connect', () => {
 
   beforeEach(() => {
     tabris._init(new ClientMock());
+    // tabris._init installs a non-extended processor that ignores injection completely
+    // For this test we want one that throws for missing injections
     // eslint-disable-next-line no-undef
     window.JSX.install(new ExtendedJSX(orgInjector));
     injector = new Injector();
@@ -120,6 +122,22 @@ describe('connect', () => {
       expect(instance.myText).to.equal('baz');
     });
 
+    it('state mapping works without giving dispatchToProps', () => {
+      @connect<CustomComponent2, RootState, Action>(
+        state => ({myText: state.stateString})
+      )
+      @component
+      class CustomComponent2 extends Composite {
+        @property myText: string;
+      }
+
+      instance = <CustomComponent2/>;
+      currentState.stateString = 'baz';
+      subscribers.forEach(cb => cb());
+
+      expect(instance.myText).to.equal('baz');
+    });
+
     it('maps action dispatcher to callback on creation', () => {
       instance.callback('foo');
 
@@ -168,6 +186,76 @@ describe('connect', () => {
 
       (<CustomComponent2/> as CustomComponent2).onCallback.trigger({payload: 'foo'});
 
+      expect(actions).to.deep.equal([{type: 'foo'}]);
+    });
+
+    it('action mapping works without giving stateToProps', () => {
+      @connect<CustomComponent2, RootState, Action>(
+        null,
+        dispatch => ({callback: (type: 'foo' | 'bar') => dispatch({type})})
+      )
+      @component
+      class CustomComponent2 extends Composite {
+        @property callback: (type: string) => any;
+      }
+
+      instance = <CustomComponent2/>;
+      instance.callback('foo');
+
+      expect(actions).to.deep.equal([{type: 'foo'}]);
+    });
+
+    it('actions and state mapping work in separate connects (state first)', () => {
+      @component
+      @connect<CustomComponent2, RootState>(
+        state => ({
+          myText: state.stateString,
+          myNumber: state.stateNumber
+        })
+      )
+      @connect<CustomComponent2, {}, Action>(
+        null,
+        dispatch => ({
+          callback: (type: 'foo' | 'bar') => dispatch({type})
+        })
+      )
+      class CustomComponent2 extends Composite {
+        @property myText: string;
+        @property myNumber: number;
+        @property callback: (type: string) => any;
+      }
+
+      instance = <CustomComponent2/>;
+      instance.callback('foo');
+
+      expect(instance.myText).to.equal('bar');
+      expect(actions).to.deep.equal([{type: 'foo'}]);
+    });
+
+    it('actions and state mapping work in separate connects (state first)', () => {
+      @component
+      @connect<CustomComponent2, {}, Action>(
+        null,
+        dispatch => ({
+          callback: (type: 'foo' | 'bar') => dispatch({type})
+        })
+      )
+      @connect<CustomComponent2, RootState>(
+        state => ({
+          myText: state.stateString,
+          myNumber: state.stateNumber
+        })
+      )
+      class CustomComponent2 extends Composite {
+        @property myText: string;
+        @property myNumber: number;
+        @property callback: (type: string) => any;
+      }
+
+      instance = <CustomComponent2/>;
+      instance.callback('foo');
+
+      expect(instance.myText).to.equal('bar');
       expect(actions).to.deep.equal([{type: 'foo'}]);
     });
 
