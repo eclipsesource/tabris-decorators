@@ -39,7 +39,7 @@ class ExampleComponent extends Composite {
 
 /** @type {StateToProps<ExampleComponent>} */
 const stateToProps = state => ({
-  text: state.str
+  text: state.myString
 });
 
 /** @type {DispatchToProps<ExampleComponent>} */

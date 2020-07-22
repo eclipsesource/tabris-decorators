@@ -5,7 +5,7 @@ const {connect} = require('tabris-decorators');
 /** @type {StateToProps<tabris.Composite>} */
 const stateToProps = state => ({
   apply: {
-    '#button': Set(Button, {text: 'Random number: ' + state.num})
+    '#button': Set(Button, {text: 'Random number: ' + state.myNumber})
   }
 });
 

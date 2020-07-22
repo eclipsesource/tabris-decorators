@@ -4,7 +4,7 @@ import {connect, prop, event, component} from 'tabris-decorators';
 
 /** @type {StateToProps<ExampleComponent>} */
 const stateToProps = state => ({
-  text: state.str
+  text: state.myString
 });
 
 /** @type {DispatchToProps<ExampleComponent>} */

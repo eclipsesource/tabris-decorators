@@ -1,11 +1,10 @@
 import {CheckBox, CheckBoxSelectEvent, Composite, Listeners, Properties, Stack, TextView} from 'tabris';
-import {connect, event, prop} from 'tabris-decorators';
-import {component} from 'tabris-decorators';
+import {component, connect, event, prop} from 'tabris-decorators';
 
 @component
 @connect<ExampleComponent>(
   state => ({
-    text: state.str
+    text: state.myString
   }),
   dispatch => ({
     onToggle: ev => dispatch({type: 'TOGGLE_STRING', checked: ev.checked})
