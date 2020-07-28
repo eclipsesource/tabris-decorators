@@ -274,7 +274,7 @@ describe('connect', () => {
     let ConnectedB: CallableConstructor<typeof CustomComponentImpl>;
 
     beforeEach(() => {
-      CustomComponent = component({factory: true, injector})(CustomComponentImpl);
+      CustomComponent = asFactory(component({injector})(CustomComponentImpl));
 
       ConnectedA = connect((state: RootState) => ({
         myText: state.stateString,
@@ -310,7 +310,6 @@ describe('connect', () => {
     it('does not allow connected component to be made a factory afterwards', () => {
       const connected = connect(() => ({myText: ''}))(CustomComponentImpl);
       expect(() => asFactory(connected)).to.throw(Error);
-      expect(() => component({factory: true})(connected)).to.throw(Error);
     });
 
     it('maps state on creation', () => {

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import {asFactory, CallableConstructor, Composite, Widget, WidgetCollection} from 'tabris';
+import {CallableConstructor, Composite, Widget, WidgetCollection} from 'tabris';
 import {Injector} from '../api/Injector';
 import {isAppended, markAsAppended, markAsComponent, originalAppendKey, postAppendHandlers, WidgetInterface} from '../internals//utils-databinding';
 import {setInjectorOverride} from '../internals/ExtendedJSX';
@@ -7,9 +7,6 @@ import {processOneWayBindings} from '../internals/processOneWayBindings';
 import {applyDecorator, BaseConstructor, Constructor} from '../internals/utils';
 
 type ComponentOptions = {injector?: Injector};
-type ComponentNonFactoryOptions = ComponentOptions & {factory?: false};
-type ComponentFactoryOptions = ComponentOptions & {factory: true};
-type ComponentOptionsUnion = ComponentOptions & {factory?: boolean};
 type ComponentDecorator = <T extends Constructor<Composite>>(arg: T) => T;
 type ComponentAsFactory = <T extends Constructor<Composite>>(arg: T) => CallableConstructor<T>;
 
@@ -36,20 +33,16 @@ type ComponentAsFactory = <T extends Constructor<Composite>>(arg: T) => Callable
  * * *For creating two-way bindings use `@bind` and `@bindAll`.*
  */
 export function component<T extends Constructor<Composite>>(arg: T): T;
-export function component(options: ComponentNonFactoryOptions): ComponentDecorator;
-export function component(options: ComponentFactoryOptions): ComponentAsFactory;
+export function component(options: ComponentOptions): ComponentDecorator;
 export function component<T>(arg: T): T | ComponentDecorator | ComponentAsFactory {
   return applyDecorator('component', [arg], (type: Constructor<Composite>) => {
-    const options: ComponentOptionsUnion = arg instanceof Function ? {} : arg;
+    const options: ComponentOptions = arg instanceof Function ? {} : arg;
     markAsComponent(type);
     isolate(type);
     addOneWayBindingsProcessor(type);
     patchAppend(type);
     if (options.injector) {
       setInjectorOverride(type, options.injector);
-    }
-    if (options.factory) {
-      return asFactory(type);
     }
     return type;
   });

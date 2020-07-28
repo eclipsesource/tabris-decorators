@@ -1,6 +1,6 @@
 import 'mocha';
 import 'sinon';
-import {Composite, Properties, tabris} from 'tabris';
+import {asFactory, Composite, Properties, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {create, inject, injectable, injectionHandler, injector, JSX, resolve, shared} from './customInjector';
 import {expect, restoreSandbox} from './test';
@@ -140,7 +140,7 @@ describe('custom injector inject', () => {
         }
 
       }
-      const Factory = component({factory: true, injector})(MyCustomComponent);
+      const Factory = asFactory(component({injector})(MyCustomComponent));
       const widget: MyCustomComponent = Factory();
       expect(widget.service).to.be.instanceOf(MyServiceClass);
     });
