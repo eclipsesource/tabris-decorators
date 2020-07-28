@@ -1,7 +1,7 @@
 import {Action as GenericAction, AnyAction, DefaultRootState} from '..';
 import 'reflect-metadata';
 import {asFactory, CallableConstructor, JSXCandidate, Properties, tabris, Widget} from 'tabris';
-import {ActionMapper} from '../api/ActionMapper';
+import {ActionMapper, ActionMapperFunction} from '../api/ActionMapper';
 import {injector as defaultInjector, Injector} from '../api/Injector';
 import {StateMapper, StateProvider} from '../api/StateProvider';
 import {Constructor, getOwnParamInfo} from '../internals/utils';
@@ -12,6 +12,8 @@ const factoryProxyHandlerKey: unique symbol = tabris.symbols.proxyHandler as any
 const componentConfigKey = Symbol();
 
 export type Connectable<T, U = T & Widget> = Constructor<U> | ((attributes?: any) => U);
+export type StateToProps<T> = StateMapper<tabris.Properties<T>>;
+export type DispatchToProps<T> = ActionMapperFunction<T, AnyAction>;
 
 export function connect<
   Mapped extends {},

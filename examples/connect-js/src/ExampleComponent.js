@@ -1,8 +1,11 @@
-const {Composite, Stack, TextView, CheckBox, Listeners} = require('tabris');
-const {connect, component} = require('tabris-decorators');
+const {Composite, Stack, TextView, CheckBox, Listeners, asFactory, WidgetCollection} = require('tabris');
+const {connect} = require('tabris-decorators');
 /* globals StateToProps, DispatchToProps */
 
-const ExampleComponent = class ExampleComponent extends Composite {
+/** @returns {tabris.WidgetCollection<any>} */
+const hideChildren = () => new WidgetCollection([]);
+
+class ExampleComponent extends Composite {
 
   /** @param {tabris.Properties<ExampleComponent>=} properties */
   constructor(properties) {
@@ -10,6 +13,7 @@ const ExampleComponent = class ExampleComponent extends Composite {
     /** @type {tabris.Listeners<tabris.CheckBoxSelectEvent<ExampleComponent>>} */
     this.onToggle = new Listeners(this, 'toggle');
     this.set(properties).append(this._createContent());
+    this.children = hideChildren;
   }
 
   set text(value) {
@@ -31,7 +35,7 @@ const ExampleComponent = class ExampleComponent extends Composite {
     ]});
   }
 
-};
+}
 
 /** @type {StateToProps<ExampleComponent>} */
 const stateToProps = state => ({
@@ -43,6 +47,5 @@ const dispatchToProps = dispatch => ({
   onToggle: ev => dispatch({type: 'TOGGLE_STRING', checked: ev.checked})
 });
 
-exports.ExampleComponent = connect(stateToProps, dispatchToProps)(
-  component({factory: true})(ExampleComponent)
-);
+const connector = connect(stateToProps, dispatchToProps);
+exports.ExampleComponent = connector(asFactory(ExampleComponent));

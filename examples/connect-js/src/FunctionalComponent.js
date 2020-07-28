@@ -2,14 +2,14 @@ const {Button, Set, Composite} = require('tabris');
 const {connect} = require('tabris-decorators');
 /* globals StateToProps, DispatchToProps */
 
-/** @type {StateToProps<Composite>} */
+/** @type {StateToProps<tabris.Composite>} */
 const stateToProps = state => ({
   apply: {
     '#button': Set(Button, {text: 'Random number: ' + state.num})
   }
 });
 
-/** @type {DispatchToProps<Composite>} */
+/** @type {DispatchToProps<tabris.Composite>} */
 const dispatchToProps = dispatch => ({
   apply: {
     '#button': Set(Button, {onSelect: () => dispatch({type: 'SET_RANDOM_NUMBER'})})

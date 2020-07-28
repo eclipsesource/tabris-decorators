@@ -1,11 +1,12 @@
 const {combineReducers, createStore} = require('redux');
 const {Color, contentView, Stack} = require('tabris');
 const {register, StateProvider} = require('tabris-decorators');
-const {ExampleComponent} = require('./ExampleComponent');
 const {FunctionalComponent} = require('./FunctionalComponent');
-/* globals RootState, Actions */
+const {ExampleComponent} = require('./ExampleComponent');
 
-/** @type {import('redux').ReducersMapObject<RootState, Actions>} */
+/* globals Reducers */
+
+/** @type {Reducers} */
 const reducers = {
   num(state, action) {
     if (action.type === 'SET_RANDOM_NUMBER') {
