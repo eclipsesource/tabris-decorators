@@ -4,7 +4,7 @@
 
 > :point_right: Make sure to first read the [introduction to redux in Tabris](./index.md).
 
-This class defines the interface that [`connect`](./@connect.md) looks for in the global [`injector`](../di/Injector.md) instance. It provides a subset of the [redux store API](https://redux.js.org/api/store). This article goes in to technical details of this class, but to use it properly you really just need to know [how to use it to register the redux store](#registration).
+This class defines the interface that [`connect`](./@connect.md) looks for in the global [`injector`](../di/Injector.md) instance. It provides a subset of the [redux store API](https://redux.js.org/api/store). This article describes the technical details of `StateProvider`, but to use it properly you really just need to know [how to use it to register the redux store](#registration).
 
 ## Type Parameters
 
@@ -20,13 +20,13 @@ let store: Store<MyState, MyAction>; // = createStore<MyState, MyAction>(...)
 let stateProvider: StateProvider<MyState, MyAction> = store; // OK
 ```
 
-The `State` may be any type, but `Action` must implement be an object with an `type` property: `{type: any}`.
+The `State` may be any type, but `Action` must implement an object with an `type` property: `{type: any}`.
 
 **If no type parameters are given they default to the `DefaultRootState` and `AnyAction` interfaces, respectively. This is useful for [module augmentation](./types.md).**
 
 ## constructor
 
-The constructor takes a single object that may implement all or part of the `StateProvider` interface, so a redux store, any object literal with the below methods, or - technically - another instance of `StateProvider`:
+The constructor takes a single object that may implement all or part of the `StateProvider` interface, so a redux store, any object literal with the below methods, or - technically - another instance of `StateProvider`: (TODO: there is a verb missing somewhere)
 
 ```ts
 const stateProvider = new StateProvider<State, MyAction>({getState, subscribe, dispatch});
@@ -36,7 +36,7 @@ const stateProvider = new StateProvider<State, MyAction>({getState, subscribe, d
 
 ### getState()
 
-Returns the state that will be given to the `mapStateToProps` function in [`connect`](./@connect.md). The type the state is defined by the type parameter [`State`](#typeparameters).
+Returns the state that will be given to the `mapStateToProps` function in [`connect`](./@connect.md). The state is defined by the type parameter [`State`](#typeparameters).
 
 ### dispatch(action)
 
@@ -44,11 +44,11 @@ Returns the function that will be given to the `mapDispatchToProps` function in 
 
 ### subscribe(cb)
 
-This is the function that [`connect`](./@connect.md) uses to get notified about state changes. The `cb` parameter is a function that needs to be invoked whenever `getState()` does provide a new return value.
+This is the function that [`connect`](./@connect.md) uses to get notified about state changes. The `cb` parameter is a callback function that needs to be invoked whenever `getState()` does provide a new return value.
 
 ## Registration
 
-Before any connected component can be created an object implementing `StateProvider` has to be registered. This shortest way to do this is to use the [`register`](../di/Injector.md#registertargettypevalue) function. Since a redux store fulfills the `StateProvider` interface there is no need to create an actual instance of it:
+Before any connected component can be created, an object implementing `StateProvider` has to be registered. The shortest way to do this, is to use the [`register`](../di/Injector.md#registertargettypevalue) function. Since a redux store fulfills the `StateProvider` interface there is no need to create an actual instance of it: (TODO: who IS creating the instance then?)
 
 ```js
 import {createStore} from 'redux';
@@ -66,7 +66,7 @@ register(StateProvider, store);
 contentView.append(new SomeConnectedComponent());
 ```
 
-An alternative TypeScript-only method would be to wrap the redux store in `StateProvider` and register it via [`@share`](../di/injector.md#share):
+An alternative TypeScript-only method to register the store would be to wrap the redux store in `StateProvider` and register it via [`@share`](../di/injector.md#share):
 
 ```ts
 @shared
