@@ -8,13 +8,13 @@ const {ExampleComponent} = require('./ExampleComponent');
 
 /** @type {Reducers} */
 const reducers = {
-  num(state, action) {
+  myNumber(state, action) {
     if (action.type === 'SET_RANDOM_NUMBER') {
       return Math.round(Math.random() * 100);
     }
     return state || 0;
   },
-  str(state, action) {
+  myString(state, action) {
     if (action.type === 'TOGGLE_STRING') {
       return action.checked ? 'Another Hello World' : 'Hello World';
     }

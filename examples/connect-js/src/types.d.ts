@@ -2,13 +2,13 @@ declare module 'tabris-decorators' {
 
   // The state parameter provided by "@connect"
   export interface DefaultRootState {
-    str: string;
-    num: number;
+    myString: string;
+    myNumber: number;
   }
 
   // The actions accepted by "@connect"
   export interface DefaultActions {
-    toggleNumber: {
+    setRandomNumber: {
       type: 'SET_RANDOM_NUMBER'
     };
     toggleString: {

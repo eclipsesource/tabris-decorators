@@ -10,18 +10,21 @@ class ExampleComponent extends Composite {
   /** @param {tabris.Properties<ExampleComponent>=} properties */
   constructor(properties) {
     super();
+    /** @type {string} */
+    this._text = '';
     /** @type {tabris.Listeners<tabris.CheckBoxSelectEvent<ExampleComponent>>} */
     this.onToggle = new Listeners(this, 'toggle');
-    this.set(properties).append(this._createContent());
+    this.append(this._createContent()).set(properties);
     this.children = hideChildren;
   }
 
   set text(value) {
+    this._text = value;
     this._find('#message').only(TextView).text = value;
   }
 
   get text() {
-    return this._find('#message').only(TextView).text;
+    return this._text;
   }
 
   _createContent() {
@@ -39,7 +42,7 @@ class ExampleComponent extends Composite {
 
 /** @type {StateToProps<ExampleComponent>} */
 const stateToProps = state => ({
-  text: state.str
+  text: state.myString
 });
 
 /** @type {DispatchToProps<ExampleComponent>} */

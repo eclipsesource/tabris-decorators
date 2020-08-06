@@ -1,11 +1,10 @@
 import {CheckBox, CheckBoxSelectEvent, Composite, Listeners, Properties, Stack, TextView} from 'tabris';
-import {connect, event, prop} from 'tabris-decorators';
-import {component} from 'tabris-decorators';
+import {component, connect, event, prop} from 'tabris-decorators';
 
 @component
 @connect<ExampleComponent>(
   state => ({
-    text: state.str
+    text: state.myString
   }),
   dispatch => ({
     onToggle: ev => dispatch({type: 'TOGGLE_STRING', checked: ev.checked})
@@ -18,7 +17,7 @@ export class ExampleComponent extends Composite {
 
   constructor(properties: Properties<ExampleComponent>) {
     super();
-    this.set(properties).append(
+    this.append(
       <Stack spacing={12} padding={12}>
         <TextView font='18px'>Binding to store value "str":</TextView>
         <TextView font='18px' background='yellow' bind-text='text'/>
@@ -27,6 +26,7 @@ export class ExampleComponent extends Composite {
         </CheckBox>
       </Stack>
     );
+    this.set(properties);
   }
 
 }

@@ -3,17 +3,18 @@ import {Color, contentView, Stack} from 'tabris';
 import {register, StateProvider} from 'tabris-decorators';
 import {ExampleComponent} from './ExampleComponent';
 import {FunctionalComponent} from './FunctionalComponent';
-/* globals RootState, Actions */
 
-/** @type {import('redux').ReducersMapObject<RootState, Actions>} */
+/* globals Reducers */
+
+/** @type {Reducers} */
 const reducers = {
-  num(state, action) {
+  myNumber(state, action) {
     if (action.type === 'SET_RANDOM_NUMBER') {
       return Math.round(Math.random() * 100);
     }
     return state || 0;
   },
-  str(state, action) {
+  myString(state, action) {
     if (action.type === 'TOGGLE_STRING') {
       return action.checked ? 'Another Hello World' : 'Hello World';
     }

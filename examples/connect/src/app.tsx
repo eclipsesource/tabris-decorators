@@ -10,13 +10,13 @@ declare module 'tabris-decorators' {
 
   // The state parameter provided by "@connect"
   export interface DefaultRootState {
-    str: string;
-    num: number;
+    myString: string;
+    myNumber: number;
   }
 
   // The actions accepted by "@connect"
   export interface DefaultActions {
-    toggleNumber: {
+    setRandomNumber: {
       type: 'SET_RANDOM_NUMBER'
     };
     toggleString: {
@@ -29,13 +29,13 @@ declare module 'tabris-decorators' {
 
 const store = createStore<DefaultRootState, AnyAction, {}, {}>(
   combineReducers<DefaultRootState, AnyAction>({
-    num(state, action) {
+    myNumber(state, action) {
       if (action.type === 'SET_RANDOM_NUMBER') {
         return Math.round(Math.random() * 100);
       }
       return state || 0;
     },
-    str(state, action) {
+    myString(state, action) {
       if (action.type === 'TOGGLE_STRING') {
         return action.checked ? 'Another Hello World' : 'Hello World';
       }

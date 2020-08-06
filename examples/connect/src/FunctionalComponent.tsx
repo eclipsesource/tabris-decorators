@@ -4,7 +4,7 @@ import {connect} from 'tabris-decorators';
 export const FunctionalComponent = connect(
   state => ({
     apply: {
-      '#button': Set(Button, {text: 'Random number: ' + state.num})
+      '#button': Set(Button, {text: 'Random number: ' + state.myNumber})
     }
   }),
   dispatch => ({
