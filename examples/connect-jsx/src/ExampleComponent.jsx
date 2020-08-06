@@ -26,7 +26,7 @@ export class ExampleComponent extends Composite {
    */
   constructor(properties) {
     super();
-    this.set(properties).append(
+    this.append(
       <Stack spacing={12} padding={12}>
         <TextView font='18px'>Binding to store value "str":</TextView>
         <TextView font='18px' background='yellow' bind-text='text'/>
@@ -34,7 +34,7 @@ export class ExampleComponent extends Composite {
           Toggle Message
         </CheckBox>
       </Stack>
-    );
+    ).set(properties);
   }
 
 }

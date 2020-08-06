@@ -8,13 +8,23 @@ In addition the Redux store is also a central event bus on which views (Tabris w
 
 While Redux is framework-agnostic, `tabris-decorators` provides API that is specifically designed for Redux-Tabris integration. However, there is no hard dependency to the Redux library, and technically this API [can be used without Redux](./StateProvider.md#standaloneusage).
 
-**From this point on this articles assumes you are familiar with the basics of Redux application development and concentrate on the integration with Tabris only. If this is your first contact with Redux we strongly recommend you read their ["Essentials"](https://Redux.js.org/tutorials/essentials/part-1-overview-concepts) articles and the ["Basic Tutorial"](https://redux.js.org/basics/basic-tutorial).**
+**From this point on this articles assumes you are familiar with the basics of Redux application development and concentrates on the integration with Tabris only. If this is your first contact with Redux we strongly recommend you read their ["Essentials"](https://Redux.js.org/tutorials/essentials/part-1-overview-concepts) articles and the ["Basic Tutorial"](https://redux.js.org/basics/basic-tutorial).**
+
+## Examples
+
+The following example projects demonstrating the technical aspects of Tabris-Redux integration:
+
+* [Example "connect"](https://github.com/eclipsesource/tabris-decorators/blob/master/examples/connect) (TypeScript/JSX based)
+* [Example "connect-jsx"](https://github.com/eclipsesource/tabris-decorators/blob/master/examples/connect-jsx) (JavaScript/JSX based)
+* [Example "connect-js"](https://github.com/eclipsesource/tabris-decorators/blob/master/examples/connect-js) (plain JavaScript, no compiler)
+
+You may use these as a template for your project, or just to experiment with the API. Many snippets in this documentation are taken from these projects with little-to-no modification.
 
 ## Application Setup
 
 Create a new Tabris app with whatever setup you are comfortable with. You can use Redux with Tabris apps based on TypeScript/JSX, JavaScript apps using JSX syntax (via the TypeScript compiler), and plain JavaScript apps using no compiler whatsoever (and therefore `require` instead of ES6 module syntax). This documentation will provide code snippets for all three wherever they differ significantly. TypeScript examples are usually provided first, and JavaScript examples may use TypeScript types within JsDoc annotations. These are supported by Visual Studio Code, but you may omit them if you are using another IDE or don't care about strong type safety.
 
-If your template did not install `tabris-decorators` for you, you'll have to do it with `npm install tabris-decorators`. (Tabris-Redux integration centers around the [`connect`](./@connect.md) function. It [is a decorator](./@connect.md#asadecorator), but can also be used as [a conventional function](./@connect.md#asafunction) in plain JavaScript.)
+If your template did not install `tabris-decorators` for you, you'll have to do it with `npm install tabris-decorators`. Tabris-Redux integration centers around the [`connect`](./@connect.md) function, which [is a decorator](./@connect.md#asadecorator). But it can also be used as [a conventional function](./@connect.md#asafunction) in plain JavaScript.
 
 Now to install the redux module type "`npm install redux`". The Redux module contains TypeScript declarations, so no further "@types" module needs to be installed for TypeScript support.
 
@@ -56,7 +66,7 @@ In TypeScript or for a type-safe JavaScript app you should first [declare your g
 
 Now you can create the store with Redux's [`createStore`](https://redux.js.org/api/createstore) and [`combineReducers`]https://redux.js.org/api/combinereducers functions. The only part specific to Tabris.js is the usage of the `DefaultRootState` and `AnyAction` types provided by `tabris-decorators` module.
 
-TypeScript:
+**TypeScript**:
 ```ts
 const store = createStore<DefaultRootState, AnyAction, {}, {}>(
   combineReducers<DefaultRootState, AnyAction>({
@@ -76,7 +86,7 @@ const store = createStore<DefaultRootState, AnyAction, {}, {}>(
 );
 ```
 
-JavaScript:
+**JavaScript**:
 ```js
 const store = createStore(
   combineReducers({
@@ -125,7 +135,7 @@ Now there are two ways to invoke `connect`:
 
 As a decorators directly [on the component class](./@connect.md#asadecorator):
 
-TypeScript:
+**TypeScript**:
 ```ts
 @component
 @connect<ExampleComponent>(mapStateToProps, mapDispatchToProps)
@@ -134,7 +144,7 @@ export class ExampleComponent extends Composite {
 }
 ```
 
-JavaScript if your setup supports decorators:
+**JavaScript**, if your setup supports decorators:
 ```ts
 @component
 @connect(mapStateToProps, mapDispatchToProps)
@@ -143,9 +153,9 @@ export class ExampleComponent extends Composite {
 }
 ```
 
-Or as a function to pass the component through. Unlike TODO the decorator syntax also works in plain JavaScript and with functional components.
+Or as a function to pass the component through. Unlike the decorator syntax this also works in plain JavaScript and with functional components.
 
-TypeScript and JavaScript/JSX, [custom component]((./@connect.md#asafunction)):
+**TypeScript** and **JavaScript/JSX**, [custom component]((./@connect.md#asafunction)):
 ```ts
 @component
 class BaseComponent extends Composite {
@@ -156,7 +166,7 @@ export const ExampleComponent = connect(stateToProps, dispatchToProps)(BaseCompo
 export type ExampleComponent = BaseComponent; // TypeScript only
 ```
 
-Plain JavaScript, custom component:
+Plain **JavaScript**, custom component:
 ```js
 class ExampleComponent extends Composite {
   // ...
@@ -165,7 +175,7 @@ class ExampleComponent extends Composite {
 exports.ExampleComponent = connect(mapStateToProps, mapDispatchToProps)(ExampleComponent));
 ```
 
-TypeScript, [functional component](./@connect.md#usagewithfunctionalcomponents):
+**TypeScript**, [functional component](./@connect.md#usagewithfunctionalcomponents):
 ```ts
 export const FunctionalComponent = connect(stateToProps, dispatchToProps)(
   (attributes: Attributes<Composite>) =>
@@ -175,7 +185,7 @@ export const FunctionalComponent = connect(stateToProps, dispatchToProps)(
 );
 ```
 
-JavaScript/JSX, [functional component](./@connect.md#usagewithfunctionalcomponents):
+**JavaScript/JSX**, [functional component](./@connect.md#usagewithfunctionalcomponents):
 ```jsx
 export const FunctionalComponent = connect(stateToProps, dispatchToProps)(
   /** @param {tabris.Attributes<Composite>} attributes */
@@ -186,7 +196,7 @@ export const FunctionalComponent = connect(stateToProps, dispatchToProps)(
 );
 ```
 
-Plain JavaScript, [functional component](./@connect.md#usagewithfunctionalcomponents):
+Plain **JavaScript**, [functional component](./@connect.md#usagewithfunctionalcomponents):
 ```js
 exports.FunctionalComponent = connect(stateToProps, dispatchToProps)(
   /** @param {tabris.Attributes<tabris.Composite>} attr */

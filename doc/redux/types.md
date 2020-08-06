@@ -22,9 +22,9 @@ declare module 'tabris-decorators' {
 }
 ```
 
-Ensure this is included in your `tsconfig.json` or `jsconfig.json` as part of the projects sources. Now you can edit the interfaces to provide global type information for the `connect` function. You should also use these interfaces when creating your redux store to ensure it matches what the `connect` function expects. Note that `DefaultActions` is not directly referenced, the `AnyAction` type needs to be used instead (see explanation below). (TODO: make references to 'connect' links.)
+Ensure this is included in your `tsconfig.json` or `jsconfig.json` as part of the projects sources. Now you can edit the interfaces to provide global type information for the [`connect`](./@connect.md) function. You should also use these interfaces when creating your redux store to ensure it matches what the [`connect`](./@connect.md)  function expects. Note that `DefaultActions` is not directly referenced, the `AnyAction` type needs to be used instead (see explanation below).
 
-TypeScript:
+**TypeScript**:
 ```ts
 const store = createStore<DefaultRootState, AnyAction, {}, {}>(
   combineReducers<DefaultRootState, AnyAction>({
@@ -33,7 +33,7 @@ const store = createStore<DefaultRootState, AnyAction, {}, {}>(
 );
 ```
 
-Plain JavaScript:
+Plain **JavaScript**:
 ```js
 /**
  * @typedef {import('tabris-decorators').DefaultRootState} DefaultRootState
@@ -84,7 +84,7 @@ Each action belonging to the union must have a property `type` (as is declared i
 
 For example, one of the actions in `AnyAction` could have the interface `{type: 'TOGGLE_STRING', checked: boolean}`. The following shows how a reducer can then determine that an action is of this exact type:
 
-TypeScript
+**TypeScript**
 
 ```ts
 function myReducer(state: string, action: AnyAction): string {
@@ -95,7 +95,7 @@ function myReducer(state: string, action: AnyAction): string {
 }
 ```
 
-JavaScript:
+**JavaScript**:
 
 ```js
 /**

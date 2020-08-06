@@ -26,7 +26,7 @@ The `State` may be any type, but `Action` must implement an object with an `type
 
 ## constructor
 
-The constructor takes a single object that may implement all or part of the `StateProvider` interface, so a redux store, any object literal with the below methods, or - technically - another instance of `StateProvider`: (TODO: there is a verb missing somewhere)
+The constructor takes a single object that may implement all or part of the `StateProvider` interface. That could be a redux store, any object literal with the below methods, or - technically - another instance of `StateProvider`:
 
 ```ts
 const stateProvider = new StateProvider<State, MyAction>({getState, subscribe, dispatch});
@@ -48,7 +48,7 @@ This is the function that [`connect`](./@connect.md) uses to get notified about 
 
 ## Registration
 
-Before any connected component can be created, an object implementing `StateProvider` has to be registered. The shortest way to do this, is to use the [`register`](../di/Injector.md#registertargettypevalue) function. Since a redux store fulfills the `StateProvider` interface there is no need to create an actual instance of it: (TODO: who IS creating the instance then?)
+Before any connected component can be created, an `StateProvider` has to be registered for dependency injection. The shortest way to do this, is to use the [`register`](../di/Injector.md#registertargettypevalue) function. Since a redux store fulfills the `StateProvider` interface it can be used in place of a `StateProvider` instance.
 
 ```js
 import {createStore} from 'redux';
@@ -79,7 +79,7 @@ class MyStateProvider extends StateProvider<MyState, MyAction> {
 
 ## Standalone usage
 
-On a technical level `StateProvider` is not dependent on redux. As such you may use it in any way to enable [`connect`](./@connect.md) to function. To implement a custom `StateProvider` do this (TypeScript):
+On a technical level `StateProvider` is not dependent on redux. As such you may use it in any way to enable [`connect`](./@connect.md) to function. To implement a custom `StateProvider` do this (**TypeScript**):
 
 ```ts
 @shared
@@ -100,7 +100,7 @@ class MyStateProvider extends StateProvider<MyState, MyAction> {
 }
 ```
 
-Or, in JavaScript, this:
+Or, in **JavaScript**, this:
 
 ```js
 class MyStateProvider extends StateProvider {
