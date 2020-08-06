@@ -4,7 +4,7 @@
 
 > :point_right: Make sure to first read the [introduction to redux in Tabris](./index.md).
 
-This article explains how to best use redux in Tabris in a type-safe way. It uses a TypeScript technique known as ["declaration merging"](https://www.typescriptlang.org/docs/handbook/declaration-merging.html). If you are using a TypeScript/JavaScript mixed project setup (Tabris JavaScript/JSX template), or your IDE (e.g. Visual Studio Code) "understands" `d.ts` files in plain JavaScript projects it works there as well.
+This article explains how to best use redux in Tabris in a type-safe way. It uses a TypeScript technique known as ["declaration merging"](https://www.typescriptlang.org/docs/handbook/declaration-merging.html). If you are using a TypeScript/JavaScript mixed project setup (Tabris JavaScript/JSX template), or your IDE (e.g. Visual Studio Code) "understands" `d.ts` files in plain JavaScript projects, it works there as well.
 
 In any existing or new `.ts` or `d.ts` file of your project (for JavaScript `d.ts` only), add the following code:
 
@@ -22,9 +22,9 @@ declare module 'tabris-decorators' {
 }
 ```
 
-Ensure this is included in your `tsconfig.json` or `jsconfig.json` as part of the projects sources. Now you can edit the interfaces to provide global type information for the `connect` function. You should also use these interfaces when creating your redux store to ensure it matches what the `connect` function expects. Note that `DefaultActions` is not directly referenced, the `AnyAction` type needs to be used instead (see explanation below).
+Ensure this is included in your `tsconfig.json` or `jsconfig.json` as part of the projects sources. Now you can edit the interfaces to provide global type information for the [`connect`](./@connect.md) function. You should also use these interfaces when creating your redux store to ensure it matches what the [`connect`](./@connect.md)  function expects. Note that `DefaultActions` is not directly referenced, the `AnyAction` type needs to be used instead (see explanation below).
 
-TypeScript:
+**TypeScript**:
 ```ts
 const store = createStore<DefaultRootState, AnyAction, {}, {}>(
   combineReducers<DefaultRootState, AnyAction>({
@@ -33,7 +33,7 @@ const store = createStore<DefaultRootState, AnyAction, {}, {}>(
 );
 ```
 
-Plain JavaScript:
+Plain **JavaScript**:
 ```js
 /**
  * @typedef {import('tabris-decorators').DefaultRootState} DefaultRootState
@@ -76,7 +76,7 @@ connect(
 
 ## AnyAction
 
-> :point_right: To extend `AnyAction` you must augment [`DefaultActions`](#defaultactions) as described the section below.
+> :point_right: To extend `AnyAction` you must augment [`DefaultActions`](#defaultactions) as described in the section below.
 
 This is a [union](https://www.typescriptlang.org/docs/handbook/advanced-types.html#union-types) of all known actions. You can use this type to create the store (as seen above) or when defining a reducer.
 
@@ -84,7 +84,7 @@ Each action belonging to the union must have a property `type` (as is declared i
 
 For example, one of the actions in `AnyAction` could have the interface `{type: 'TOGGLE_STRING', checked: boolean}`. The following shows how a reducer can then determine that an action is of this exact type:
 
-TypeScript
+**TypeScript**
 
 ```ts
 function myReducer(state: string, action: AnyAction): string {
@@ -95,7 +95,7 @@ function myReducer(state: string, action: AnyAction): string {
 }
 ```
 
-JavaScript:
+**JavaScript**:
 
 ```js
 /**
@@ -139,7 +139,7 @@ export interface DefaultActions {
 }
 ```
 
-The names of these properties (`setRandomNumber`, `toggleString`) are technically arbitrary, but for readability should corelate to the `type` string (`'SET_RANDOM_NUMBER'`, `'TOGGLE_STRING'`) in some manner. The different action interfaces can be referenced via the [index type](https://www.typescriptlang.org/docs/handbook/advanced-types.html#index-types) of `DefaultActions`:
+The names of these properties (`setRandomNumber`, `toggleString`) are technically arbitrary, but for readability should correlate to the `type` string (`'SET_RANDOM_NUMBER'`, `'TOGGLE_STRING'`) in some manner. The different action interfaces can be referenced via the [index type](https://www.typescriptlang.org/docs/handbook/advanced-types.html#index-types) of `DefaultActions`:
 
 ```ts
 function handleToggleString(state: string, action: DefaultActions['toggleString']): string {
@@ -147,7 +147,7 @@ function handleToggleString(state: string, action: DefaultActions['toggleString'
 }
 ```
 
-If you find this to cumbersome you can declare the actions separately. This example also shows how to extend `Action` explicitly instead of implicitly.
+If you find this to be cumbersome, you can declare the actions separately. This example also shows how to extend `Action` explicitly instead of implicitly.
 
 ```ts
 import {Action} from 'tabris-decorators';

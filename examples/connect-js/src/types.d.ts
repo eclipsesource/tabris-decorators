@@ -19,12 +19,8 @@ declare module 'tabris-decorators' {
 
 }
 
-declare global {
-
-  type State = import('tabris-decorators').DefaultRootState;
-  type Actions = import('tabris-decorators').AnyAction;
-  type StateToProps<T> = import('tabris-decorators').StateToProps<T>;
-  type DispatchToProps<T> = import('tabris-decorators').DispatchToProps<T>;
-  type Reducers = import('redux').ReducersMapObject<State, Actions>;
-
-}
+type State = import('tabris-decorators').DefaultRootState;
+type Actions = import('tabris-decorators').AnyAction;
+type StateToProps<T> = import('tabris-decorators').StateToProps<T>;
+type DispatchToProps<T> = import('tabris-decorators').DispatchToProps<T>;
+type Reducers = import('redux').ReducersMapObject<State, Actions>;
