@@ -113,6 +113,11 @@ export function getOwnParamInfo(fn: any): ParamInfo[] {
  */
 export function getParamInfo(fn: any): ParamInfo[] | null {
   if (!Reflect.getMetadata(paramInfoKey, fn)) {
+    // eslint-disable-next-line no-undef
+    const orgComponentSym = (window as any).tabris.symbols.originalComponent;
+    if (fn[orgComponentSym]) {
+      return Reflect.getMetadata(paramInfoKey, fn[orgComponentSym]);
+    }
     return null;
   }
   return Reflect.getMetadata(paramInfoKey, fn);

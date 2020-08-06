@@ -130,6 +130,7 @@ describe('custom injector inject', () => {
     });
 
     it('works with jsx-via-factory', () => {
+      @component({injector})
       class MyCustomComponent extends Composite {
 
         constructor(
@@ -140,7 +141,7 @@ describe('custom injector inject', () => {
         }
 
       }
-      const Factory = asFactory(component({injector})(MyCustomComponent));
+      const Factory = asFactory(MyCustomComponent);
       const widget: MyCustomComponent = Factory();
       expect(widget.service).to.be.instanceOf(MyServiceClass);
     });
