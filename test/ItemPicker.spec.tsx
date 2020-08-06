@@ -46,6 +46,12 @@ describe('ItemPicker', () => {
     expect(new ItemPicker({id: 'foo'}).id).to.equal('foo');
   });
 
+  it('supports factory API', () => {
+    expect(ItemPicker()).to.be.instanceOf(ItemPicker);
+    expect(ItemPicker()).to.be.instanceOf(Picker);
+    expect(ItemPicker({id: 'foo'}).id).to.be.equal('foo');
+  });
+
   describe('items', () => {
 
     it('is null initially', () => {
