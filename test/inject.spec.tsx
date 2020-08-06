@@ -1,7 +1,7 @@
 import 'mocha';
 import 'sinon';
 import {SinonSpy} from 'sinon';
-import {Composite, Constraint, Properties, tabris, TextInput, WidgetCollection} from 'tabris';
+import {asFactory, CallableConstructor, Composite, Constraint, Properties, tabris, TextInput, WidgetCollection} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy} from './test';
 import {Constructor, create, inject, injectable, Injection, injectionHandler, injector, shared} from '../src';
@@ -299,7 +299,7 @@ describe('inject', () => {
         @inject service: MyServiceClass,
         @inject('foo') foo: string,
         nothingToInject: number,
-        @inject('bar') implicitField: string
+        @inject('bar') public implicitField: string
       ) {
         super(properties);
         this.foo = foo;
@@ -313,7 +313,7 @@ describe('inject', () => {
 
     beforeEach(() => {
       JSX.install(injector.jsxProcessor);
-      stringHandler = injection => new String(injection.param);
+      stringHandler = injection => String(injection.param);
       widget = (
         <MyCustomWidget left={3} top={4}>
           <Composite/>
@@ -334,7 +334,7 @@ describe('inject', () => {
     });
 
     it('injects implicit field', () => {
-      expect(widget.foo).to.equal('foo');
+      expect(widget.implicitField).to.equal('bar');
     });
 
     it('passes attributes', () => {
@@ -361,6 +361,68 @@ describe('inject', () => {
       /* eslint-enable react/jsx-curly-brace-presence */
       expect(ti[0].text).to.equal('foo');
       expect(ti[1].text).to.equal('hello');
+    });
+
+  });
+
+  describe('via factory', () => {
+
+    class MyCustomWidgetOrg extends Composite {
+
+      service: MyServiceClass;
+      foo: string;
+      nonInjected: number;
+
+      constructor(
+        properties: Properties<Composite>,
+        @inject service: MyServiceClass,
+        @inject('foo') foo: string,
+        nothingToInject: number,
+        @inject('bar') public implicitField: string
+      ) {
+        super(properties);
+        this.foo = foo;
+        this.service = service;
+        this.nonInjected = nothingToInject;
+      }
+
+    }
+
+    let MyCustomWidget: CallableConstructor<typeof MyCustomWidgetOrg>;
+    let widget: MyCustomWidgetOrg;
+
+    beforeEach(() => {
+      JSX.install(injector.jsxProcessor);
+      MyCustomWidget = asFactory(MyCustomWidgetOrg);
+      stringHandler = injection => String(injection.param);
+      widget = MyCustomWidget({
+        left: 3, top: 4, children: [Composite()]
+      });
+    });
+
+    it('injects parameterless', () => {
+      expect(widget.service).to.be.instanceOf(MyServiceClass);
+    });
+
+    it('injects with injection parameter', () => {
+      expect(widget.foo).to.equal('foo');
+    });
+
+    it('does not inject when not decorated', () => {
+      expect(widget.nonInjected).to.be.undefined;
+    });
+
+    it('injects implicit field', () => {
+      expect(widget.implicitField).to.equal('bar');
+    });
+
+    it('passes attributes', () => {
+      expect((widget.left as Constraint).offset).to.equal(3);
+      expect((widget.top as Constraint).offset).to.equal(4);
+    });
+
+    it('passes children', () => {
+      expect(widget.children().length).to.equal(1);
     });
 
   });
