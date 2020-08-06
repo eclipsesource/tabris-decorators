@@ -1,9 +1,10 @@
-import {ChangeListeners, CollectionView, EventObject, JSXAttributes, Listeners, Properties, Widget} from 'tabris';
+import {asFactory, Attributes, ChangeListeners, CollectionView, EventObject, Factory, JSXAttributes, Listeners, Properties, Widget} from 'tabris';
 import {Cell, ItemCheck, ItemTypeDef, TextCell} from './Cell';
 import {ListLike, Mutation} from './List';
 import {component} from '../decorators/component';
 import {event} from '../decorators/event';
 import {ListLikeObvserver} from '../internals/ListLikeObserver';
+/* eslint-disable no-shadow */
 
 type CellFactoryDef<T> = {
   itemType: ItemTypeDef<T>,
@@ -35,103 +36,112 @@ export class ListViewSelectEvent<ItemType, Target = any> extends EventObject<Tar
 
 }
 
-@component
-export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
+namespace internal {
 
-  static selectPrimary(ev: EventObject<Widget>) {
-    ListView.select(ev, ItemAction.Primary);
-  }
+  @component
+  export class ListView<ItemType> extends CollectionView<Cell<ItemType>> {
 
-  static selectSecondary(ev: EventObject<Widget>) {
-    ListView.select(ev, ItemAction.Secondary);
-  }
-
-  static selectToggle(ev: EventObject<Widget>) {
-    ListView.select(ev, ItemAction.Toggle);
-  }
-
-  static selectDismiss(ev: EventObject<Widget>) {
-    ListView.select(ev, ItemAction.Dismiss);
-  }
-
-  static select(ev: EventObject<Widget>, action: number = 0) {
-    const listView = ev.target.parent(ListView);
-    const itemIndex = listView.itemIndex(ev.target);
-    listView.onSelect.trigger(new ListViewSelectEvent(
-      listView.items[itemIndex],
-      itemIndex,
-      ev,
-      action
-    ));
-  }
-
-  jsxAttributes: JSXAttributes<this> & {children?: Cell[]};
-  @event onItemsChanged: ChangeListeners<this, 'items'>;
-  @event onSelect: Listeners<ListViewSelectEvent<ItemType, this>>;
-
-  private _observer: ListLikeObvserver<ItemType>;
-
-  constructor(properties: Properties<ListView<ItemType>> = {}) {
-    super();
-    this._observer = new ListLikeObvserver(this._handleMutation);
-    this
-      .set({createCell: defaultCreateCell, updateCell} as any /* tabris declarations bug */)
-      .set(properties);
-  }
-
-  set items(value: ListLike<ItemType>) {
-    if (value === this._observer.source) {
-      return;
+    static selectPrimary(ev: EventObject<Widget>) {
+      ListView.select(ev, ItemAction.Primary);
     }
-    this._observer.source = value;
-    this.onItemsChanged.trigger({value});
-  }
 
-  get items() {
-    return this._observer.source;
-  }
+    static selectSecondary(ev: EventObject<Widget>) {
+      ListView.select(ev, ItemAction.Secondary);
+    }
 
-  protected _handleMutation = ({start, deleteCount, items, target}: Mutation<ItemType>) => {
-    if (start === 0 && target.length === items.length) {
-      return this.load(items.length);
+    static selectToggle(ev: EventObject<Widget>) {
+      ListView.select(ev, ItemAction.Toggle);
     }
-    const refreshCount = Math.min(items.length, deleteCount);
-    for (let i = start; i < start + refreshCount; i++) {
-      this.refresh(i);
+
+    static selectDismiss(ev: EventObject<Widget>) {
+      ListView.select(ev, ItemAction.Dismiss);
     }
-    if (deleteCount > items.length) {
-      this.remove(start + refreshCount, deleteCount - refreshCount);
-    } else if (items.length > deleteCount) {
-      this.insert(start + refreshCount, items.length - refreshCount);
+
+    static select(ev: EventObject<Widget>, action: number = 0) {
+      const listView = ev.target.parent(ListView);
+      const itemIndex = listView.itemIndex(ev.target);
+      listView.onSelect.trigger(new ListViewSelectEvent(
+        listView.items[itemIndex],
+        itemIndex,
+        ev,
+        action
+      ));
     }
-    this._children().forEach(cell => {
-      const newIndex = this.itemIndex(cell);
-      if (newIndex >= 0) {
-        cell.itemIndex = newIndex;
+
+    jsxAttributes: JSXAttributes<this> & Attributes<CollectionView<Cell<ItemType>>> & {children?: Cell[]};
+    @event onItemsChanged: ChangeListeners<this, 'items'>;
+    @event onSelect: Listeners<ListViewSelectEvent<ItemType, this>>;
+
+    private _observer: ListLikeObvserver<ItemType>;
+
+    constructor(properties: Properties<ListView<ItemType>> = {}) {
+      super();
+      this._observer = new ListLikeObvserver(this._handleMutation);
+      this
+        .set({createCell: defaultCreateCell, updateCell} as any /* tabris declarations bug */)
+        .set(properties);
+    }
+
+    set items(value: ListLike<ItemType>) {
+      if (value === this._observer.source) {
+        return;
       }
-    });
-  };
-
-  // eslint-disable-next-line @typescript-eslint/member-ordering
-  [JSX.jsxFactory](Type, attributes) {
-    const {children, ...pureAttributes} = attributes;
-    const result: ListView<unknown>
-      = CollectionView.prototype[JSX.jsxFactory].call(this, Type, pureAttributes);
-    if (children instanceof Array) {
-      const factories: Array<CellFactoryDef<unknown>> = children.map((child) => ({
-        itemType: child.itemType,
-        itemCheck: child.itemCheck,
-        itemHeight: child.height,
-        create: Cell.factory(child)
-      }));
-      result.cellType = getCellTypeCallback(result, factories);
-      result.cellHeight = getCellHeightCallback(result, factories);
-      result.createCell = getCreateCellCallback(factories);
+      this._observer.source = value;
+      this.onItemsChanged.trigger({value});
     }
-    return result;
+
+    get items() {
+      return this._observer.source;
+    }
+
+    protected _handleMutation = ({start, deleteCount, items, target}: Mutation<ItemType>) => {
+      if (start === 0 && target.length === items.length) {
+        return this.load(items.length);
+      }
+      const refreshCount = Math.min(items.length, deleteCount);
+      for (let i = start; i < start + refreshCount; i++) {
+        this.refresh(i);
+      }
+      if (deleteCount > items.length) {
+        this.remove(start + refreshCount, deleteCount - refreshCount);
+      } else if (items.length > deleteCount) {
+        this.insert(start + refreshCount, items.length - refreshCount);
+      }
+      this._children().forEach(cell => {
+        const newIndex = this.itemIndex(cell);
+        if (newIndex >= 0) {
+          cell.itemIndex = newIndex;
+        }
+      });
+    };
+
+    // eslint-disable-next-line @typescript-eslint/member-ordering
+    [JSX.jsxFactory](Type, attributes) {
+      const {children, ...pureAttributes} = attributes;
+      const result: ListView<unknown>
+        = CollectionView.prototype[JSX.jsxFactory].call(this, Type, pureAttributes);
+      if (children instanceof Array) {
+        const factories: Array<CellFactoryDef<unknown>> = children.map((child) => ({
+          itemType: child.itemType,
+          itemCheck: child.itemCheck,
+          itemHeight: child.height,
+          create: Cell.factory(child)
+        }));
+        result.cellType = getCellTypeCallback(result, factories);
+        result.cellHeight = getCellHeightCallback(result, factories);
+        result.createCell = getCreateCellCallback(factories);
+      }
+      return result;
+    }
+
   }
 
 }
+
+export type ListViewConstructor = typeof internal.ListView;
+export interface ListViewFactory extends Factory<ListViewConstructor>, ListViewConstructor {}
+export const ListView = asFactory(internal.ListView) as ListViewFactory;
+export type ListView<ItemType> = internal.ListView<ItemType>;
 
 function getCellTypeCallback(
   listView: ListView<unknown>,
