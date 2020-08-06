@@ -1,6 +1,6 @@
 import 'mocha';
 import {match} from 'sinon';
-import {Composite, ImageView, Stack, tabris, TextView, Widget, WidgetCollection} from 'tabris';
+import {Composite, ImageView, Set, Stack, tabris, TextView, Widget, WidgetCollection} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy} from './test';
 import {injector, property} from '../src';
@@ -32,6 +32,12 @@ describe('Cell', () => {
     expect(new Cell()).to.be.instanceOf(Composite);
   });
 
+  it('supports factory API', () => {
+    expect(Cell()).to.be.instanceOf(Cell);
+    expect(Cell()).to.be.instanceOf(Composite);
+    expect(Cell({height: 23}).height).to.be.equal(23);
+  });
+
   it('does not accept item on creation', () => {
     expect(() => new (Cell as any)({item: new MyItem()})).to.throw();
     expect(() => <Cell item={new MyItem() as never}/>).to.throw();
@@ -43,6 +49,20 @@ describe('Cell', () => {
         <TextView bind-text='item.foo'/>
       </Cell>
     );
+
+    cell.item = new MyItem();
+
+    expect((cell as any)._find(TextView).only().text).to.equal('bar');
+  });
+
+  it('supports apply', () => {
+    const cell =
+      Cell({children: [TextView()]})
+        .apply({mode: 'strict', trigger: 'onItemChanged'}, ({item}) => ({
+          TextView: Set(TextView, {
+            text: item instanceof MyItem ? item.foo : ''
+          })
+        }));
 
     cell.item = new MyItem();
 

@@ -38,6 +38,11 @@ describe('ListView', () => {
     expect(new ListView()).to.be.instanceOf(CollectionView);
   });
 
+  it('supports factory API', () => {
+    const arr = [1];
+    expect(ListView({items: arr}).items).to.deep.equal(arr);
+  });
+
   describe('items', () => {
 
     beforeEach(() => {
@@ -713,7 +718,7 @@ describe('ListView', () => {
       listView = new ListView();
       listView.items = items();
       cell = listView.createCell('');
-      stub(cell, 'parent').withArgs(ListView).returns(listView);
+      stub(cell, 'parent').returns(listView);
       listener = spy() as SinonSpy<[ListViewSelectEvent<MyItem>]>;
       listView.onSelect(listener);
       cell.item = listView.items[2];
@@ -759,7 +764,7 @@ describe('ListView', () => {
       listView = <ListView><Cell selectable/></ListView>;
       listView.items = items();
       cell = listView.createCell('0');
-      stub(cell, 'parent').withArgs(ListView).returns(listView);
+      stub(cell, 'parent').returns(listView);
       listView.onSelect(listener);
       cell.item = listView.items[2];
       stub(listView, 'itemIndex').returns(2);
@@ -785,7 +790,7 @@ describe('ListView', () => {
 
     it('is triggered via ListView.selectToggle', () => {
       const toggleButton: ToggleButton = <ToggleButton onSelect={ListView.selectToggle}/>;
-      stub(toggleButton, 'parent').withArgs(ListView).returns(listView);
+      stub(toggleButton, 'parent').returns(listView);
       cell.append(toggleButton);
 
       toggleButton.onSelect.trigger();
