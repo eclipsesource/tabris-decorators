@@ -1,6 +1,6 @@
 # Example "bind-two-way-change-events-jsx"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-two-way-change-events/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-two-way-change-events-jsx)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=bind-two-way-change-events-jsx/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/bind-two-way-change-events-jsx)
 
 ## Description
 

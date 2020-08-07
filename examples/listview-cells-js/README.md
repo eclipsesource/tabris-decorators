@@ -1,6 +1,6 @@
 # Example "listview-cells-js"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=listview-cells-jsx/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/listview-cells-js)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=listview-cells-js/https://github.com/eclipsesource/tabris-decorators/tree/gplink/examples/listview-cells-js)
 
 ## Description
 

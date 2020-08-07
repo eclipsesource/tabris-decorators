@@ -1,6 +1,6 @@
 # Example "itempicker-js"
 
-[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=itempicker-jsx/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/itempicker-js)
+[![GitPod Logo](../../doc/run-in-gitpod.png)](https://gitpod.io/#example=itempicker-js/https://github.com/eclipsesource/tabris-decorators/tree/master/examples/itempicker-js)
 
 ## Description
 
