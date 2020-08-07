@@ -293,7 +293,7 @@ const ConnectedButton = connect(stateToProps, dispatchToProps)(CustomButton);
 
 ### Composed Functional Component
 
-A functional component may also return composite with children. For this scenario both `mapStateToProps` and `mapDispatchToProps` support a special pseudo-property `apply`. The object given to this property will be treated as a ruleset for the [`apply`](../api/composite.md#applyrules) method. It is thereby possible to connect child elements to the store via their given id. It can also be combined by any additional properties applied to the returned widget itself.
+A functional component may also return composite with children. For this scenario both `mapStateToProps` and `mapDispatchToProps` support a special pseudo-property `apply`. The object given to this property will be treated as a ruleset for the [`apply`](../api/Composite.md#applyrules) method. It is thereby possible to connect child elements to the store via their given id. It can also be combined by any additional properties applied to the returned widget itself.
 
 This example behaves the same as the previous one, only that the button is wrapped in a composite. The [`Set`](../api/utils.md#settarget-attributes) helper function provided by the `tabris` module is used to improve provide type safety. However, it could also be omitted.
 
