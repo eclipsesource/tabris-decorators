@@ -5,8 +5,8 @@
     "reflect-metadata": "^0.1.13"
   },
   "optionalDependencies": {
-    "tabris": "^3.5.0",
-    "tabris-decorators": "3.5.0"
+    "tabris": "^3.6.0",
+    "tabris-decorators": "^3.6.0"
   },
   "devDependencies": {
     "typescript": "3.8.x"

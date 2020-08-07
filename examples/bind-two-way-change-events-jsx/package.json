@@ -2,8 +2,8 @@
   "name": "bind-two-way-change-events",
   "version": "3.5.0",
   "optionalDependencies": {
-    "tabris": "^3.5.0",
-    "tabris-decorators": "3.5.0"
+    "tabris": "^3.6.0",
+    "tabris-decorators": "^3.6.0"
   },
   "devDependencies": {
     "typescript": "3.8.x"
