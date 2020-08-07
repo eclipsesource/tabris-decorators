@@ -36,11 +36,11 @@ const stateProvider = new StateProvider<State, MyAction>({getState, subscribe, d
 
 ### getState()
 
-Returns the state that will be given to the `mapStateToProps` function in [`connect`](./@connect.md). The state is defined by the type parameter [`State`](#typeparameters).
+Returns the state that will be given to the `mapStateToProps` function in [`connect`](./@connect.md). The state is defined by the type parameter [`State`](#type-parameters).
 
 ### dispatch(action)
 
-Returns the function that will be given to the `mapDispatchToProps` function in [`connect`](./@connect.md). The type of `action` is defined by the type parameter [`Action`](#typeparameters).
+Returns the function that will be given to the `mapDispatchToProps` function in [`connect`](./@connect.md). The type of `action` is defined by the type parameter [`Action`](#type-parameters).
 
 ### subscribe(cb)
 
@@ -48,7 +48,7 @@ This is the function that [`connect`](./@connect.md) uses to get notified about 
 
 ## Registration
 
-Before any connected component can be created, an `StateProvider` has to be registered for dependency injection. The shortest way to do this, is to use the [`register`](../di/Injector.md#registertargettypevalue) function. Since a redux store fulfills the `StateProvider` interface it can be used in place of a `StateProvider` instance.
+Before any connected component can be created, a `StateProvider` has to be registered for dependency injection. The shortest way to do this, is to use the [`register`](../di/Injector.md#registertargettype-value) function. Since a redux store fulfills the `StateProvider` interface it can be used in place of a `StateProvider` instance.
 
 ```js
 import {createStore} from 'redux';
@@ -66,7 +66,7 @@ register(StateProvider, store);
 contentView.append(new SomeConnectedComponent());
 ```
 
-An alternative TypeScript-only method to register the store would be to wrap the redux store in `StateProvider` and register it via [`@share`](../di/injector.md#share):
+An alternative TypeScript-only method to register the store would be to wrap the redux store in `StateProvider` and register it via [`@shared`](../di/@shared.md):
 
 ```ts
 @shared

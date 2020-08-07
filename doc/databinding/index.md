@@ -6,7 +6,7 @@ A complete example Tabris.js application that uses data binding comprehensively 
 
 ## Setup
 
-Tabris provides [JSX](../JSX.md)/[decorators](http://www.typescriptlang.org/docs/handbook/decorators.html)-based declarative data binding via the `'tabris-decorators'` extension, which has to be installed in addition to the `tabris` module:
+Tabris provides [JSX](../declarative-ui.md)/[decorators](http://www.typescriptlang.org/docs/handbook/decorators.html)-based declarative data binding via the `'tabris-decorators'` extension, which has to be installed in addition to the `tabris` module:
 
 ```
 npm install tabris-decorators

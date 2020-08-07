@@ -64,7 +64,7 @@ declare module 'tabris-decorators' {
 }
 ```
 
-Now `mapStateToProps` (when declared as [`StateToProps`](#statetoprops) or inline in `connect`) will allow using accessing these properties on `state`:
+Now `mapStateToProps` - when declared as type [`StateToProps`](./@connect.md#mapstatetoprops) or inline in `connect` - will allow using accessing these properties on `state`:
 
 ```js
 connect(
@@ -78,7 +78,7 @@ connect(
 
 > :point_right: To extend `AnyAction` you must augment [`DefaultActions`](#defaultactions) as described in the section below.
 
-This is a [union](https://www.typescriptlang.org/docs/handbook/advanced-types.html#union-types) of all known actions. You can use this type to create the store (as seen above) or when defining a reducer.
+This is a [union](https://www.typescriptlang.org/docs/handbook/unions-and-intersections.html) of all known actions. You can use this type to create the store (as seen above) or when defining a reducer.
 
 Each action belonging to the union must have a property `type` (as is declared in the common base type `Action`). The type of this property should be a unique string, which allows to implicitly cast form `AnyAction` to the specific subtype.
 

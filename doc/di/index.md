@@ -21,7 +21,7 @@ The core idea behind dependency injection is that any object (the "client") that
 Most of the time there is no need to interact with the injector directly. Instead, decorators can be used to both [register classes](./@injectable.md) for injection and to [inject them](./@inject.md) via a constructor parameter. However, the initial object of any dependency tree (usually something that kickstarts the application) always needs to be created [explicitly](./Injector.md#createtype-parameters).
 
 
-The Tabris dependency injection service is integrated with the [JSX API](../JSX.md). Any class (usually custom UI components) that is instantiated vis JSX will have its [registered dependencies](./@inject.md) resolved [automatically with no additional code](./@inject.md#jsx).
+The Tabris dependency injection service is integrated with the [JSX API](../declarative-ui.md). Any class (usually custom UI components) that is instantiated vis JSX will have its [registered dependencies](./@inject.md) resolved [automatically with no additional code](./@inject.md#jsx).
 
 ## The Decorators
 

@@ -24,11 +24,13 @@ This allows the IDE to provide type checks and autocompletion for `mapStateToPro
 
 ## mapStateToProps
 
-A function that maps the state returned by the store to the properties of the widget to connect:
+A function that maps the state returned by the store to the properties of the component to connect:
 
 `state => properties`
 
-So if the state object of your store has a `myString` property, and the widget you want to connect has a `text` property, then `mapStateToProps` may look like this:
+The **TypeScript** type of this function is `StateToProps<Component>`, exported by `tabris-decorators`.
+
+Example: If the state object of your store has a `myString` property, and the widget you want to connect has a `text` property, then `mapStateToProps` may look like this:
 
 
 ```js
@@ -37,7 +39,7 @@ const stateToProps = state => ({
 });
 ```
 
-Only properties that actually exist on the connected widget may be given in the returned properties object. A special case is `apply`, which will be discussed in the section [Usage with functional components](#usagewithfunctionalcomponents).
+Only properties that actually exist on the connected widget may be given in the returned properties object. A special case is `apply`, which will be discussed in the section [Usage with functional components](#usage-with-functional-components).
 
 If `mapStateToProps` is not defined "inline" (as part of the `connect` call), it is desirable to give it a type. Depending you your project settings it may be required.
 
@@ -46,7 +48,7 @@ This is how you do this in **TypeScript**:
 ```ts
 import {StateToProps} from 'tabris-decorators';
 
-const mapStateToProps: StateToProps<UserView> =
+const mapStateToProps: StateToProps<ExampleComponent> =
   state => ({
     text: state.myString
   });
@@ -55,7 +57,7 @@ const mapStateToProps: StateToProps<UserView> =
 Visual Studio Code supports TypeScript types within JsDoc, so you can also do this in **JavaScript**:
 
 ```js
-/** @type {import('tabris-decorators').StateToProps<UserView>} */
+/** @type {import('tabris-decorators').StateToProps<ExampleComponent>} */
 const mapStateToProps = state => ({
   text: state.myString
 });
@@ -67,9 +69,9 @@ A function that maps the actions accepted by the store to callbacks or events of
 
 `dispatch => actionMapper`
 
-Where `dispatch` is the store method of the same name, and `actionMapper` is an object containing callbacks that invoke `dispatch`.
+Where `dispatch` is the store method of the same name, and `actionMapper` is an object containing callbacks that invoke `dispatch`. The **TypeScript** type of this function is `DispatchToProps<Component>`, exported by `tabris-decorators`.
 
-If one of the available store actions looks like this:
+Example: If one of the available store actions looks like this:
 
 ```
 {
@@ -118,7 +120,7 @@ const mapDispatchToProps = dispatch => {
 };
 ```
 
-Only callback properties or events that are actually declared on the connected widget (via a decorator, setter, or property set in the constructor) may be given. A special case is `apply`, which will be discussed in the section [Usage with functional components](#usagewithfunctionalcomponents).
+Only callback properties or events that are actually declared on the connected widget (via a decorator, setter, or property set in the constructor) may be given. A special case is `apply`, which will be discussed in the section [Usage with functional components](#usage-with-functional-components).
 
 If `mapDispatchToProps` is not defined "inline" (as part of the `connect` call), it is desirable to give it a type to get autocompletion in your IDE. Depending you your project settings it may be required.
 
@@ -291,9 +293,9 @@ const ConnectedButton = connect(stateToProps, dispatchToProps)(CustomButton);
 
 ### Composed Functional Component
 
-A functional component may also return composite with children. For this scenario both `mapStateToProps` and `mapDispatchToProps` support a special pseudo-property `apply`. The object given to this property will be treated as a ruleset for the [`apply`](../composite.md#applyrules) method. It is thereby possible to connect child elements to the store via their given id. It can also be combined by any additional properties applied to the returned widget itself.
+A functional component may also return composite with children. For this scenario both `mapStateToProps` and `mapDispatchToProps` support a special pseudo-property `apply`. The object given to this property will be treated as a ruleset for the [`apply`](../api/composite.md#applyrules) method. It is thereby possible to connect child elements to the store via their given id. It can also be combined by any additional properties applied to the returned widget itself.
 
-This example behaves the same as the previous one, only that the button is wrapped in a composite. The [`Set`](../utils.md#settypeattributes) helper function provided by the `tabris` module is used to improve provide type safety. However, it could also be omitted.
+This example behaves the same as the previous one, only that the button is wrapped in a composite. The [`Set`](../api/utils.md#settarget-attributes) helper function provided by the `tabris` module is used to improve provide type safety. However, it could also be omitted.
 
 **TypeScript**, all in one expression:
 
