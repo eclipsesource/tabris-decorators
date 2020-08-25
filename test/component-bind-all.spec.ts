@@ -3,10 +3,14 @@ import 'sinon';
 import {ChangeListeners, Composite, Properties, tabris, TextInput} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, stub} from './test';
-import {bind, bindAll, component, event, property} from '../src';
+import {bind, bindAll, component, event, property, Injector, inject} from '../src';
+
+const injector = new Injector();
+const {injectable} = injector;
 
 describe('component', () => {
 
+  @injectable
   class Item {
     @event onTextChanged: ChangeListeners<Item, 'text'>;
     @property text: string = 'Hello';
@@ -34,6 +38,12 @@ describe('component', () => {
         super(properties);
       }
 
+    }
+
+    @injectable @component
+    class Injectable extends Composite {
+      @inject @bindAll({text: '#foo.text'})
+      item: Item;
     }
 
     let widget: CustomComponent;
@@ -354,6 +364,24 @@ describe('component', () => {
         new CustomComponentB().item = new ItemB();
       }).to.throw(Error, 'Failed to set property "item": Object property "text" requires an explicit type check.'
       );
+    });
+
+    it('works with @inject', () => {
+      widget = injector.create(Injectable);
+
+      widget.append(textInput);
+
+      expect(textInput.text).to.equal('Hello');
+      expect(item.text).to.equal('Hello');
+    });
+
+    it('works with @inject on injected', () => {
+      widget = injector.resolve(Injectable);
+
+      widget.append(textInput);
+
+      expect(textInput.text).to.equal('Hello');
+      expect(item.text).to.equal('Hello');
     });
 
   });

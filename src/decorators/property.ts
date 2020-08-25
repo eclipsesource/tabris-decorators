@@ -12,6 +12,9 @@ export type Converter<T> = 'off' | 'auto' | ((value: unknown) => T);
 
 export type PropertyDecoratorConfig<T> = TypeGuard<T> | UserType<T> | PropertySuperConfig<T>;
 
+export type PropertyInitializer<Proto extends object, TargetType>
+  =  (instance: Proto, descriptor: CustomPropertyDescriptor<Proto, TargetType>) => Proto;
+
 export type PropertySuperConfig<T> = {
   typeGuard?: TypeGuard<T>,
   type?: UserType<T>,

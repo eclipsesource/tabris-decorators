@@ -3,7 +3,12 @@ import {getPropertyStore, trigger, TypeGuard, UserType} from './utils-databindin
 import {checkType, isType} from '../api/checkType';
 import {convert} from '../api/convert';
 import {CompareFn, CompareMode, equals} from '../api/equals';
-import {Converter, PropertySuperConfig} from '../decorators/property';
+import {Converter, PropertySuperConfig, PropertyInitializer} from '../decorators/property';
+
+export type CustomPropertyConfig<T> = PropertySuperConfig<T> & {
+  initializer?: PropertyInitializer<any, T>,
+  readonly?: boolean
+};
 
 export const autoDefault: unique symbol = Symbol('autoDefault');
 
@@ -49,13 +54,15 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
   readonly set: (value: TargetType) => void;
   private userType: UserType<TargetType>;
   private typeGuard: TypeGuard;
-  private readonly changeEvent: string;
   private readonly targetType = getPropertyType(this.proto, this.propertyName);
+  private readonly changeEvent: string;
   private equals: CompareFn;
   private convert: (value: unknown, instance: object) => TargetType;
   private youHaveBeenWarned: boolean = false;
   private defaultValue: TargetType | undefined;
   private nullable: boolean;
+  private readonly: boolean;
+  private initializer: PropertyInitializer<Proto, TargetType>;
 
   constructor(private readonly proto: Proto, private readonly propertyName: keyof Proto & string) {
     const self = this;
@@ -67,9 +74,17 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     this.setConverter('off');
     this.setNullable(true);
     this.setDefaultValue(undefined);
+    this.setInitializer(undefined);
+    this.setReadonly(false);
   }
 
-  addConfig(config: PropertySuperConfig<TargetType>) {
+  addConfig(config: CustomPropertyConfig<TargetType>) {
+    if (config.readonly) {
+      this.setReadonly(config.readonly);
+    }
+    if (config.initializer) {
+      this.setInitializer(config.initializer);
+    }
     if (config.type) {
       this.setUserType(config.type);
     }
@@ -91,10 +106,13 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
   }
 
   private setValue(instance: Proto, value: any) {
+    if (this.readonly) {
+      throw new TypeError('Property is read-only');
+    }
     let newValue = this.convert(value, instance);
     if (newValue == null && !this.nullable) {
       if (this.defaultValue == null) {
-        throw new Error('Property is not nullable');
+        throw new TypeError('Property is not nullable');
       }
       newValue = this.convert(this.defaultValue, instance);
     }
@@ -110,16 +128,18 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
   private getValue(instance: Proto) {
     const store = getPropertyStore(instance);
     if (!store.has(this.propertyName)) {
-      if (this.defaultValue !== undefined) {
+      store.set(this.propertyName, undefined);
+      if (this.initializer || (this.defaultValue !== undefined)) {
+        const rawValue = this.initializer ? this.initializer(instance, this) : this.defaultValue;
         try {
-          const initValue = this.convert(this.defaultValue, instance);
+          const initValue = this.convert(rawValue, instance);
           if (!this.isUnchecked()) {
             this.checkType(initValue);
           }
           store.set(this.propertyName, initValue);
         } catch (ex) {
-          console.warn(`Failed to initialize property "${this.propertyName}" with default value: ${ex.message}`);
-          store.set(this.propertyName, undefined);
+          const message = `Failed to initialize property "${this.propertyName}" with default value: ${ex.message}`;
+          console.warn(message);
         }
       } else {
         store.set(this.propertyName, undefined);
@@ -147,9 +167,8 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
       else if (!this.userType) {
         checkType(value, this.targetType);
       }
-    }
-    catch (ex) {
-      throw new Error(`Failed to set property "${this.propertyName}": ${ex.message}`);
+    } catch (ex) {
+      throw new TypeError(`Failed to set property "${this.propertyName}": ${ex.message}`);
     }
   }
 
@@ -171,6 +190,10 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
 
   private setCompareMode(mode: CompareMode) {
     this.equals = (a, b) => equals([a, b], mode);
+  }
+
+  private setInitializer(initializer: PropertyInitializer<Proto, TargetType>) {
+    this.initializer = initializer;
   }
 
   private setConverter(modeOrFn: Converter<any>) {
@@ -195,6 +218,10 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
 
   private setNullable(nullable: boolean) {
     this.nullable = nullable !== false;
+  }
+
+  private setReadonly(readonly: boolean) {
+    this.readonly = readonly;
   }
 
   private setDefaultValue(value: TargetType | undefined | typeof autoDefault) {

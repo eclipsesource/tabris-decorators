@@ -1,11 +1,15 @@
+
 export type BaseConstructor<T> = Function & { prototype: T };
 export type Constructor<T> = new(...args: any[]) => T;
 export type ParameterDecoratorFactory = (target: Constructor<any>, property: string, index: number) => void;
 export type ClassDecoratorFactory<T> = (type: Constructor<T>) => void;
+export type CustomPropertiesInfo<T extends object> = {[prop in keyof T]?: PropInfo};
 export interface ParamInfo {type: Constructor<any>; injectParam?: string; inject?: boolean;}
+export interface PropInfo {inject: boolean;}
 export type Decorator<T> = (target: T, property?: string, index?: number) => T | void;
 
-const paramInfoKey = Symbol();
+const paramInfoKey = Symbol('paramInfoKey');
+const propInfoKey = Symbol('propInfoKey');
 
 /**
  * Takes a callback a decorator function and when possible calls it with the appropriate arguments,
@@ -90,7 +94,7 @@ export function getParameterType(fn: any, index: number): Constructor<any> {
     throw new Error('Parameter type could not be inferred. Only classes and primitive types are supported.');
   }
   if (!result) {
-    throw new Error('Parameter type is undefined: Do you have circular dependency issues?');
+    throw new Error('Parameter type is undefined: Do you have circular module dependencies?');
   }
   return result;
 }
@@ -121,6 +125,24 @@ export function getParamInfo(fn: any): ParamInfo[] | null {
     return null;
   }
   return Reflect.getMetadata(paramInfoKey, fn);
+}
+
+export function getCustomProperties<T extends object>(target: T): CustomPropertiesInfo<T> {
+  const result: CustomPropertiesInfo<T> = {};
+  for (const prop of Reflect.getMetadataKeys(target, propInfoKey)) {
+    result[prop] = getPropertyInfo(target, prop);
+  }
+  return result;
+}
+
+export function getPropertyInfo<T extends object>(target: T, prop: keyof T): PropInfo {
+  if (typeof prop !== 'string') {
+    throw new Error('Can not get property info on symbol');
+  }
+  if (!Reflect.getMetadata(prop, target, propInfoKey)) {
+    Reflect.defineMetadata(prop, {}, target, propInfoKey);
+  }
+  return Reflect.getMetadata(prop, target, propInfoKey);
 }
 
 export function hasInjections(fn: any): boolean {

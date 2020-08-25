@@ -1,10 +1,9 @@
-import {format} from 'tabris';
 import {bindDecoratorInject, InjectDecorator} from '../decorators/inject';
-import {bindDecoratorInjectable, InjectableDecorator} from '../decorators/injectable';
+import {bindDecoratorInjectable, InjectableDecorator, injectableKey} from '../decorators/injectable';
 import {bindDecoratorInjectionHandler, InjectionHandlerDecorator} from '../decorators/injectionHandler';
 import {bindDecoratorShared, SharedDecorator} from '../decorators/shared';
 import {ExtendedJSX} from '../internals/ExtendedJSX';
-import {BaseConstructor, getParamInfo} from '../internals/utils';
+import {BaseConstructor, getParamInfo, getCustomProperties} from '../internals/utils';
 
 export type InjectionParameter = object | string | number | boolean | null;
 export type CreateFunction = typeof Injector.prototype.create;
@@ -24,7 +23,7 @@ export interface Injection {
 }
 
 export type InjectionHandlerFunction<T> = (injection: Injection) => T | null | undefined;
-const injectorKey = Symbol();
+const injectorKey = Symbol('injectorKey');
 
 /**
  * An `Injector` instance manages injection handlers and fulfills injections.
@@ -38,6 +37,8 @@ export class Injector {
 
   /**
    * Returns the instance of Injector that was used to create the given object.
+   * Given a class decorated with @inject or @shared it returns the injector
+   * associated with these.
    */
   static get(object: object, fallback?: Injector): Injector {
     if (!object || !(object instanceof Object)) {
@@ -46,8 +47,14 @@ export class Injector {
     if (injectorKey in object) {
       return object[injectorKey];
     }
+    if (Reflect.getMetadata(injectableKey, object)) {
+      return Reflect.getMetadata(injectableKey, object);
+    }
     if (fallback) {
       return fallback;
+    }
+    if (object instanceof Function && object.prototype instanceof Object && object.prototype.constructor !== Object) {
+      throw new Error('Can not get injector for a class that is not decorated with @injectable');
     }
     throw new Error('Object was not created by an Injector');
   }
@@ -72,6 +79,7 @@ export class Injector {
 
   private handlers: HandlersMap = new Map();
   private injectionStack: Array<BaseConstructor<any>> = [];
+  private resolveQueue: unknown[] = [];
 
   /**
    * Registers a value as a shared injectable for the given type.
@@ -125,16 +133,16 @@ export class Injector {
     for (const reg of regs) {
       this.injectionStack.push(type);
       let result: T = null;
-      let exception: Error = null;
       try {
         result = unbox(reg.handler({type, injector: this, param}));
-      } catch (ex) {
-        exception = ex;
+      } finally {
+        this.injectionStack.pop();
+        if (!result) {
+          this.resolveQueue = [];
+        }
       }
-      this.injectionStack.pop();
-      if (exception) {
-        throw exception;
-      }
+      this.scheduleResolveProperties(result);
+      this.resolvePropertyInjections<T>();
       if (result !== null && result !== undefined) {
         return this.tagResult(result);
       }
@@ -173,11 +181,44 @@ export class Injector {
           finalArgs[i] = args[i];
         }
       }
-      return this.tagResult(new type(...finalArgs));
+      const result = new type(...finalArgs);
+      this.scheduleResolveProperties(result);
+      this.resolvePropertyInjections();
+      return this.tagResult(result);
     } catch (ex) {
-      throw new Error(`Could not create instance of ${type.name}:\n${format(ex)}`);
+      throw new Error(`Could not create instance of ${type.name}:\n${ex.message}`);
     }
   };
+
+  private scheduleResolveProperties(result: unknown) {
+    if (result instanceof Object && this.resolveQueue.indexOf(result) === -1) {
+      this.resolveQueue.push(result);
+    }
+  }
+
+  private resolvePropertyInjections<T>() {
+    if (this.injectionStack.length === 0 && this.resolveQueue.length) {
+      const queue = this.resolveQueue;
+      this.resolveQueue = [];
+      while (queue.length) {
+        const resolved = queue.shift();
+        if (resolved instanceof Object) {
+          const props = getCustomProperties<any>(resolved);
+          for (const prop of Object.keys(props)) {
+            if (props[prop].inject) {
+              try {
+                if (!resolved[prop]) {
+                  throw new Error(`Property is ${resolved[prop]}`);
+                }
+              } catch (ex) {
+                throw new Error(`Property "${prop}" of ${resolved.constructor.name} was not resolved: ${ex.message}`);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   private findHandlerRegistrations<T>(type: BaseConstructor<T>): Array<HandlerRegistration<T, T>> {
     if (!type) {

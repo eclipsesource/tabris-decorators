@@ -250,6 +250,26 @@ describe('Injector', () => {
       expect(Injector.get(instance.resolve(Date))).to.equal(instance);
     });
 
+    it('gets injector instance for classes marked injectable', () => {
+      @instance.injectable
+      class Custom {}
+      expect(Injector.get(Custom)).to.equal(instance);
+    });
+
+    it('gets injector instance for prototype marked injectable', () => {
+      @instance.injectable
+      class Custom {}
+      expect(Injector.get(Custom.prototype)).to.equal(instance);
+    });
+
+    it('fails to get injector instance for classes not marked injectable', () => {
+      class Custom {}
+      expect(() => Injector.get(Custom)).to.throw(
+        Error,
+        'Can not get injector for a class that is not decorated with @injectable'
+      );
+    });
+
   });
 
 });

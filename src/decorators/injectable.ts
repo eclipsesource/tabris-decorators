@@ -31,7 +31,8 @@ export function unboundInjectable<T>(config: InjectableConfig<T>): ClassDecorato
 export function unboundInjectable<T>(type: Constructor<T>): void;
 export function unboundInjectable(this: Injector, ...args: any[]): void | ClassDecoratorFactory<any> {
   return applyDecorator('injectable', args, (targetType: Constructor<any>) => {
-    Reflect.defineMetadata(injectableKey, true, targetType);
+    Reflect.defineMetadata(injectableKey, this, targetType);
+    Reflect.defineMetadata(injectableKey, this, targetType.prototype);
     const config = getInjectableConfig(args);
     const handler = (new DefaultInjectionHandler(targetType, config)).handleInjection;
     const priority = config.priority || 0;
@@ -77,4 +78,4 @@ export interface InjectableConfig<T> {
   param?: InjectionParameter;
 }
 
-const injectableKey = Symbol('injectable');
+export const injectableKey = Symbol('injectable');
