@@ -69,7 +69,9 @@ export class Injector {
    * ```
    */
   readonly jsxProcessor: ExtendedJSX = new ExtendedJSX(this);
+
   private handlers: HandlersMap = new Map();
+  private injectionStack: Array<BaseConstructor<any>> = [];
 
   /**
    * Registers a value as a shared injectable for the given type.
@@ -115,9 +117,24 @@ export class Injector {
         `Could not inject value of type ${type.name} since no compatible injection handler exists for this type.`
       );
     }
+    if (this.injectionStack.indexOf(type) !== -1) {
+      const stackString = this.injectionStack.concat(type).map(constructor => constructor.name).join(' -> ');
+      throw new Error('Circular dependency injection: ' + stackString);
+    }
     const unbox = this.getUnboxer(type);
     for (const reg of regs) {
-      const result = unbox(reg.handler({type, injector: this, param}));
+      this.injectionStack.push(type);
+      let result: T = null;
+      let exception: Error = null;
+      try {
+        result = unbox(reg.handler({type, injector: this, param}));
+      } catch (ex) {
+        exception = ex;
+      }
+      this.injectionStack.pop();
+      if (exception) {
+        throw exception;
+      }
       if (result !== null && result !== undefined) {
         return this.tagResult(result);
       }

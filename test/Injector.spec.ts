@@ -132,6 +132,35 @@ describe('Injector', () => {
       expect(instance.resolve(MyClass)).to.equal(instance.resolve(MyClass));
     });
 
+    it('throws for circular dependency', () => {
+      class MyClassA {b = instance.resolve(MyClassB);}
+      class MyClassB {c = instance.resolve(MyClassC);}
+      class MyClassC {a = instance.resolve(MyClassA);}
+      instance.addHandler(MyClassA, () => new MyClassA());
+      instance.addHandler(MyClassB, () => new MyClassB());
+      instance.addHandler(MyClassC, () => new MyClassC());
+      instance.addHandler(MyClass, () => new MyClass(1));
+
+      expect(() => instance.resolve(MyClassA)).to.throw(
+        Error,
+        'Circular dependency injection: MyClassA -> MyClassB -> MyClassC -> MyClassA'
+      );
+    });
+
+    it('recovers from circular dependency injection', () => {
+      let circular = true;
+      class MyClassA {b = circular ? instance.resolve(MyClassB) : null;}
+      class MyClassB {c = instance.resolve(MyClassC);}
+      class MyClassC {a = instance.resolve(MyClassA);}
+      instance.addHandler(MyClassA, () => new MyClassA());
+      instance.addHandler(MyClassB, () => new MyClassB());
+      instance.addHandler(MyClassC, () => new MyClassC());
+
+      expect(() => instance.resolve(MyClassA)).to.throw(Error);
+      circular = false;
+      expect(() => instance.resolve(MyClassA)).not.to.throw();
+    });
+
     it('supports subclasses pattern', () => {
       class MyClass2 extends MyClass {
         constructor(readonly bar: string) {
