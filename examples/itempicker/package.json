@@ -2,10 +2,10 @@
   "name": "listview-cells",
   "version": "3.5.0",
   "dependencies": {
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "tabris": "^3.6.0"
   },
   "optionalDependencies": {
-    "tabris": "^3.6.0",
     "tabris-decorators": "^3.6.0"
   },
   "devDependencies": {
