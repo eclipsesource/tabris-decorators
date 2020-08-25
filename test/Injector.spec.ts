@@ -119,7 +119,8 @@ describe('Injector', () => {
 
     it('throws for undefined type', () => {
       expect(() => instance.resolve(null as any)).to.throw(
-        'Could not inject value since type is null. Do you have circular module dependencies?'
+        Error,
+        'Could not inject value since type is null.'
       );
     });
 
