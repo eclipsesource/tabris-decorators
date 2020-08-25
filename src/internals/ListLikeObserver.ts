@@ -1,6 +1,6 @@
 import {getValueString, List, ListLike, listObservers, Mutation} from '..';
 
-export class ListLikeObvserver<T> {
+export class ListLikeObserver<T> {
 
   private _source: ListLike<T> = null;
 
