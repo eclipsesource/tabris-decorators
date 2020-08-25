@@ -3,7 +3,7 @@ import {checkType} from './checkType';
 import {List, ListLike, Mutation} from './List';
 import {Binding} from './to';
 import {event} from '../decorators/event';
-import {ListLikeObvserver} from '../internals/ListLikeObserver';
+import {ListLikeObserver} from '../internals/ListLikeObserver';
 import {subscribe} from '../internals/subscribe';
 import {checkPathSyntax} from '../internals/utils-databinding';
 /* eslint-disable no-shadow */
@@ -33,13 +33,13 @@ namespace internal {
 
   export class ItemPicker<ItemType> extends Picker {
 
-    jsxAttributes: JSXAttributes<this> & {children?: ListLike<ItemType> | string};
+    jsxAttributes: JSXAttributes<this> & tabris.Attributes<Picker> & {children?: ListLike<ItemType> | string};
     @event onItemSelect: Listeners<ItemPickerSelectEvent<ItemType, this>>;
     @event onItemsChanged: Listeners<PropertyChangedEvent<this, ListLike<ItemType>>>;
     @event onSelectionChanged: Listeners<PropertyChangedEvent<this, ItemType>>;
     @event onTextSourceChanged: ChangeListeners<this, 'textSource'>;
 
-    private _observer: ListLikeObvserver<ItemType>;
+    private _observer: ListLikeObserver<ItemType>;
     private _textSource: TextSource<ItemType> | null;
     private _texts: string[];
     private _unsubsribers: Array<(() => void)>;
@@ -47,7 +47,7 @@ namespace internal {
 
     constructor({items, textSource, ...properties}: ItemPickerProperties<ItemType> = {}) {
       super();
-      this._observer = new ListLikeObvserver(this._handleListMutation);
+      this._observer = new ListLikeObserver(this._handleListMutation);
       this.textSource = textSource || null;
       this.items = items || null;
       this.set<any>(properties);

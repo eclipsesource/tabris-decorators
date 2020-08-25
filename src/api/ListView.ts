@@ -3,7 +3,7 @@ import {Cell, ItemCheck, ItemTypeDef, TextCell} from './Cell';
 import {ListLike, Mutation} from './List';
 import {component} from '../decorators/component';
 import {event} from '../decorators/event';
-import {ListLikeObvserver} from '../internals/ListLikeObserver';
+import {ListLikeObserver} from '../internals/ListLikeObserver';
 /* eslint-disable no-shadow */
 
 type CellFactoryDef<T> = {
@@ -72,11 +72,11 @@ namespace internal {
     @event onItemsChanged: ChangeListeners<this, 'items'>;
     @event onSelect: Listeners<ListViewSelectEvent<ItemType, this>>;
 
-    private _observer: ListLikeObvserver<ItemType>;
+    private _observer: ListLikeObserver<ItemType>;
 
     constructor(properties: Properties<ListView<ItemType>> = {}) {
       super();
-      this._observer = new ListLikeObvserver(this._handleMutation);
+      this._observer = new ListLikeObserver(this._handleMutation);
       this
         .set({createCell: defaultCreateCell, updateCell} as any /* tabris declarations bug */)
         .set(properties);
