@@ -30,3 +30,110 @@ The following data binding related decorators are exported by `tabris-decorators
   * [@injectable](./@injectable.md)
   * [@shared](./@shared.md)
   * [@injectionHandler](./@injectionHandler.md)
+
+## Dealing with circular dependencies
+
+In a sufficiently complex application you may eventually create circular injection dependencies causing errors. One way to resolve them is to re-structure you code, which is usually the best approach. If this is not possible, there are indeed ways to make circular dependencies work.
+
+Consider a scenario with the following classes:
+
+![Circular Dependency Injection](./circular-dependency-injection.png)
+
+Assuming you are using the `@inject` decorator on constructor parameters to resolve the dependencies this will definitely not work. To fix this you need to break the module dependency chain and/or resolve one of the modules "lazily".
+
+The goal is an architecture like this:
+
+![Circular Dependency Injection Resolved](./circular-dependency-injection-resolved.png)
+
+The specific approach depends on what error(s) you are getting:
+
+### Circular Module Dependencies
+
+If you are getting errors mentioning "circular module dependencies" you must break the module import chain by splitting one of the classes in to an abstract class and a concrete class. So instead of this:
+
+```ts
+@shared
+export class Navigation {
+  navigateTo(target: Page) {
+    // ...
+  }
+}
+```
+
+You must do this:
+
+```ts
+export abstract class AbstractNavigation {
+  abstract navigateTo(target: Page): void;
+}
+```
+
+And then *in a separate module* this:
+
+```ts
+@shared
+export class Navigation extends AbstractNavigation {
+  navigateTo(target: Page) {
+    // ...
+  }
+}
+```
+
+> Note: The class names here are chosen for clarity, you may call these whatever you want. Even identical class names will work since you can rename classes on import.
+
+Now you can use the abstract class to resolve any dependencies to the concrete class. Since there may now be no explicit dependency on the concrete class anymore you need to import it in your app module. Make sure you do this *before*  any module that will inject it:
+
+```ts
+import {resolve} from 'tabris-decorators';
+import './Navigation';
+import {AbstractNavigation} from './AbstractNavigation';
+import {MainView} from './MainView';
+
+resolve(AbstractNavigation).navigateTo(resolve(MainView));
+```
+
+### Circular Dependency Injection
+
+You may still be getting "Circular dependency injection" errors. This is the case if every class in the injection chain resolves the next class immediately on creation, e.g. when injected via constructor parameter:
+
+```ts
+@injectable
+export class MainViewModel {
+
+  constructor(@inject navigation: AbstractNavigation) {
+    // ...
+  }
+
+}
+```
+
+To avoid this you have to "lazy" resolve the next class *outside* the constructor. This can be done in two ways:
+
+1: Use [`resolve`](./Injector.md#resolvetype-injectionparameter) in a method *not* called in the constructor, e.g.:
+
+```ts
+@injectable
+export class MainViewModel {
+
+  select() {
+    const navigation = resolve(AbstractNavigation);
+    navigation.navigateTo(new MyPage());
+  }
+
+}
+```
+
+2: Inject the next class in a property that is *not* accessed in the constructor:
+
+```ts
+@injectable
+export class MainViewModel {
+
+  @inject navigation: AbstractNavigation;
+
+  select() {
+    this.navigation.navigateTo(new MyPage());
+  }
+
+}
+```

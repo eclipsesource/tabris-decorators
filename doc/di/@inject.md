@@ -32,7 +32,19 @@ import {classA} from './ClassA';
 const a = create(ClassA);
 ```
 
-If `ClassA` itself is injected somewhere the injections are taken care of by `@inject`.
+If `ClassA` itself is injected somewhere the injections are taken care of by `@inject`. The decorator can also be used on a property, **but in this case the class *must* also be decorated with `@injectable` or `@shared`**:
+
+```ts
+import {inject, injectable} from 'tabris-decorators';
+import {ClassB} from './ClassB';
+
+@injectable
+export class ClassA {
+
+  @inject b: ClassB;
+
+}
+```
 
 The type of the injection - i.e. the type of the parameter decorated with `@inject` - has to be a class. Interfaces and [advanced types](http://www.typescriptlang.org/docs/handbook/advanced-types.html) are not supported. However, abstract classes and [classes merged with interfaces](https://www.typescriptlang.org/docs/handbook/declaration-merging.html) work. Since classes [can be used like interfaces](https://www.typescriptlang.org/docs/handbook/classes.html#using-a-class-as-an-interface) most traditional dependency injection patterns can still be used.
 
