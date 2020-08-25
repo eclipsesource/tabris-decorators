@@ -165,7 +165,7 @@ export class Injector {
   private findHandlerRegistrations<T>(type: BaseConstructor<T>): Array<HandlerRegistration<T, T>> {
     if (!type) {
       throw new Error(
-        `Could not inject value since type is ${type}. Do you have circular module dependencies?`
+        `Could not inject value since type is ${type}. You may have a broken import, circular module dependencies or incorrect tsconfig.json configuration.`
       );
     }
     return this.handlers.get(type.prototype) || [];
