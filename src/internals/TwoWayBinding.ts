@@ -1,7 +1,7 @@
 import {CustomPropertyDescriptor} from './CustomPropertyDescriptor';
 import {getJsxInfo} from './ExtendedJSX';
 import {subscribe} from './subscribe';
-import {checkPropertyExists, getChild, TargetPath, WidgetInterface} from './utils-databinding';
+import {checkPropertyExists, getTarget, TargetPath, WidgetInterface} from './utils-databinding';
 import {injector} from '../api/Injector';
 import {BindSuperConfig} from '../decorators/bind';
 
@@ -50,7 +50,7 @@ export class TwoWayBinding {
     if (this.localPath.length > 2) {
       throw new Error('Invalid number of path segments');
     }
-    this.target = getChild(this.component, this.targetPath[0]);
+    this.target = getTarget(this.component, this.targetPath[0]);
     this.targetProperty = this.targetPath[1];
     this.fallback = this.target[this.targetProperty];
     this.checkPropertySafety(this.component, this.localPath[0], 'Left');

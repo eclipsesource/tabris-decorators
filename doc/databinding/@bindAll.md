@@ -14,7 +14,7 @@ Where `bindings` is a plain object in the format of:
 
 ```
 {
-  <sourceProperty>: '#<targetElementId>.<targetProperty>'
+  <sourceProperty>: '<SelectorString>.<targetProperty>'
 }
 ```
 
@@ -22,7 +22,7 @@ Where `bindings` is a plain object in the format of:
 
 > :point_right: See example apps ["bind-two-way-model"](../../examples/bind-two-way-model) (TypeScript) and ["bind-two-way-model-jsx"](../../examples/bind-two-way-model-jsx) (JavaScript/JSX).
 
-Declares a two-way binding between the property `<sourceProperty>` of the *source object* (the object assigned to the decorated property) and the property `<targetProperty>` of the *target element* (a direct or indirect child element of the component) with an `id` of `<targetElementId>`. This means both properties will be kept in sync as long as the source object is assigned to the component property. The `bindings` object may define one binding per source property.
+Declares a two-way binding between the property `<sourceProperty>` of the *source object* (the object assigned to the decorated property) and the property `<targetProperty>` of the *target element* (a direct or indirect child element of the component) matching the selector string. This means both properties will be kept in sync as long as the source object is assigned to the component property. The `bindings` object may define one binding per source property. Valid selector strings may be id selectors (`#myid`), type selectors (`TextInput`) or `:host`, but not class selectors.
 
 The example below establishes 2 two-way bindings:
 * One between the `myText` property of the assigned `Model` object and the property `text` of a child (e.g. a `TextInput`) with the id `input1`.

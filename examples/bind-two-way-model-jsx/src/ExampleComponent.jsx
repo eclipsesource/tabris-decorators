@@ -1,4 +1,4 @@
-import {Composite, Properties, Slider, Stack, TextInput, TextView} from 'tabris';
+import {Composite, Properties, Slider, Stack, TextInput, TextView, Color} from 'tabris';
 import {bindAll, component, prop} from 'tabris-decorators';
 
 export class Model {
@@ -9,6 +9,9 @@ export class Model {
   /** @type {number} */
   @prop(Number) myNumber;
 
+  /** @type {tabris.ColorValue} */
+  @prop({nullable: true, type: Color}) myColor;
+
 }
 
 @component
@@ -17,7 +20,8 @@ export class ExampleComponent extends Composite {
   /** @type {Model} */
   @bindAll({
     myText: '#input1.text',
-    myNumber: '#input2.selection'
+    myNumber: '#input2.selection',
+    myColor: ':host.background'
   })
   model;
 

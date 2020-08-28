@@ -30,6 +30,7 @@ function toggleModelAttached({checked}: CheckBoxSelectEvent) {
 function resetValues() {
   model.myText = 'Initial Model Text';
   model.myNumber = 50;
+  model.myColor = Color.yellow;
 }
 
 function printValues() {
