@@ -81,8 +81,11 @@ export function checkAppended(widget: WidgetInterface) {
 
 export function parseTargetPath(path: string): TargetPath {
   checkPathSyntax(path);
-  if (!path.startsWith('#')) {
-    throw new Error('Binding path needs to start with "#".');
+  if (!/^[A-Z#.]/.test(path) && !path.startsWith(':host')) {
+    throw new Error('Binding path must start with a selector.');
+  }
+  if (path.startsWith('.')) {
+    throw new Error('Class selectors are not allowed.');
   }
   const segments = path.split('.');
   if (segments.length < 2) {
@@ -109,7 +112,10 @@ export function checkIsComponent(widget: Widget) {
   }
 }
 
-export function getChild(base: WidgetInterface, selector: string) {
+export function getTarget(base: WidgetInterface, selector: string) {
+  if (selector === ':host') {
+    return base;
+  }
   const results = (base as any)._find(selector) as WidgetCollection<Widget>;
   if (results.length === 0) {
     throw new Error(`No widget matching "${selector}" was appended.`);

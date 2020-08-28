@@ -47,6 +47,7 @@ export type BindAllDecorator<ValidKeys extends string> = <
  * * *Like `@property` it also supports the `typeGuard` and `type` options.*
  * * *Use`@bind({all: bindings})` or `@bindAll(bindings)` to create bindings to a model.*
  * * *`@bind(path)` is the same as `@bind({path: path})`.*
+ * * *In addition to id selectors, type selectors and `:host` are also supported.*
  */
 export function bind<T>(config: BindSingleConfig<T> | string): CustomPropertyDecorator<T>;
 
@@ -67,6 +68,7 @@ export function bind<T>(config: BindSingleConfig<T> | string): CustomPropertyDec
  * * *`@bind` behaves like `@property` and supports all the same configuration options.*
  * * *Use`@bind(path)` or `@bind({path: path})` to create bindings to the component property itself.*
  * * *`@bindAll(bindings)` can be used as a shorthand for `@bind({all: bindings})`.*
+ * * *In addition to id selectors, type selectors and `:host` are also supported.*
  */
 export function bind<T extends object>(config: BindAllConfig<T>): CustomPropertyDecorator<T>;
 

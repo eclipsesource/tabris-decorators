@@ -10,13 +10,13 @@ This decorator creates two-way bindings within a custom component. Changes to th
 
 ## bind(path)
 
-Where `path` is a string in the format `'#<targetElementId>.<targetProperty>'`.
+Where `path` is a string in the format `'<SelectorString>.<targetProperty>'`.
 
 > This a shorthand for [`@bind({path: string})`](#configpath). It can be used for simple two-way bindings if no `typeGuard` or `type` option is needed.
 
 > See example apps ["bind-two-way"](../../examples/bind-two-way) (TypeScript) and ["bind-two-way-jsx"](../../examples/bind-two-way-jsx) (JavaScript/JSX).
 
-Binds the decorated *component property* to the property `<targetProperty>` of the *target element* (a direct or indirect child element of the component) with an `id` of `<targetElementId>`.
+Binds the decorated *component property* to the property `<targetProperty>` of the *target element* (a direct or indirect child element of the component) matching the selector String. Only id (starting with `#`) or type selectors (starting with an upper case letter) can be used, but not class selectors (starting with `.`). In addition the pseudo-selector `:host` can be used to select the component itself.
 
 The example below establishes a two-way binding from the `myNumber` property to the property `selection` of the child with the id `'source'`. The binding is established after `append` is called the first time on the component. At that time there needs to be exactly one descendant widget with the given id, and it has to have a property of the same type.
 

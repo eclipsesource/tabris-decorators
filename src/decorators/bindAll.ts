@@ -18,7 +18,8 @@ import {CustomPropertyDecorator} from './property';
  * * *`@bindAll` behaves like `@property` in most regards.*
  * * *`@bindAll(bindings)` is a shorthand for `@bind({all: bindings})`. The latter
  * also supports the `typeGuard` and `type` options.*
- * * *Use`@bind(path)` or `@bind({path: path})` to create bindings to the component property itself.*
+ * * *In addition to id selectors, type selectors and `:host` are also supported.* *
+ * * *Use`@bind(path)` or `@bind({path: path})` to create bindings to the property itself.*
  */
 export function bindAll<T>(bindings: {[Property in keyof T]?: string}): CustomPropertyDecorator<T> {
   return bind({all: bindings});

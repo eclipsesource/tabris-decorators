@@ -77,7 +77,11 @@ describe('component', () => {
       expect(() => {class Test extends Composite {
         @bind({all: {text: 'foo'}})
         item: Item;
-      }}).to.throw(Error, 'Could not apply decorator "bind" to "item": Binding path needs to start with "#".');
+      }}).to.throw(Error, 'Could not apply decorator "bind" to "item": Binding path must start with a selector.');
+      expect(() => {class Test extends Composite {
+        @bind({all: {text: '.foo'}})
+        item: Item;
+      }}).to.throw(Error, 'Could not apply decorator "bind" to "item": Class selectors are not allowed');
       expect(() => {class Test extends Composite {
         @bind({all: {text: '#foo.bar.baz'}})
         item: Item;
@@ -138,6 +142,35 @@ describe('component', () => {
 
       expect(textInput.text).to.equal('World');
       expect(item.text).to.equal('World');
+    });
+
+    it('selects target by type', () => {
+      @component
+      class ByType extends Composite {
+        @bindAll({text: 'TextInput.text'})
+        item: Item;
+      }
+      widget = new ByType();
+
+      widget.append(textInput);
+      widget.item = item;
+
+      expect(textInput.text).to.equal('Hello');
+      expect(item.text).to.equal('Hello');
+    });
+
+    it('selects self via :host selector', () => {
+      @component
+      class ToHost extends Composite {
+        @bindAll({text: ':host.id'})
+        item: Item;
+      }
+      widget = new ToHost();
+      widget.append(new TextInput());
+
+      widget.item = item;
+
+      expect(widget.id).to.equal('Hello');
     });
 
     it('applies current target property value to undefined item property on append', () => {
