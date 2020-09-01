@@ -116,7 +116,9 @@ describe('component', () => {
       expect(() => {class Test extends Composite {
         @bind({all: {text: 'foo'}, type: Item})
         item;
-      }}).to.throw(Error, 'Could not apply decorator "bind" to "item": Binding path needs to start with "#".');
+      }}).to.throw(Error,
+        'Could not apply decorator "bind" to "item": Binding path must start with direction or selector.'
+      );
       expect(() => {class Test extends Composite {
         @bind({all: {text: '#foo.bar.baz'}, type: Item})
         item;
@@ -458,7 +460,9 @@ describe('component', () => {
       expect(() => {class Test extends Composite {
         @bind({all: {text: 'foo'}, type: Item})
         item;
-      }}).to.throw(Error, 'Could not apply decorator "bind" to "item": Binding path needs to start with "#".');
+      }}).to.throw(Error,
+        'Could not apply decorator "bind" to "item": Binding path must start with direction or selector.'
+      );
       expect(() => {class Test extends Composite {
         @bind({all: {text: '#foo.bar.baz'}, type: Item})
         item;

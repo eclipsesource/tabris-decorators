@@ -1,7 +1,7 @@
 import {CustomPropertyDescriptor} from './CustomPropertyDescriptor';
 import {getJsxInfo} from './ExtendedJSX';
 import {subscribe} from './subscribe';
-import {checkPropertyExists, getTarget, TargetPath, WidgetInterface} from './utils-databinding';
+import {checkPropertyExists, getTarget, TargetPath, WidgetInterface, Direction} from './utils-databinding';
 import {injector} from '../api/Injector';
 import {BindSuperConfig} from '../decorators/bind';
 
@@ -37,6 +37,7 @@ export class TwoWayBinding {
 
   private target: WidgetInterface;
   private targetProperty: string;
+  private direction: Direction;
   private suspended: boolean = false;
   private fallback: any;
   private cancelLocal: () => void;
@@ -50,23 +51,44 @@ export class TwoWayBinding {
     if (this.localPath.length > 2) {
       throw new Error('Invalid number of path segments');
     }
-    this.target = getTarget(this.component, this.targetPath[0]);
-    this.targetProperty = this.targetPath[1];
+    this.target = getTarget(this.component, this.targetPath[1]);
+    this.direction = this.targetPath[0];
+    this.targetProperty = this.targetPath[2];
     this.fallback = this.target[this.targetProperty];
-    this.checkPropertySafety(this.component, this.localPath[0], 'Left');
-    this.checkPropertySafety(this.target, this.targetProperty, 'Right');
-    this.cancelLocal = this.subscribeToLocalValue();
-    this.cancelTarget = this.subscribeToTargetValue();
-    this.component.on({dispose: () => this.dispose()});
+    if (!this.direction || this.direction === '>>') {
+      this.checkPropertySafety(this.target, this.targetProperty, 'Right');
+    }
+    if (!this.direction || this.direction === '<<') {
+      this.checkPropertySafety(this.component, this.localPath[0], 'Left');
+    }
+    this.init();
   }
 
   toString() {
     return bindingToString(this.localPath, this.targetPath);
   }
 
+  private init() {
+    if (!this.direction || this.direction === '>>') {
+      this.cancelLocal = this.subscribeToLocalValue();
+    } else if (this.direction === '<<' && this.localPath.length === 2) {
+      this.cancelLocal = this.subscribe(this.component, [this.localPath[0]], object => {
+        this.setSourceProperty(this.target[this.targetProperty]);
+      });
+    }
+    if (!this.direction || this.direction === '<<') {
+      this.cancelTarget = this.subscribeToTargetValue();
+    }
+    this.component.on({dispose: () => this.dispose()});
+  }
+
   private dispose() {
-    this.cancelLocal();
-    this.cancelTarget();
+    if (this.cancelLocal) {
+      this.cancelLocal();
+    }
+    if (this.cancelTarget) {
+      this.cancelTarget();
+    }
   }
 
   private subscribeToLocalValue() {
@@ -82,11 +104,13 @@ export class TwoWayBinding {
       if (this.hasValidSource()) {
         const finalValue = rawValue !== undefined ? rawValue : this.fallback;
         this.tryTo('update left hand property', () => this.setSourceProperty(finalValue));
-        this.tryTo('sync back value of left hand property', () => {
-          if (this.hasValidSource() && this.getSourceValue() !== finalValue) {
-            this.setTargetProperty(this.getSourceValue());
-          }
-        });
+        if (this.direction !== '<<') {
+          this.tryTo('sync back value of left hand property', () => {
+            if (this.hasValidSource() && this.getSourceValue() !== finalValue) {
+              this.setTargetProperty(this.getSourceValue());
+            }
+          });
+        }
       }
     });
   }
@@ -159,7 +183,7 @@ function isInStrictMode(widget: WidgetInterface) {
 
 function bindingToString(localPath: LocalPath, targetPath: TargetPath): string {
   try {
-    return `"${localPath.join('.')}" <-> "${targetPath.join('.')}"`;
+    return `"${localPath.join('.')}" <-> "${targetPath[1]}.${targetPath[2]}"`;
   } catch (ex) {
     return '[' + ex.message + ']';
   }

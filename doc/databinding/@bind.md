@@ -4,19 +4,19 @@
 
 > :point_right: Make sure to first read the [introduction to data binding](./index.md).
 
-This decorator creates two-way bindings within a custom component. Changes to the decorated *component property* value are reflected on the *target property* of a *target element* (child) and the other way around.
+This decorator creates two-way or one-way bindings within a custom component. Changes to the decorated *component property* value are reflected on the *target property* of a *target element* (child) and the other way around.
 
 `@bind` can be applied only to properties of a class decorated with [`@component`](./@component.md). It behaves like [`@property`](./@property.md) in most regards and also supports its [`typeGuard`](./@property.md#configtypeguard) and [`type`](./@property.md#configtype) options. Only one of the two decorators can be applied to the same property.
 
 ## bind(path)
 
-Where `path` is a string in the format `'<SelectorString>.<targetProperty>'`.
+Where `path` is a string in the format `'<direction?><SelectorString>.<targetProperty>'`.
 
 > :point_right: This a shorthand for [`@bind({path: string})`](#configpath). It can be used for simple two-way bindings if no `typeGuard` or `type` option is needed.
 
 > :point_right: See example apps ["bind-two-way"](../../examples/bind-two-way) (TypeScript) and ["bind-two-way-jsx"](../../examples/bind-two-way-jsx) (JavaScript/JSX).
 
-Binds the decorated *component property* to the property `<targetProperty>` of the *target element* (a direct or indirect child element of the component) matching the selector String. Only id (starting with `#`) or type selectors (starting with an upper case letter) can be used, but not class selectors (starting with `.`). In addition the pseudo-selector `:host` can be used to select the component itself.
+Binds the decorated *component property* to the property `<targetProperty>` of the *target element* (a direct or indirect child element of the component) matching the selector String. Only id (starting with `#`) or type selectors (starting with an upper case letter) can be used, but not class selectors (starting with `.`). In addition the pseudo-selector `:host` can be used to select the component itself. The optional `direction` may be either `>>` for a one-way binding that copies the *component property* to the *target element*, or `<<` for the reverse. Of omitted, a two-way binding is created. The direction may be separated from the selector with a space, e.g. `>> #id.prop`.
 
 The example below establishes a two-way binding from the `myNumber` property to the property `selection` of the child with the id `'source'`. The binding is established after `append` is called the first time on the component. At that time there needs to be exactly one descendant widget with the given id, and it has to have a property of the same type.
 
@@ -57,7 +57,7 @@ The `config` object has the following options:
 
 ### config.path
 
-Where `path` is a string in the format `'#<targetElementId>.<targetProperty>'`.
+Where `path` is a string in the format `'<direction?><SelectorString>.<targetProperty>'`.
 
 Example:
 
@@ -124,7 +124,7 @@ If the target widget itself is a custom component the recommended way to impleme
 
 ## Edge Cases
 
-As with one-way bindings, setting the *component property* to `undefined` resets the *target property* to its initial value from when the binding was first established. The component property will also adopt that value, so both stay in syc.
+In a two-way binding setting the *component property* to `undefined` resets the *target property* to its initial value from when the binding was first established. The component property will also adopt that value, so both stay in sync.
 
 If the *component property* converts or ignores the incoming value of the *target property*, the target property will follow and also bet set to the new component property value.
 

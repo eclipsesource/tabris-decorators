@@ -4,7 +4,7 @@
 
 > :point_right: Make sure to first read the [introduction to data binding](./index.md).
 
-This decorator creates two-way bindings within a custom component. Changes to the decorated *component property value* (must be a mutable object) are reflected on the *target property* of a *target element* (child) and the other way around.
+This decorator creates two-way or one-way bindings within a custom component. Changes to the decorated *component property value* (must be a mutable object) are reflected on the *target property* of a *target element* (child) and the other way around.
 
 `@bindAll` can by applied only to properties of a class decorated with [`@component`](./@component.md). It behaves like [`@property`](./@property.md) in most regards. Only one of the two decorators can be applied to the same property.
 
@@ -14,15 +14,17 @@ Where `bindings` is a plain object in the format of:
 
 ```
 {
-  <sourceProperty>: '<SelectorString>.<targetProperty>'
+  <sourceProperty>: '<direction?><SelectorString>.<targetProperty>'
 }
 ```
 
-> :point_right: This a shorthand for [`@bind({all: bindings})`](./@bind.md#configall). It can be used for object-to-widget two-way bindings if no `typeGuard` or `type` option is needed.
+> :point_right: This a shorthand for [`@bind({all: bindings})`](./@bind.md#configall). It can be used for object-to-widget bindings if no additional `@bind` options are needed.
 
 > :point_right: See example apps ["bind-two-way-model"](../../examples/bind-two-way-model) (TypeScript) and ["bind-two-way-model-jsx"](../../examples/bind-two-way-model-jsx) (JavaScript/JSX).
 
-Declares a two-way binding between the property `<sourceProperty>` of the *source object* (the object assigned to the decorated property) and the property `<targetProperty>` of the *target element* (a direct or indirect child element of the component) matching the selector string. This means both properties will be kept in sync as long as the source object is assigned to the component property. The `bindings` object may define one binding per source property. Valid selector strings may be id selectors (`#myid`), type selectors (`TextInput`) or `:host`, but not class selectors.
+Declares a binding between the property `<sourceProperty>` of the *source object* (the object assigned to the decorated property) and the property `<targetProperty>` of the *target element* (a direct or indirect child element of the component) matching the selector string. This means the properties will be kept in sync as long as the source object is assigned to the component property. The `bindings` object may define one binding per source property. Valid selector strings may be id selectors (`#myid`), type selectors (`TextInput`) or `:host`, but not class selectors.
+
+The optional `direction` may be either `>>` for a one-way binding that copies the *source object property* to the *target element*, or `<<` for the reverse. Of omitted, a two-way binding is created. The direction may be separated from the selector with a space, e.g. `>> #id.prop`.
 
 The example below establishes 2 two-way bindings:
 * One between the `myText` property of the assigned `Model` object and the property `text` of a child (e.g. a `TextInput`) with the id `input1`.
@@ -93,14 +95,24 @@ class Model {
 
 ### Edge Cases
 
-The component property (`model` in the above example) may also be set to `null` (or `undefined`) at any time. In that case all the target properties of the child elements will be set back to their initial values. The initial value in this case refers to the value a target property had the moment the target element was attached to the component. The source properties on the former source object will retain their latest value.
+The component property (`model` in the above example) may also be set to `null` (or `undefined`) at any time. In two-way and `model >> child` one-way bindings the target properties of the child elements will then be set back to their initial values. The initial value in this case refers to the value a target property had the moment the target element was attached to the component. The source properties on the former source object will retain their latest value.
 
-When a new two-way binding is established (when `append` is called or the component property is assigned a new source object) all the target properties will be set to the current value of the their respective source property.
+When a new two-way or `model >> child` binding is established (when `append` is called or the component property is assigned a new source object) all the target properties will be set to the current value of the their respective source property.
 
-There is one exception to this behavior: If the source property is set to `undefined` (but not `null`) at that moment it will be assigned the current value of the target property. Likewise, if a source property is set to `undefined` after the two-way binding has been established, both properties will be set to the initial value of the target property.
+There are two exceptions to this behavior: If the source property is set to `undefined` (but not `null`) at the moment the binding is established it will be assigned the current value of the target property. Likewise, if a source property is set to `undefined` after the two-way binding has been established, both properties will be set to the initial value of the target property.
 
-If a source property converts or ignores the incoming value of the target property, the target property will follow and also bet set to the new source property value.
+In `model << child` bindings the model property receiving the data will always be set to the value of the child property sending the data, whether it previously was `undefined` or some other value.
 
-If a target property converts or ignores the incoming value of a source property, the source property will ignore that and keep its own value. The two properties are out-of-sync in this case.
+If in a two-way binding a source (model) property converts or ignores the incoming value of the target property, the target property will follow and also bet set to the new source property value. If a target property converts or ignores the incoming value of a source property, the source property will ignore that and keep its own value. The two properties are out-of-sync in this case. If either property throws when set, the error will be propagated to the caller that originally caused the value change. In this case the two properties *may* end up out-of-sync.
 
-If either property throws when set, the error will be propagated to the caller that originally caused the value change. In this case the two properties *may* end up out-of-sync.
+Scenario | Binding Direction | Source (Model) Property | Target (Child) Property
+-|-|-|-
+The component property is assigned a model object. | two-way | unchanged | set to bound source property value
+"| `>>` | unchanged | set to bound source property value
+"| `<<` | set to bound child property | unchanged
+The source (current model object) property is assigned `undefined`, or is already `undefined` when binding is established. | two-way | set to bound child property value | unchanged
+"| `>>` | `undefined` | initial value
+"| `<<` | set to bound child property value | unchanged
+Component property is assigned `null` (or `undefined`). | two-way | unchanged | set back to its initial value
+"| `>>` | unchanged | set back to its initial value
+"| `<<` | unchanged | unchanged

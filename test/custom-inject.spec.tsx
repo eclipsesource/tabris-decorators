@@ -47,7 +47,7 @@ describe('custom injector inject', () => {
     expect(() => {
       orgInjector.create(ConstructorWithInjection);
     }).to.throw(
-      'Could not create instance of ConstructorWithInjection:\nError: Could not '
+      'Could not create instance of ConstructorWithInjection:\nCould not '
       + 'inject value of type MyServiceClass since no compatible injection handler exists for this type.'
     );
   });
@@ -101,7 +101,7 @@ describe('custom injector inject', () => {
       expect(() => {
         <MyCustomWidget/>;
       }).to.throw(
-        'Could not create instance of MyCustomWidget:\nError: '
+        'Could not create instance of MyCustomWidget:\n'
        + 'Could not inject value of type MyServiceClass since no compatible injection handler exists for this type.'
       );
     });

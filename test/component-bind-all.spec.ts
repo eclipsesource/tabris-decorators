@@ -29,9 +29,7 @@ describe('component', () => {
     @component
     class CustomComponent extends Composite {
 
-      @bind({all: {
-        text: '#foo.text'
-      }})
+      @bind({all: {text: '#foo.text'}})
       item: Item;
 
       constructor(properties?: Properties<CustomComponent>) {
@@ -77,7 +75,9 @@ describe('component', () => {
       expect(() => {class Test extends Composite {
         @bind({all: {text: 'foo'}})
         item: Item;
-      }}).to.throw(Error, 'Could not apply decorator "bind" to "item": Binding path must start with a selector.');
+      }}).to.throw(Error,
+        'Could not apply decorator "bind" to "item": Binding path must start with direction or selector.'
+      );
       expect(() => {class Test extends Composite {
         @bind({all: {text: '.foo'}})
         item: Item;
@@ -144,6 +144,62 @@ describe('component', () => {
       expect(item.text).to.equal('World');
     });
 
+    describe('with "<<" prefix', () => {
+
+      @component
+      class ToLeft extends Composite {
+        @bind({all: {text: '<< #foo.text'}})
+        item: Item;
+      }
+
+      beforeEach(() => widget = new ToLeft());
+
+      it('applies current target property value to set item property on append', () => {
+        item.text = 'Hello';
+        textInput.text = 'World';
+        widget.item = item;
+
+        widget.append(textInput);
+
+        expect(item.text).to.equal('World');
+        expect(textInput.text).to.equal('World');
+      });
+
+      it('applies current target property value to set item property when setting item', () => {
+        item.text = 'Hello';
+        textInput.text = 'World';
+        widget.append(textInput);
+
+        widget.item = item;
+
+        expect(item.text).to.equal('World');
+        expect(textInput.text).to.equal('World');
+      });
+
+      it('do not apply item property value to target', () => {
+        widget.item = item;
+        widget.append(textInput);
+
+        widget.item.text = 'ignore';
+
+        expect(textInput.text).to.equal('');
+      });
+
+      it('ignores item property changes during target property change', () => {
+        widget.item = item;
+        widget.append(textInput);
+        item.onTextChanged(({value}) => {
+          item.text = 'other';
+        });
+
+        textInput.text = 'World';
+
+        expect(textInput.text).to.equal('World');
+        expect(item.text).to.equal('other');
+      });
+
+    });
+
     it('selects target by type', () => {
       @component
       class ByType extends Composite {
@@ -194,14 +250,35 @@ describe('component', () => {
       expect(item.text).to.equal('World');
     });
 
-    it('applies changed target property value to item property', () => {
-      widget.item = item;
-      widget.append(textInput);
+    describe('with ">>" prefix', () => {
 
-      textInput.text = 'World';
+      @component
+      class ToRight extends Composite {
+        @bind({all: {text: '>> #foo.text'}})
+        item: Item;
+      }
 
-      expect(textInput.text).to.equal('World');
-      expect(item.text).to.equal('World');
+      beforeEach(() => widget = new ToRight());
+
+      it('do not apply target property value to item', () => {
+        widget = new ToRight();
+        widget.item = item;
+        widget.append(textInput);
+
+        textInput.text = 'ignore';
+
+        expect(widget.item.text).to.equal('Hello');
+      });
+
+      it('accepts item with source property marked unchecked', () => {
+        class ItemB { @property text: string | boolean = 'Hello'; }
+        @component class CustomComponentB extends Composite {
+          @bind({all: {text: '>> #foo.text'}}) item: ItemB;
+        }
+
+        expect(() => new CustomComponentB().item = new ItemB()).not.to.throw(Error);
+      });
+
     });
 
     it('ignores changed target property value after item is nulled', () => {
