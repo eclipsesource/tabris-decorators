@@ -132,7 +132,7 @@ describe('component', () => {
     it('fails to decorate with invalid binding path', () => {
       /** @type {Object.<string, string>} */
       const badPaths = {
-        'foo.bar': 'Binding path needs to start with "#".',
+        'foo.bar': 'Binding path must start with direction or selector.',
         '#foo.bar.baz': 'Binding path has too many segments.',
         '#foo': 'Binding path needs at least two segments.',
         '#fo o.bar': 'Binding path contains invalid characters.',

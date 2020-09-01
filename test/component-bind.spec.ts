@@ -103,7 +103,11 @@ describe('component', () => {
 
     it('fails to decorate with invalid binding path', () => {
       const badPaths: {[path: string]: string} = {
-        'foo.bar': 'Binding path needs to start with "#".',
+        '<foo.bar': 'Invalid path prefix.',
+        '< foo.bar': 'Invalid path prefix.',
+        '<>foo.bar': 'Invalid path prefix.',
+        '<> foo.bar': 'Invalid path prefix.',
+        'foo.bar': 'Binding path must start with direction or selector.',
         '#foo.bar.baz': 'Binding path has too many segments.',
         '#foo': 'Binding path needs at least two segments.',
         '#fo o.bar': 'Binding path contains invalid characters.',
@@ -115,7 +119,7 @@ describe('component', () => {
           @component class FailedComponent extends Composite {
             @bind(path) readonly value: string;
           }
-        }).to.throw('Could not apply decorator "bind" to "value": ' + badPaths[path]);
+        }).to.throw(Error, 'Could not apply decorator "bind" to "value": ' + badPaths[path]);
       }
     });
 
@@ -216,6 +220,7 @@ describe('component', () => {
 
       widget.myText = 'bar';
 
+      expect(widget.myText).to.equal('bar');
       expect(textInput1.text).to.equal('bar');
     });
 
@@ -224,7 +229,116 @@ describe('component', () => {
 
       textInput1.text = 'foobar';
 
+      expect(widget.myText).to.equal('foobar');
       expect(textInput1.text).to.equal('foobar');
+    });
+
+    describe('with "<<" prefix', () => {
+
+      @component class ToLeft extends Composite {
+        // space after direction is tolerated
+        @bind('<< #textInput1.text') myText: string;
+        myObject: object;
+      }
+
+      beforeEach(() => {
+        widget = new ToLeft();
+      });
+
+      it('applies initial target value to component', () => {
+        textInput1.text = 'foobar';
+
+        widget.append(textInput1);
+
+        expect(textInput1.text).to.equal('foobar');
+        expect(widget.myText).to.equal('foobar');
+      });
+
+      it('applies target changes to component', () => {
+        widget.append(textInput1);
+
+        textInput1.text = 'foobar';
+
+        expect(widget.myText).to.equal('foobar');
+      });
+
+      it('does not apply initial component value to target', () => {
+        widget.myText = 'foobar';
+        textInput1.text = 'baz';
+
+        widget.append(textInput1);
+
+        expect(textInput1.text).to.equal('baz');
+      });
+
+      it('does not apply component property changes to target', () => {
+        widget.append(textInput1);
+        textInput1.text = 'baz';
+
+        widget.myText = 'bar';
+
+        expect(widget.myText).to.equal('bar');
+        expect(textInput1.text).to.equal('baz');
+      });
+
+      it('allows binding to advanced type without type guard', () => {
+        class TargetComponent extends Composite {
+          @property text: string | number;
+        }
+        const target = new TargetComponent({id: 'textInput1'});
+        expect(() => widget.append(target)).not.to.throw(Error);
+      });
+
+    });
+
+    describe('with ">>" prefix', () => {
+
+      @component class ToRight extends Composite {
+        // space after direction is not required
+        @bind('>>#textInput1.text') myText: string;
+        myObject: object;
+      }
+
+      beforeEach(() => {
+        widget = new ToRight();
+      });
+
+      it('applies initial component value to target', () => {
+        widget.myText = 'foobar';
+
+        widget.append(textInput1);
+
+        expect(textInput1.text).to.equal('foobar');
+        expect(widget.myText).to.equal('foobar');
+      });
+
+      it('applies component changes to target', () => {
+        widget.append(textInput1);
+
+        widget.myText = 'foobar';
+
+        expect(textInput1.text).to.equal('foobar');
+      });
+
+      it('does not apply initial target value to component', () => {
+        widget.myText = 'foobar';
+        textInput1.text = 'baz';
+
+        widget.append(textInput1);
+
+        expect(widget.myText).to.equal('foobar');
+      });
+
+      it('does not apply target property changes to component', () => {
+        widget.append(textInput1);
+        widget.myText = 'bar';
+
+        textInput1.text = 'baz';
+
+        expect(widget.myText).to.equal('bar');
+        expect(textInput1.text).to.equal('baz');
+      });
+
     });
 
     it('uses initial target value as fallback when undefined is initial base value', () => {

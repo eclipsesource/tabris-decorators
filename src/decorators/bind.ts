@@ -147,7 +147,7 @@ function createBindAllTypeGuard(binding: BindSuperConfig<unknown>) {
       const className = binding.componentProto.constructor.name;
       for (const sourceProperty of sourceProperties) {
         checkPropertyExists(value, sourceProperty, 'Object');
-        if (CustomPropertyDescriptor.isUnchecked(value, sourceProperty)) {
+        if (CustomPropertyDescriptor.isUnchecked(value, sourceProperty) && binding.all[sourceProperty][0] !== '>>') {
           const strictMode = Injector.get(value, injector).jsxProcessor.unsafeBindings === 'error';
           if (strictMode) {
             throw new Error(`Object property "${sourceProperty}" requires an explicit type check.`);
@@ -170,7 +170,7 @@ function scheduleIsComponentCheck(binding: BindSuperConfig<unknown>) {
     try {
       checkIsComponent(binding.componentProto);
     } catch (ex) {
-      const target = binding.all ? JSON.stringify(binding.all) : binding.targetPath.join('.');
+      const target = binding.all ? JSON.stringify(binding.all) : binding.targetPath.slice(1).join('.');
       console.error(
         `Binding "${binding.componentProperty}" <-> "${target}" failed to initialize: ` + ex.message
       );

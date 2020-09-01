@@ -8,6 +8,7 @@ const componentKey = Symbol();
 
 export const originalAppendKey = Symbol();
 
+export type Direction = '<<' | '>>' | '';
 export type WidgetInterface = {
   [prop: string]: any,
   [originalAppendKey]: typeof Composite.prototype.append,
@@ -21,7 +22,7 @@ export interface WidgetProtected {
 }
 export interface ParamInfo {type: Constructor<any>; injectParam?: string; inject?: boolean;}
 export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
-export type TargetPath = [string, string];
+export type TargetPath = [Direction, string, string];
 
 /**
  * Gets list of functions to be executed after first time append is called on instances of the given
@@ -79,10 +80,11 @@ export function checkAppended(widget: WidgetInterface) {
   }
 }
 
-export function parseTargetPath(path: string): TargetPath {
+export function parseTargetPath(targetPath: string): TargetPath {
+  const {path, direction} = extractDirection(targetPath);
   checkPathSyntax(path);
   if (!/^[A-Z#.]/.test(path) && !path.startsWith(':host')) {
-    throw new Error('Binding path must start with a selector.');
+    throw new Error('Binding path must start with direction or selector.');
   }
   if (path.startsWith('.')) {
     throw new Error('Class selectors are not allowed.');
@@ -93,13 +95,24 @@ export function parseTargetPath(path: string): TargetPath {
   } else if (segments.length > 2) {
     throw new Error('Binding path has too many segments.');
   }
-  return segments as TargetPath;
+  return [direction, segments[0], segments[1]] as TargetPath;
 }
 
 export function checkPathSyntax(targetPath: string) {
   if (/\s|\[|\]|\(|\)|<|>/.test(targetPath)) {
     throw new Error('Binding path contains invalid characters.');
   }
+}
+
+function extractDirection(path: string): {path: string, direction: Direction} {
+  if (path.startsWith('<') || path.startsWith('>')) {
+    const split = /^(<<|>>)\s*(.*)$/.exec(path);
+    if (!split || split.length !== 3) {
+      throw new Error('Invalid path prefix.');
+    }
+    return {path: split[2], direction: split[1] as Direction};
+  }
+  return {path, direction: ''};
 }
 
 export function markAsComponent(type: BaseConstructor<Widget>) {
