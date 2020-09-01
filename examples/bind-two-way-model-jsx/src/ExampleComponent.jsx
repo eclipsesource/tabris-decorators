@@ -19,9 +19,9 @@ export class ExampleComponent extends Composite {
 
   /** @type {Model} */
   @bindAll({
-    myText: '#input1.text',
-    myNumber: '#input2.selection',
-    myColor: ':host.background'
+    myText: '#inputId.text',
+    myNumber: 'Slider.selection',
+    myColor: '>> :host.background'
   })
   model;
 
@@ -33,10 +33,10 @@ export class ExampleComponent extends Composite {
       <Stack spacing={12} padding={12}>
 
         <TextView>Bound to "myText"</TextView>
-        <TextInput id='input1' width={200} text='Fallback Text'/>
+        <TextInput id='inputId' width={200} text='Fallback Text'/>
 
         <TextView>Bound to "myNumber"</TextView>
-        <Slider id='input2' width={200}/>
+        <Slider width={200}/>
 
       </Stack>
     );
