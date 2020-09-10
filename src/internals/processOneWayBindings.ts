@@ -3,6 +3,7 @@ import {Widget} from 'tabris';
 import {clearOneWayBindings, getOneWayBindings, OneWayBinding} from './applyJsxBindings';
 import {subscribe} from './subscribe';
 import {checkPropertyExists, WidgetInterface} from './utils-databinding';
+import {Conversion} from './Conversion';
 
 export function processOneWayBindings(base: WidgetInterface, target: Widget) {
   const bindings = getOneWayBindings(target);
@@ -35,7 +36,12 @@ function evaluateBinding(binding: OneWayBinding, rawValue: any) {
     return binding.fallbackValue;
   }
   try {
-    return binding.converter(rawValue);
+    return Conversion.convert({
+      value: rawValue,
+      convert: binding.converter,
+      proto: Object.getPrototypeOf(binding.target),
+      name: binding.targetProperty
+    });
   } catch (ex) {
     throw new Error('Converter exception: ' + ex.message);
   }

@@ -1,3 +1,4 @@
+import {MultipleBindings} from '../internals/utils-databinding';
 import {bind} from './bind';
 import {CustomPropertyDecorator} from './property';
 
@@ -21,6 +22,6 @@ import {CustomPropertyDecorator} from './property';
  * * *In addition to id selectors, type selectors and `:host` are also supported.* *
  * * *Use`@bind(path)` or `@bind({path: path})` to create bindings to the property itself.*
  */
-export function bindAll<T>(bindings: {[Property in keyof T]?: string}): CustomPropertyDecorator<T> {
+export function bindAll<T>(bindings: MultipleBindings<T>): CustomPropertyDecorator<T> {
   return bind({all: bindings});
 }

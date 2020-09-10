@@ -2,8 +2,7 @@ import 'reflect-metadata';
 import {Widget, WidgetResizeEvent} from 'tabris';
 import {CustomPropertyDescriptor} from './CustomPropertyDescriptor';
 import {Severity} from './ExtendedJSX';
-import {checkPathSyntax, checkPropertyExists, WidgetInterface} from './utils-databinding';
-import {Binding} from '../api/to';
+import {checkPathSyntax, checkPropertyExists, WidgetInterface, BindingConverter, Binding} from './utils-databinding';
 
 const placeholder = /\$\{[^}]+\}/g;
 
@@ -123,7 +122,7 @@ const oneWayBindingsKey = Symbol();
 
 export interface OneWayBinding {
   type: 'bind' | 'template';
-  converter: (v: any) => string;
+  converter: BindingConverter;
   bindingString: string;
   target: Widget;
   targetProperty: string;

@@ -323,6 +323,15 @@ describe('component', () => {
         expect(textInput.text).to.equal('foo');
       });
 
+      it('calls converter with target info', () => {
+        const converter = stub().returns('foo');
+        widget.myText = 'bar';
+
+        widget.append(textInput = <TextInput bind-text={to('myText', converter)}/>);
+
+        expect(converter.args[0]).to.deep.equal(['bar', {proto: TextInput.prototype, name: 'text'}]);
+      });
+
       it('fails to bind with converter returning incompatible type', () => {
         expect(() => {
           widget.append(<CustomComponent2 bind-numberProperty={to('myText', v => !!v)}/>);

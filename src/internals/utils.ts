@@ -42,7 +42,8 @@ export function applyDecorator<T>(name: string, args: any[], decorator: Decorato
 export function areStaticDecoratorArgs(args: any[]): boolean {
   const hasClassTarget = (typeof args[0] === 'function') && !!args[0].prototype;
   const hasProtoTarget = (typeof args[0] === 'object') && !!args[0].constructor;
-  return (hasClassTarget || hasProtoTarget) && args.length >= 2;
+  const hasName = typeof args[1] === 'string';
+  return (hasClassTarget || hasProtoTarget) && hasName;
 }
 
 /**

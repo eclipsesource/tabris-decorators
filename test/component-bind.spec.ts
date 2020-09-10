@@ -1,10 +1,11 @@
 import 'mocha';
 import 'sinon';
-import {useFakeTimers} from 'sinon';
+import {useFakeTimers, SinonSpy} from 'sinon';
 import {Color, ColorValue, Composite, tabris, TextInput} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy, stub} from './test';
-import {bind, component, property} from '../src';
+import {bind, component, property, BindingConverter} from '../src';
+import {Conversion} from '../src/internals/Conversion';
 
 describe('component', () => {
 
@@ -41,7 +42,7 @@ describe('component', () => {
     textInput1 = new TextInput({id: 'textInput1', text: 'foo'});
   });
 
-  describe('@bind(path)', () => {
+  describe('@bind(path, convert?)', () => {
 
     it('returns the target property value', () => {
       widget.append(textInput1);
@@ -102,7 +103,7 @@ describe('component', () => {
     });
 
     it('fails to decorate with invalid binding path', () => {
-      const badPaths: {[path: string]: string} = {
+      const badPaths: { [path: string]: string } = {
         '<foo.bar': 'Invalid path prefix.',
         '< foo.bar': 'Invalid path prefix.',
         '<>foo.bar': 'Invalid path prefix.',
@@ -341,6 +342,171 @@ describe('component', () => {
 
     });
 
+    describe('with converter', () => {
+
+      const twoWayConverter: BindingConverter<string> = (value, conversion) => {
+        if (!value) {
+          return '';
+        }
+        if (conversion.targets(TwoWay, 'myText')) {
+          return conversion.resolve(value.toLowerCase());
+        }
+        if (conversion.targets(TextInput, 'text')) {
+          return conversion.resolve(value.toUpperCase());
+        }
+      };
+
+      let convertFn: BindingConverter<any> & SinonSpy;
+      const convert = {
+        binding() {
+          return convertFn.apply(this, arguments);
+        }
+      };
+
+      @component class TwoWay extends Composite {
+        @bind('#textInput1.text', convert.binding) myText: string = '';
+        myObject: object;
+      }
+
+      @component class OneWay extends Composite {
+        @bind({path: '>> #textInput1.text', convert}) myText: string = '';
+        myObject: object;
+      }
+
+      @component class OneWayRev extends Composite {
+        @bind({path: '<< #textInput1.text', convert}) myText: string = '';
+        myObject: object;
+      }
+
+      beforeEach(() => {
+        convertFn = stub().returnsArg(0);
+      });
+
+      it('calls converter with initial local property value', () => {
+        widget = new OneWay();
+        widget.myText = 'bar';
+
+        widget.append(textInput1);
+
+        expect(convertFn).to.have.been.calledOnceWith('bar');
+      });
+
+      it('calls converter with local property changes', () => {
+        widget = new OneWay();
+        widget.append(textInput1);
+        convertFn.resetHistory();
+
+        widget.myText = 'bar';
+
+        expect(convertFn).to.have.been.calledOnceWith('bar');
+      });
+
+      it('calls converter with Conversion for target property', () => {
+        widget = new OneWay();
+        widget.append(textInput1);
+        convertFn.resetHistory();
+
+        widget.myText = 'bar';
+
+        const conversion = convertFn.args[0][1] as Conversion<TextInput, 'text'>;
+        expect(conversion).to.be.instanceOf(Conversion);
+        expect(conversion.proto).to.equal(TextInput.prototype);
+        expect(conversion.name).to.equal('text');
+      });
+
+      it('propagates component-to-target converter error', () => {
+        widget = new OneWay();
+        convertFn = stub().throws(new Error('foo'));
+
+        expect(() => widget.append(textInput1)).to.throw(
+          Error, 'Binding "myText" >> "#textInput1.text" failed to convert value of left hand property: foo'
+        );
+      });
+
+      it('calls converter with initial target property value', () => {
+        widget = new OneWayRev();
+        textInput1.text = 'bar';
+
+        widget.append(textInput1);
+
+        expect(convertFn).to.have.been.calledOnceWith('bar');
+      });
+
+      it('calls converter with target property changes', () => {
+        widget = new OneWayRev();
+        widget.append(textInput1);
+        convertFn.resetHistory();
+
+        textInput1.text = 'bar';
+
+        expect(convertFn).to.have.been.calledOnceWith('bar');
+      });
+
+      it('applies converted target property values to component', () => {
+        widget = new OneWayRev();
+        convertFn = stub().callsFake(v => 'x_' + v);
+        widget.append(textInput1);
+
+        textInput1.text = 'foo';
+
+        expect(textInput1.text).to.equal('foo');
+        expect(widget.myText).to.equal('x_foo');
+      });
+
+      it('propagates target-to-component converter error', () => {
+        widget = new OneWayRev();
+        convertFn = stub().throws(new Error('foo'));
+
+        expect(() => widget.append(textInput1)).to.throw(
+          Error, 'Binding "myText" << "#textInput1.text" failed to convert value of right hand property: foo'
+        );
+      });
+
+      it('supports two-way conversion', () => {
+        convertFn = spy(twoWayConverter);
+        widget = new TwoWay();
+        widget.append(textInput1);
+
+        widget.myText = 'fOo';
+        const fooMyText = widget.myText;
+        const fooText = textInput1.text;
+        textInput1.text = 'BaR';
+        const barText = textInput1.text;
+        const barMyText = widget.myText;
+
+        expect(fooMyText).to.equal('fOo');
+        expect(fooText).to.equal('FOO');
+        expect(barText).to.equal('BaR');
+        expect(barMyText).to.equal('bar');
+      });
+
+      it('converts fallback value', () => {
+        convertFn = spy(twoWayConverter);
+        widget = new TwoWay();
+        textInput1.text = 'FoO';
+        widget.append(textInput1);
+
+        widget.myText = undefined;
+
+        expect(textInput1.text).to.equal('FoO');
+        expect(widget.myText).to.equal('foo');
+      });
+
+      it('converts sync-back value', () => {
+        convertFn = spy(twoWayConverter);
+        widget = new TwoWay();
+        widget.on('myTextChanged', (ev: any) => widget.myText = ev.value === 'bar' ? 'baz' : ev.value);
+
+        widget.append(textInput1);
+
+        textInput1.text = 'bar';
+
+        expect(textInput1.text).to.equal('BAZ');
+        expect(widget.myText).to.equal('baz');
+      });
+
+    });
+
     it('uses initial target value as fallback when undefined is initial base value', () => {
       widget.myText = undefined;
 
@@ -443,6 +609,13 @@ describe('component', () => {
       })
       color: ColorValue;
 
+      @bind({
+        type: Color,
+        path: '#foo.background',
+        convert: {property: 'auto'}
+      })
+      color2: ColorValue;
+
     }
 
     it('throws if target value changes to value rejected by type guard', () => {
@@ -512,6 +685,12 @@ describe('component', () => {
 
       expect(converted).to.be.instanceOf(Color);
       expect(withConverter.color).to.equal(converted);
+    });
+
+    it('supports convert object', () => {
+      const withConverter = new BindWithOptions();
+      withConverter.color2 = '#001122';
+      expect(withConverter.color2).to.be.instanceOf(Color);
     });
 
   });

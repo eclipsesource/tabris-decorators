@@ -1,7 +1,6 @@
 import {asFactory, ChangeListeners, EventObject, JSXAttributes, Listeners, Picker, Properties, PropertyChangedEvent} from 'tabris';
 import {checkType} from './checkType';
 import {List, ListLike, Mutation} from './List';
-import {Binding} from './to';
 import {event} from '../decorators/event';
 import {ListLikeObserver} from '../internals/ListLikeObserver';
 import {subscribe} from '../internals/subscribe';
@@ -25,7 +24,8 @@ export class ItemPickerSelectEvent<ItemType, Target = any> extends EventObject<T
 
 // Note: The latest TypeScript compiler can complain if a mapped type (e.g. Properties<T>) becomes
 // too complex (error 2589). By defining the constructor parameters explicitly this is avoided.
-export type TextSource<T> = string | Binding | null;
+export type TextSourceObject<T> = {path: string, converter: (v: any) => any};
+export type TextSource<T> = string | TextSourceObject<T> | null;
 export type ItemPickerProperties<ItemType>
   = Properties<Picker> & {items?: ListLike<ItemType>, textSource?: TextSource<ItemType>};
 
@@ -40,7 +40,7 @@ namespace internal {
     @event onTextSourceChanged: ChangeListeners<this, 'textSource'>;
 
     private _observer: ListLikeObserver<ItemType>;
-    private _textSource: TextSource<ItemType> | null;
+    private _textSource: TextSourceObject<ItemType> | null;
     private _texts: string[];
     private _unsubsribers: Array<(() => void)>;
     private _inRefresh: boolean = false;
@@ -120,14 +120,14 @@ namespace internal {
       if (!this.items) {
         this._texts = null;
       } else if (this._textSource) {
-        this._texts = this._bindItems(this._textSource as Binding);
+        this._texts = this._bindItems(this._textSource);
       } else {
         this._texts = Array.from(this.items, String);
       }
       this._refresh();
     }
 
-    protected _bindItems(binding: Binding) {
+    protected _bindItems(binding: TextSourceObject<ItemType>) {
       let initial = true;
       const path = binding.path.split('.');
       const texts = [];

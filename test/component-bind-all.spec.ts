@@ -2,8 +2,10 @@ import 'mocha';
 import 'sinon';
 import {ChangeListeners, Composite, Properties, tabris, TextInput} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
-import {expect, stub} from './test';
-import {bind, bindAll, component, event, property, Injector, inject} from '../src';
+import {expect, spy, stub} from './test';
+import {bind, bindAll, component, event, property, Injector, inject, to, BindingConverter} from '../src';
+import {SinonSpy} from 'sinon';
+import {Conversion} from '../src/internals/Conversion';
 
 const injector = new Injector();
 const {injectable} = injector;
@@ -492,6 +494,183 @@ describe('component', () => {
 
       expect(textInput.text).to.equal('Hello');
       expect(item.text).to.equal('Hello');
+    });
+
+    describe('with converter', () => {
+
+      const twoWayConverter: BindingConverter<string> = (value, conversion) => {
+        if (!value) {
+          return '';
+        }
+        if (conversion.targets(Item, 'text')) {
+          return conversion.resolve(value.toLowerCase());
+        }
+        if (conversion.targets(TextInput, 'text')) {
+          return conversion.resolve(value.toUpperCase());
+        }
+      };
+
+      let convertFn: BindingConverter<any> & SinonSpy;
+
+      function convert() {
+        return convertFn.apply(this, arguments);
+      }
+
+      @component
+      class WithConverter extends Composite {
+
+        @bind({all: {text: to('#foo.text', convert)}})
+        item: Item;
+
+      }
+
+      @component
+      class OneWayRev extends Composite {
+
+        @bind({all: {text: to('<< #foo.text', convert)}})
+        item: Item;
+
+      }
+
+      beforeEach(() => {
+        convertFn = stub().returnsArg(0);
+        widget = new WithConverter();
+        item.text = 'bar';
+      });
+
+      it('calls converter with initial local property value', () => {
+        widget.item = item;
+
+        widget.append(textInput);
+
+        expect(convertFn).to.have.been.calledOnceWith('bar');
+      });
+
+      it('calls converter with local property changes', () => {
+        widget.append(textInput);
+        widget.item = item;
+        convertFn.resetHistory();
+
+        item.text = 'foo';
+
+        expect(convertFn).to.have.been.calledOnceWith('foo');
+      });
+
+      it('calls converter with Conversion for target property', () => {
+        widget.append(textInput);
+        widget.item = item;
+        convertFn.resetHistory();
+
+        item.text = 'foo';
+
+        const conversion = convertFn.args[0][1] as Conversion<TextInput, 'text'>;
+        expect(conversion).to.be.instanceOf(Conversion);
+        expect(conversion.proto).to.equal(TextInput.prototype);
+        expect(conversion.name).to.equal('text');
+      });
+
+      it('propagates component-to-target converter error', () => {
+        convertFn = stub().throws(new Error('foo'));
+        widget.item = item;
+
+        expect(() => widget.append(textInput)).to.throw(
+          Error, 'Binding "item.text" <-> "#foo.text" failed to convert value of left hand property: foo'
+        );
+      });
+
+      it('calls converter with initial target property value', () => {
+        item.text = undefined;
+        widget.item = item;
+        textInput.text = 'bar';
+
+        widget.append(textInput);
+
+        expect(convertFn).to.have.been.calledOnce;
+        expect(convertFn).to.have.been.calledWith('bar');
+        const conversion = convertFn.args[0][1] as Conversion<Item, 'text'>;
+        expect(conversion).to.be.instanceOf(Conversion);
+        expect(conversion.proto).to.equal(Item.prototype);
+        expect(conversion.name).to.equal('text');
+      });
+
+      it('calls converter with target property changes', () => {
+        widget.item = item;
+        widget.append(textInput);
+        convertFn.resetHistory();
+
+        textInput.text = 'foo';
+
+        expect(convertFn).to.have.been.calledOnceWith('foo');
+      });
+
+      it('supports two-way conversion', () => {
+        convertFn = spy(twoWayConverter);
+        widget.item = item;
+        widget.append(textInput);
+
+        item.text = 'fOo';
+        const fooMyText = item.text;
+        const fooText = textInput.text;
+        textInput.text = 'BaR';
+        const barText = textInput.text;
+        const barMyText = item.text;
+
+        expect(fooMyText).to.equal('fOo');
+        expect(fooText).to.equal('FOO');
+        expect(barText).to.equal('BaR');
+        expect(barMyText).to.equal('bar');
+      });
+
+      it('converts fallback value', () => {
+        convertFn = spy(twoWayConverter);
+        textInput.text = 'FoO';
+        widget.item = item;
+        widget.append(textInput);
+
+        item.text = undefined;
+
+        expect(textInput.text).to.equal('FoO');
+        expect(item.text).to.equal('foo');
+      });
+
+      it('converts sync-back value', () => {
+        convertFn = spy(twoWayConverter);
+        item.text = '';
+        widget.item = item;
+        item.onTextChanged((ev: any) => item.text = ev.value === 'bar' ? 'baz' : ev.value);
+        widget.append(textInput);
+
+        textInput.text = 'bAr';
+
+        expect(item.text).to.equal('baz');
+        expect(textInput.text).to.equal('BAZ');
+      });
+
+      it('converts sync-back value', () => {
+        convertFn = spy(twoWayConverter);
+        item.text = '';
+        widget.item = item;
+        item.onTextChanged((ev: any) => item.text = ev.value === 'bar' ? 'baz' : ev.value);
+        widget.append(textInput);
+
+        textInput.text = 'bAr';
+
+        expect(item.text).to.equal('baz');
+        expect(textInput.text).to.equal('BAZ');
+      });
+
+      it('converts target-to-model values on fresh item', () => {
+        convertFn = spy(twoWayConverter);
+        widget = new OneWayRev();
+        textInput.text = 'bAz';
+        widget.append(textInput);
+
+        widget.item = item;
+
+        expect(textInput.text).to.equal('bAz');
+        expect(item.text).to.equal('baz');
+      });
+
     });
 
   });
