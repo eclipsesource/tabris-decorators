@@ -19,5 +19,20 @@
   "typescript.extension.sortImports.maxNamedImportsInSingleLine": 10,
   "eslint.alwaysShowStatus": true,
   "eslint.lintTask.enable": true,
-  "eslint.enable": true
+  "eslint.enable": true,
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#0c8a79",
+    "activityBar.foreground": "#ffffff",
+    "activityBar.inactiveForeground": "#ffffff70"
+  },
+  "eslint.format.enable": true,
+  "eslint.codeAction.showDocumentation": {
+    "enable": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.codeActionsOnSave.mode": "problems",
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+  "typescript.format.enable": false
 }
