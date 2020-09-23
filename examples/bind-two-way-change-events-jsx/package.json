@@ -1,7 +1,8 @@
 {
   "name": "bind-two-way-change-events",
   "version": "3.5.0",
-  "optionalDependencies": {
+  "dependencies": {
+    "reflect-metadata": "^0.1.13",
     "tabris": "^3.6.0",
     "tabris-decorators": "^3.6.0"
   },

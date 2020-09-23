@@ -2,9 +2,7 @@
   "name": "bind-one-way",
   "version": "3.5.0",
   "dependencies": {
-    "reflect-metadata": "^0.1.13"
-  },
-  "optionalDependencies": {
+    "reflect-metadata": "^0.1.13",
     "tabris": "^3.6.0",
     "tabris-decorators": "^3.5.0"
   },
