@@ -10,8 +10,10 @@ Apply this decorators to a property of the type `Listeners` (or `ChangeListeners
 
 ```ts
 class SomeClass extends SomeOtherClass {
-  @event onMyEvent: Listeners<{target: SomeClass}>; // issues plain EventObject instances
-  @event onFoo: Listeners<{<target: SomeClass, foo: string}>; // EventObject with additional event data
+  // Provides plain EventObject instances:
+  @event onMyEvent: Listeners<{target: SomeClass}>;
+  // EventObject with additional event data:
+  @event onFoo: Listeners<{<target: SomeClass, foo: string}>;
 }
 ```
 

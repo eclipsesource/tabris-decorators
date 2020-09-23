@@ -8,7 +8,7 @@ A decorator for classes extending `Composite` (directly or indirectly), otherwis
 
 ## One way bindings
 
-> See example apps ["bind-one-way"](../../examples/bind-one-way) (TypeScript) and ["bind-one-way-jsx"](../../examples/bind-one-way-jsx).
+> :point_right: See example apps ["bind-one-way"](../../examples/bind-one-way) (TypeScript) and ["bind-one-way-jsx"](../../examples/bind-one-way-jsx).
 
 For one-way bindings, `@component` enables JSX attributes of the following format:
 
@@ -74,7 +74,7 @@ export class CustomComponent extends Composite {
 
 ### Binding to nested properties
 
-> See example apps ["bind-one-way"](../../examples/bind-one-way) (TypeScript) and ["bind-one-way-jsx"](../../examples/bind-one-way-jsx) (JavaScript/JSX).
+> :point_right: See example apps ["bind-one-way"](../../examples/bind-one-way) (TypeScript) and ["bind-one-way-jsx"](../../examples/bind-one-way-jsx) (JavaScript/JSX).
 
 The *source property* of a binding can also be a property of a *component property* value if its an object:
 

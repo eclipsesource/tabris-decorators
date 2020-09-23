@@ -8,7 +8,7 @@
 
 Makes the decorated property return a component-internal child (direct or indirect) element whose id is identical to the property name. This is useful if direct access to an internal widget is needed, e.g. to trigger an animation.
 
-> For simplicities sake the examples below append only a single child element, in which case there would be various simpler ways to obtain the reference. `@getById` is more useful when a larger widget tree is appended.
+> :point_right: For simplicities sake the examples below append only a single child element, in which case there would be various simpler ways to obtain the reference. `@getById` is more useful when a larger widget tree is appended.
 
  TypeScript:
 

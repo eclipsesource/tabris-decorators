@@ -64,7 +64,7 @@ And one with payload:
 
 In TypeScript or for a type-safe JavaScript app you should first [declare your global state and actions](./types.md) via module augmentation.
 
-Now you can create the store with Redux's [`createStore`](https://redux.js.org/api/createstore) and [`combineReducers`]https://redux.js.org/api/combinereducers functions. The only part specific to Tabris.js is the usage of the `DefaultRootState` and `AnyAction` types provided by `tabris-decorators` module.
+Now you can create the store with Redux's [createStore](https://redux.js.org/api/createstore) and [combineReducers](https://redux.js.org/api/combinereducers) functions. The only part specific to Tabris.js is the usage of the `DefaultRootState` and `AnyAction` types provided by `tabris-decorators` module.
 
 **TypeScript**:
 ```ts
