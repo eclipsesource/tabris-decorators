@@ -17,3 +17,8 @@ tsconfig*.json
 doc
 webpack.config.js
 examples
+.gitpod.yml
+.eslintignore
+Jenkinsfile
+launch.cml
+launch.sh
