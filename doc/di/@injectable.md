@@ -62,7 +62,7 @@ Where `config` is of the type
 
 Like `@injectable`, but with more options.
 
-* If `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton.
+* If `shared` is `true`, all injections of the class will use the same instance. This makes the class effectively a singleton. However, if the instance is a widget and is disposed a new one will be created for the next injection.
 
 * `implements` allows the decorated class to be injected as an instance of the given class if they have a compatible interface.
 
