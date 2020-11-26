@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import {Widget} from 'tabris';
 import {Injection, InjectionParameter, Injector} from '../api/Injector';
 import {applyDecorator, areStaticClassDecoratorArgs, BaseConstructor, ClassDecoratorFactory, Constructor} from '../internals/utils';
 
@@ -62,6 +63,10 @@ class DefaultInjectionHandler<T> {
     }
     if (!this.config.shared) {
       return injection.injector.create(this.type);
+    }
+    const instance = this.instance;
+    if (instance instanceof Widget && instance.isDisposed()) {
+      this.instance = null;
     }
     if (!this.instance) {
       this.instance = injection.injector.create(this.type);

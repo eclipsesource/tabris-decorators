@@ -27,6 +27,9 @@ describe('inject', () => {
   class LowPriorityClass {
     saySomething() { return 'baz4'; }
   }
+  @injectable({shared: true}) class MySingletonWidget extends Composite {
+    saySomething() { return 'baz5'; }
+  }
   abstract class ColorClass {
     abstract readonly color: string;
   }
@@ -49,6 +52,7 @@ describe('inject', () => {
       @inject public otherService: MyServiceClass,
       @inject public singleton1?: MySingletonClass,
       @inject public singleton2?: MyOtherSingletonClass,
+      @inject public singleton3?: MySingletonWidget,
       @inject public baseClass?: BaseClass
     ) {
       this.str = str || '';
@@ -248,6 +252,16 @@ describe('inject', () => {
       const instance2 = create(ConstructorWithInjection);
       expect(instance2.singleton1).to.equal(instance.singleton1);
       expect(instance2.singleton2).to.equal(instance.singleton2);
+      expect(instance2.singleton3).to.equal(instance.singleton3);
+    });
+
+    it('re-creates disposed singletons', () => {
+      instance.singleton3.dispose();
+      const instance2 = create(ConstructorWithInjection);
+
+      expect(instance.singleton3.isDisposed()).to.be.true;
+      expect(instance2.singleton3).not.to.equal(instance.singleton3);
+      expect(instance2.singleton3.isDisposed()).to.be.false;
     });
 
     it('injects with highest priority compatible type', () => {
