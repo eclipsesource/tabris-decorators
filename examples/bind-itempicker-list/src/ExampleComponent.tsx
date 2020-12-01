@@ -1,4 +1,4 @@
-import {Composite, Properties, Stack, TextView} from 'tabris';
+import {Composite, Properties, Stack, TextView, Apply} from 'tabris';
 import {bind, component, ItemPicker, List, property} from 'tabris-decorators';
 import {Person} from './Person';
 
@@ -13,6 +13,7 @@ export class ExampleComponent extends Composite {
     this.set(properties);
     this.append(
       <Stack spacing={12} padding={12} stretchX>
+        <Apply target={TextView} attr={{font: {size: 21}}}/>
         <TextView stretchX>
           Binding a mutable List of mutable Items to ItemPicker.
         </TextView>
@@ -20,7 +21,7 @@ export class ExampleComponent extends Composite {
         <TextView bind-text='details.name'/>
         <TextView template-text='is ${details.age} years old'/>
       </Stack>
-    )._find(TextView).set({font: {size: 18}});
+    );
   }
 
 }

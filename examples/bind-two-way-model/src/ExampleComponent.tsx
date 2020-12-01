@@ -22,16 +22,12 @@ export class ExampleComponent extends Composite {
     this.set(properties);
     this.append(
       <Stack spacing={12} padding={12}>
-
         <TextView>Bound to "myText"</TextView>
         <TextInput id='inputId' width={200} text='Fallback Text'/>
-
         <TextView>Bound to "myNumber"</TextView>
         <Slider width={200}/>
-
       </Stack>
     );
-    this._find(TextView).set({font: {size: 18}});
   }
 
 }

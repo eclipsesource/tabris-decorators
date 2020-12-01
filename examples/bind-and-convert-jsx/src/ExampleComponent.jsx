@@ -1,4 +1,4 @@
-import {Composite, Stack, TextView} from 'tabris';
+import {Composite, Stack, TextView, Apply} from 'tabris';
 import {component, property, to} from 'tabris-decorators';
 
 /** @param {string} path */
@@ -20,6 +20,8 @@ export class ExampleComponent extends Composite {
     this.append(
       <Stack spacing={12} padding={12}>
 
+        <Apply target={TextView} attr={{font: {size: 21}}}/>
+
         <TextView>Date to string:</TextView>
         <TextView bind-text={to('myTime', date => date.toTimeString())}/>
 
@@ -38,7 +40,6 @@ export class ExampleComponent extends Composite {
 
       </Stack>
     );
-    this._find(TextView).set({font: {size: 18}});
   }
 
 }

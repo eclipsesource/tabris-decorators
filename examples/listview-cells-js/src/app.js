@@ -24,18 +24,25 @@ contentView.append(
             items: generate(20),
             createCell: () =>
               Cell({
-                padding: 8, children: [
+                padding: 8,
+                children: [
                   TextView({centerY: true, font: '24px'}),
-                  Composite({layoutData: 'stretchY', left: 'prev() 24', width: 80})
+                  Composite({
+                    id: 'color',
+                    layoutData: 'stretchY',
+                    left: 'prev() 24',
+                    width: 80
+                  })
+                ],
+                apply: ({item}) => [
+                  Set(TextView, {
+                    text: item ? `The color of ${item.text}` : 'foo'
+                  }),
+                  Set(Composite, '#color', {
+                    background: item ? item.color : 'transparent'
+                  })
                 ]
-              }).apply({mode: 'strict', trigger: 'onItemChanged'}, ({item}) => ({
-                TextView: Set(TextView, {
-                  text: item ? `The color of ${item.text}` : 'foo'
-                }),
-                Composite: Set(Composite, {
-                  background: item ? item.color : 'transparent'
-                })
-              }))
+              })
           })
         ]
       }),
@@ -54,12 +61,12 @@ contentView.append(
                 padding: 8,
                 highlightOnTouch: true,
                 onTap: ListView.select,
-                children: [TextView({centerY: true, font: '24px'})]
-              }).apply({mode: 'strict', trigger: 'onItemChanged'}, ({item}) => ({
-                TextView: Set(TextView, {
-                  text: item instanceof Item ? `Tap here to select ${item.text}:` : ''
-                })
-              }))
+                children: [TextView({centerY: true, font: '24px'})],
+                apply: ({item}) =>
+                  Set(TextView, {
+                    text: item instanceof Item ? `Tap here to select ${item.text}:` : ''
+                  })
+              })
           }),
           TextView({id: 'output1', padding: 12, font: '18px', text: '...'})
         ]
@@ -81,7 +88,8 @@ contentView.append(
             cellHeight: 80,
             createCell: () =>
               Cell({
-                padding: 8, children: [
+                padding: 8,
+                children: [
                   Button({
                     left: 0,
                     font: '18px',
@@ -101,12 +109,12 @@ contentView.append(
                     onSelect: ListView.selectToggle,
                     text: 'Toggle Action'
                   })
-                ]
-              }).apply({mode: 'strict', trigger: 'onItemChanged'}, ({item}) => ({
-                '#label': Set(TextView, {
-                  text: item instanceof Item ? item?.text : ''
-                })
-              }))
+                ],
+                apply: ({item}) =>
+                  Set(TextView, {
+                    text: item instanceof Item ? item?.text : ''
+                  })
+              })
           }),
           TextView({
             id: 'output2',
@@ -129,17 +137,18 @@ contentView.append(
                 target.background = value % 2 === 0 ? '#fff' : '#ddd';
               },
               children: [
-                TextView({centerY: true, id: 'label', font: '24px'})
+                TextView({centerY: true, font: '24px'})
+              ],
+              apply: ({item, itemIndex}) => [
+                Set(Cell, ':host', {
+                  background: itemIndex % 2 === 0 ? '#fff' : '#ddd'
+                }),
+                Set(TextView, {
+                  text: item instanceof Item ? item.text : '',
+                  textColor: itemIndex % 2 === 0 ? '#999' : '#000'
+                })
               ]
-            }).apply({mode: 'strict', trigger: 'onItemChanged'}, ({item}) => ({
-              '#label': Set(TextView, {
-                text: item instanceof Item ? item.text : ''
-              })
-            })).apply({mode: 'strict', trigger: 'onItemIndexChanged'}, ({itemIndex}) => ({
-              '#label': Set(TextView, {
-                textColor: itemIndex % 2 === 0 ? '#999' : '#000'
-              })
-            }))
+            })
         })
       ]})
 
