@@ -1,11 +1,11 @@
 {
   "name": "connect",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "dependencies": {
     "redux": "^4.0.5",
     "reflect-metadata": "^0.1.13",
-    "tabris": "^3.6.0",
-    "tabris-decorators": "3.6.0"
+    "tabris": "^3.7.0",
+    "tabris-decorators": "3.7.0"
   },
   "devDependencies": {
     "typescript": "3.8.x"

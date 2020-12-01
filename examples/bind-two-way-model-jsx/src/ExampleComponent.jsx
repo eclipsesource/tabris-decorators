@@ -1,4 +1,4 @@
-import {Composite, Properties, Slider, Stack, TextInput, TextView, Color} from 'tabris';
+import {Composite, Properties, Slider, Stack, TextInput, TextView, Color, Apply} from 'tabris';
 import {bindAll, component, prop} from 'tabris-decorators';
 
 export class Model {
@@ -31,16 +31,13 @@ export class ExampleComponent extends Composite {
     this.set(properties);
     this.append(
       <Stack spacing={12} padding={12}>
-
+        <Apply target={TextView} attr={{font: {size: 21}}}/>
         <TextView>Bound to "myText"</TextView>
         <TextInput id='inputId' width={200} text='Fallback Text'/>
-
         <TextView>Bound to "myNumber"</TextView>
         <Slider width={200}/>
-
       </Stack>
     );
-    this._find(TextView).set({font: {size: 18}});
   }
 
 }
