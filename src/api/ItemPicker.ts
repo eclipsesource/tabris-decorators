@@ -225,5 +225,7 @@ namespace internal {
 
 }
 
-export const ItemPicker = asFactory(internal.ItemPicker);
+export type ItemPickerConstructor = typeof internal.ItemPicker;
+export interface ItemPickerFactory extends Factory<ItemPickerConstructor>, ItemPickerConstructor {}
+export const ItemPicker = asFactory(internal.ItemPicker) as ItemPickerFactory;
 export type ItemPicker<ItemType> = internal.ItemPicker<ItemType>;
