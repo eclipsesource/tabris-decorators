@@ -14,6 +14,7 @@ const restoreSandbox: () => void = sandbox.restore.bind(sandbox) as () => void;
 
 tabris._init(new ClientMock());
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 (require('../src') as any).injector.jsxProcessor.unsafeBindings = 'error';
 
 export {expect, spy, stub, mock, restoreSandbox};

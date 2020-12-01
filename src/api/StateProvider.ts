@@ -18,30 +18,30 @@ export type Dispatch<A> = (action: A) => A;
 export type HookOptions<
   Target extends Widget,
   RootState extends object,
-  Action extends GenericAction
+  ProviderAction extends GenericAction
 > = {
-  stateProvider: StateProvider<RootState, Action>,
+  stateProvider: StateProvider<RootState, ProviderAction>,
   target: Target,
   stateMapper?: StateMapper<Partial<Target>, RootState>,
-  actionMapper?: ActionMapper<Target, Action>
+  actionMapper?: ActionMapper<Target, ProviderAction>
 };
 
 export const NO_ACTION: unique symbol = Symbol();
 
-export class StateProvider<State = DefaultRootState, Action extends GenericAction = AnyAction> {
+export class StateProvider<State = DefaultRootState, ProviderAction extends GenericAction = AnyAction> {
 
   static hook<
     Target extends Widget,
     RootState extends object,
-    Action extends GenericAction
+    HookedProviderAction extends GenericAction
   >(
-    options: HookOptions<Target, RootState, Action>
+    options: HookOptions<Target, RootState, HookedProviderAction>
   ) {
     hookActions(options);
     hookState(options);
   }
 
-  constructor(original: Partial<StateProvider<State, Action>>) {
+  constructor(original: Partial<StateProvider<State, ProviderAction>>) {
     const {getState, subscribe, dispatch} = original;
     this.getState = getState ? getState.bind(original) : this.getState;
     this.subscribe = subscribe ? subscribe.bind(original) : this.subscribe;
@@ -58,7 +58,7 @@ export class StateProvider<State = DefaultRootState, Action extends GenericActio
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  dispatch: Dispatch<Action> = () => {
+  dispatch: Dispatch<ProviderAction> = () => {
     throw new Error('Not implemented');
   };
 
@@ -67,8 +67,8 @@ export class StateProvider<State = DefaultRootState, Action extends GenericActio
 function hookState<
   Target extends Widget,
   RootState extends object,
-  Action extends GenericAction,
->(options: HookOptions<Target, RootState, Action>) {
+  ProviderAction extends GenericAction,
+>(options: HookOptions<Target, RootState, ProviderAction>) {
   const {stateProvider, stateMapper, target} = options;
   if (stateMapper) {
     const widget = checkType(target, Widget, {name: 'target'});
@@ -78,8 +78,8 @@ function hookState<
   }
 }
 
-function hookActions<Target extends Widget, Action extends GenericAction>(
-  options: HookOptions<Target, {}, Action>
+function hookActions<Target extends Widget, ProviderAction extends GenericAction>(
+  options: HookOptions<Target, {}, ProviderAction>
 ) {
   const {stateProvider, target, actionMapper} = options;
   if (actionMapper) {
@@ -88,9 +88,9 @@ function hookActions<Target extends Widget, Action extends GenericAction>(
   }
 }
 
-function getActionMapperFn<Target extends Widget, Action extends GenericAction>(
-  actionMapper: ActionMapper<Target, Action>
-): ActionMapperFunction<Target, Action> {
+function getActionMapperFn<Target extends Widget, ProviderAction extends GenericAction>(
+  actionMapper: ActionMapper<Target, ProviderAction>
+): ActionMapperFunction<Target, ProviderAction> {
   if (actionMapper instanceof Function) {
     return actionMapper;
   }

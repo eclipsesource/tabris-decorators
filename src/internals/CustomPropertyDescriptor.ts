@@ -16,10 +16,10 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
 
   private static readonly metaDataKey = Symbol();
 
-  static get<Proto extends object, TargetType>(
-    proto: Proto,
-    propertyName: keyof Proto & string
-  ): CustomPropertyDescriptor<Proto, TargetType> {
+  static get<CandidateProto extends object, ExpectedTargetType>(
+    proto: CandidateProto,
+    propertyName: keyof CandidateProto & string
+  ): CustomPropertyDescriptor<CandidateProto, ExpectedTargetType> {
     let descriptor = Reflect.getMetadata(this.metaDataKey, proto, propertyName);
     if (!descriptor) {
       descriptor = new CustomPropertyDescriptor(proto, propertyName);
@@ -28,7 +28,7 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     else if (!(descriptor instanceof CustomPropertyDescriptor)) {
       throw new Error(`Property "${descriptor}" can not be re-defined`);
     }
-    return descriptor as CustomPropertyDescriptor<Proto, TargetType>;
+    return descriptor as CustomPropertyDescriptor<CandidateProto, ExpectedTargetType>;
   }
 
   static isUnchecked<PropertyName extends string>(

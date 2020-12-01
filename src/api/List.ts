@@ -47,16 +47,20 @@ export function listObservers<T>(list: List<T>): Listeners<Mutation<T>> {
 
 export class List<T> implements ListLike<T> {
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static from<T,U>(arrayLike: ArrayLike<T> | Iterable<T>, mapfn?: (v: T, k: number) => U, thisArg?: any): List<T> {
+  static from<In,Out>(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    arrayLike: ArrayLike<In> | Iterable<In>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    mapfn?: (v: In, k: number) => Out, thisArg?: any
+  ): List<In> {
     const initData = Array.from.apply(Array, arguments);
-    return new List<T>({[init]: initData});
+    return new List<In>({[init]: initData});
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static of<T>(...items: T[]): List<T> {
+  static of<Item>(...items: Item[]): List<Item> {
     const initData = Array.of.apply(Array, arguments);
-    return new List<T>({[init]: initData});
+    return new List<Item>({[init]: initData});
   }
 
   private [data]: T[] = [];

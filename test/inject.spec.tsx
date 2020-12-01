@@ -121,7 +121,7 @@ describe('inject', () => {
           @inject singleton2?: MyOtherSingletonClass,
           @inject baseClass?: BaseClass
         ) {
-          super(str, service, num, otherService, singleton1, singleton2, baseClass);
+          super(str, service, num, otherService, singleton1, singleton2, null, baseClass);
         }
       }
       numberHandler = (injection) => 44;
@@ -142,7 +142,7 @@ describe('inject', () => {
           @inject singleton1?: MySingletonClass,
           @inject baseClass?: BaseClass
         ) {
-          super(str, service, num, otherService, singleton1, singleton2, baseClass);
+          super(str, service, num, otherService, singleton1, singleton2, null, baseClass);
         }
       }
       numberHandler = (injection) => 44;
@@ -166,7 +166,7 @@ describe('inject', () => {
           @inject singleton1?: MySingletonClass,
           @inject baseClass?: BaseClass
         ) {
-          super('foo3', service, num, otherService, singleton1, singleton2, baseClass);
+          super('foo3', service, num, otherService, singleton1, singleton2, null, baseClass);
         }
       }
       numberHandler = (injection) => 44;

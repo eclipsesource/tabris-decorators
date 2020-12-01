@@ -92,11 +92,11 @@ describe('custom injector inject', () => {
       tabris._init(new ClientMock());
       // tabris._init installs a non-extended processor that ignores injection completely
       // For this test we want one that throws for missing injections
-      (global as any).JSX.install(new ExtendedJSX(orgInjector));
+      (window as any).JSX.install(new ExtendedJSX(orgInjector));
     });
 
     it('fails with default JSX object', () => {
-      // eslint-disable-next-line no-shadow
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       const JSX = orgInjector.jsxProcessor;
       expect(() => {
         <MyCustomWidget/>;
@@ -112,7 +112,7 @@ describe('custom injector inject', () => {
     });
 
     it('works with custom component injector override', () => {
-      // eslint-disable-next-line no-shadow
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       const JSX = orgInjector.jsxProcessor;
       @component({injector})
       class MyCustomComponent extends Composite {
