@@ -1,4 +1,4 @@
-import {asFactory, ChangeListeners, EventObject, JSXAttributes, Listeners, Picker, Properties, PropertyChangedEvent} from 'tabris';
+import {asFactory, ChangeListeners, EventObject, Factory, JSXAttributes, Listeners, Picker, Properties, PropertyChangedEvent} from 'tabris';
 import {checkType} from './checkType';
 import {List, ListLike, Mutation} from './List';
 import {Binding} from './to';
@@ -25,6 +25,7 @@ export class ItemPickerSelectEvent<ItemType, Target = any> extends EventObject<T
 
 // Note: The latest TypeScript compiler can complain if a mapped type (e.g. Properties<T>) becomes
 // too complex (error 2589). By defining the constructor parameters explicitly this is avoided.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type TextSource<T> = string | Binding | null;
 export type ItemPickerProperties<ItemType>
   = Properties<Picker> & {items?: ListLike<ItemType>, textSource?: TextSource<ItemType>};

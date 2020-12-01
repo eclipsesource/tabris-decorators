@@ -38,7 +38,9 @@
     "createImageBitmap": false,
     "FormData": false,
     "require": false,
-    "exports": false
+    "exports": false,
+    "EventTarget": false,
+    "window": false
   },
   "rules": {
     "no-console": "off",
@@ -195,8 +197,29 @@
       }
     ],
     "@typescript-eslint/await-thenable": "error",
-    "@typescript-eslint/ban-types": "error",
-    "@typescript-eslint/class-name-casing": "error",
+    "@typescript-eslint/ban-types": [
+      "error",
+      {
+        "types": {
+          "{}": false,
+          "object": false,
+          "Function": false
+        }
+      }
+    ],
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "default",
+        "format": [
+          "PascalCase",
+          "camelCase",
+          "UPPER_CASE"
+        ],
+        "leadingUnderscore": "allow",
+        "trailingUnderscore": "forbid"
+      }
+    ],
     "@typescript-eslint/consistent-type-assertions": "error",
     "@typescript-eslint/consistent-type-definitions": "off",
     "@typescript-eslint/no-unused-vars": "error",
@@ -319,10 +342,26 @@
   "overrides": [
     {
       "files": [
+        "*.d.ts"
+      ],
+      "rules": {
+        "no-undef": "off"
+      }
+    },
+    {
+      "files": [
         "*.ts",
         "*.tsx"
       ],
       "rules": {
+        "no-redeclare": "off",
+        "no-shadow": "off",
+        "@typescript-eslint/no-shadow": [
+          "error",
+          {
+            "ignoreTypeValueShadow": true
+          }
+        ],
         "jsdoc/require-jsdoc": "off",
         "jsdoc/require-param": "off",
         "jsdoc/require-param-type": "off",
@@ -363,6 +402,7 @@
         "context": false,
         "describe": false,
         "it": false,
+        "sinon": false,
         "mocha": false,
         "run": false,
         "setup": false,

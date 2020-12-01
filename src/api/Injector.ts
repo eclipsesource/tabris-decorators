@@ -142,7 +142,7 @@ export class Injector {
         }
       }
       this.scheduleResolveProperties(result);
-      this.resolvePropertyInjections<T>();
+      this.resolvePropertyInjections();
       if (result !== null && result !== undefined) {
         return this.tagResult(result);
       }
@@ -196,7 +196,7 @@ export class Injector {
     }
   }
 
-  private resolvePropertyInjections<T>() {
+  private resolvePropertyInjections() {
     if (this.injectionStack.length === 0 && this.resolveQueue.length) {
       const queue = this.resolveQueue;
       this.resolveQueue = [];

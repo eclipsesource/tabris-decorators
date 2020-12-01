@@ -7,13 +7,14 @@
     "lib": ["es6"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictNullChecks": true,
+    "strictNullChecks": false,
     "alwaysStrict": true,
     "sourceMap": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "jsx": "react",
     "jsxFactory": "JSX.createElement",
-    "allowJs": true
+    "allowJs": true,
+    "noEmitOnError": true
   },
   "include": [
     "./src/**/*.ts",

@@ -9,6 +9,7 @@ injector.jsxProcessor.unsafeBindings = 'error';
 declare module 'tabris-decorators' {
 
   // The state parameter provided by "@connect"
+  // eslint-disable-next-line no-shadow
   export interface DefaultRootState {
     myString: string;
     myNumber: number;

@@ -40,7 +40,7 @@ describe('connect', () => {
     // tabris._init installs a non-extended processor that ignores injection completely
     // For this test we want one that throws for missing injections
     // eslint-disable-next-line no-undef
-    window.JSX.install(new ExtendedJSX(orgInjector));
+    (window as any).JSX.install(new ExtendedJSX(orgInjector));
     injector = new Injector();
     subscribers = [];
     actions = [];

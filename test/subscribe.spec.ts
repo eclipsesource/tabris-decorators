@@ -116,7 +116,7 @@ describe('subscribe', () => {
     });
 
     it('is called with new value if Listeners is used correctly', () => {
-      target.onFooChanged = new Listeners(target, 'fooChanged');
+      target.onFooChanged = new ChangeListeners(target, 'foo');
       subscribe(target, ['foo'], sub);
       sub.resetHistory();
 
@@ -128,34 +128,34 @@ describe('subscribe', () => {
     });
 
     it('is called with new value if trigger is called without parameter', () => {
-      target.onFooChanged = new Listeners(target, 'fooChanged');
+      target.onFooChanged = new ChangeListeners(target, 'foo');
       subscribe(target, ['foo'], sub);
       sub.resetHistory();
 
       target.foo = 'baz';
-      target.onFooChanged.trigger();
+      Listeners.getListenerStore(target).trigger('fooChanged');
 
       expect(sub).to.have.been.calledOnce;
       expect(sub).to.have.been.calledWith('baz');
     });
 
     it('is not called if trigger is called without value change', () => {
-      target.onFooChanged = new Listeners(target, 'fooChanged');
+      target.onFooChanged = new ChangeListeners(target, 'foo');
       subscribe(target, ['foo'], sub);
       sub.resetHistory();
 
-      target.onFooChanged.trigger();
+      target.onFooChanged.trigger({value: target.foo});
 
       expect(sub).not.to.have.been.called;
     });
 
     it('throws if Listeners is not set up with correct target', () => {
-      target.onFooChanged = new Listeners({foo: 'bar'}, 'fooChanged');
+      target.onFooChanged = new ChangeListeners({foo: 'bar'}, 'foo');
       expect(() => subscribe(target, ['foo'], sub)).to.throw();
     });
 
     it('throws if Listeners is not set up with correct type', () => {
-      target.onFooChanged = new Listeners(target, 'barChanged');
+      target.onFooChanged = new ChangeListeners(target, 'toString' as any) as any;
       expect(() => subscribe(target, ['foo'], sub)).to.throw();
     });
 

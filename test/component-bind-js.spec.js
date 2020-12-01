@@ -188,7 +188,7 @@ describe('component', () => {
     it('throws if binding to wrong value type', () => {
       const target = new Composite({id: 'textInput1'});
       Object.defineProperty(target, 'text', {
-        set: () => undefined,
+        set: () => {},
         get: () => 23
       });
       expect(() => widget.append(target)).to.throw(

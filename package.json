@@ -12,8 +12,8 @@
     "clean": "rm -rf ./dist/*",
     "build": "webpack --mode=production && npm run dts",
     "dts": "dts-generator --name tabris-decorators --project ./tsconfig-dts.json --out ./dist/index.d.ts --main tabris-decorators/index",
-    "test": "npm run lint && npm run mocha",
-    "mocha": "ts-mocha -p ./tsconfig-test.json ./test/*.spec.ts ./test/*.spec.tsx ./test/*.spec.js ./test/*.spec.jsx",
+    "test": "npm run lint && tsc -p ./tsconfig-test.json --noEmit && npm run mocha",
+    "mocha": "ts-mocha --log-error -p ./tsconfig-test.json ./test/*.spec.ts ./test/*.spec.tsx ./test/*.spec.js ./test/*.spec.jsx",
     "test:file": "ts-mocha -p ./tsconfig-test.json",
     "lint": "eslint --color --f visualstudio --ext .js,.jsx,.ts,.tsx src test examples",
     "safePublish": "npm test && npm run build && npm publish",
@@ -22,7 +22,7 @@
     "start:windows": ".\\launch.cmd"
   },
   "peerDependencies": {
-    "tabris": "^3.6.0"
+    "tabris": "^3.7.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.0",
@@ -30,14 +30,14 @@
     "@types/mocha": "^5.2.7",
     "@types/sinon": "^7.0.13",
     "@types/sinon-chai": "^3.2.3",
-    "@typescript-eslint/eslint-plugin": "^2.18.0",
-    "@typescript-eslint/parser": "^2.18.0",
+    "@typescript-eslint/eslint-plugin": "^4.8.2",
+    "@typescript-eslint/parser": "^4.8.2",
     "ajv-cli": "^2.1.0",
     "chai": "^3.5.0",
     "dts-generator": "^2.1.0",
     "equals": "^1.0.5",
-    "eslint": "^6.8.0",
-    "eslint-plugin-jsdoc": "^21.0.0",
+    "eslint": "^7.14.0",
+    "eslint-plugin-jsdoc": "^30.7.8",
     "eslint-plugin-react": "^7.18.3",
     "install": "^0.12.2",
     "mocha": "^6.2.0",
@@ -48,7 +48,7 @@
     "tabris": "^3.6.1",
     "ts-loader": "^6.0.4",
     "ts-mocha": "^6.0.0",
-    "typescript": "^3.8.3",
+    "typescript": "^4.1.2",
     "webpack": "^4.0.0",
     "webpack-cli": "^3.2.3",
     "webpack-merge": "^4.2.1"

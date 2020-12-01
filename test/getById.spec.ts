@@ -49,12 +49,12 @@ describe('getById', () => {
 
   it('caches after append', () => {
     widget.append(composite1, button1, button2);
-    const button1_2 = new Button({id: 'button1'});
+    const button1new = new Button({id: 'button1'});
     button1.dispose();
-    widget.append(button1_2);
+    widget.append(button1new);
 
     expect(widget.button1).to.equal(button1);
-    expect(widget.button1).not.to.equal(button1_2);
+    expect(widget.button1).not.to.equal(button1new);
   });
 
   it('fails to decorate non-Widget type', () => {
