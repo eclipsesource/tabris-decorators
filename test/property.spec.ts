@@ -80,6 +80,7 @@ describe('property', () => {
     const listener = stub();
     class MyModel {
       @property myBool: boolean = false;
+      @property otherProp: boolean = false;
       @event onOtherPropChanged: ChangeListeners<MyModel, 'myBool'>;
     }
     const myModel = new MyModel();

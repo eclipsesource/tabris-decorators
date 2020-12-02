@@ -1,8 +1,8 @@
 import {expect} from 'chai';
-import {Listeners, NativeObject, tabris} from 'tabris';
+import {ChangeListeners, Listeners, NativeObject, Observable, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {restoreSandbox, stub} from './test';
-import {event} from '../src';
+import {event, property} from '../src';
 
 describe('event', () => {
 
@@ -35,6 +35,20 @@ describe('event', () => {
     object.onMyEvent(listener);
     object.onMyEvent.trigger({});
 
+    expect(listener).to.have.been.calledOnce;
+  });
+
+  it('injects working ChangeListeners', () => {
+    class PlainClass {
+      @event readonly onFooChanged: ChangeListeners<PlainClass, 'foo'>;
+      @property foo: string;
+    }
+
+    const object = new PlainClass();
+    object.onFooChanged(listener);
+    object.foo = 'bar';
+
+    expect(object.onFooChanged.values).to.be.instanceOf(Observable);
     expect(listener).to.have.been.calledOnce;
   });
 
@@ -122,6 +136,19 @@ describe('event', () => {
         @event readonly myEvent: Listeners<{target: PlainClass}>;
       }
     }).to.throw(/myEvent/);
+    expect(() => {
+      class PlainClass {
+        @event readonly onFoo: ChangeListeners<PlainClass, 'foo'>;
+        @property foo: string;
+      }
+    }).to.throw(/onFoo/);
+    expect(() => {
+      class PlainClass {
+        @event readonly onBarChanged: ChangeListeners<PlainClass, 'foo'>;
+        @property foo: string;
+      }
+      new PlainClass().onBarChanged(() => {});
+    }).to.throw(/has no property "bar"/);
   });
 
 });

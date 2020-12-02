@@ -52,6 +52,8 @@ class CustomComponent extends Composite {
 class MyModel {
   /** @type {boolean} */
   @property myBool = false;
+  /** @type {boolean} */
+  @property otherProp = false;
   /** @type {tabris.ChangeListeners<MyModel, 'myBool'>} */
   @event onOtherPropChanged;
 }
