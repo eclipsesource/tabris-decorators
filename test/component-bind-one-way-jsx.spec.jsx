@@ -270,7 +270,6 @@ describe('component', () => {
 
       widget.myItem = Object.assign(new ItemB(), {text: 'bar', int: 23});
       widget.myItem.text = 'baz';
-      widget.myItem.onOtherItemChanged.trigger();
 
       expect(textInput.text).to.equal('baz');
     });
