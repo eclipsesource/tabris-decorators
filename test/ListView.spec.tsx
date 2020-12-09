@@ -40,7 +40,12 @@ describe('ListView', () => {
 
   it('supports factory API', () => {
     const arr = [1];
-    expect(ListView({items: arr}).items).to.deep.equal(arr);
+
+    const inferred = ListView<number>({items: arr});
+    const num: number = inferred.items[0];
+
+    expect(inferred.items).to.deep.equal(arr);
+    expect(num).to.equal(1);
   });
 
   describe('items', () => {

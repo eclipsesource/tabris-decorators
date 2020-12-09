@@ -1,4 +1,4 @@
-import {asFactory, ChangeListeners, Composite, Factory, JSXAttributes, JSXChildren, Properties, TextView, Widget} from 'tabris';
+import {asFactory, Attributes, ChangeListeners, Composite, JSXCompositeAttributes, Properties, TextView, Widget} from 'tabris';
 import {component} from '../decorators/component';
 import {event} from '../decorators/event';
 import {property} from '../decorators/property';
@@ -43,8 +43,7 @@ namespace internal {
       return original[factory];
     }
 
-    jsxAttributes: JSXAttributes<this>
-      & {children?: JSXChildren<Widget>}
+    jsxAttributes: JSXCompositeAttributes<this, Widget>
       & CellCreationArgs<ItemType>;
 
     @event onItemChanged: ChangeListeners<this, 'item'>;
@@ -92,7 +91,14 @@ namespace internal {
 }
 
 export type CellConstructor = typeof internal.Cell;
-export interface CellFactory extends Factory<CellConstructor>, CellConstructor {}
+
+export interface CellFactory extends CellConstructor {
+  <ItemType>(
+    attributes?: Attributes<internal.Cell<ItemType>>,
+    selector?: (...args: any[]) => Cell
+  ): Cell<ItemType>;
+}
+
 export type Cell<ItemType = unknown> = internal.Cell<ItemType>;
 export const Cell = asFactory(internal.Cell) as CellFactory;
 

@@ -1,6 +1,6 @@
 import 'mocha';
 import {match} from 'sinon';
-import {Composite, ImageView, Set, Stack, tabris, TextView, Widget, WidgetCollection} from 'tabris';
+import {Composite, ImageView, Setter, Stack, tabris, TextView, Widget, WidgetCollection} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy} from './test';
 import {injector, property} from '../src';
@@ -55,16 +55,49 @@ describe('Cell', () => {
     expect((cell as any)._find(TextView).only().text).to.equal('bar');
   });
 
-  it('supports apply', () => {
+  it('supports apply function', () => {
     const cell =
       Cell({children: [TextView()]})
         .apply({mode: 'strict', trigger: 'onItemChanged'}, ({item}) => ({
-          TextView: Set(TextView, {
+          TextView: Setter(TextView, {
             text: item instanceof MyItem ? item.foo : ''
           })
         }));
 
     cell.item = new MyItem();
+
+    expect((cell as any)._find(TextView).only().text).to.equal('bar');
+  });
+
+  it('supports apply attribute with item type from generic parameter', () => {
+    const cell =
+      Cell<MyItem>({
+        children: [TextView()],
+        apply: ({item}) =>
+          Setter(TextView, {
+            text: item instanceof MyItem ? item.foo : ''
+          })
+      });
+
+    cell.item = new MyItem();
+    tabris.flush();
+
+    expect((cell as any)._find(TextView).only().text).to.equal('bar');
+  });
+
+  it('supports apply attribute with item type from itemType property', () => {
+    const cell =
+      Cell({
+        itemType: MyItem,
+        children: [TextView()],
+        apply: ({item}) =>
+          Setter(TextView, {
+            text: item instanceof MyItem ? item.foo : ''
+          })
+      });
+
+    cell.item = new MyItem();
+    tabris.flush();
 
     expect((cell as any)._find(TextView).only().text).to.equal('bar');
   });
