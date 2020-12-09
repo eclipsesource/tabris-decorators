@@ -1,4 +1,4 @@
-import {asFactory, Attributes, ChangeListeners, CollectionView, EventObject, Factory, JSXAttributes, Listeners, Properties, Widget} from 'tabris';
+import {asFactory, Attributes, ChangeListeners, CollectionView, EventObject, JSXCompositeAttributes, Listeners, Properties, Widget} from 'tabris';
 import {Cell, ItemCheck, ItemTypeDef, TextCell} from './Cell';
 import {ListLike, Mutation} from './List';
 import {component} from '../decorators/component';
@@ -68,7 +68,7 @@ namespace internal {
       ));
     }
 
-    jsxAttributes: JSXAttributes<this> & Attributes<CollectionView<Cell<ItemType>>> & {children?: Cell[]};
+    jsxAttributes: JSXCompositeAttributes<this, Cell<ItemType>> & Attributes<CollectionView<Cell<ItemType>>>;
     @event onItemsChanged: ChangeListeners<this, 'items'>;
     @event onSelect: Listeners<ListViewSelectEvent<ItemType, this>>;
 
@@ -139,7 +139,14 @@ namespace internal {
 }
 
 export type ListViewConstructor = typeof internal.ListView;
-export interface ListViewFactory extends Factory<ListViewConstructor>, ListViewConstructor {}
+
+export interface ListViewFactory extends ListViewConstructor {
+  <ItemType>(
+    attributes?: Attributes<internal.ListView<ItemType>>,
+    selector?: (...args: any[]) => ListView<any>
+  ): ListView<ItemType>;
+}
+
 export const ListView = asFactory(internal.ListView) as ListViewFactory;
 export type ListView<ItemType> = internal.ListView<ItemType>;
 
