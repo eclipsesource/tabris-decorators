@@ -20,5 +20,5 @@ examples
 .gitpod.yml
 .eslintignore
 Jenkinsfile
-launch.cml
+launch.cmd
 launch.sh
