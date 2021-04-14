@@ -155,7 +155,7 @@ describe('component', () => {
         widget.append(<CustomComponent bind-someField='myText'/>);
       }).to.throw(
         'Binding "someField" -> "myText" failed: '
-        + 'Target does not have a property "someField"'
+        + 'CustomComponent does not have a property "someField"'
       );
     });
 
@@ -196,10 +196,7 @@ describe('component', () => {
 
       expect(() => {
         widget.myText = 'rejectMe';
-      }).to.throw(
-        'Binding "checkedSomeProperty" -> "myText" failed: Failed to set property "checkedSomeProperty": '
-        + 'Type guard check failed'
-      );
+      }).to.throw(TypeError, 'Type guard check failed');
     });
 
     it('fails to decorate with invalid binding path', () => {
@@ -373,7 +370,7 @@ describe('component', () => {
           widget.dispose();
           widget = new CustomComponent();
           widget.append(<TextView template-text={path}/>);
-        }).to.throw(`Template binding "text" -> "${path}" failed: ${badPaths[path]}`);
+        }).to.throw(Error, badPaths[path]);
       }
     });
 

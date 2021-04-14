@@ -133,7 +133,7 @@ describe('property', () => {
     it('throws if guard fails', () => {
       const component = new CustomComponent();
       expect(() => component.specificStrings = 'd').to.throw(
-        'Failed to set property "specificStrings": Type guard check failed'
+        'Failed to set property "specificStrings" of class CustomComponent: Type guard check failed'
       );
       expect(component.specificStrings).to.equal('a');
     });
@@ -149,7 +149,7 @@ describe('property', () => {
     it('throws if type type guard throws', () => {
       const component = new CustomComponent();
       expect(() => component.trueType = false).to.throw(
-        'Failed to set property "trueType": only true allowed'
+        'Failed to set property "trueType" of class CustomComponent: only true allowed'
       );
       expect(component.trueType).to.equal(true);
     });
@@ -167,7 +167,7 @@ describe('property', () => {
 
     it('throws if type check fails ', () => {
       expect(() => example.checked = {}).to.throw(
-        'Failed to set property "checked": Expected value to be of type Date, but found Object'
+        'Failed to set property "checked" of class Example: Expected value to be of type Date, but found Object'
       );
     });
 
@@ -178,10 +178,10 @@ describe('property', () => {
       date2001.setFullYear(2001);
 
       expect(() => example.withTypeGuard = {}).to.throw(
-        'Failed to set property "withTypeGuard": Expected value to be of type Date, but found Object'
+        'Failed to set property "withTypeGuard" of class Example: Expected value to be of type Date, but found Object'
       );
       expect(() => example.withTypeGuard = date1999).to.throw(
-        'Failed to set property "withTypeGuard": Type guard check failed'
+        'Failed to set property "withTypeGuard" of class Example: Type guard check failed'
       );
 
       example.withTypeGuard = date2001;
@@ -273,8 +273,8 @@ describe('property', () => {
       example.noType = true;
       example.noType = false;
 
-      expect(console.warn).to.have.been.calledOnceWith(
-        'Property "noType" of class "ConvertExample" requires an explicit type to function correctly'
+      expect(console.warn).to.have.been.calledWithMatch(
+        /"noType" .* target type could not be inferred/
       );
     });
 

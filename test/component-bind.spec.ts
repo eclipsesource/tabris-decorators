@@ -144,14 +144,15 @@ describe('component', () => {
 
     it('throws if a binding target can not be resolved after first append', () => {
       expect(() => widget.append(new TextInput({id: 'textInput2'}))).to.throw(
-        'Binding "myText" <-> "#textInput1.text" failed to initialize: No widget matching "#textInput1" was appended.'
+        Error,
+        /No widget matching "#textInput1" was appended/
       );
     });
 
     it('throws if binding to missing property', () => {
       expect(() => widget.append(new Composite({id: 'textInput1'}))).to.throw(
-        'Binding "myText" <-> "#textInput1.text" failed to initialize: '
-        + 'Target does not have a property "text".'
+        Error,
+        /Composite does not have a property "text"/
       );
     });
 
@@ -162,7 +163,8 @@ describe('component', () => {
         get: () => 23
       });
       expect(() => widget.append(target)).to.throw(
-        'Failed to set property "myText": Expected value "23" to be of type string, but found number.'
+        Error,
+        'Expected value "23" to be of type string, but found number.'
       );
     });
 
@@ -180,8 +182,8 @@ describe('component', () => {
       }
       const target = new TargetComponent({id: 'textInput1'});
       expect(() => widget.append(target)).to.throw(
-        'Binding "myText" <-> "#textInput1.text" failed to initialize: '
-        + 'Right hand property "text" requires an explicit type check.'
+        Error,
+        /Right hand property "text" requires an explicit type check/
       );
     });
 
@@ -200,8 +202,8 @@ describe('component', () => {
 
     it('throws if binding finds multiple targets', () => {
       expect(() => widget.append(new TextInput({id: 'textInput1'}), new TextInput({id: 'textInput1'}))).to.throw(
-        'Binding "myText" <-> "#textInput1.text" failed to initialize: '
-        + 'Multiple widgets matching "#textInput1" were appended.'
+        Error,
+        /Multiple widgets matching "#textInput1" were appended/
       );
     });
 
@@ -403,8 +405,7 @@ describe('component', () => {
       widget.append(child);
 
       expect(() => child.text = 23).to.throw(
-        'Binding "myText" <-> "#textInput1.text" failed to update left hand property: '
-        + 'Failed to set property "myText": '
+        'Failed to set property "myText" of class CustomComponent: '
         + 'Expected value "23" to be of type string, but found number.'
       );
     });
@@ -455,8 +456,7 @@ describe('component', () => {
       guarded.append(child);
 
       expect(() => child.bar = 12).to.throw(
-        'Binding "value" <-> "#foo.bar" failed to update left hand property: '
-        + 'Failed to set property "value": Type guard check failed'
+        'Failed to set property "value" of class BindWithOptions: Type guard check failed'
       );
     });
 
@@ -471,15 +471,14 @@ describe('component', () => {
       child.bar = 12;
 
       expect(() => guarded.append(child)).to.throw(
-        'Binding "value" <-> "#foo.bar" failed to initialize: Binding "value" <-> "#foo.bar" '
-        + 'failed to sync back value of right hand property: Failed to set property "value": '
-        + 'Type guard check failed'
+        TypeError,
+        'Type guard check failed'
       );
     });
 
     it('throws if own value is rejected by type guard', () => {
       expect(() => (new BindWithOptions()).value = 12).to.throw(
-        'Failed to set property "value": Type guard check failed'
+        'Failed to set property "value" of class BindWithOptions: Type guard check failed'
       );
     });
 

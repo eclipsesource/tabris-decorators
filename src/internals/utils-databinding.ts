@@ -45,21 +45,26 @@ export function getPropertyStore(instance: any): Map<string | symbol, any> {
   return instance[propertyStoreKey];
 }
 
-export function checkPropertyExists(targetWidget: any, targetProperty: string, targetName: string = 'Target') {
+export function checkPropertyExists(
+  targetWidget: any,
+  targetProperty: string,
+  errorPrefix: string = ''
+) {
   let current = targetWidget;
+  const targetName = targetWidget?.constructor?.name || 'Target';
   while (current) {
     const desc = Object.getOwnPropertyDescriptor(current, targetProperty);
     if (desc) {
       if (!desc.set) {
         throw new Error(
-          `${targetName} property "${targetProperty}" has no setter, missing @property?`
+          `${targetName} property "${targetProperty}" has no setter, missing @prop / @property?`
         );
       }
       return;
     }
     current = Object.getPrototypeOf(current);
   }
-  throw new Error(`${targetName} does not have a property "${targetProperty}".`);
+  throw new Error(`${errorPrefix}${targetName} does not have a property "${targetProperty}".`);
 }
 
 export function trigger(target: Partial<EventTarget>, type: string, eventData: any) {
@@ -123,17 +128,4 @@ export function checkIsComponent(widget: Widget) {
   if (!Reflect.getMetadata(componentKey, widget)) {
     throw new Error(`${widget.constructor.name} is not a @component`);
   }
-}
-
-export function getTarget(base: WidgetInterface, selector: string) {
-  if (selector === ':host') {
-    return base;
-  }
-  const results = (base as any)._find(selector) as WidgetCollection<Widget>;
-  if (results.length === 0) {
-    throw new Error(`No widget matching "${selector}" was appended.`);
-  } else if (results.length > 1) {
-    throw new Error(`Multiple widgets matching "${selector}" were appended.`);
-  }
-  return results.first() as WidgetInterface;
 }
