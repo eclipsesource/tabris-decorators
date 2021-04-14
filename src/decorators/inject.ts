@@ -57,7 +57,9 @@ function injectProperty<T extends object>(proto: T, property: string & keyof T, 
       try {
         Injector.get(instance);
       } catch {
-        throw new Error(`Can not inject "${property}" since class is not @injectable`);
+        throw new Error(
+          `Can not inject "${property}" since ${instance.constructor.name} is not injectable.`
+        );
       }
       return Injector.get(instance).resolve(type, injectParam || null);
     }

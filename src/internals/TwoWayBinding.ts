@@ -1,9 +1,10 @@
 import {CustomPropertyDescriptor} from './CustomPropertyDescriptor';
 import {getJsxInfo} from './ExtendedJSX';
 import {subscribe} from './subscribe';
-import {checkPropertyExists, getTarget, TargetPath, WidgetInterface, Direction} from './utils-databinding';
+import {checkPropertyExists, TargetPath, WidgetInterface, Direction} from './utils-databinding';
 import {injector} from '../api/Injector';
 import {BindSuperConfig} from '../decorators/bind';
+import {Widget, WidgetCollection} from 'tabris';
 
 type LocalPath = [string, string?];
 
@@ -14,24 +15,11 @@ export class TwoWayBinding {
       for (const sourceProperty in config.all) {
         const localPath: LocalPath = [config.componentProperty, sourceProperty];
         const targetPath = config.all[sourceProperty];
-        try {
-          new TwoWayBinding(component, localPath, targetPath);
-        } catch (ex) {
-          throw new Error(
-            `Binding ${bindingToString(localPath, targetPath)} failed to initialize: ` + ex.message
-          );
-        }
+        new TwoWayBinding(component, localPath, targetPath);
       }
     } else {
       const localPath: LocalPath = [config.componentProperty];
-      try {
-        new TwoWayBinding(component, localPath, config.targetPath);
-      } catch (ex) {
-        throw new Error(
-          `Binding ${bindingToString(localPath, config.targetPath)} failed to initialize: ` + ex.message
-        );
-      }
-
+      new TwoWayBinding(component, localPath, config.targetPath);
     }
   }
 
@@ -49,9 +37,9 @@ export class TwoWayBinding {
     private readonly targetPath: TargetPath
   ) {
     if (this.localPath.length > 2) {
-      throw new Error('Invalid number of path segments');
+      throw new Error(`Error in ${this}: Invalid number of path segments`);
     }
-    this.target = getTarget(this.component, this.targetPath[1]);
+    this.target = this.getTarget(this.component, this.targetPath[1]);
     this.direction = this.targetPath[0];
     this.targetProperty = this.targetPath[2];
     this.fallback = this.target[this.targetProperty];
@@ -94,8 +82,8 @@ export class TwoWayBinding {
   private subscribeToLocalValue() {
     return this.subscribe(this.component, this.localPath, rawValue => {
       const finalValue = rawValue !== undefined ? rawValue : this.fallback;
-      this.tryTo('update right hand property', () => this.setTargetProperty(finalValue));
-      this.tryTo('sync back value of right hand property', () => this.setSourceProperty(finalValue));
+      this.setTargetProperty(finalValue);
+      this.setSourceProperty(finalValue);
     });
   }
 
@@ -103,13 +91,9 @@ export class TwoWayBinding {
     return this.subscribe(this.target, [this.targetProperty], rawValue => {
       if (this.hasValidSource()) {
         const finalValue = rawValue !== undefined ? rawValue : this.fallback;
-        this.tryTo('update left hand property', () => this.setSourceProperty(finalValue));
-        if (this.direction !== '<<') {
-          this.tryTo('sync back value of left hand property', () => {
-            if (this.hasValidSource() && this.getSourceValue() !== finalValue) {
-              this.setTargetProperty(this.getSourceValue());
-            }
-          });
+        this.setSourceProperty(finalValue);
+        if (this.direction !== '<<' && this.hasValidSource() && this.getSourceValue() !== finalValue) {
+          this.setTargetProperty(this.getSourceValue());
         }
       }
     });
@@ -140,7 +124,7 @@ export class TwoWayBinding {
     } else if (this.localPath.length === 1) {
       return this.component[this.localPath[0]];
     }
-    throw new Error('No valid source');
+    throw new Error(`Error in binding ${this}: No valid source`);
   }
 
   private hasValidSource() {
@@ -152,25 +136,30 @@ export class TwoWayBinding {
   }
 
   private checkPropertySafety(target: WidgetInterface, property: string, dir: 'Left' | 'Right') {
-    checkPropertyExists(target, property);
+    checkPropertyExists(target, property, `Binding ${this} failed: `);
     if (CustomPropertyDescriptor.isUnchecked(target, property)) {
       if (isInStrictMode(target)) {
-        throw new Error(`${dir} hand property "${property}" requires an explicit type check.`);
+        throw new Error(
+          `Error in binding ${this}: ${dir} hand property "${property}" requires an explicit type check.`
+        );
       }
       console.warn(
-        `Unsafe two-way binding ${this}: ${dir} hand property "${property}" has no type check.`
+        `Unsafe binding ${this}: ${dir} hand property "${property}" has no type check.`
       );
     }
   }
 
-  private tryTo(taskDesc: string, cb: () => void) {
-    try {
-      cb();
-    } catch (ex) {
-      throw new Error(
-        `Binding ${this} failed to ${taskDesc}: ${ex.message}`
-      );
+  private getTarget(base: WidgetInterface, selector: string) {
+    if (selector === ':host') {
+      return base;
     }
+    const results = (base as any)._find(selector) as WidgetCollection<Widget>;
+    if (results.length === 0) {
+      throw new Error(`Error in binding ${this}: No widget matching "${selector}" was appended.`);
+    } else if (results.length > 1) {
+      throw new Error(`Error in binding ${this}: Multiple widgets matching "${selector}" were appended.`);
+    }
+    return results.first() as WidgetInterface;
   }
 
 }

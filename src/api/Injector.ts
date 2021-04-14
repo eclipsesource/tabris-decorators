@@ -169,25 +169,21 @@ export class Injector {
     if (!type) {
       throw new Error('No type to create was given');
     }
-    try {
-      const args = [arg1, arg2, arg3].concat(remaining);
-      const finalArgs: any[] = [];
-      const paramInfo = getParamInfo(type) || [];
-      const paramCount = Math.max(type.length, args.length, paramInfo.length);
-      for (let i = 0; i < paramCount; i++) {
-        if (args[i] === undefined && paramInfo[i]) {
-          finalArgs[i] = this.resolve(paramInfo[i].type, paramInfo[i].injectParam || null);
-        } else {
-          finalArgs[i] = args[i];
-        }
+    const args = [arg1, arg2, arg3].concat(remaining);
+    const finalArgs: any[] = [];
+    const paramInfo = getParamInfo(type) || [];
+    const paramCount = Math.max(type.length, args.length, paramInfo.length);
+    for (let i = 0; i < paramCount; i++) {
+      if (args[i] === undefined && paramInfo[i]) {
+        finalArgs[i] = this.resolve(paramInfo[i].type, paramInfo[i].injectParam || null);
+      } else {
+        finalArgs[i] = args[i];
       }
-      const result = new type(...finalArgs);
-      this.scheduleResolveProperties(result);
-      this.resolvePropertyInjections();
-      return this.tagResult(result);
-    } catch (ex) {
-      throw new Error(`Could not create instance of ${type.name}:\n${ex.message}`);
     }
+    const result = new type(...finalArgs);
+    this.scheduleResolveProperties(result);
+    this.resolvePropertyInjections();
+    return this.tagResult(result);
   };
 
   private scheduleResolveProperties(result: unknown) {
@@ -205,14 +201,10 @@ export class Injector {
         if (resolved instanceof Object) {
           const props = getCustomProperties<any>(resolved);
           for (const prop of Object.keys(props)) {
-            if (props[prop].inject) {
-              try {
-                if (!resolved[prop]) {
-                  throw new Error(`Property is ${resolved[prop]}`);
-                }
-              } catch (ex) {
-                throw new Error(`Property "${prop}" of ${resolved.constructor.name} was not resolved: ${ex.message}`);
-              }
+            if (props[prop].inject && !resolved[prop]) {
+              throw new Error(
+                `Property "${prop}" of ${resolved.constructor.name} was not resolved, value is ${resolved[prop]}`
+              );
             }
           }
         }

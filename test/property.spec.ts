@@ -103,10 +103,11 @@ describe('property', () => {
   it('throws if type check fails on checkable type', () => {
     const component = new CustomComponent({foo: 'foo', bar: 23}) as any;
     expect(() => component.foo = 24).to.throw(
-      'Failed to set property "foo": Expected value "24" to be of type string, but found number'
+      'Failed to set property "foo" of class CustomComponent: '
+      + 'Expected value "24" to be of type string, but found number'
     );
     expect(() => component.bar = 'foo2').to.throw(
-      'Failed to set property "bar": Expected value "foo2" to be of type number, but found string'
+      'Expected value "foo2" to be of type number, but found string'
     );
     expect(component.foo).to.equal('foo');
     expect(component.bar).to.equal(23);
@@ -125,7 +126,7 @@ describe('property', () => {
     it('throws if type standard check would succeed but type guard fails', () => {
       const component = new CustomComponent();
       expect(() => component.specificStrings = 'd').to.throw(
-        'Failed to set property "specificStrings": Type guard check failed'
+        'Type guard check failed'
       );
       expect(component.specificStrings).to.equal('a');
     });
@@ -142,7 +143,7 @@ describe('property', () => {
     it('throws if type standard check is not possible but type guard fails', () => {
       const component = new CustomComponent();
       expect(() => component.mixedType = -1).to.throw(
-        'Failed to set property "mixedType": Type guard check failed'
+        'Type guard check failed'
       );
       expect(component.specificStrings).to.equal('a');
     });
@@ -157,9 +158,7 @@ describe('property', () => {
 
     it('throws if type guard throws', () => {
       const component = new CustomComponent();
-      expect(() => component.trueType = false).to.throw(
-        'Failed to set property "trueType": only true allowed'
-      );
+      expect(() => component.trueType = false).to.throw('only true allowed');
       expect(component.trueType).to.equal(true);
     });
 
@@ -192,7 +191,7 @@ describe('property', () => {
     it('throws only if explicit type check fails ', () => {
       expect(() => (example as any).implicitTypeStricter = {}).not.to.throw();
       expect(() => (example.explicitTypeStricter as any) = {}).to.throw(
-        'Failed to set property "explicitTypeStricter": Expected value to be of type Date, but found Object'
+        'Expected value to be of type Date, but found Object'
       );
     });
 
@@ -203,10 +202,10 @@ describe('property', () => {
       date2001.setFullYear(2001);
 
       expect(() => example.withTypeGuard = {}).to.throw(
-        'Failed to set property "withTypeGuard": Expected value to be of type Date, but found Object'
+        'Expected value to be of type Date, but found Object'
       );
       expect(() => example.withTypeGuard = date1999).to.throw(
-        'Failed to set property "withTypeGuard": Type guard check failed'
+        'Type guard check failed'
       );
 
       example.withTypeGuard = date2001;
@@ -363,8 +362,8 @@ describe('property', () => {
       example.notype = true;
       example.notype = false;
 
-      expect(console.warn).to.have.been.calledOnceWith(
-        'Property "notype" of class "ConvertExample" requires an explicit type to function correctly'
+      expect(console.warn).to.have.been.calledWithMatch(
+        /The property "notype" of class ConvertExample .* target type could not be inferred/
       );
     });
 
@@ -533,8 +532,9 @@ describe('property', () => {
       const value = example.notFour;
 
       expect(value).to.be.undefined;
-      expect(console.warn).to.have.been.calledWithMatch(/Failed to initialize property "notFour"/);
-
+      expect(console.warn).to.have.been.calledWithMatch(
+        /property "notFour" of class DefaultValueExample failed to initialize with default value/
+      );
     });
 
   });

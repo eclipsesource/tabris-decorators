@@ -413,9 +413,7 @@ describe('component', () => {
     it('fails on append if target property is missing', () => {
       expect(() => {
         widget.append(new Composite({id: 'foo'}));
-      }).to.throw(Error,
-        'Binding "item.text" <-> "#foo.text" failed to initialize: Target does not have a property "text".'
-      );
+      }).to.throw(Error, /Composite does not have a property "text"/);
     });
 
     it('fails on append if target property has no setter', () => {
@@ -423,10 +421,7 @@ describe('component', () => {
       (target as any).text = 'foo';
       expect(() => {
         widget.append(target);
-      }).to.throw(Error,
-        'Binding "item.text" <-> "#foo.text" failed to initialize: '
-        + 'Target property "text" has no setter, missing @property?'
-      );
+      }).to.throw(Error, /Composite property "text" has no setter, missing @prop \/ @property?/);
     });
 
     it('fails on append if target property is marked unchecked', () => {
@@ -435,10 +430,7 @@ describe('component', () => {
       }
       expect(() => {
         widget.append(new TargetComponent({id: 'foo'} as any));
-      }).to.throw(Error,
-        'Binding "item.text" <-> "#foo.text" failed to initialize: '
-        + 'Right hand property "text" requires an explicit type check.'
-      );
+      }).to.throw(Error, /Right hand property "text" requires an explicit type check\./);
     });
 
     it('fails setting item when source property does not exist', () => {
@@ -449,8 +441,7 @@ describe('component', () => {
 
       expect(() => {
         new CustomComponentB().item = new ItemB();
-      }).to.throw(Error, 'Failed to set property "item": Object does not have a property "text".'
-      );
+      }).to.throw(Error, 'ItemB does not have a property "text".');
     });
 
     it('fails setting item when source property has no setter', () => {
@@ -461,7 +452,7 @@ describe('component', () => {
 
       expect(() => {
         new CustomComponentB().item = new ItemB();
-      }).to.throw(Error, 'Failed to set property "item": Object property "text" has no setter, missing @property?');
+      }).to.throw(Error, 'ItemB property "text" has no setter, missing @prop / @property?');
     });
 
     it('fails setting item when source property is marked unchecked', () => {
@@ -472,8 +463,7 @@ describe('component', () => {
 
       expect(() => {
         new CustomComponentB().item = new ItemB();
-      }).to.throw(Error, 'Failed to set property "item": Object property "text" requires an explicit type check.'
-      );
+      }).to.throw(Error, 'Object property "text" requires an explicit type check.');
     });
 
     it('works with @inject', () => {
@@ -520,7 +510,7 @@ describe('component', () => {
       const value = new PlainItem();
       (value as any).text = 23;
       expect(() => (new ComponentWithTypeGuard()).value = value).to.throw(
-        'Failed to set property "value": Type guard check failed'
+        'Type guard check failed'
       );
     });
 

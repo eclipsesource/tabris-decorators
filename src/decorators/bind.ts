@@ -146,7 +146,7 @@ function createBindAllTypeGuard(binding: BindSuperConfig<unknown>) {
       }
       const className = binding.componentProto.constructor.name;
       for (const sourceProperty of sourceProperties) {
-        checkPropertyExists(value, sourceProperty, 'Object');
+        checkPropertyExists(value, sourceProperty);
         if (CustomPropertyDescriptor.isUnchecked(value, sourceProperty) && binding.all[sourceProperty][0] !== '>>') {
           const strictMode = Injector.get(value, injector).jsxProcessor.unsafeBindings === 'error';
           if (strictMode) {
