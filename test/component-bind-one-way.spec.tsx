@@ -121,8 +121,7 @@ describe('component', () => {
       expect(() => {
         widget.append(<CustomComponent bind-someField='myText'/>);
       }).to.throw(
-        'Binding "someField" -> "myText" failed: '
-        + 'Target does not have a property "someField"'
+        'Binding "someField" -> "myText" failed: CustomComponent does not have a property "someField".'
       );
     });
 
@@ -159,8 +158,8 @@ describe('component', () => {
       expect(() => {
         widget.myText = 'rejectMe';
       }).to.throw(
-        'Binding "checkedSomeProperty" -> "myText" failed: Failed to set property "checkedSomeProperty": '
-        + 'Type guard check failed'
+        'Failed to set property "checkedSomeProperty" of class CustomComponent2: '
+        +  'Type guard check failed for value "rejectMe"'
       );
     });
 
@@ -168,8 +167,8 @@ describe('component', () => {
       expect(() => {
         widget.append(<CustomComponent2 bind-numberProperty='myText'/>);
       }).to.throw(
-        'Binding "numberProperty" -> "myText" failed: Failed to set property "numberProperty": '
-        + 'Expected value "foo" to be of type number, but found string.'
+        TypeError,
+        'Expected value "foo" to be of type number, but found string.'
       );
     });
 
@@ -179,8 +178,8 @@ describe('component', () => {
       expect(() => {
         widget2.someProperty = false;
       }).to.throw(
-        'Binding "myText" -> "someProperty" failed: Failed to set property "myText": '
-      + 'Expected value "false" to be of type string, but found boolean.'
+        TypeError,
+        'Expected value "false" to be of type string, but found boolean.'
       );
     });
 
@@ -326,8 +325,8 @@ describe('component', () => {
         expect(() => {
           widget.append(<CustomComponent2 bind-numberProperty={to('myText', v => !!v)}/>);
         }).to.throw(
-          'Binding "numberProperty" -> "myText" failed: Failed to set property "numberProperty": '
-          + 'Expected value "true" to be of type number, but found boolean.'
+          TypeError,
+          'Expected value "true" to be of type number, but found boolean.'
         );
       });
 
@@ -335,7 +334,8 @@ describe('component', () => {
         expect(() => {
           widget.append(<CustomComponent2 bind-numberProperty={to('myText', v => { throw new Error('fooerror'); })}/>);
         }).to.throw(
-          'Binding "numberProperty" -> "myText" failed: Converter exception: fooerror'
+          Error,
+          'Converter exception: fooerror'
         );
       });
 
@@ -362,7 +362,7 @@ describe('component', () => {
           widget.dispose();
           widget = new CustomComponent();
           widget.append(<TextView template-text={path}/>);
-        }).to.throw(`Template binding "text" -> "${path}" failed: ${badPaths[path]}`);
+        }).to.throw(Error, badPaths[path]);
       }
     });
 

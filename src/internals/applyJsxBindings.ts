@@ -12,22 +12,14 @@ export interface JsxBindings { [targetProperty: string]: string; }
 export function applyJsxBindings(targetInstance: Widget, bindings: JsxBindings, safety: Severity) {
   const oneWayBindings: OneWayBinding[] = [];
   for (const attribute in bindings) {
-    try {
-      oneWayBindings.push(
-        createOneWayBindingDesc(
+    oneWayBindings.push(
+      createOneWayBindingDesc(
           targetInstance as WidgetInterface,
           attribute,
           asBinding(bindings[attribute]),
           safety
-        )
-      );
-    } catch (ex) {
-      throwBindingFailedError({
-        type: getBindingType(attribute),
-        targetProperty: getTargetProperty(attribute),
-        bindingString: bindings[attribute]
-      }, ex);
-    }
+      )
+    );
   }
   targetInstance[oneWayBindingsKey] = oneWayBindings;
   targetInstance.once({resize: checkBindingsApplied});
@@ -60,13 +52,19 @@ function createOneWayBindingDesc(
   const pathString = extractPath(type, bindingString);
   checkPathSyntax(pathString);
   if (pathString.startsWith('.') || pathString.startsWith('#')) {
-    throw new Error('JSX binding path can currently not contain a selector.');
+    throw new Error(
+      errorPrefix(attribute, bindingString)
+      + 'JSX binding path can currently not contain a selector.'
+    );
   }
   const path = pathString.split('.');
-  checkPropertyExists(target, targetProperty);
+  checkPropertyExists(target, targetProperty, errorPrefix(attribute, bindingString));
   if (CustomPropertyDescriptor.isUnchecked(target, targetProperty)) {
     if (unsafe === 'error') {
-      throw new Error(`Can not bind to property "${targetProperty}" without explicit type check.`);
+      throw new Error(
+        errorPrefix(attribute, bindingString)
+        + `Can not bind to property "${targetProperty}" without explicit type check.`
+      );
     }
     console.warn(
       `Unsafe binding "${targetProperty}" -> "${bindingString}": `
@@ -112,11 +110,11 @@ function getTargetProperty(attribute: string): string {
   return attribute.split('-')[1];
 }
 
-function throwBindingFailedError({type, targetProperty, bindingString}: Partial<OneWayBinding>, ex: any): never {
+function errorPrefix(attribute: string, binding: string): string {
+  const type = getBindingType(attribute);
+  const targetProperty = getTargetProperty(attribute);
   const isTemplate = type === 'template';
-  throw new Error(
-    `${isTemplate ? 'Template binding' : 'Binding'} "${targetProperty}" -> "${bindingString}" failed: ${ex.message}`
-  );
+  return `${isTemplate ? 'Template binding' : 'Binding'} "${targetProperty}" -> "${binding}" failed: `;
 }
 
 const oneWayBindingsKey = Symbol();

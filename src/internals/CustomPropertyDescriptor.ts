@@ -1,6 +1,6 @@
 import {Constructor, getPropertyType} from './utils';
 import {getPropertyStore, trigger, TypeGuard, UserType} from './utils-databinding';
-import {checkType, isType} from '../api/checkType';
+import {checkType, getValueString, isType} from '../api/checkType';
 import {convert} from '../api/convert';
 import {CompareFn, CompareMode, equals} from '../api/equals';
 import {Converter, PropertySuperConfig, PropertyInitializer} from '../decorators/property';
@@ -105,14 +105,18 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     }
   }
 
+  toString() {
+    return `property "${this.propertyName}" of class ${this.proto.constructor.name || '[anonymous]'}`;
+  }
+
   private setValue(instance: Proto, value: any) {
     if (this.readonly) {
-      throw new TypeError('Property is read-only');
+      throw new TypeError(`Failed to set ${this}: Property is read-only`);
     }
     let newValue = this.convert(value, instance);
     if (newValue == null && !this.nullable) {
       if (this.defaultValue == null) {
-        throw new TypeError('Property is not nullable');
+        throw new TypeError(`Failed to set ${this}: Property is not nullable`);
       }
       newValue = this.convert(this.defaultValue, instance);
     }
@@ -138,7 +142,7 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
           }
           store.set(this.propertyName, initValue);
         } catch (ex) {
-          const message = `Failed to initialize property "${this.propertyName}" with default value: ${ex.message}`;
+          const message = `${this} failed to initialize with default value: ${ex.message}`;
           console.warn(message);
         }
       } else {
@@ -161,20 +165,20 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
       }
       if (this.typeGuard) {
         if (!this.typeGuard(value)) {
-          throw new Error('Type guard check failed');
+          throw new Error(`Type guard check failed for ${getValueString(value)}`);
         }
       }
       else if (!this.userType) {
         checkType(value, this.targetType);
       }
     } catch (ex) {
-      throw new TypeError(`Failed to set property "${this.propertyName}": ${ex.message}`);
+      throw new TypeError(`Failed to set ${this}: ${ex.message}`);
     }
   }
 
   private setUserType(type: Constructor<TargetType>) {
     if (this.userType) {
-      throw new Error('Can not re-define type of property');
+      throw new Error(`Failed to configure ${this}: Can not re-define type of property`);
     }
     this.userType = type;
   }
@@ -226,7 +230,7 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
 
   private setDefaultValue(value: TargetType | undefined | typeof autoDefault) {
     if (this.defaultValue !== undefined) {
-      throw new Error('property default value can not be re-defined');
+      throw new Error(`Failed to configure ${this}: default value can not be re-defined`);
     }
     if (value === autoDefault) {
       const type = this.getType();
@@ -262,9 +266,9 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
 
   private handleTypeMissing() {
     if (!this.youHaveBeenWarned) {
-      const className = this.proto.constructor.name || '[anonymous]';
       console.warn(
-        `Property "${this.propertyName}" of class "${className}" requires an explicit type to function correctly`
+        `The ${this} is configured to auto-convert incoming values, but the target type could not be inferred. `
+        + 'Set "convert" of the decorator configuration to another value or use @property without configuration'
       );
       this.youHaveBeenWarned = true;
     }

@@ -484,7 +484,7 @@ describe('inject', () => {
     it('throws if not injectable', () => {
       expect(() => injector.create(NotInjectable)).to.throw(
         Error,
-        'Can not inject "service" since class is not @injectable'
+        'Can not inject "service" since NotInjectable is not injectable.'
       );
     });
 
@@ -518,7 +518,7 @@ describe('inject', () => {
       };
 
       expect(() => injector.resolve(SafeResolve)).to.throw(
-        Error, 'Property "service" of SafeResolve was not resolved: Property is undefined'
+        Error, 'Property "service" of SafeResolve was not resolved, value is undefined'
       );
       expect(instanceCounter).to.equal(1);
     });
