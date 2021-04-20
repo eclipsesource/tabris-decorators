@@ -83,7 +83,9 @@ export class TwoWayBinding {
     return this.subscribe(this.component, this.localPath, rawValue => {
       const finalValue = rawValue !== undefined ? rawValue : this.fallback;
       this.setTargetProperty(finalValue);
-      this.setSourceProperty(finalValue);
+      if (this.direction !== '>>') {
+        this.setSourceProperty(finalValue);
+      }
     });
   }
 

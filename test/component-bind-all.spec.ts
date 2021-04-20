@@ -260,7 +260,7 @@ describe('component', () => {
 
       beforeEach(() => widget = new ToRight());
 
-      it('do not apply target property value to item', () => {
+      it('do not apply target property value to item property on change', () => {
         widget = new ToRight();
         widget.item = item;
         widget.append(textInput);
@@ -268,6 +268,17 @@ describe('component', () => {
         textInput.text = 'ignore';
 
         expect(widget.item.text).to.equal('Hello');
+      });
+
+      it('do not apply target property value to undefined item property on append', () => {
+        widget = new ToRight();
+        widget.item = item;
+        item.text = undefined;
+        textInput.text = 'ignore';
+
+        widget.append(textInput);
+
+        expect(item.text).to.be.undefined;
       });
 
       it('accepts item with source property marked unchecked', () => {
