@@ -41,16 +41,26 @@ export class ListLikeObserver<T> {
     }
     const source = this._source as T[];
     if (source.length === prevSource.length) {
-      return source.forEach((value, index) => {
-        if (value !== prevSource[index]) {
-          return this._callback({
+      let changedItems: number[] = [];
+      for (let i = 0; i < source.length; i++) {
+        if (source[i] !== prevSource[i]) {
+          changedItems.push(i);
+        }
+        if (changedItems.length > 5) {
+          changedItems = null;
+          break;
+        }
+      }
+      if (changedItems) {
+        return changedItems.forEach(index =>
+          this._callback({
             start: index,
             deleteCount: 1,
             items: [source[index]],
             target: source
-          });
-        }
-      });
+          })
+        );
+      }
     }
     if (source.length > prevSource.length) {
       const range = getDiff(source, prevSource);

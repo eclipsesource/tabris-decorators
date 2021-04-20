@@ -497,6 +497,14 @@ describe('ListView', () => {
         expect(listView.load).to.have.been.calledOnceWith(22);
       });
 
+      it('calls load with all new items', () => {
+        listView.items = copy.map(item => new MyItem());
+
+        expect(listView.refresh).not.to.have.been.called;
+        expect(listView.insert).not.to.have.been.called;
+        expect(listView.load).to.have.been.calledOnceWith(20);
+      });
+
     });
 
   });
