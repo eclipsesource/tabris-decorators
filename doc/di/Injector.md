@@ -4,7 +4,8 @@
 
 > :point_right: Make sure to first read the [introduction to dependency injection](./index.md) and the [`@inject`](./@inject.md) documentation.
 
-All injection handler created by `@injectable`, `@shared` and `@injectionHandler` are registered in a global `Injector` instance exported as `injector`.
+All injection handler created by `@injectable`, `@shared` and `@injectionHandler` are registered in a global `Injector` instance exported as `injector`. The injector can also be used without decorators as  [this non-TypeScript example](../../examples/inject-js) shows.
+
 
 ## create(type, ...parameters)
 
