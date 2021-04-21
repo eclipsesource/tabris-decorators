@@ -6,6 +6,8 @@
 
 Apply this to a class to register it for injection.
 
+> :point_right: See example apps ["injectable"](../../examples/injectable) (TypeScript) and ["inject-js"](../../examples/inject-js) (plain JavaScript).
+
 ## @injectable (no parameter)
 
 Makes the decorated class injectable as itself or for any of its super-classes (except `Object`). Each injection will create a new instance.
