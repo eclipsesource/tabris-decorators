@@ -15,32 +15,41 @@ describe('inject', () => {
   @injectable({shared: true}) class MySingletonClass {
     saySomething() { return 'baz1'; }
   }
+
   @shared class MyOtherSingletonClass {}
+
   class BaseClass {
     saySomething() { return 'baz1'; }
   }
+
   @injectable({implements: BaseClass, priority: 2})
   class CompatibleClass {
     saySomething() { return 'baz3'; }
   }
+
   @injectable({implements: BaseClass, priority: 1})
   class LowPriorityClass {
     saySomething() { return 'baz4'; }
   }
+
   @injectable({shared: true}) class MySingletonWidget extends Composite {
     saySomething() { return 'baz5'; }
   }
+
   abstract class ColorClass {
     abstract readonly color: string;
   }
+
   @injectable({param: 'blue'})
   class BlueClass extends ColorClass {
     readonly color: string = '#0000ff';
   }
+
   @injectable({param: 'green'})
   class GreenClass extends ColorClass {
     readonly color: string = '#00ff00';
   }
+
   class ConstructorWithInjection {
     service: MyServiceClass;
     number: number;
@@ -60,18 +69,21 @@ describe('inject', () => {
       this.service = service;
     }
   }
+
   class MyServiceClassInjectionHandlerTwo {
     @injectionHandler({targetType: MyServiceClass, priority: 2})
     static createMyServiceClass(injection: Injection) {
       return serviceHandler(injection);
     }
   }
+
   class MyServiceClassInjectionHandler {
     @injectionHandler(MyServiceClass)
     static createMyServiceClass() {
       throw new Error('will never be called');
     }
   }
+
   let serviceHandler: (injection: Injection) => MyServiceClass;
   let numberHandler: (injection: Injection) => number | number;
   let stringHandler: (injection: Injection) => string | string;
@@ -80,6 +92,7 @@ describe('inject', () => {
   injector.addHandler(Number, (injection: Injection) => numberHandler(injection));
   injector.addHandler(String, (injection: Injection) => stringHandler(injection));
   injector.addHandler(Boolean, (injection: Injection) => booleanHandler(injection));
+
   beforeEach(() => {
     tabris._init(new ClientMock());
     serviceHandler = spy(({param}) => new MyServiceClass(param));
@@ -88,6 +101,7 @@ describe('inject', () => {
     booleanHandler = (injection) => false;
     instance = create(ConstructorWithInjection);
   });
+
   afterEach(() => {
     restoreSandbox();
   });
@@ -454,6 +468,13 @@ describe('inject', () => {
     }
 
     @injectable
+    class ResolveToCompatible {
+
+      @inject service: BaseClass;
+
+    }
+
+    @injectable
     class SafeResolve {
 
       @inject service: MyServiceClass;
@@ -529,8 +550,12 @@ describe('inject', () => {
       expect(withProp.service).to.be.instanceOf(MyServiceClass);
     });
 
-    it('resolves in with parameter', () => {
+    it('resolves with parameter', () => {
       expect(injector.resolve(WithParam).service.param).to.equal('foo2');
+    });
+
+    it('resolves for compatible type', () => {
+      expect(injector.resolve(ResolveToCompatible).service.saySomething()).to.equal('baz3');
     });
 
     it('does not resolve twice on same instance', () => {

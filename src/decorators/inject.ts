@@ -53,6 +53,7 @@ function injectProperty<T extends object>(proto: T, property: string & keyof T, 
   }
   CustomPropertyDescriptor.get(proto, property).addConfig({
     readonly: true,
+    type: Object,
     initializer(instance) {
       try {
         Injector.get(instance);
