@@ -1,0 +1,13 @@
+{
+  "name": "injector-js",
+  "version": "3.7.2",
+  "dependencies": {
+    "tabris": "^3.7.2",
+    "tabris-decorators": "^3.7.2"
+  },
+  "main": "src/app.js",
+  "scripts": {
+    "start": "tabris serve -w -a",
+    "gitpod": "tabris serve -a -w --no-intro --port 8080 --external $(gp url 8080):443"
+  }
+}
