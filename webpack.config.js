@@ -7,9 +7,18 @@ module.exports = {
     libraryTarget: 'commonjs2',
     filename: "index.js",
   },
-  resolve: { extensions: [".ts", ".tsx", ".js"] },
+  resolve: {extensions: [".ts", ".tsx", ".js"]},
   module: {
-    rules: [{ test: /\.tsx?$/, loader: "ts-loader" }]
+    rules: [{
+      test: /\.tsx?$/,
+      use: [{
+        loader: 'ts-loader',
+        options: {
+          configFile: "tsconfig-build.json"
+        }
+      }],
+      exclude: /node_modules/,
+    }]
   },
   optimization: {
     minimize: false

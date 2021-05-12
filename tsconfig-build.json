@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "lib": ["es6"],
+    "outDir": "./dist/",
+    "rootDir": "./src/",
+    "declaration": false,
+    "strictNullChecks": false,
+    "alwaysStrict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noUnusedLocals": true
+  },
+  "include": [
+    "./src/**/*.ts"
+  ]
+}
