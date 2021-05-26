@@ -12,6 +12,12 @@
       "label": "Test (file)",
       "command": "npm",
       "args": ["run", "test:file", "${file}"],
+      "type": "shell"
+    },
+    {
+      "label": "Test (file, bail)",
+      "command": "npm",
+      "args": ["run", "test:bail", "${file}"],
       "type": "shell",
       "group": {
         "isDefault": true,
