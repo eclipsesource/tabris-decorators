@@ -48,6 +48,7 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     return !!Reflect.getMetadata(this.metaDataKey, target, propertyName);
   }
 
+  hasDataSource = false;
   readonly enumerable = true;
   readonly configurable = true;
   readonly get: () => TargetType;
@@ -229,7 +230,10 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
   }
 
   private setDefaultValue(value: TargetType | undefined | typeof autoDefault) {
-    if (this.defaultValue !== undefined) {
+    if (value === undefined) {
+      return;
+    }
+    if ((value !== this.defaultValue) && (this.defaultValue !== undefined)) {
       throw new Error(`Failed to configure ${this}: default value can not be re-defined`);
     }
     if (value === autoDefault) {
