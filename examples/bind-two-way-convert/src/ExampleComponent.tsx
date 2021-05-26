@@ -8,6 +8,7 @@ const toUpperCase: BindingConverter = (value: string, {targets, resolve}) =>
 export class ExampleComponent extends Composite {
 
   @bind('TextInput.text', toUpperCase)
+  @bind('>> TextView.text')
   myText: string = 'Hello World!';
 
   @event
@@ -18,7 +19,7 @@ export class ExampleComponent extends Composite {
     this.set(properties);
     this.append(
       <Stack spacing={12} padding={12}>
-        <TextView>Property "myText" to upper case:</TextView>
+        <TextView/>
         <TextInput font={{size: 18}} width={200}/>
       </Stack>
     );

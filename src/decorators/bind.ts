@@ -4,10 +4,10 @@ import {Injector, injector} from '../api/Injector';
 import {CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
 import {TwoWayBinding} from '../internals/TwoWayBinding';
 import {applyDecorator, getPropertyType, isPrimitiveType} from '../internals/utils';
-import {checkIsComponent, checkPropertyExists, parseTargetPath, postAppendHandlers, TargetPath, WidgetInterface, BindingConverter, AllBindings} from '../internals/utils-databinding';
+import {checkIsComponent, checkPropertyExists, parseTargetPath, postAppendHandlers, TargetPath, WidgetInterface, BindingConverter, MultipleBindings} from '../internals/utils-databinding';
 
 export type BindAllConfig<T> = PropertySuperConfig<T> & {
-  all: AllBindings<T>
+  all: MultipleBindings<T>
 };
 
 export type BindSingleConfig<T> = Omit<PropertySuperConfig<T>, 'convert'> & {
@@ -19,11 +19,11 @@ export type BindSuperConfig<T> = Omit<PropertySuperConfig<T>, 'convert'> & {
   componentProto: WidgetInterface,
   componentProperty: string,
   targetPath: TargetPath | null,
-  all: AllBindingsInternal | null,
+  all: MultipleBindingsInternal | null,
   convert: {property?: Converter<T>, binding?: BindingConverter<any>}
 };
 
-export type AllBindingsInternal = {
+export type MultipleBindingsInternal = {
   [sourceProperty: string]: {path: TargetPath, converter: BindingConverter<any> | null}
 };
 
@@ -136,6 +136,12 @@ function configureComponentProperty(binding: BindSuperConfig<any>) {
   const {componentProto, componentProperty, convert, ...config} = binding;
   config.typeGuard = binding.all ? createBindAllTypeGuard(binding) : binding.typeGuard;
   const desc = CustomPropertyDescriptor.get(componentProto, componentProperty);
+  if (binding.targetPath && binding.targetPath[0] !== '>>') {
+    if (desc.hasDataSource) {
+      throw new Error('Property can only receive values from one source');
+    }
+    desc.hasDataSource = true;
+  }
   desc.addConfig(config);
   if (convert?.property) {
     desc.addConfig({convert: convert.property});
@@ -163,11 +169,11 @@ function preCheckComponentProperty(binding: BindSuperConfig<any>) {
   }
 }
 
-function parseAll(all: AllBindings<any>): AllBindingsInternal | null {
+function parseAll(all: MultipleBindings<any>): MultipleBindingsInternal | null {
   if (!all) {
     return null;
   }
-  const bindings: AllBindingsInternal = {};
+  const bindings: MultipleBindingsInternal = {};
   for (const key in all) {
     const binding = all[key];
     bindings[key] = {

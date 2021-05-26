@@ -6,7 +6,10 @@
 
 This decorator creates two-way or one-way bindings within a custom component. Changes to the decorated *component property* value are reflected on the *target property* of a *target element* (child) and the other way around.
 
-`@bind` can be applied only to properties of a class decorated with [`@component`](./@component.md). It behaves like [`@property`](./@property.md) in most regards and also supports its [`typeGuard`](./@property.md#configtypeguard) and [`type`](./@property.md#configtype) options. Only one of the two decorators can be applied to the same property.
+`@bind` can be applied only to properties of a class decorated with [`@component`](./@component.md). It behaves like [`@property`](./@property.md) in most regards and also supports its [`typeGuard`](./@property.md#configtypeguard) and [`type`](./@property.md#configtype) options.
+
+`@bind` can be combined with other property decorators, including other `@bind` decorators to create multiple bindings, as can be seen in [this example](../../examples/bind-two-way-convert). Note however that the same property can not receive data from multiple sources. This means that there can only be one `@bind` that establishes a two-way binding or to-component binding (using `<<` prefix). Any additional bindings must be one-way bindings (with the `>>` prefix).
+
 
 ## @bind(path)
 

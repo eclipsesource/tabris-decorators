@@ -1,7 +1,7 @@
 import 'mocha';
 import 'sinon';
 import {useFakeTimers, SinonSpy} from 'sinon';
-import {Color, ColorValue, Composite, tabris, TextInput} from 'tabris';
+import {Color, ColorValue, Composite, tabris, TextInput, TextView} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy, stub} from './test';
 import {bind, component, property, BindingConverter} from '../src';
@@ -587,7 +587,7 @@ describe('component', () => {
 
   });
 
-  describe('@bind({path, ...)', () => {
+  describe('@bind({path, ...})', () => {
 
     @component class BindWithOptions extends Composite {
 
@@ -687,6 +687,92 @@ describe('component', () => {
       const withConverter = new BindWithOptions();
       withConverter.color2 = '#001122';
       expect(withConverter.color2).to.be.instanceOf(Color);
+    });
+
+  });
+
+  describe('multiple @bind', () => {
+
+    @component class MultiBind extends Composite {
+
+      @bind('TextInput.text')
+      @bind('>> TextView.text')
+      value: string;
+
+      @bind({
+        type: Color,
+        path: '>> TextInput.background'
+      })
+      @bind({
+        path: '<< TextView.background',
+        convert: 'auto',
+        nullable: false,
+        default: Color.white
+      })
+      color: ColorValue;
+
+    }
+
+    const createChildren = () => [
+      new TextInput({text: 'foo'}),
+      new TextView({background: 'red'})
+    ];
+
+    it('support options convert, nullable and default via different @bind decorators', () => {
+      const notNullable = new MultiBind();
+      notNullable.color = 'red';
+
+      notNullable.color = null;
+
+      expect(Color.from(notNullable.color).equals(Color.white)).to.be.true;
+    });
+
+    it('makes same property sender and receiver for different bindings', () => {
+      const multi = new MultiBind();
+      const children = createChildren();
+
+      multi.append(children);
+      const colors = [multi.color, children[0].background, children[1].background];
+      multi.color = Color.green;
+
+      expect(colors).to.deep.equal([Color.red, Color.red, Color.red]);
+      expect(multi.color).to.deep.equal(Color.green);
+      expect(children[0].background).to.deep.equal(Color.green);
+      expect(children[1].background).to.deep.equal(Color.red);
+    });
+
+    it('applies two-way and one-way binding to same property', () => {
+      const multi = new MultiBind();
+      const children = createChildren();
+
+      multi.append(children);
+      const values = [multi.value, children[0].text, children[1].text];
+      multi.value = 'bar';
+
+      expect(values).to.deep.equal(['foo', 'foo', 'foo']);
+      expect(multi.value).to.equal('bar');
+      expect(children[0].text).to.equal('bar');
+      expect(children[1].text).to.equal('bar');
+    });
+
+    it('fails to apply two two-way bindings to same property', () => {
+      expect(() => {
+        @component class Fail extends Composite {
+          @bind('TextInput.text')
+          @bind('TextView.text')
+          value: string;
+        }
+      }).to.throw(Error, 'Property can only receive values from one source');
+    });
+
+    it('fails to apply two receiving bindings to same property', () => {
+      expect(() => {
+        @component class Fail extends Composite {
+          @bind('TextInput.text')
+          @bind('<< TextView.text')
+          value: string;
+        }
+      }).to.throw(Error, 'Property can only receive values from one source');
     });
 
   });
