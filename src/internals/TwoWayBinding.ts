@@ -1,12 +1,15 @@
 import {CustomPropertyDescriptor} from './CustomPropertyDescriptor';
 import {getJsxInfo} from './ExtendedJSX';
 import {subscribe} from './subscribe';
-import {checkPropertyExists, TargetPath, WidgetInterface, Direction} from './utils-databinding';
+import {checkPropertyExists, TargetPath, WidgetInterface, Direction, BindingConverter} from './utils-databinding';
 import {injector} from '../api/Injector';
 import {BindSuperConfig} from '../decorators/bind';
 import {Widget, WidgetCollection} from 'tabris';
+import {Conversion} from './Conversion';
 
 type LocalPath = [string, string?];
+
+const noop = () => undefined;
 
 export class TwoWayBinding {
 
@@ -15,14 +18,15 @@ export class TwoWayBinding {
       for (const sourceProperty in config.all) {
         const localPath: LocalPath = [config.componentProperty, sourceProperty];
         const targetPath = config.all[sourceProperty];
-        new TwoWayBinding(component, localPath, targetPath);
+        new TwoWayBinding(component, localPath, targetPath.path, targetPath.converter);
       }
     } else {
       const localPath: LocalPath = [config.componentProperty];
-      new TwoWayBinding(component, localPath, config.targetPath);
+      new TwoWayBinding(component, localPath, config.targetPath, config.convert?.binding);
     }
   }
 
+  private initialized: boolean = false;
   private target: WidgetInterface;
   private targetProperty: string;
   private direction: Direction;
@@ -34,7 +38,8 @@ export class TwoWayBinding {
   constructor(
     private readonly component: WidgetInterface,
     private readonly localPath: LocalPath,
-    private readonly targetPath: TargetPath
+    private readonly targetPath: TargetPath,
+    private readonly convert: BindingConverter<any> | null
   ) {
     if (this.localPath.length > 2) {
       throw new Error(`Error in ${this}: Invalid number of path segments`);
@@ -42,7 +47,7 @@ export class TwoWayBinding {
     this.target = this.getTarget(this.component, this.targetPath[1]);
     this.direction = this.targetPath[0];
     this.targetProperty = this.targetPath[2];
-    this.fallback = this.target[this.targetProperty];
+    this.fallback = this.getTargetValue();
     if (!this.direction || this.direction === '>>') {
       this.checkPropertySafety(this.target, this.targetProperty, 'Right');
     }
@@ -57,47 +62,98 @@ export class TwoWayBinding {
   }
 
   private init() {
-    if (!this.direction || this.direction === '>>') {
-      this.cancelLocal = this.subscribeToLocalValue();
-    } else if (this.direction === '<<' && this.localPath.length === 2) {
-      this.cancelLocal = this.subscribe(this.component, [this.localPath[0]], () => {
-        this.setSourceProperty(this.target[this.targetProperty]);
-      });
-    }
-    if (!this.direction || this.direction === '<<') {
-      this.cancelTarget = this.subscribeToTargetValue();
-    }
+    this.cancelLocal = this.subscribeToLocalValue();
+    this.cancelTarget = this.subscribeToTargetValue();
     this.component.on({dispose: () => this.dispose()});
+    this.initialized = true;
   }
 
   private dispose() {
-    if (this.cancelLocal) {
-      this.cancelLocal();
-    }
-    if (this.cancelTarget) {
-      this.cancelTarget();
-    }
+    this.cancelLocal();
+    this.cancelTarget();
   }
 
   private subscribeToLocalValue() {
-    return this.subscribe(this.component, this.localPath, rawValue => {
-      const finalValue = rawValue !== undefined ? rawValue : this.fallback;
-      this.setTargetProperty(finalValue);
-      if (this.direction !== '>>') {
-        this.setSourceProperty(finalValue);
-      }
-    });
+    if (!this.direction || this.direction === '>>') {
+      return this.subscribe(this.component, this.localPath, localValue => {
+        if (localValue === undefined) {
+          this.setTargetValue(this.fallback);
+          this.applyFallbackToLocal();
+        } else {
+          this.setTargetValue(this.toTargetValue(localValue));
+        }
+      });
+    }
+    if (this.direction === '<<' && this.bindsToModel()) {
+      return this.subscribe(this.component, [this.localPath[0]], () => {
+        if (this.hasValidSource()) {
+          this.setLocalValue(this.toLocalValue(this.getTargetValue()));
+        }
+      });
+    }
+    return noop;
   }
 
   private subscribeToTargetValue() {
-    return this.subscribe(this.target, [this.targetProperty], rawValue => {
-      if (this.hasValidSource()) {
-        const finalValue = rawValue !== undefined ? rawValue : this.fallback;
-        this.setSourceProperty(finalValue);
-        if (this.direction !== '<<' && this.hasValidSource() && this.getSourceValue() !== finalValue) {
-          this.setTargetProperty(this.getSourceValue());
+    if (!this.direction || this.direction === '<<') {
+      return this.subscribe(this.target, [this.targetProperty], targetValue => {
+        if (!this.hasValidSource()) {
+          return;
         }
+        if (this.initialized || this.targetHasPriority()) {
+          this.setLocalValue(this.toLocalValue(targetValue));
+          this.syncBackToTarget();
+        }
+      });
+    }
+    return noop;
+  }
+
+  private applyFallbackToLocal() {
+    if (this.direction === '>>' || !this.hasValidSource() || this.fallback === undefined) {
+      return;
+    }
+    const finalValue = Conversion.convert({
+      value: this.fallback,
+      convert: this.convert,
+      proto: Object.getPrototypeOf(this.getSourceObject()),
+      name: this.getSourcePropertyName()
+    });
+    if (finalValue !== undefined) {
+      this.setLocalValue(finalValue);
+    }
+  }
+
+  private syncBackToTarget() {
+    if (this.direction !== '<<' && this.hasValidSource()) {
+      const finalValue = this.toTargetValue(this.getLocalValue());
+      if (finalValue !== undefined) {
+        this.setTargetValue(finalValue);
       }
+    }
+  }
+
+  private targetHasPriority() {
+    return this.direction === '<<' || this.getLocalValue() === undefined;
+  }
+
+  private toLocalValue(targetValue: unknown) {
+    return Conversion.convert({
+      value: targetValue,
+      convert: this.convert,
+      fallback: this.fallback,
+      proto: Object.getPrototypeOf(this.getSourceObject()),
+      name: this.getSourcePropertyName()
+    });
+  }
+
+  private toTargetValue(localValue: unknown) {
+    return Conversion.convert({
+      value: localValue,
+      convert: this.convert,
+      fallback: this.fallback,
+      proto: Object.getPrototypeOf(this.target),
+      name: this.targetProperty
     });
   }
 
@@ -112,29 +168,42 @@ export class TwoWayBinding {
     });
   }
 
-  private setSourceProperty(finalValue: any) {
-    if (this.localPath.length === 2 && this.component[this.localPath[0]]) {
-      this.component[this.localPath[0]][this.localPath[1]] = finalValue;
-    } else if (this.localPath.length === 1) {
-      this.component[this.localPath[0]] = finalValue;
+  private setLocalValue(value: any) {
+    if (this.hasValidSource()) {
+      this.getSourceObject()[this.getSourcePropertyName()] = value;
     }
   }
 
-  private getSourceValue() {
-    if (this.localPath.length === 2 && this.component[this.localPath[0]]) {
-      return this.component[this.localPath[0]][this.localPath[1]];
-    } else if (this.localPath.length === 1) {
+  private getLocalValue() {
+    return this.getSourceObject()[this.getSourcePropertyName()];
+  }
+
+  private getSourceObject() {
+    if (!this.hasValidSource()) {
+      console.trace();
+      throw new Error('No valid source');
+
+    }
+    if (this.bindsToModel()) {
       return this.component[this.localPath[0]];
     }
-    throw new Error(`Error in binding ${this}: No valid source`);
+    return this.component;
+  }
+
+  private getSourcePropertyName() {
+    return this.bindsToModel() ? this.localPath[1] : this.localPath[0];
   }
 
   private hasValidSource() {
-    return this.localPath.length === 1 || this.component[this.localPath[0]] instanceof Object;
+    return !this.bindsToModel() || this.component[this.localPath[0]] instanceof Object;
   }
 
-  private setTargetProperty(value: any) {
+  private setTargetValue(value: any) {
     this.target[this.targetProperty] = value;
+  }
+
+  private getTargetValue() {
+    return this.target[this.targetProperty];
   }
 
   private checkPropertySafety(target: WidgetInterface, property: string, dir: 'Left' | 'Right') {
@@ -164,6 +233,10 @@ export class TwoWayBinding {
     return results.first() as WidgetInterface;
   }
 
+  private bindsToModel() {
+    return this.localPath.length === 2;
+  }
+
 }
 
 function isInStrictMode(widget: WidgetInterface) {
@@ -174,7 +247,8 @@ function isInStrictMode(widget: WidgetInterface) {
 
 function bindingToString(localPath: LocalPath, targetPath: TargetPath): string {
   try {
-    return `"${localPath.join('.')}" <-> "${targetPath[1]}.${targetPath[2]}"`;
+    const arrow = targetPath[0] || '<->';
+    return `"${localPath.join('.')}" ${arrow} "${targetPath[1]}.${targetPath[2]}"`;
   } catch (ex) {
     return '[' + ex.message + ']';
   }

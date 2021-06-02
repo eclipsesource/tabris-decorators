@@ -1,5 +1,6 @@
 import {Composite, Listeners, Selector, Widget, WidgetCollection} from 'tabris';
 import {BaseConstructor, Constructor} from './utils';
+import {Conversion} from './Conversion';
 
 const postAppendHandlersKey = Symbol();
 const wasAppendedKey = Symbol();
@@ -16,13 +17,22 @@ export type WidgetInterface = {
 } & Widget & WidgetProtected & EventTarget;
 export type TypeGuard<T = any> = (v: T) => boolean;
 export type UserType<T> = Constructor<T>;
-export interface WidgetProtected {
-  _find(selector?: Selector): WidgetCollection<Widget>;
-  _find<U extends Widget>(constructor: new (...args: any[]) => U): WidgetCollection<U>;
-}
-export interface ParamInfo {type: Constructor<any>; injectParam?: string; inject?: boolean;}
+export type WidgetProtected = {
+  _find(selector?: Selector): WidgetCollection<Widget>,
+  _find<U extends Widget>(constructor: new (...args: any[]) => U): WidgetCollection<U>
+};
+export type ParamInfo = {type: Constructor<any>, injectParam?: string, inject?: boolean};
 export type PostAppendHandler = (widgetInstance: WidgetInterface) => void;
 export type TargetPath = [Direction, string, string];
+export type Binding = {
+  path: string,
+  converter?: BindingConverter
+};
+export type AllBindings<T> = {[Property in keyof T]?: string | Binding};
+export type BindingConverter<From = any, Target = any, TargetProperty extends string = any> = (
+  v: From,
+  conversion: Conversion<Target, TargetProperty>
+) => any | void;
 
 /**
  * Gets list of functions to be executed after first time append is called on instances of the given

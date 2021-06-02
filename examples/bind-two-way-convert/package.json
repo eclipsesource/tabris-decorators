@@ -1,0 +1,19 @@
+{
+  "name": "bind-two-way-convert",
+  "version": "3.8.0",
+  "dependencies": {
+    "reflect-metadata": "^0.1.13",
+    "tabris": "^3.8.0",
+    "tabris-decorators": "^3.8.0"
+  },
+  "devDependencies": {
+    "typescript": "3.8.x"
+  },
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "tabris serve -w -a",
+    "build": "tsc -p .",
+    "watch": "tsc -p . -w --preserveWatchOutput --inlineSourceMap",
+    "gitpod": "tabris serve -a -w --no-intro --port 8080 --external $(gp url 8080):443"
+  }
+}

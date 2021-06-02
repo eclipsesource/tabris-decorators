@@ -177,13 +177,13 @@ When set to a function it will be called with the two values to compare. They wi
 
 Where `convert` is `'off'`, `'auto'` or a function. Default is `'off'`.
 
-**This feature does not work with interfaces, mixed types or plain objects as the targe type.**
-
 Allows to convert a value that is assigned to the property to the specified type of the property. This works regardless of how the value is set - directly (`obj.prop = value`), using the `set()` method, on declaration, via the [default](#configdefault) option, or by data binding. In JavaScript it requires the [type](#configtype) option to be set. In TypeScript this is not required unless the runtime type differs from the compile time type. (See "Usage with TypeScript" section below.) If the type of the property is unknown a warning will be printed and no conversion will be applied.
 
 If set to `'off'` no conversion is applied. All values will be set (or rejected) as-is.
 
 If set to `'auto'` the property will attempt to convert any new value to the expected type if the result would be semantically similar. See "Conversion strategies" below.
+
+**The `'auto'` conversion does not work with interfaces, mixed types or plain objects as the target type.**
 
 If set to a function, it will be called with the incoming value and must return a value of the expected type. If the value is already of the expected type the function will *not* be called, so it can for example not be used to convert a string to another string. The function may throw an exception if the incoming value can not be converted. The exception will be propagated to the code that is setting the property. If a [type guard](#configtypeguard) is present it will be called *after* the converter with the result of the conversion.
 

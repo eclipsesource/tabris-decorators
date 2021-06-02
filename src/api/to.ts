@@ -1,7 +1,4 @@
-export interface Binding {
-  path: string;
-  converter?: (val: any) => any;
-}
+import {Binding, BindingConverter} from '../internals/utils-databinding';
 
 /**
  * Allows assigning a converter function to a one way binding:
@@ -20,7 +17,10 @@ export interface Binding {
  *       = (path: string) => to(path, v => v.toLocaleString());
  *
  *     <textView bind-text={toLocaleString('person.dob')} />
+ *
+ * The converter function may have a second parameter which is
+ * passed a `Conversion` object that identifies the target of the conversion.
  */
-export function to(path: string, converter: (val: any) => any): Binding {
+export function to(path: string, converter: BindingConverter): Binding {
   return {path, converter};
 }

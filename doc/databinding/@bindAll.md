@@ -36,7 +36,7 @@ TypeScript:
 @component
 class MyComponent extends Composite {
 
-  @binAll({
+  @bindAll({
     myText: '#input1.text',
     myNumber: '#input2.selection'
   })
@@ -51,7 +51,7 @@ In JavaScript the only difference is how - if at all - the decorated property is
 
 ```ts
 /** @type {Model} */
-@binAll({
+@bindAll({
   myText: '#input1.text',
   myNumber: '#input2.selection'
 })
@@ -92,6 +92,28 @@ class Model {
 
 }
 ```
+
+### Value conversion
+
+The value of the source object property may be converted before it is applied to the target element property and vice versa. To do so [the `to` helper function](./@component.md#conversion) may be used to give both a path string and a value converter function:
+
+```ts
+@bindAll({
+  sourceProperty: to('<direction?><SelectorString>.<targetProperty>', converter)
+})
+model: Model;
+```
+
+For one-way bindings (direction being `<<` or `>>`) this is very straight-forward: The function is given the value to convert and returns the converted one. This example converts a string given by the model to upper case letters:
+
+```ts
+@bindAll({
+  sourceProperty: to('>> #myTextView.text', (value: string) => value.toUpperCase())
+})
+model: Model;
+```
+
+For two-way bindings a second parameter is given to the converter function to indicate in which direction the conversion is currently applied. See [`Conversion`](./Conversion.md).
 
 ### Edge Cases
 

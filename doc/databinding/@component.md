@@ -130,7 +130,7 @@ component.item = item1; // OK even without @property
 
 `MyItem` could also implement explicit setter and getter to fire change events, exactly like the `CustomComponent` example above. Both `@property` and `@event` work on any class, not just widgets. Objects created via JSON (object literals) can be used in a binding, but since they don't fire change events they are treated as immutable.
 
-### Conversion
+### Value Conversion
 
 > See example apps ["bind-and-convert"](../../examples/bind-and-convert) (TypeScript) and ["bind-and-convert-jsx"](../../examples/bind-and-convert-jsx) (JavaScript/JSX).
 
