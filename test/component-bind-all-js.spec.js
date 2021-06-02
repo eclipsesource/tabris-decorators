@@ -390,7 +390,7 @@ describe('component', () => {
       }).to.throw(
         Error,
         'Failed to set property "item" of class CustomComponentB: '
-        + 'ItemB does not have a property "text".'
+        + 'Object ItemB does not have a property "text".'
       );
     });
 
@@ -752,7 +752,7 @@ describe('component', () => {
       }).to.throw(
         Error,
         'Failed to set property "item" of class CustomComponentB: '
-        + 'ItemB does not have a property "text".'
+        + 'Object ItemB does not have a property "text".'
       );
     });
 
