@@ -4,7 +4,7 @@ import {Injector, injector} from '../api/Injector';
 import {CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
 import {TwoWayBinding} from '../internals/TwoWayBinding';
 import {applyDecorator, getPropertyType, isPrimitiveType} from '../internals/utils';
-import {checkIsComponent, checkPropertyExists, parseTargetPath, postAppendHandlers, TargetPath, WidgetInterface, BindingConverter, MultipleBindings} from '../internals/utils-databinding';
+import {checkIsComponent, checkPropertyExists, parseTargetPath, postAppendHandlers, TargetPath, WidgetInterface, BindingConverter, MultipleBindings, BindingValue} from '../internals/utils-databinding';
 
 export type BindAllConfig<T> = PropertySuperConfig<T> & {
   all: MultipleBindings<T>
@@ -23,8 +23,13 @@ export type BindSuperConfig<T> = Omit<PropertySuperConfig<T>, 'convert'> & {
   convert: {property?: Converter<T>, binding?: BindingConverter<any>}
 };
 
+export type BindingInternal = {
+  path: TargetPath,
+  converter: BindingConverter
+};
+
 export type MultipleBindingsInternal = {
-  [sourceProperty: string]: {path: TargetPath, converter: BindingConverter<any> | null}
+  [sourceProperty: string]: BindingInternal[] | null
 };
 
 export type BindAllDecorator<ValidKeys extends string> = <
@@ -175,13 +180,27 @@ function parseAll(all: MultipleBindings<any>): MultipleBindingsInternal | null {
   }
   const bindings: MultipleBindingsInternal = {};
   for (const key in all) {
-    const binding = all[key];
-    bindings[key] = {
-      path: parseTargetPath(binding instanceof Object ? binding.path : binding),
-      converter: binding instanceof Object ? binding.converter : null
-    };
+    if (!all[key]) {
+      continue;
+    }
+    const bindingValues: BindingValue[] = all[key] instanceof Array
+      ? all[key] as BindingValue[]
+      : [all[key] as BindingValue];
+    bindings[key] = bindingValues.map(value => ({
+      path: parseTargetPath(value instanceof Object ? value.path : value),
+      converter: value instanceof Object ? value.converter : null
+    }));
+    if (countReceivingBindings(bindings[key]) > 1) {
+      throw new Error(`Property "${key}" is receiving values from multiple bindings`);
+    }
   }
   return bindings;
+}
+
+function countReceivingBindings(bindings: BindingInternal[]): number {
+  return bindings
+    .map(({path}) => (path[0] === '>>' ? 0 : 1) as number)
+    .reduce((prev, current) => prev + current);
 }
 
 function createBindAllTypeGuard(binding: BindSuperConfig<unknown>) {
@@ -197,7 +216,7 @@ function createBindAllTypeGuard(binding: BindSuperConfig<unknown>) {
         checkPropertyExists(value, sourceProperty, 'Object ');
         if (
           CustomPropertyDescriptor.isUnchecked(value, sourceProperty)
-          && binding.all[sourceProperty].path[0] !== '>>'
+          && isReceiving(binding.all[sourceProperty])
         ) {
           const strictMode = Injector.get(value, injector).jsxProcessor.unsafeBindings === 'error';
           if (strictMode) {
@@ -214,6 +233,10 @@ function createBindAllTypeGuard(binding: BindSuperConfig<unknown>) {
     }
     return binding.typeGuard ? binding.typeGuard(value) : true;
   };
+}
+
+function isReceiving(bindings: BindingInternal[]) {
+  return bindings.some(({path}) => path[0] !== '>>');
 }
 
 function scheduleIsComponentCheck(binding: BindSuperConfig<unknown>) {

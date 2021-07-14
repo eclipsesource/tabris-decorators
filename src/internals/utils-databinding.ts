@@ -28,7 +28,8 @@ export type Binding = {
   path: string,
   converter?: BindingConverter
 };
-export type MultipleBindings<T> = {[Property in keyof T]?: string | Binding};
+export type BindingValue = string | Binding;
+export type MultipleBindings<T> = {[Property in keyof T]?: BindingValue | BindingValue[]};
 export type BindingConverter<From = any, Target = any, TargetProperty extends string = any> = (
   v: From,
   conversion: Conversion<Target, TargetProperty>
