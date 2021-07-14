@@ -104,7 +104,16 @@ The value of the source object property may be converted before it is applied to
 model: Model;
 ```
 
-For one-way bindings (direction being `<<` or `>>`) this is very straight-forward: The function is given the value to convert and returns the converted one. This example converts a string given by the model to upper case letters:
+Alternatively you may give an object literal with `path` and `converter`:
+
+```ts
+@bindAll({
+  sourceProperty: {path: '<direction?><SelectorString>.<targetProperty>', converter}
+})
+model: Model;
+```
+
+For one-way bindings (direction being `<<` or `>>`) conversion is very straight-forward: The function is given the value to convert and returns the converted one. This example converts a string given by the model to upper case letters:
 
 ```ts
 @bindAll({
@@ -114,6 +123,47 @@ model: Model;
 ```
 
 For two-way bindings a second parameter is given to the converter function to indicate in which direction the conversion is currently applied. See [`Conversion`](./Conversion.md).
+
+### Multiple Binding Targets
+
+One source property can have multiple targets. This is achieved by giving an array of paths instead of a single string:
+
+```
+{
+  <sourceProperty>: string[]
+}
+```
+
+For example:
+
+```ts
+@bindAll({
+  myNumber: ['Slider.selection', '>> #num.text']
+})
+model: Model;
+```
+
+Of course you can also use this with converters:
+
+```ts
+@bindAll({
+  myNumber: [
+    'Slider.selection',
+    {path: '>> #num.text', converter: value => 'Number is ' + value}
+  ]
+})
+model: Model;
+```
+
+One thing to keep in mind: A single source property can only receive values from one of the targets. In other words, all paths except one must use the `>>` direction prefix:
+
+
+```ts
+@bindAll({
+  myNumber: ['Slider.selection', '#num.text'] // ERROR
+})
+model: Model;
+```
 
 ### Edge Cases
 

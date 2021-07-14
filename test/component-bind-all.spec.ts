@@ -1,6 +1,6 @@
 import 'mocha';
 import 'sinon';
-import {ChangeListeners, Composite, Properties, tabris, TextInput} from 'tabris';
+import {ChangeListeners, Composite, Properties, tabris, TextInput, TextView} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, spy, stub} from './test';
 import {bind, bindAll, component, event, property, Injector, inject, to, BindingConverter} from '../src';
@@ -290,6 +290,61 @@ describe('component', () => {
         }
 
         expect(() => new CustomComponentB().item = new ItemB()).not.to.throw(Error);
+      });
+
+    });
+
+    describe('with multiple paths', () => {
+
+      @component
+      class MultiBind extends Composite {
+        @bind({all: {
+          text: [
+            '#foo.text',
+            to('>> #bar.text', value => value + ' World')
+          ]
+        }})
+        item: Item;
+      }
+
+      let textView: TextView;
+
+      beforeEach(() => {
+        widget = new MultiBind();
+        textView = new TextView({id: 'bar'});
+      });
+
+      it('applies value to all targets', () => {
+        widget = new MultiBind();
+        widget.item = item;
+
+        widget.append(textInput, textView);
+
+        expect(textInput.text).to.equal('Hello');
+        expect(textView.text).to.equal('Hello World');
+      });
+
+      it('throw for multiple receiving bindings on same property', () => {
+        @component
+        class Dummy extends Composite {
+          item: Item;
+        }
+
+        expect(() => {
+          bind({all: {
+            text: ['#foo.text', '#bat.text']
+          }})(Dummy.prototype, 'item');
+        }).to.throw(Error, 'Property "text" is receiving values from multiple bindings');
+        expect(() => {
+          bind({all: {
+            text: ['<< #foo.text', '#bar.text']
+          }})(Dummy.prototype, 'item');
+        }).to.throw(Error, 'Property "text" is receiving values from multiple bindings');
+        expect(() => {
+          bind({all: {
+            text: ['<< #foo.text', '<< #bar.text']
+          }})(Dummy.prototype, 'item');
+        }).to.throw(Error, 'Property "text" is receiving values from multiple bindings');
       });
 
     });

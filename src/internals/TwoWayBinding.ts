@@ -17,8 +17,9 @@ export class TwoWayBinding {
     if (config.all) {
       for (const sourceProperty in config.all) {
         const localPath: LocalPath = [config.componentProperty, sourceProperty];
-        const targetPath = config.all[sourceProperty];
-        new TwoWayBinding(component, localPath, targetPath.path, targetPath.converter);
+        config.all[sourceProperty].forEach(({path, converter}) =>
+          new TwoWayBinding(component, localPath, path, converter)
+        );
       }
     } else {
       const localPath: LocalPath = [config.componentProperty];
