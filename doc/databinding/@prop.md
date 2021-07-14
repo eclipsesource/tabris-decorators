@@ -22,11 +22,12 @@ Option      | @property  | @prop
 [`type`](./@property.md#configtype)      | not set    | not set
 [`typeGuard`](./@property.md#configtypeguard) | not set    | not set
 [`default`](./@property.md#configdefault)   | not set    | depends on type*
-[`nullable`](./@property.md#confignullable)  | true       | false
+[`nullable`](./@property.md#confignullable)  | true       | depends on type**
 [`equals`](./@property.md#configequals)    | `'strict'` | `'auto'`
 [`convert`](./@property.md#configconvert)   | `'off'`    | `'auto'`
 
 *) The default is `''` (empty string) for strings, `0` for numbers, `false` for booleans and `null` for all other types.
+*) `nullable` is `false` only for primitive types (number, boolean, string and subsets thereof).
 
 ## @prop(type)
 

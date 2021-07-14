@@ -110,6 +110,10 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     return `property "${this.propertyName}" of class ${this.proto.constructor.name || '[anonymous]'}`;
   }
 
+  get type(): Constructor<TargetType> {
+    return this.userType || this.targetType;
+  }
+
   private setValue(instance: Proto, value: any) {
     if (this.readonly) {
       throw new TypeError(`Failed to set ${this}: Property is read-only`);
