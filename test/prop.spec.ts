@@ -1,6 +1,6 @@
 import 'mocha';
 import 'sinon';
-import {ChangeListeners, Color, ColorValue, Composite, Properties, tabris} from 'tabris';
+import {ChangeListeners, Color, ColorValue} from 'tabris';
 import {expect, spy} from './test';
 import {event, prop} from '../src';
 
@@ -75,7 +75,12 @@ describe('prop', () => {
       expect(example.color).to.be.null;
     });
 
-    it('is not nullable', () => {
+    it('is nullable for objects', () => {
+      example.color = null;
+      expect(example.color).to.be.null;
+    });
+
+    it('is not nullable for primitives', () => {
       example.foo = 'foo';
       example.foo = null;
       example.bar = 1;
@@ -86,7 +91,6 @@ describe('prop', () => {
       expect(example.foo).to.equal('');
       expect(example.bar).to.equal(0);
       expect(example.baz).to.equal(false);
-      expect(() => example.color = null).to.throw(Error, 'not nullable');
     });
 
   });

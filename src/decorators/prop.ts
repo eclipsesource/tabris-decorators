@@ -1,7 +1,7 @@
 import {CompareMode} from '../api/equals';
 import {CustomPropertyDecorator, PropertyDecoratorConfig} from '../decorators/property';
 import {autoDefault, CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
-import {applyDecorator} from '../internals/utils';
+import {applyDecorator, BaseConstructor, isPrimitiveType} from '../internals/utils';
 import {TypeGuard, UserType} from '../internals/utils-databinding';
 
 /**
@@ -42,13 +42,16 @@ export function prop(targetProto: object, propertyName: string | symbol): void;
 export function prop<T>(check: PropertyDecoratorConfig<T>): CustomPropertyDecorator<T>;
 export function prop(...args: any[]): PropertyDecorator | void {
   return applyDecorator('prop', args, (proto: object, propertyName: string) => {
-    CustomPropertyDescriptor.get(proto, propertyName as keyof typeof proto).addConfig({
+    const property = CustomPropertyDescriptor.get(proto, propertyName as keyof typeof proto);
+    property.addConfig({
       typeGuard: getTypeGuard(args[0]),
       type: getUserType(args[0]),
       convert: getConverter(args[0]),
       equals: getCompareMode(args[0]),
-      default: getDefaultValue(args[0]),
-      nullable: getNullable(args[0])
+      default: getDefaultValue(args[0])
+    });
+    property.addConfig({
+      nullable: getNullable(args[0], property.type)
     });
   });
 }
@@ -93,14 +96,14 @@ function getConverter(arg: unknown): ((v: any) => any) | 'auto' {
   return 'auto';
 }
 
-function getNullable(arg: unknown): boolean {
+function getNullable(arg: unknown, type: BaseConstructor<any>): boolean {
   if (arg instanceof Function) {
-    return false;
+    return !isPrimitiveType(type);
   }
-  if (arg instanceof Object && arg.constructor === Object) {
+  if (arg instanceof Object && arg.constructor === Object && 'nullable' in arg) {
     return !!(arg as any).nullable;
   }
-  return false;
+  return !isPrimitiveType(type);
 }
 
 function getDefaultValue(arg: unknown): any {
