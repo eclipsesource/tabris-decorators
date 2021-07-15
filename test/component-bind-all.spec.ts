@@ -1,6 +1,6 @@
 import 'mocha';
 import 'sinon';
-import {ChangeListeners, Composite, Properties, tabris, TextInput, TextView} from 'tabris';
+import {ChangeListeners, Composite, Listeners, Properties, tabris, TextInput, TextView} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, spy, stub} from './test';
 import {bind, bindAll, component, event, property, Injector, inject, to, BindingConverter} from '../src';
@@ -16,6 +16,7 @@ describe('component', () => {
   class Item {
     @event onTextChanged: ChangeListeners<Item, 'text'>;
     @property text: string = 'Hello';
+    @event onCustomEvent: Listeners<{target: Item, foo: boolean}>;
   }
 
   let item: Item;
@@ -723,6 +724,40 @@ describe('component', () => {
 
         expect(textInput.text).to.equal('bAz');
         expect(item.text).to.equal('baz');
+      });
+
+    });
+
+    describe('with listeners', () => {
+
+      @component
+      class ListeningComponent extends Composite {
+
+        @bind({all: {
+          onCustomEvent(this: ListeningComponent, ev) {
+            this.spy(ev);
+          }
+        }})
+        item: Item;
+
+        spy = spy();
+
+      }
+
+      let lComponent: ListeningComponent;
+
+      beforeEach(() => {
+        lComponent = new ListeningComponent();
+      });
+
+      it('receives event object', () => {
+        lComponent.item = item;
+
+        item.onCustomEvent.trigger({foo: true});
+
+        expect(lComponent.spy).to.have.been.calledOnce;
+        expect(lComponent.spy.args[0][0].target).to.equal(item);
+        expect(lComponent.spy.args[0][0].foo).to.equal(true);
       });
 
     });

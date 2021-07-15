@@ -20,7 +20,7 @@ export class ExampleComponent extends Composite {
   /** @type {Model} */
   @bindAll({
     myText: '#inputId.text',
-    myNumber: ['Slider.selection', {path: '>> #num.text', converter: value => 'Hello ' + value}],
+    myNumber: ['Slider.selection', '>> #num.text'],
     myColor: '>> :host.background'
   })
   model;

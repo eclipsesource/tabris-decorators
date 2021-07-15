@@ -1,12 +1,12 @@
-import {Composite} from 'tabris';
+import {Composite, Widget} from 'tabris';
 import {CustomPropertyDecorator, PropertySuperConfig, Converter} from './property';
 import {Injector, injector} from '../api/Injector';
 import {CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
 import {TwoWayBinding} from '../internals/TwoWayBinding';
 import {applyDecorator, getPropertyType, isPrimitiveType} from '../internals/utils';
-import {checkIsComponent, checkPropertyExists, parseTargetPath, postAppendHandlers, TargetPath, WidgetInterface, BindingConverter, MultipleBindings, BindingValue} from '../internals/utils-databinding';
+import {checkIsComponent, checkPropertyExists, parseTargetPath, postAppendHandlers, TargetPath, WidgetInterface, BindingConverter, MultipleBindings, BindingValue, BoundListener} from '../internals/utils-databinding';
 
-export type BindAllConfig<T> = PropertySuperConfig<T> & {
+export type BindAllConfig<T extends Widget> = PropertySuperConfig<T> & {
   all: MultipleBindings<T>
 };
 
@@ -29,7 +29,7 @@ export type BindingInternal = {
 };
 
 export type MultipleBindingsInternal = {
-  [sourceProperty: string]: BindingInternal[] | null
+  [sourceProperty: string]: BindingInternal[] | BoundListener | null
 };
 
 export type BindAllDecorator<ValidKeys extends string> = <
@@ -183,15 +183,21 @@ function parseAll(all: MultipleBindings<any>): MultipleBindingsInternal | null {
     if (!all[key]) {
       continue;
     }
-    const bindingValues: BindingValue[] = all[key] instanceof Array
-      ? all[key] as BindingValue[]
-      : [all[key] as BindingValue];
-    bindings[key] = bindingValues.map(value => ({
-      path: parseTargetPath(value instanceof Object ? value.path : value),
-      converter: value instanceof Object ? value.converter : null
-    }));
-    if (countReceivingBindings(bindings[key]) > 1) {
-      throw new Error(`Property "${key}" is receiving values from multiple bindings`);
+    const bindable = all[key];
+    if (bindable instanceof Function) {
+      bindings[key] = bindable;
+    } else {
+      const bindingValues: BindingValue[] = bindable instanceof Array
+        ? all[key] as BindingValue[]
+        : [all[key] as BindingValue];
+      const bindingInternals: BindingInternal[] = bindingValues.map(value => ({
+        path: parseTargetPath(value instanceof Object ? value.path : value),
+        converter: value instanceof Object ? value.converter : null
+      }));
+      if (countReceivingBindings(bindingInternals) > 1) {
+        throw new Error(`Property "${key}" is receiving values from multiple bindings`);
+      }
+      bindings[key] = bindingInternals;
     }
   }
   return bindings;
