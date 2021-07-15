@@ -1,19 +1,26 @@
-import {Composite, Properties, Slider, Stack, TextInput, TextView, Color, Apply} from 'tabris';
-import {bindAll, component, property} from 'tabris-decorators';
+import {Apply, Color, Composite, Listeners, Properties, Slider, Stack, TextInput, TextView} from 'tabris';
+import {bindAll, component, event, property} from 'tabris-decorators';
 
 export class Model {
   @property myText: string;
   @property myNumber: number;
   @property myColor: Color;
+  @event onBlink: Listeners<{target: Model}>;
 }
 
 @component
 export class ExampleComponent extends Composite {
 
-  @bindAll({
+  @bindAll<Model>({
     myText: '#inputId.text',
     myNumber: ['Slider.selection', '>> #num.text'],
-    myColor: '>> :host.background'
+    myColor: '>> :host.background',
+    onBlink(this: ExampleComponent) {
+      this._find(Stack).only()
+        .set({opacity: 0})
+        .animate({opacity: 1}, {duration: 400})
+        .catch(ex => console.log(ex));
+    }
   })
   model: Model;
 

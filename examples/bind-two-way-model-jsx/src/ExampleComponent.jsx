@@ -1,5 +1,5 @@
 import {Composite, Properties, Slider, Stack, TextInput, TextView, Color, Apply} from 'tabris';
-import {bindAll, component, prop} from 'tabris-decorators';
+import {bindAll, component, prop, event} from 'tabris-decorators';
 
 export class Model {
 
@@ -12,6 +12,9 @@ export class Model {
   /** @type {tabris.ColorValue} */
   @prop({nullable: true, type: Color}) myColor;
 
+  /** @type {tabris.Listeners<{target: Model}>} */
+  @event onBlink;
+
 }
 
 @component
@@ -20,8 +23,14 @@ export class ExampleComponent extends Composite {
   /** @type {Model} */
   @bindAll({
     myText: '#inputId.text',
-    myNumber: ['Slider.selection', {path: '>> #num.text', converter: value => 'Hello ' + value}],
-    myColor: '>> :host.background'
+    myNumber: ['Slider.selection', '>> #num.text'],
+    myColor: '>> :host.background',
+    onBlink() {
+      this._find(Stack).only()
+        .set({opacity: 0})
+        .animate({opacity: 1}, {duration: 400})
+        .catch(ex => console.log(ex));
+    }
   })
   model;
 
