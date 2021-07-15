@@ -10,6 +10,9 @@ export type CustomPropertyConfig<T> = PropertySuperConfig<T> & {
   readonly?: boolean
 };
 
+export type InternalChangeHandler<Proto, TargetType> =
+  (instance: Proto, value: TargetType, oldValue: TargetType) => void;
+
 export const autoDefault: unique symbol = Symbol('autoDefault');
 
 export class CustomPropertyDescriptor<Proto extends object, TargetType> {
@@ -53,6 +56,7 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
   readonly configurable = true;
   readonly get: () => TargetType;
   readonly set: (value: TargetType) => void;
+  readonly changeHandler: Array<InternalChangeHandler<Proto, TargetType>> = [];
   private userType: UserType<TargetType>;
   private typeGuard: TypeGuard;
   private readonly targetType = getPropertyType(this.proto, this.propertyName);
@@ -125,11 +129,13 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
       }
       newValue = this.convert(this.defaultValue, instance);
     }
-    if (!this.equals(this.getValue(instance), newValue)) {
+    const oldValue = this.getValue(instance);
+    if (!this.equals(oldValue, newValue)) {
       if (!this.isUnchecked()) {
         this.checkType(newValue);
       }
       getPropertyStore(instance).set(this.propertyName, newValue);
+      this.changeHandler.forEach(handler => handler(instance, newValue, oldValue));
       trigger(instance, this.changeEvent, {value: newValue});
     }
   }

@@ -1,13 +1,17 @@
-import {Composite} from 'tabris';
+import {Composite, Listeners} from 'tabris';
 import {CustomPropertyDecorator, PropertySuperConfig, Converter} from './property';
 import {Injector, injector} from '../api/Injector';
 import {CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
 import {TwoWayBinding} from '../internals/TwoWayBinding';
 import {applyDecorator, getPropertyType, isPrimitiveType} from '../internals/utils';
-import {checkIsComponent, checkPropertyExists, parseTargetPath, postAppendHandlers, TargetPath, WidgetInterface, BindingConverter, MultipleBindings, BindingValue} from '../internals/utils-databinding';
+import {checkIsComponent, checkPropertyExists, parseTargetPath, postAppendHandlers, TargetPath, WidgetInterface, BindingConverter, MultipleBindings, BindingValue, BoundListener} from '../internals/utils-databinding';
+import {eventType} from './event';
 
-export type BindAllConfig<T> = PropertySuperConfig<T> & {
-  all: MultipleBindings<T>
+export type BindAllConfig<
+  PropertyType extends object,
+  ComponentType extends Composite = Composite
+> = PropertySuperConfig<PropertyType> & {
+  all: MultipleBindings<PropertyType, ComponentType>
 };
 
 export type BindSingleConfig<T> = Omit<PropertySuperConfig<T>, 'convert'> & {
@@ -29,7 +33,7 @@ export type BindingInternal = {
 };
 
 export type MultipleBindingsInternal = {
-  [sourceProperty: string]: BindingInternal[] | null
+  [sourceProperty: string]: BindingInternal[] | BoundListener | null
 };
 
 export type BindAllDecorator<ValidKeys extends string> = <
@@ -78,7 +82,7 @@ export function bind<T>(
  * * *`@bind(path, converter)` is the same as `@bind({path: path, converter: {binding: converter}})`.*
  * * *In addition to id selectors, type selectors and `:host` are also supported.*
  */
-export function bind<T>(config: BindSingleConfig<T>): CustomPropertyDecorator<T>;
+export function bind<PropertyType>(config: BindSingleConfig<PropertyType>): CustomPropertyDecorator<PropertyType>;
 
 /**
  * A decorator for instance properties of classes extending `Composite`, i.e. a custom component.
@@ -99,7 +103,10 @@ export function bind<T>(config: BindSingleConfig<T>): CustomPropertyDecorator<T>
  * * *`@bindAll(bindings)` can be used as a shorthand for `@bind({all: bindings})`.*
  * * *In addition to id selectors, type selectors and `:host` are also supported.*
  */
-export function bind<T extends object>(config: BindAllConfig<T>): CustomPropertyDecorator<T>;
+export function bind<
+  PropertyType extends object,
+  ComponentType extends Composite = Composite
+>(config: BindAllConfig<PropertyType, ComponentType>): CustomPropertyDecorator<PropertyType>;
 
 export function bind(...args: any[]): any {
   return applyDecorator('bind', args, (baseProto: WidgetInterface, baseProperty: string) => {
@@ -151,6 +158,30 @@ function configureComponentProperty(binding: BindSuperConfig<any>) {
   if (convert?.property) {
     desc.addConfig({convert: convert.property});
   }
+  for (const property in binding.all) {
+    const listener = binding.all[property];
+    if (listener instanceof Function) {
+      configureChangeHandlers(desc, property, listener);
+    }
+  }
+}
+
+function configureChangeHandlers(
+  desc: CustomPropertyDescriptor<WidgetInterface, unknown>,
+  evProperty: string,
+  boundListener: BoundListener
+) {
+  const event = eventType(evProperty);
+  desc.changeHandler.push(
+    (instance, newValue, oldValue) => {
+      if (oldValue instanceof Object) {
+        Listeners.getListenerStore(oldValue).off(event, boundListener, instance);
+      }
+      if (newValue instanceof Object) {
+        Listeners.getListenerStore(newValue).on(event, boundListener, instance);
+      }
+    }
+  );
 }
 
 function checkParameters(binding: BindSuperConfig<any>) {
@@ -183,15 +214,22 @@ function parseAll(all: MultipleBindings<any>): MultipleBindingsInternal | null {
     if (!all[key]) {
       continue;
     }
-    const bindingValues: BindingValue[] = all[key] instanceof Array
-      ? all[key] as BindingValue[]
-      : [all[key] as BindingValue];
-    bindings[key] = bindingValues.map(value => ({
-      path: parseTargetPath(value instanceof Object ? value.path : value),
-      converter: value instanceof Object ? value.converter : null
-    }));
-    if (countReceivingBindings(bindings[key]) > 1) {
-      throw new Error(`Property "${key}" is receiving values from multiple bindings`);
+    const bindable = all[key];
+    if (bindable instanceof Function) {
+      checkListenerName(key);
+      bindings[key] = bindable;
+    } else {
+      const bindingValues: BindingValue[] = bindable instanceof Array
+        ? all[key] as BindingValue[]
+        : [all[key] as BindingValue];
+      const bindingInternals: BindingInternal[] = bindingValues.map(value => ({
+        path: parseTargetPath(value instanceof Object ? value.path : value),
+        converter: value instanceof Object ? value.converter : null
+      }));
+      if (countReceivingBindings(bindingInternals) > 1) {
+        throw new Error(`Property "${key}" is receiving values from multiple bindings`);
+      }
+      bindings[key] = bindingInternals;
     }
   }
   return bindings;
@@ -213,10 +251,14 @@ function createBindAllTypeGuard(binding: BindSuperConfig<unknown>) {
       }
       const className = binding.componentProto.constructor.name;
       for (const sourceProperty of sourceProperties) {
+        const sourceBinding = binding.all[sourceProperty];
+        if (sourceBinding instanceof Function) {
+          continue;
+        }
         checkPropertyExists(value, sourceProperty, 'Object ');
         if (
           CustomPropertyDescriptor.isUnchecked(value, sourceProperty)
-          && isReceiving(binding.all[sourceProperty])
+          && isReceiving(sourceBinding)
         ) {
           const strictMode = Injector.get(value, injector).jsxProcessor.unsafeBindings === 'error';
           if (strictMode) {
@@ -237,6 +279,15 @@ function createBindAllTypeGuard(binding: BindSuperConfig<unknown>) {
 
 function isReceiving(bindings: BindingInternal[]) {
   return bindings.some(({path}) => path[0] !== '>>');
+}
+
+function checkListenerName(name: string) {
+  if (!/^on[A-Z][a-zA-Z]*$/.test(name)) {
+    throw new Error(
+      `"${name}" is not a valid name for listener registration. `
+      + `Did you mean "on${name.slice(0, 1).toUpperCase()}${name.slice(1)}"?`
+    )
+  }
 }
 
 function scheduleIsComponentCheck(binding: BindSuperConfig<unknown>) {

@@ -9,13 +9,16 @@ contentView.append(
     <CheckBox font={{size: 24}} onSelect={toggleModelAttached}>
       Attach Model
     </CheckBox>
+    <ExampleComponent background={Color.silver}/>
     <Button onSelect={resetValues}>
       Reset Model Values
     </Button>
     <Button onSelect={printValues}>
       Print Model Values
     </Button>
-    <ExampleComponent background={Color.silver}/>
+    <Button onSelect={model.onBlink.trigger}>
+      Blink
+    </Button>
     <TextView/>
   </Stack>
 );

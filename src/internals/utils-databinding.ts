@@ -1,4 +1,4 @@
-import {Composite, Listeners, Selector, Widget, WidgetCollection} from 'tabris';
+import {Composite, EventObject, Listeners, Selector, Widget, WidgetCollection} from 'tabris';
 import {BaseConstructor, Constructor} from './utils';
 import {Conversion} from './Conversion';
 
@@ -28,8 +28,25 @@ export type Binding = {
   path: string,
   converter?: BindingConverter
 };
+export type BoundListener<
+  ComponentType extends Widget = Composite,
+  EventObjectType extends object = EventObject<object>
+> = (this: ComponentType, ev: EventObjectType) => any;
+
 export type BindingValue = string | Binding;
-export type MultipleBindings<T> = {[Property in keyof T]?: BindingValue | BindingValue[]};
+
+type Bindable<
+  ComponentType extends Widget = Composite,
+  ModelType extends object = any
+> = BindingValue | BindingValue[] | BoundListener<ComponentType, EventObject<ModelType>>;
+
+export type MultipleBindings<
+  ModelType extends object = any,
+  ComponentType extends Widget = Composite,
+> = {
+  [Property in keyof ModelType]?: Bindable<ComponentType, ModelType>
+};
+
 export type BindingConverter<From = any, Target = any, TargetProperty extends string = any> = (
   v: From,
   conversion: Conversion<Target, TargetProperty>

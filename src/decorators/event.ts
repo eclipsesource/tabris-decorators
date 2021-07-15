@@ -40,16 +40,16 @@ export function event(targetProto: object, evPropertyName: string): void {
   }
 }
 
+export function eventType(evPropertyName: string): string {
+  return evPropertyName.charAt(2).toLowerCase() + evPropertyName.slice(3);
+}
+
 function defineGetter(target: object, property: string, getter: () => any) {
   Object.defineProperty(target, property, {
     get: getter,
     enumerable: true,
     configurable: false
   });
-}
-
-function eventType(evPropertyName: string): string {
-  return evPropertyName.charAt(2).toLowerCase() + evPropertyName.slice(3);
 }
 
 function checkPropertyType(propertyType: any, propertyName: string) {

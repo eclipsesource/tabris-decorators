@@ -188,3 +188,18 @@ The source (current model object) property is assigned `undefined`, or is alread
 Component property is assigned `null` (or `undefined`). | two-way | unchanged | set back to its initial value
 "| `>>` | unchanged | set back to its initial value
 "| `<<` | unchanged | unchanged
+
+## Registering Listeners with @bindAll
+
+The `@bindAll(bindings)` and `@bind({all: bindings})` decorators can also register listeners on the model when it is attached. This can be useful in cases where the UI is supposed to react to a signal, not a state change. To do so, simply add an entry to the `bindings` object using the event property name ([with "on"-prefix](./@event.md)) as the key and the listener function as the value.
+
+```ts
+@bindAll({
+  onModelEvent(this: MyComponent, ev: EventObject<{target: Model}>) {
+    this._find(...).only().doSomething();
+  }
+})
+model: Model;
+```
+
+The function will be called with the component as the context (`this`) and event object dispatched by the model as the sole argument. To access the protected widget API (e.v. `_find`) in TypeScript, the context (`this: MyComponent`) must be declared appropriately in the function declaration.
