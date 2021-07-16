@@ -27,6 +27,8 @@ export * from './api/to';
 export * from './api/List';
 export * from './api/ListView';
 export * from './api/Cell';
+export * from './api/router/Route';
+export * from './api/router/Router';
 
 // These interfaces are defined here directly for easy type augmentation
 
