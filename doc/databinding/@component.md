@@ -128,7 +128,15 @@ item2.myText = 'text2';
 component.item = item1; // OK even without @property
 ```
 
-`MyItem` could also implement explicit setter and getter to fire change events, exactly like the `CustomComponent` example above. Both `@property` and `@event` work on any class, not just widgets. Objects created via JSON (object literals) can be used in a binding, but since they don't fire change events they are treated as immutable.
+`MyItem` could also extend [`ObservableData`](../api/ObservableData.md), which makes it fire change events for all property changes automatically.
+
+```ts
+class MyItem extends ObservableData {
+  myText: string = 'foo';
+}
+```
+
+If extending another class is not an option, the model could also implement explicit setter and getter to fire change events, just like the `CustomComponent` example above. Objects created via JSON (object literals) can be used in a binding, but since they don't fire change events they are treated as immutable.
 
 ### Value Conversion
 
