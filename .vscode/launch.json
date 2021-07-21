@@ -14,7 +14,7 @@
       },
       "runtimeArgs": [
         "-p",
-        "./tsconfig-test.json",
+        "./tsconfig.json",
         "${file}"
       ],
       "internalConsoleOptions": "openOnSessionStart"
