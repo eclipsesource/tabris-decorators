@@ -1,9 +1,9 @@
-import {Composite, ProgressBar, Stack, TextView, Apply} from 'tabris';
+import {Composite, ProgressBar, Stack, TextView, Apply, ObservableData} from 'tabris';
 import {component, property} from 'tabris-decorators';
 
-export class OtherModel {
+export class OtherModel extends ObservableData {
   /** @type {string} */
-  @property someString = 'Hello World';
+  someString = 'Hello World';
 }
 
 export class Model {

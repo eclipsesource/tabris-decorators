@@ -1,4 +1,4 @@
-import {Listeners, NativeObject} from 'tabris';
+import {Listeners, NativeObject, ObservableData} from 'tabris';
 import {CustomPropertyDescriptor} from './CustomPropertyDescriptor';
 
 const force = Symbol();
@@ -70,7 +70,7 @@ function removeChangeListener(target: any, property: string, listener: (value: u
 }
 
 export function supportsChangeEvents(target: Partial<EventTarget>, targetProperty: string): boolean {
-  if (target instanceof NativeObject) {
+  if (target instanceof NativeObject || target instanceof ObservableData) {
     return true; // anyone could fire change events
   }
   const changeEvent = targetProperty + 'Changed';

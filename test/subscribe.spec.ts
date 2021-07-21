@@ -1,11 +1,11 @@
 import 'mocha';
 import 'sinon';
-import {SinonSpy} from 'sinon';
-import {ChangeListeners, Composite, Listeners, tabris} from 'tabris';
+import {ChangeListeners, Composite, Listeners, ObservableData, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, spy} from './test';
 import {property} from '../src';
 import {subscribe} from '../src/internals/subscribe';
+import { SinonSpy } from 'sinon';
 
 describe('subscribe', () => {
 
@@ -192,6 +192,155 @@ describe('subscribe', () => {
     class ModelB {
       @property bar: string;
       @property a: ModelA;
+    }
+
+    let target: ModelA;
+    let sub: SinonSpy;
+    let cancel: () => void;
+
+    beforeEach(() => {
+      target = new ModelA();
+      sub = spy();
+    });
+
+    describe('to primitive type', () => {
+
+      it('is called initially with current value', () => {
+        target.foo = 1;
+
+        subscribe(target, ['foo'], sub);
+
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith(1);
+      });
+
+      it('is called with new value', () => {
+        subscribe(target, ['foo'], sub);
+        sub.resetHistory();
+
+        target.foo = 2;
+
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith(2);
+      });
+
+      it('is called with undefined for non-existing property', () => {
+        subscribe(target, ['baz'], sub);
+        expect(sub).to.have.been.calledWith(undefined);
+      });
+
+      it('is called with non-initialized property value', () => {
+        subscribe(target, ['foo'], sub);
+        expect(sub).to.have.been.calledWith(undefined);
+      });
+
+      it('is not called after cancellation', () => {
+        cancel = subscribe(target, ['foo'], sub);
+        sub.resetHistory();
+
+        cancel();
+        target.foo = 2;
+
+        expect(sub).not.to.have.been.called;
+      });
+
+    });
+
+    describe('to nested target', () => {
+
+      let subTarget: ModelB;
+
+      beforeEach(() => {
+        subTarget = new ModelB();
+        subTarget.bar = 'baz';
+        target.b = subTarget;
+        cancel = subscribe(target, ['b', 'bar'], sub);
+      });
+
+      it('is called initially with current value', () => {
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith('baz');
+      });
+
+      it('is called when sub-target property changes', () => {
+        sub.resetHistory();
+
+        subTarget.bar = 'hello';
+
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith('hello');
+      });
+
+      it('is called when sub-target is replaced', () => {
+        sub.resetHistory();
+
+        const newSubTarget = new ModelB();
+        newSubTarget.bar = 'world';
+        target.b = newSubTarget;
+
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith('world');
+      });
+
+      it('is called when sub-target is set', () => {
+        sub.resetHistory();
+        target.b = null;
+
+        target.b = subTarget;
+
+        expect(sub).to.have.been.calledTwice;
+        expect(sub).to.have.been.calledWith(undefined);
+        expect(sub).to.have.been.calledWith('baz');
+      });
+
+      it('is called with undefined when sub-target is set to null', () => {
+        sub.resetHistory();
+
+        target.b = null;
+
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith(undefined);
+      });
+
+      it('throws when sub-target is set to non-object', () => {
+        expect(() => target.b = 'foo').to.throw(
+          TypeError,
+          'Value of property "b" is of type string, expected object'
+        );
+      });
+
+      it('is not called when previous sub-target property changes', () => {
+        target.b = null;
+        sub.resetHistory();
+
+        subTarget.bar = 'world';
+
+        expect(sub).not.to.have.been.called;
+      });
+
+      it('is not called after cancellation', () => {
+        sub.resetHistory();
+
+        cancel();
+        subTarget.bar = 'world';
+
+        expect(sub).not.to.have.been.called;
+      });
+
+    });
+
+  });
+
+  describe('ObservableData subscriber', () => {
+
+    class ModelA extends ObservableData {
+      foo: number;
+      b: any;
+    }
+
+    class ModelB extends ObservableData {
+      bar: string;
+      a: ModelA;
     }
 
     let target: ModelA;
