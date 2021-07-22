@@ -6,14 +6,15 @@ injector.jsxProcessor.unsafeBindings = 'error';
 
 const person = new Person();
 person.age = 22;
-person.name = 'Bernd';
+person.name.firstName = 'Bernd';
+person.name.lastName = 'Smith';
 
 person.onAgeChanged(ev => log(`Age changed to ${ev.value}`));
 person.onNameChanged(ev => log(`Name changed to ${ev.value}`));
 
 contentView.append(
   <Stack stretch alignment='stretchX' padding={12} spacing={12}>
-    <TextInput message='new name' onAccept={changeName}/>
+    <TextInput message='Enter new first name' onAccept={changeName}/>
     <Button onSelect={changeName}>Change Name</Button>
     <Slider/>
     <Button onSelect={changeAge}>Change Age</Button>
@@ -21,8 +22,14 @@ contentView.append(
   </Stack>
 );
 
+log(`${person.name} is ${person.age}`);
+
 function changeName() {
-  person.name = $(TextInput).only().text;
+  const textInput = $(TextInput).only();
+  if (textInput.text) {
+    person.name.firstName = textInput.text;
+    textInput.text = '';
+  }
 }
 
 function changeAge() {

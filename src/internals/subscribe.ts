@@ -1,4 +1,4 @@
-import {Listeners, NativeObject, ObservableData} from 'tabris';
+import {EventObject, Listeners, NativeObject, ObservableData} from 'tabris';
 import {CustomPropertyDescriptor} from './CustomPropertyDescriptor';
 
 const force = Symbol();
@@ -8,8 +8,8 @@ export function subscribe(root: any, path: string[], cb: (value: unknown) => voi
   const [rootProperty, ...subProperties] = path;
   let currentValue;
   let cancel;
-  const listener = (mode: any) => {
-    if ((mode === force) || (currentValue !== root[rootProperty])) {
+  const listener = (arg: any) => {
+    if (shouldReact(arg, currentValue, root, rootProperty, subProperties)) {
       currentValue = root[rootProperty];
       if (subProperties.length) {
         if (cancel) {
@@ -37,6 +37,18 @@ export function subscribe(root: any, path: string[], cb: (value: unknown) => voi
       cancel();
     }
   };
+}
+
+function shouldReact(
+  arg: any,
+  currentValue: any,
+  root: any,
+  rootProperty: string,
+  subProperties: string[]
+) {
+  return (arg === force)
+    || (currentValue !== root[rootProperty])
+    || (!subProperties.length && arg.originalEvent instanceof EventObject);
 }
 
 function checkParameter(root: any, path: string[], cb: (value: unknown) => void) {

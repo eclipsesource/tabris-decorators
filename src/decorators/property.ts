@@ -21,7 +21,8 @@ export type PropertySuperConfig<T> = {
   convert?: Converter<T>,
   equals?: CompareMode,
   nullable?: boolean,
-  default?: T
+  default?: T,
+  observe?: boolean
 };
 
 /**
@@ -69,6 +70,7 @@ export function property(targetProto: object, propertyName: string | symbol): vo
  * * *Use `@property({nullable: false})` to disallow `null` and `undefined`values.
  * * *Use `@property({equals: 'auto'})` to relax equality check for objects.
  * * *Use `@property({convert: 'auto'})` to automatically convert the value to the property's type.
+ * * *Use `@property({observe: true})` to propagate change events from the assigned object
  */
 export function property<T>(check: PropertyDecoratorConfig<T>): CustomPropertyDecorator<T>;
 
@@ -80,7 +82,8 @@ export function property(...args: any[]): PropertyDecorator | void {
       convert: getConverter(args[0]),
       equals: getCompareMode(args[0]),
       default: getDefaultValue(args[0]),
-      nullable: getNullable(args[0])
+      nullable: getNullable(args[0]),
+      observe: getObserve(args[0])
     });
   });
 }
@@ -133,6 +136,16 @@ function getNullable(arg: unknown): boolean | null {
     return (arg as any).nullable;
   }
   return null;
+}
+
+function getObserve(arg: unknown): boolean {
+  if (arg instanceof Function) {
+    return false;
+  }
+  if (arg instanceof Object && arg.constructor === Object && 'observe' in arg) {
+    return !!(arg as any).observe;
+  }
+  return false;
 }
 
 function getDefaultValue(arg: unknown): any {

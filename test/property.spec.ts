@@ -1,6 +1,6 @@
 import 'mocha';
 import 'sinon';
-import {ChangeListeners, Color, ColorValue, Composite, Properties, tabris} from 'tabris';
+import {ChangeListeners, Color, ColorValue, Composite, EventObject, Listeners, ObservableData, Properties, PropertyChangedEvent, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy, stub} from './test';
 import {event, property} from '../src';
@@ -625,6 +625,128 @@ describe('property', () => {
 
   });
 
+  describe('with observe option', () => {
+
+    class OtherData {
+      @property foo: string = '';
+      @property({observe: true}) recurse: any;
+    }
+
+    class ObserveExample {
+      @event onEnabledChanged: ChangeListeners<ObserveExample, 'enabled'>;
+      @property({observe: true, type: Object}) enabled: OtherData;
+      @property({observe: false}) disabled: OtherData;
+    }
+
+    class Recurse {
+      @property({observe: true}) child = data;
+      @property bar = '';
+      @property({observe: true}) notAnObject: string = '';
+    }
+
+    let other: OtherData;
+    let data: ObserveExample;
+    let listener: sinon.SinonSpy<Array<PropertyChangedEvent<any, any>>>;
+
+    beforeEach(() => {
+      listener = spy();
+      data = new ObserveExample();
+      other = new OtherData();
+      data.enabled = other;
+      data.onEnabledChanged(listener);
+    });
+
+    it('fires own change events when disabled', () => {
+      listener = spy();
+      Listeners.getListenerStore(data).on('disabledChanged', listener);
+      data.disabled = other;
+      expect(listener).to.have.been.calledOnce;
+    });
+
+    it('does not propagate change events when disabled', () => {
+      data.disabled = other;
+      listener = spy();
+      Listeners.getListenerStore(data).on('disabledChanged', listener);
+
+      other.foo = 'foo';
+
+      expect(listener).not.to.have.been.called;
+    });
+
+    it('fires own change events when enabled', () => {
+      data.enabled = null;
+      expect(listener).to.have.been.calledOnce;
+    });
+
+    it('fires events when nested property changes', function() {
+      other.foo = 'baz';
+
+      expect(listener).to.have.been.calledOnce;
+    });
+
+    it('passes through change events', function() {
+      other.foo = 'baz';
+
+      const ev = listener.args[0][0];
+      const originalEvent = ev.originalEvent;
+      expect(ev.target).to.equal(data);
+      expect(ev.value).to.equal(other);
+      expect(ev.type).to.equal('enabledChanged');
+      expect(originalEvent).to.be.instanceOf(EventObject);
+      expect(originalEvent.target).to.equal(other);
+      expect(originalEvent.type).to.equal('fooChanged');
+      expect(originalEvent.value).to.equal('baz');
+    });
+
+    it('works with ObservableData', function() {
+      data.enabled = other = ObservableData({foo: '', recurse: null});
+      listener.resetHistory();
+
+      other.foo = 'baz';
+
+      const ev = listener.args[0][0];
+      const originalEvent = ev.originalEvent;
+      expect(ev.target).to.equal(data);
+      expect(ev.value).to.equal(other);
+      expect(ev.type).to.equal('enabledChanged');
+      expect(originalEvent).to.be.instanceOf(EventObject);
+      expect(originalEvent.target).to.equal(other);
+      expect(originalEvent.type).to.equal('fooChanged');
+      expect(originalEvent.value).to.equal('baz');
+    });
+
+    it('unsubscribes when property is cleared', function() {
+      data.enabled = null;
+      listener.resetHistory();
+      other.foo = 'bar';
+
+      expect(listener).not.to.have.been.called;
+    });
+
+    it('handles recursion', function() {
+      const recurse = new Recurse();
+      const recurseListener = spy();
+      other.recurse  = recurse;
+      Listeners.getListenerStore(recurse).on('childChanged', recurseListener);
+      Listeners.getListenerStore(recurse).on('barChanged', recurseListener);
+      listener.resetHistory();
+
+      recurse.bar = 'foo';
+
+      expect(recurseListener).to.have.been.calledTwice;
+      const originalEvent = recurseListener.args[0][0];
+      expect(originalEvent.type).to.be.equal('barChanged');
+      expect(originalEvent.value).to.be.equal('foo');
+      expect(originalEvent.originalEvent).to.be.null;
+      expect(listener).to.have.been.calledOnce;
+      const otherEvent = listener.args[0][0].originalEvent;
+      expect(otherEvent.target).to.equal(other);
+      expect(otherEvent.type).to.equal('recurseChanged');
+      expect(otherEvent.originalEvent).to.equal(originalEvent);
+    });
+
+  });
+
   describe('twice', () => {
 
     it('does not throw', () => {
@@ -673,5 +795,4 @@ describe('property', () => {
     });
 
   });
-
 });

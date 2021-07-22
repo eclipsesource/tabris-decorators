@@ -11,10 +11,14 @@ class Item {
   /** @type {Color} */
   @property color;
 
+  /** @type {boolean} */
+  @property selected = false;
+
 }
 
 contentView.append(
   <TabFolder stretch>
+
     <Tab title='Simple'>
       <ListView stretch items={generate(20)}>
         <Cell padding={8} height={52}>
@@ -23,6 +27,7 @@ contentView.append(
         </Cell>
       </ListView>
     </Tab>
+
     <Tab title='Mixed'>
       <ListView stretch items={generate(20, {mixed: true})}>
         <Cell itemType='string' height={56} padding={8}>
@@ -35,14 +40,18 @@ contentView.append(
         </Cell>
       </ListView>
     </Tab>
+
     <Tab title='Selection' layout={StackLayout.default}>
       <ListView stretch items={generate(20)} onSelect={handleSelection}>
         <Cell selectable padding={8} height={52}>
-          <TextView centerY template-text='Tap here to select ${item.text}:' font='24px'/>
+          <TextView centerY font='24px'
+              template-text='Tap here to select ${item.text}'
+              bind-background={to('item.selected', value => value ? Color.aqua : null)}/>
         </Cell>
       </ListView>
       <TextView id='output1' padding={12} font='18px'>...</TextView>
     </Tab>
+
     <Tab title='Actions' layout={StackLayout.default}>
       <ListView stretch items={generate(20)} onSelect={handleAction}>
         <Cell padding={8} height={80}>
@@ -50,11 +59,15 @@ contentView.append(
           <TextView left='prev() 12' right='next() 12' font='18px'
               bind-text='item.text'
               onLongPress={ev => ev.state === 'start' ? ListView.selectSecondary(ev) : null}/>
-          <CheckBox right={0} font='18px' onSelect={ListView.selectToggle}>Toggle Action</CheckBox>
+          <CheckBox right={0} font='18px'
+              text='Toggle Action'
+              bind-checked='item.selected'
+              onSelect={ListView.selectToggle}/>
         </Cell>
       </ListView>
       <TextView id='output2' padding={12} font='18px'>Hold down on text for secondary action</TextView>
     </Tab>
+
     <Tab title='Zebra'>
       <ListView stretch items={generate(20)}>
         <Cell padding={8} height={52} onItemIndexChanged={alternateBackground}>
@@ -62,12 +75,14 @@ contentView.append(
         </Cell>
       </ListView>
     </Tab>
+
   </TabFolder>
 );
 
 /** @param {import('tabris-decorators').ListViewSelectEvent<Item>} ev */
 function handleSelection(ev) {
   $('#output1').only(TextView).text = 'Selected ' + ev.item.text;
+  ev.item.selected = !ev.item.selected;
 }
 
 /** @param {import('tabris-decorators').ListViewSelectEvent<Item>} ev */
@@ -77,6 +92,7 @@ function handleAction(ev) {
   const source = ev.originalEvent.target;
   if (source instanceof CheckBox) {
     $('#output2').only(TextView).text += ` (${source.checked})`;
+    ev.item.selected = !ev.item.selected;
   }
 }
 

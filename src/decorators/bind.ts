@@ -1,11 +1,11 @@
 import {Composite, Listeners} from 'tabris';
-import {CustomPropertyDecorator, PropertySuperConfig, Converter} from './property';
+import {eventType} from './event';
+import {Converter, CustomPropertyDecorator, PropertySuperConfig} from './property';
 import {Injector, injector} from '../api/Injector';
 import {CustomPropertyDescriptor} from '../internals/CustomPropertyDescriptor';
 import {TwoWayBinding} from '../internals/TwoWayBinding';
 import {applyDecorator, getPropertyType, isPrimitiveType} from '../internals/utils';
-import {checkIsComponent, checkPropertyExists, parseTargetPath, postAppendHandlers, TargetPath, WidgetInterface, BindingConverter, MultipleBindings, BindingValue, BoundListener} from '../internals/utils-databinding';
-import {eventType} from './event';
+import {BindingConverter, BindingValue, BoundListener, checkIsComponent, checkPropertyExists, MultipleBindings, parseTargetPath, postAppendHandlers, TargetPath, WidgetInterface} from '../internals/utils-databinding';
 
 export type BindAllConfig<
   PropertyType extends object,
@@ -122,7 +122,8 @@ export function bind(...args: any[]): any {
       equals: isShorthand ? null : args[0].equals || null,
       convert: getConverter(isShorthand, args),
       nullable: isShorthand ? null : 'nullable' in args[0] ? args[0].nullable : null,
-      default: isShorthand ? undefined : args[0].default
+      default: isShorthand ? undefined : args[0].default,
+      observe: isShorthand ? true : args[0].observe !== false
     };
     checkParameters(config);
     preCheckComponentProperty(config);
@@ -286,7 +287,7 @@ function checkListenerName(name: string) {
     throw new Error(
       `"${name}" is not a valid name for listener registration. `
       + `Did you mean "on${name.slice(0, 1).toUpperCase()}${name.slice(1)}"?`
-    )
+    );
   }
 }
 
