@@ -1,6 +1,6 @@
 import 'mocha';
 import {match} from 'sinon';
-import {Composite, ImageView, Setter, Stack, tabris, TextView, Widget, WidgetCollection} from 'tabris';
+import {Composite, ImageView, ObservableData, Setter, Stack, tabris, TextView, Widget, WidgetCollection} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy} from './test';
 import {injector, property} from '../src';
@@ -393,6 +393,17 @@ describe('Cell', () => {
       cell.onItemChanged(listener);
 
       cell.item = item;
+
+      expect(listener).to.have.been.calledOnceWith(match.has('value', item));
+    });
+
+    it('observes object', () => {
+      const item = ObservableData({foo: ''});
+      const listener = spy();
+      cell.item = item;
+      cell.onItemChanged(listener);
+
+      cell.item.foo = 'bar';
 
       expect(listener).to.have.been.calledOnceWith(match.has('value', item));
     });

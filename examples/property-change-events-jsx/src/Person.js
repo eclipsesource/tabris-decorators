@@ -1,9 +1,23 @@
 import {event, property} from 'tabris-decorators';
 
-export class Person {
+export class Name {
 
   /** @type {string} */
-  @property name;
+  @property firstName;
+
+  /** @type {string} */
+  @property lastName;
+
+  toString() {
+    return this.firstName + ' ' + this.lastName;
+  }
+
+}
+
+export class Person {
+
+  /** @type {Name} */
+  @property({observe: true}) name = new Name();
 
   /** @type {number} */
   @property age = 50;

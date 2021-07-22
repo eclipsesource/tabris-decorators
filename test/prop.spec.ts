@@ -1,6 +1,6 @@
 import 'mocha';
 import 'sinon';
-import {ChangeListeners, Color, ColorValue} from 'tabris';
+import {ChangeListeners, Color, ColorValue, Listeners} from 'tabris';
 import {expect, spy} from './test';
 import {event, prop} from '../src';
 
@@ -28,6 +28,9 @@ describe('prop', () => {
       @event onColorChanged: ChangeListeners<this, 'color'>;
       @prop(Color)
       color: ColorValue;
+
+      @prop otherExample: Example;
+
     }
 
     let example: Example;
@@ -91,6 +94,15 @@ describe('prop', () => {
       expect(example.foo).to.equal('');
       expect(example.bar).to.equal(0);
       expect(example.baz).to.equal(false);
+    });
+
+    it('fires events when nested property changes', function() {
+      example.otherExample = new Example();
+      Listeners.getListenerStore(example).on('otherExampleChanged', listener);
+
+      example.otherExample.bar = 1;
+
+      expect(listener).to.have.been.calledOnce;
     });
 
   });

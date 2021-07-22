@@ -159,6 +159,49 @@ any type    | not set          | `'off'`               | Exception thrown
 primitive   | not set          | `'auto'` or function  | Value converted
 object type | not set          | `'auto'` or function  | Exception thrown
 
+### config.observe
+
+Where `observe` is a boolean. The default is `false`. Has no effect on properties containing primitives.
+
+If set to `true`, the property will fire a change event for itself whenever its contained object fires a change event for any of its own properties:
+
+```ts
+class MyData {
+
+  @property({observe: true})
+  data: OtherData;
+
+  @event
+  onOtherDataChanged: ChangeListeners<ObserveExample, 'data'>;
+
+}
+
+const data = new MyData();
+data.onOtherDataChanged(ev => console.log(ev.value?.foo));
+
+const otherData = new OtherData();
+otherData.foo = 1;
+data.otherData = otherData; // logs "1"
+otherData.foo = 2; // logs "2"
+```
+
+The change event fired by the "observing" property (here: `data`) will have a reference to the change event that caused it:
+
+```ts
+data.onOtherDataChanged(ev => console.log(ev.originalEvent?.value));
+```
+
+If the change event was caused by the "observing" property itself receiving a new value (e.g. another object or `null`) the `originalEvent` property will be `null`.
+
+The [`data` property of `Widget`](../api/Widget.md#data) and [the `item` property of `Cell`](../api/Cell.md#item) both are "observing" properties. All properties [of an `ObservableData` instance](../api/ObservableData.md) are as well, and any property decorated with `@bind`, `@bindAll` or `@prop`.
+
+This feature is intended to be used with the [`apply` attribute/method](../selector.md#reactive-apply) or the `@bind`/`@bindAll` decorators in scenarios where values for the UI are computed based on models that are nested within each other.
+
+Examples can be found here:
+ * ["property-change-events"](../../examples/property-change-events) and ["property-change-events-jsx"](../../examples/property-change-events-jsx): Use change listeners to react to any change in a nested model.
+ * ["bind-one-way-ts"](../../examples/bind-one-way-ts): Use the `@bind` decorators to bind to a nested model.
+ * ["listview-cells-js"](../../examples/listview-cells-js): Use the `apply` attribute to update a cell when an item is selected.
+
 ### config.equals
 
 Where `equals` is `'strict'`, `'shallow'`, `'auto'` or a function. Default is `'strict'`.

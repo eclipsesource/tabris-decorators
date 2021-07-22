@@ -48,7 +48,8 @@ export function prop(...args: any[]): PropertyDecorator | void {
       type: getUserType(args[0]),
       convert: getConverter(args[0]),
       equals: getCompareMode(args[0]),
-      default: getDefaultValue(args[0])
+      default: getDefaultValue(args[0]),
+      observe: getObserve(args[0])
     });
     property.addConfig({
       nullable: getNullable(args[0], property.type)
@@ -68,6 +69,9 @@ function getTypeGuard(arg: unknown): TypeGuard<any> | null {
 
 function getUserType(arg: unknown): UserType<any> | null {
   if (arg instanceof Function) {
+    if (!arg.prototype) {
+      throw new Error('argument is not a valid constructor');
+    }
     return arg as UserType<any>;
   }
   if (arg instanceof Object && arg.constructor === Object) {
@@ -114,4 +118,14 @@ function getDefaultValue(arg: unknown): any {
     return (arg as any).default;
   }
   return autoDefault;
+}
+
+function getObserve(arg: unknown): boolean {
+  if (arg instanceof Function) {
+    return true;
+  }
+  if (arg instanceof Object && arg.constructor === Object && 'observe' in arg) {
+    return !!(arg as any).observe;
+  }
+  return true;
 }

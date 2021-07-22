@@ -1,11 +1,11 @@
 import 'mocha';
-import 'sinon';
-import {useFakeTimers, SinonSpy} from 'sinon';
-import {Color, ColorValue, Composite, tabris, TextInput, TextView} from 'tabris';
+import {SinonSpy, useFakeTimers} from 'sinon';
+import {Color, ColorValue, Composite, Listeners, ObservableData, tabris, TextInput, TextView} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, restoreSandbox, spy, stub} from './test';
-import {bind, component, property, BindingConverter} from '../src';
+import {bind, BindingConverter, component, property} from '../src';
 import {Conversion} from '../src/internals/Conversion';
+import 'sinon';
 
 describe('component', () => {
 
@@ -21,6 +21,8 @@ describe('component', () => {
 
     @bind('#textInput1.text')
     myText: string;
+
+    myColorRef?: {color: Color};
 
     @bind({
       path: '#textInput1.layoutData',
@@ -297,9 +299,16 @@ describe('component', () => {
     describe('with ">>" prefix', () => {
 
       @component class ToRight extends Composite {
+
         // space after direction is not required
-        @bind('>>#textInput1.text') myText: string;
+        @bind('>>#textInput1.text')
+        myText: string;
+
+        @bind('>> #textInput1.background', obj => obj?.color)
+        myColorRef: {color: Color} = ObservableData({color: Color.red});
+
         myObject: object;
+
       }
 
       beforeEach(() => {
@@ -312,6 +321,7 @@ describe('component', () => {
         widget.append(textInput1);
 
         expect(textInput1.text).to.equal('foobar');
+        expect(textInput1.background).to.equal(Color.red);
         expect(widget.myText).to.equal('foobar');
       });
 
@@ -340,6 +350,14 @@ describe('component', () => {
 
         expect(widget.myText).to.equal('bar');
         expect(textInput1.text).to.equal('baz');
+      });
+
+      it('applies nested property changes to target', () => {
+        widget.append(textInput1);
+
+        widget.myColorRef.color = Color.green;
+
+        expect(textInput1.background).to.equal(Color.green);
       });
 
     });
@@ -614,6 +632,12 @@ describe('component', () => {
       })
       color2: ColorValue;
 
+      @bind({path: '>> #foo.data'})
+      observing: {test: number} = ObservableData({test: 1});
+
+      @bind({path: '>> #foo.data', observe: false})
+      notObserving: {test: number} = ObservableData({test: 1});
+
     }
 
     it('throws if target value changes to value rejected by type guard', () => {
@@ -687,6 +711,21 @@ describe('component', () => {
       const withConverter = new BindWithOptions();
       withConverter.color2 = '#001122';
       expect(withConverter.color2).to.be.instanceOf(Color);
+    });
+
+    it('supports observe', () => {
+      const listener = spy();
+      const target = new BindWithOptions();
+      Listeners.getListenerStore(target).on('observingChanged', listener);
+      Listeners.getListenerStore(target).on('notObservingChanged', listener);
+
+      target.observing.test = 23;
+      target.notObserving.test = 24;
+
+      expect(listener).to.have.been.calledOnce;
+      expect(listener.args[0][0].type).to.equal('observingChanged');
+      expect(listener.args[0][0].originalEvent.type).to.equal('testChanged');
+      expect(listener.args[0][0].originalEvent.target).to.equal(target.observing);
     });
 
   });

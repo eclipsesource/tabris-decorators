@@ -1,13 +1,17 @@
+const {ObservableData} = require('tabris');
 const {Button, CheckBox, Color, Composite, contentView, StackLayout, Tab, TabFolder, TextView, Set} = require('tabris');
 const {Cell, ItemAction, ListView} = require('tabris-decorators');
 
-class Item {
+class Item extends ObservableData {
 
   constructor() {
+    super();
     /** @type {string} */
     this.text = '';
     /** @type {Color} */
     this.color = null;
+    /** @type {boolean} */
+    this.selected = false;
   }
 
 }
@@ -36,7 +40,7 @@ contentView.append(
                 ],
                 apply: ({item}) => [
                   Set(TextView, {
-                    text: item ? `The color of ${item.text}` : 'foo'
+                    text: item ? `The color of ${item.text}` : ''
                   }),
                   Set(Composite, '#color', {
                     background: item ? item.color : 'transparent'
@@ -54,6 +58,7 @@ contentView.append(
             items: generate(20),
             onSelect: ev => {
               $('#output1').only(TextView).text = 'Selected ' + ev.item.text;
+              ev.item.selected = !ev.item.selected;
             },
             cellHeight: 52,
             createCell: () =>
@@ -64,7 +69,8 @@ contentView.append(
                 children: [TextView({centerY: true, font: '24px'})],
                 apply: ({item}) =>
                   Set(TextView, {
-                    text: item instanceof Item ? `Tap here to select ${item.text}:` : ''
+                    text: item instanceof Item ? `Tap here to select ${item.text}:` : '',
+                    background: item instanceof Item && item.selected ? Color.aqua : null
                   })
               })
           }),
@@ -83,6 +89,7 @@ contentView.append(
               const source = ev.originalEvent.target;
               if (source instanceof CheckBox) {
                 $('#output2').only(TextView).text += ` (${source.checked})`;
+                ev.item.selected = !ev.item.selected;
               }
             },
             cellHeight: 80,
@@ -110,10 +117,14 @@ contentView.append(
                     text: 'Toggle Action'
                   })
                 ],
-                apply: ({item}) =>
+                apply: ({item}) => [
                   Set(TextView, {
                     text: item instanceof Item ? item?.text : ''
+                  }),
+                  Set(CheckBox, {
+                    checked: item instanceof Item && item.selected
                   })
+                ]
               })
           }),
           TextView({

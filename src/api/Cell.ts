@@ -52,7 +52,7 @@ namespace internal {
     @property readonly selectable: boolean = false;
     @property readonly itemType: ItemTypeDef<ItemType>;
     @property readonly itemCheck: ItemCheck<ItemType>;
-    @property item: ItemType = null;
+    @property({observe: true}) item: ItemType = null;
     @property(num => num >= -1) itemIndex: number = -1;
 
     private [factory]: () => this;

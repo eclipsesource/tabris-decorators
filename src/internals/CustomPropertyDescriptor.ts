@@ -1,9 +1,10 @@
+import {ObservableData} from 'tabris';
 import {Constructor, getPropertyType} from './utils';
 import {getPropertyStore, trigger, TypeGuard, UserType} from './utils-databinding';
 import {checkType, getValueString, isType} from '../api/checkType';
 import {convert} from '../api/convert';
 import {CompareFn, CompareMode, equals} from '../api/equals';
-import {Converter, PropertySuperConfig, PropertyInitializer} from '../decorators/property';
+import {Converter, PropertyInitializer, PropertySuperConfig} from '../decorators/property';
 
 export type CustomPropertyConfig<T> = PropertySuperConfig<T> & {
   initializer?: PropertyInitializer<any, T>,
@@ -14,6 +15,14 @@ export type InternalChangeHandler<Proto, TargetType> =
   (instance: Proto, value: TargetType, oldValue: TargetType) => void;
 
 export const autoDefault: unique symbol = Symbol('autoDefault');
+
+const generateChangeEvents: (change: {
+  target: object,
+  property: string,
+  subscriptions: object
+}) => void = (ObservableData as any)?.generateChangeEvents.bind(ObservableData);
+
+const subscriptionsKey: unique symbol = Symbol('subscriptionsKey');
 
 export class CustomPropertyDescriptor<Proto extends object, TargetType> {
 
@@ -60,18 +69,18 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
   private userType: UserType<TargetType>;
   private typeGuard: TypeGuard;
   private readonly targetType = getPropertyType(this.proto, this.propertyName);
-  private readonly changeEvent: string;
   private equals: CompareFn;
   private convert: (value: unknown, instance: object) => TargetType;
   private youHaveBeenWarned: boolean = false;
   private defaultValue: TargetType | undefined;
   private nullable: boolean;
   private readonly: boolean;
+  private observe: boolean;
   private initializer: PropertyInitializer<Proto, TargetType>;
 
   constructor(private readonly proto: Proto, private readonly propertyName: keyof Proto & string) {
     const self = this;
-    this.changeEvent = propertyName + 'Changed';
+    this.propertyName = propertyName;
     this.set = function(this: Proto, value) { self.setValue(this, value); };
     this.get = function(this: Proto) { return self.getValue(this); };
     Object.defineProperty(proto, propertyName, this);
@@ -81,11 +90,15 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
     this.setDefaultValue(undefined);
     this.setInitializer(undefined);
     this.setReadonly(false);
+    this.setObserve(false);
   }
 
   addConfig(config: CustomPropertyConfig<TargetType>) {
     if (config.readonly) {
       this.setReadonly(config.readonly);
+    }
+    if (config.observe) {
+      this.setObserve(config.observe);
     }
     if (config.initializer) {
       this.setInitializer(config.initializer);
@@ -134,9 +147,21 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
       if (!this.isUnchecked()) {
         this.checkType(newValue);
       }
-      getPropertyStore(instance).set(this.propertyName, newValue);
+      const store = getPropertyStore(instance);
+      store.set(this.propertyName, newValue);
       this.changeHandler.forEach(handler => handler(instance, newValue, oldValue));
-      trigger(instance, this.changeEvent, {value: newValue});
+      if (!this.observe) {
+        trigger(instance, this.propertyName + 'Changed', {value: newValue});
+      } else {
+        if (!store.get(subscriptionsKey)) {
+          store.set(subscriptionsKey, {});
+        }
+        generateChangeEvents({
+          property: this.propertyName,
+          target: instance,
+          subscriptions: store.get(subscriptionsKey)
+        });
+      }
     }
   }
 
@@ -237,6 +262,10 @@ export class CustomPropertyDescriptor<Proto extends object, TargetType> {
 
   private setReadonly(readonly: boolean) {
     this.readonly = readonly;
+  }
+
+  private setObserve(observe: boolean) {
+    this.observe = observe && generateChangeEvents != null;
   }
 
   private setDefaultValue(value: TargetType | undefined | typeof autoDefault) {

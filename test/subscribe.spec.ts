@@ -1,11 +1,11 @@
 import 'mocha';
-import 'sinon';
+import {SinonSpy} from 'sinon';
 import {ChangeListeners, Composite, Listeners, ObservableData, tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, spy} from './test';
-import {property} from '../src';
+import {prop, property} from '../src';
 import {subscribe} from '../src/internals/subscribe';
-import { SinonSpy } from 'sinon';
+import 'sinon';
 
 describe('subscribe', () => {
 
@@ -203,7 +203,7 @@ describe('subscribe', () => {
       sub = spy();
     });
 
-    describe('to primitive type', () => {
+    describe('subscribed to primitive type', () => {
 
       it('is called initially with current value', () => {
         target.foo = 1;
@@ -325,6 +325,149 @@ describe('subscribe', () => {
         subTarget.bar = 'world';
 
         expect(sub).not.to.have.been.called;
+      });
+
+    });
+
+  });
+
+  describe('@prop subscriber (observing property)', () => {
+
+    class ModelA {
+      @prop foo: number;
+      @prop(Object)
+      b: any;
+    }
+
+    class ModelB {
+      @prop bar: string;
+      @prop a: ModelA;
+    }
+
+    let target: ModelA;
+    let sub: SinonSpy;
+    let cancel: () => void;
+
+    beforeEach(() => {
+      target = new ModelA();
+      sub = spy();
+    });
+
+    describe('to primitive type', () => {
+
+      it('is called with new value', () => {
+        subscribe(target, ['foo'], sub);
+        sub.resetHistory();
+
+        target.foo = 2;
+
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith(2);
+      });
+
+      it('is called with default property value', () => {
+        subscribe(target, ['foo'], sub);
+        expect(sub).to.have.been.calledWith(0);
+      });
+
+    });
+
+    describe('to object type', () => {
+
+      let b: ModelB;
+      let a: ModelA;
+
+      beforeEach(() => {
+        b = new ModelB();
+        b.bar = 'baz';
+        target.b = b;
+        a = b.a = new ModelA();
+      });
+
+      it('is called with initial value', () => {
+        cancel = subscribe(target, ['b'], sub);
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith(b);
+      });
+
+      it('is not called multiple times with in-between object', () => {
+        cancel = subscribe(target, ['b', 'a', 'foo'], sub);
+        sub.resetHistory();
+
+        b.a.foo = 23;
+
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith(23);
+      });
+
+      it('is called when nested object mutates', () => {
+        cancel = subscribe(target, ['b'], sub);
+        sub.resetHistory();
+
+        b.bar = 'foo;';
+
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith(b);
+      });
+
+    });
+
+    describe('to nested target', () => {
+
+      let subTarget: ModelB;
+
+      beforeEach(() => {
+        subTarget = new ModelB();
+        subTarget.bar = 'baz';
+        target.b = subTarget;
+        cancel = subscribe(target, ['b', 'bar'], sub);
+      });
+
+      it('is called when sub-target property changes', () => {
+        sub.resetHistory();
+
+        subTarget.bar = 'hello';
+
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith('hello');
+      });
+
+      it('is called when sub-target is replaced', () => {
+        sub.resetHistory();
+
+        const newSubTarget = new ModelB();
+        newSubTarget.bar = 'world';
+        target.b = newSubTarget;
+
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith('world');
+      });
+
+      it('is called when sub-target is set', () => {
+        sub.resetHistory();
+        target.b = null;
+
+        target.b = subTarget;
+
+        expect(sub).to.have.been.calledTwice;
+        expect(sub).to.have.been.calledWith(undefined);
+        expect(sub).to.have.been.calledWith('baz');
+      });
+
+      it('is called with undefined when sub-target is set to null', () => {
+        sub.resetHistory();
+
+        target.b = null;
+
+        expect(sub).to.have.been.calledOnce;
+        expect(sub).to.have.been.calledWith(undefined);
+      });
+
+      it('throws when sub-target is set to non-object', () => {
+        expect(() => target.b = 'foo').to.throw(
+          TypeError,
+          'Value of property "b" is of type string, expected object'
+        );
       });
 
     });

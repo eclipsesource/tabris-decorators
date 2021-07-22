@@ -1,11 +1,11 @@
 import 'mocha';
-import 'sinon';
+import {SinonSpy} from 'sinon';
 import {ChangeListeners, Composite, Listeners, Properties, tabris, TextInput, TextView} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 import {expect, spy, stub} from './test';
-import {bind, bindAll, component, event, property, Injector, inject, to, BindingConverter} from '../src';
-import {SinonSpy} from 'sinon';
+import {bind, bindAll, BindingConverter, component, event, inject, Injector, prop, property, to} from '../src';
 import {Conversion} from '../src/internals/Conversion';
+import 'sinon';
 
 const injector = new Injector();
 const {injectable} = injector;
@@ -17,6 +17,7 @@ describe('component', () => {
     @event onTextChanged: ChangeListeners<Item, 'text'>;
     @property text: string = 'Hello';
     @event onCustomEvent: Listeners<{target: Item, foo: boolean}>;
+    @prop nested: Item;
   }
 
   let item: Item;
@@ -589,6 +590,16 @@ describe('component', () => {
 
       }
 
+      @component
+      class OneWayNested extends Composite {
+
+        @bind({all: {
+          nested: to('>> #foo.text', (val: Item) => val?.text)
+        }})
+        item: Item;
+
+      }
+
       beforeEach(() => {
         convertFn = stub().returnsArg(0);
         widget = new WithConverter();
@@ -701,19 +712,6 @@ describe('component', () => {
         expect(textInput.text).to.equal('BAZ');
       });
 
-      it('converts sync-back value', () => {
-        convertFn = spy(twoWayConverter);
-        item.text = '';
-        widget.item = item;
-        item.onTextChanged((ev: any) => item.text = ev.value === 'bar' ? 'baz' : ev.value);
-        widget.append(textInput);
-
-        textInput.text = 'bAr';
-
-        expect(item.text).to.equal('baz');
-        expect(textInput.text).to.equal('BAZ');
-      });
-
       it('converts target-to-model values on fresh item', () => {
         convertFn = spy(twoWayConverter);
         widget = new OneWayRev();
@@ -724,6 +722,17 @@ describe('component', () => {
 
         expect(textInput.text).to.equal('bAz');
         expect(item.text).to.equal('baz');
+      });
+
+      it('converts when nested object in observing property mutates', () => {
+        widget = new OneWayNested();
+        widget.append(textInput);
+        widget.item = item;
+        widget.item.nested = new Item();
+
+        widget.item.nested.text = 'foo';
+
+        expect(textInput.text).to.equal('foo');
       });
 
     });
@@ -782,7 +791,7 @@ describe('component', () => {
       });
 
       it('checks name', () => {
-        class Fail extends Composite { foo: string }
+        class Fail extends Composite { foo: string; }
         expect(() =>
           bind({all: {
             customEvent(this: ListeningComponent, ev) {
