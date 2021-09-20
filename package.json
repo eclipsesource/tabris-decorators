@@ -1,6 +1,6 @@
 {
   "name": "tabris-decorators",
-  "version": "3.7.0",
+  "version": "3.8.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "repository": {
@@ -23,7 +23,7 @@
     "start:windows": ".\\launch.cmd"
   },
   "peerDependencies": {
-    "tabris": "^3.7.0"
+    "tabris": "^3.8.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.0",
@@ -46,7 +46,7 @@
     "run-script-os": "^1.0.7",
     "sinon": "^7.4.1",
     "sinon-chai": "^3.3.0",
-    "tabris": "^3.8.0-dev.20210721",
+    "tabris": "^3.8.0",
     "ts-loader": "^6.0.4",
     "ts-mocha": "^6.0.0",
     "typescript": "^4.1.2",
