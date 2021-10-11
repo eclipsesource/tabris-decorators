@@ -58,7 +58,7 @@ Where `type` is a constructor function.
 
 **This option is usually not required in TypeScript, only in JavaScript/JSX files. A possible exception is using it with a [converter](#configconvert).**
 
-When providing this option the property will check that every assigned value is an instance of the given constructor function, such as `Date`. Primitives (`number`, `string`, `boolean`) are represented by the constructors of their [boxed/wrapped values](https://developer.mozilla.org/en-US/docs/Glossary/Primitive#Primitive_wrapper_objects_in_JavaScript).
+When providing this option the property will check that every assigned value is an instance of the given constructor function, such as `Date`. Primitives (`number`, `string`, `boolean`) are represented by the constructors of their [boxed/wrapped values](https://developer.mozilla.org/en-US/docs/Glossary/Primitive#primitive_wrapper_objects_in_javascript).
 
 JavaScript Example:
 

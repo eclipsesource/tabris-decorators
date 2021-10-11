@@ -6,7 +6,7 @@
 
 Apply this to a class to register it for injection.
 
-> :point_right: See example apps ["injectable"](../../examples/injectable) (TypeScript) and ["inject-js"](../../examples/inject-js) (plain JavaScript).
+> :point_right: See example apps ["injectable"](../../examples/injectable) (TypeScript) and ["injector-js"](../../examples/injector-js) (plain JavaScript).
 
 ## @injectable (no parameter)
 

@@ -8,7 +8,7 @@ Instances of the `Conversion` class are given as the second argument to any conv
 
 > The [property converter functions of `@property`/`@prop`](./@property.md#configconvert) do *not* receive this object.
 
-In all Tabris.js data binding APIs source values may be converted before the framework applies them to the target property. To do so a converter function is used, both in [one-way bindings via JSX](./@component.md#valueconversion) and one-way/two-way bindings via [`@bind`](./@bind.md#pathconvert) or [`@bindAll`](./@bindAll.md#valueconversion).
+In all Tabris.js data binding APIs source values may be converted before the framework applies them to the target property. To do so a converter function is used, both in [one-way bindings via JSX](./@component.md#value-conversion) and one-way/two-way bindings via [`@bind`](./@bind.md#configconvert) or [`@bindAll`](./@bindAll.md#value-conversion).
 
 > The TypeScript type of this function is exported as `BindingConverter` and is defined as:
 > ```ts

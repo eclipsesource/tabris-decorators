@@ -2,7 +2,7 @@
 ---
 # Dependency Injection
 
-> :point_right: See example apps ["injectable"](../../examples/injectable) (TypeScript) and ["inject-js"](../../examples/inject-js) (plain JavaScript).
+> :point_right: See example apps ["injectable"](../../examples/injectable) (TypeScript) and ["injector-js"](../../examples/injector-js) (plain JavaScript).
 
 
 ## Introduction
@@ -141,4 +141,4 @@ export class MainViewModel {
 
 ## Dependency Injection in plain JavaScript
 
-In plain JavaScript projects decorators are not supported. However, you can use the [`Injector`](./Injector.md) directly as [this example](../../examples/inject-js) demonstrates.
+In plain JavaScript projects decorators are not supported. However, you can use the [`Injector`](./Injector.md) directly as [this example](../../examples/injector-js) demonstrates.

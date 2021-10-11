@@ -20,9 +20,9 @@ Data binding in the context of Tabris.js/`tabris-decorators` refers to a set of 
 
 A very simple example app using both, one-way and two-way bindings, can be found [here](../../examples/labeled-input).
 
-Bindings can also be established with [properties of non-widget object](./@component.md#binding-to-nested-properties) that are attached to a component. In one-way bindings the values may also be be [converted or transformed](./@component.md#conversion) before they are applied to the child element.
+Bindings can also be established with [properties of non-widget object](./@component.md#binding-to-nested-properties) that are attached to a component. In one-way bindings the values may also be be [converted or transformed](./@component.md#value-conversion) before they are applied to the child element.
 
-Both flavors of bindings rely on property change events to detect changes in the objects involved. The framework [can assist you with this as well](./@property.md). In case a specific requirement of your component can not be handled via data binding it also provides [easy and safe direct access](./@getbyid.md) to any child element.
+Both flavors of bindings rely on property change events to detect changes in the objects involved. The framework [can assist you with this as well](./@property.md). In case a specific requirement of your component can not be handled via data binding it also provides [easy and safe direct access](./@getById.md) to any child element.
 
 ## The Decorators
 

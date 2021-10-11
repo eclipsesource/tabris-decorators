@@ -95,7 +95,7 @@ class Model {
 
 ### Value conversion
 
-The value of the source object property may be converted before it is applied to the target element property and vice versa. To do so [the `to` helper function](./@component.md#conversion) may be used to give both a path string and a value converter function:
+The value of the source object property may be converted before it is applied to the target element property and vice versa. To do so [the `to` helper function](./@component.md#value-conversion) may be used to give both a path string and a value converter function:
 
 ```ts
 @bindAll({

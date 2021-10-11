@@ -152,7 +152,7 @@ myPropertyB;
 myPropertyC;
 ```
 
-The `BindingConverter` given to `convert.binding` is a one or two-way converter function that is used to convert values when the property is synchronized with the property given by [`path`](#configpath) in either direction. See [@bind(path, converter)](#bindpathconverter) for details.
+The `BindingConverter` given to `convert.binding` is a one or two-way converter function that is used to convert values when the property is synchronized with the property given by [`path`](#configpath) in either direction. See [@bind(path, converter)](#bindpath-converter) for details.
 
 #### Difference between property converter and binding converter
 
