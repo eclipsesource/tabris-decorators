@@ -1,10 +1,11 @@
-import {expect, use} from 'chai';
+import {expect} from 'chai';
+import * as chai from 'chai';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import {tabris} from 'tabris';
 import ClientMock from 'tabris/ClientMock';
 
-use(sinonChai);
+chai.use(sinonChai);
 
 const sandbox = sinon.sandbox.create();
 const spy = sandbox.spy.bind(sandbox) as sinon.SinonSpyStatic;

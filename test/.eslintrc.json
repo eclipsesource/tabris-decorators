@@ -1,0 +1,13 @@
+{
+  "extends": "../.eslintrc.json",
+  "rules": {
+    "no-unused-expressions": "off",
+    "prefer-arrow-callback": "off",
+    "no-new-wrappers": "off",
+    "no-class-assign": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/naming-convention": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-empty-function": "off"
+  }
+}

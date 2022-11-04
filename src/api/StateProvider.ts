@@ -142,6 +142,7 @@ function applyRules(widget: Widget, targetState: {apply?: object}) {
   const {apply: rules, ...props} = targetState;
   checkType(rules, Object, {nullable: true, name: 'apply'});
   if (Object.keys(props).length) {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     const args = {rules: {':host': props}, mode:'strict', trigger: 'rules'};
     applyRulesInternal(args, widget, new WidgetCollection([widget]), true);
   }

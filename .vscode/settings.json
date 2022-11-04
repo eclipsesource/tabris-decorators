@@ -6,7 +6,7 @@
   "files.exclude": {
     ".project": true
   },
-  "javascript.implicitProjectConfig.experimentalDecorators": true,
+  "js/ts.implicitProjectConfig.experimentalDecorators": true,
   "typescript.tsdk": "./node_modules/typescript/lib",
   "typescript.extension.sortImports.sortMethod": "path",
   "typescript.extension.sortImports.pathSortOrder": [

@@ -66,9 +66,9 @@ export class List<T> implements ListLike<T> {
   private [data]: T[] = [];
   private [observers]: Listeners<Mutation<T>> = new Listeners(this, 'mutate');
 
-  constructor(arrayLength?: number)
-  constructor(...items: T[])
-  constructor(initializer: {[init]: any[]})
+  constructor(arrayLength?: number);
+  constructor(...items: T[]);
+  constructor(initializer: {[init]: any[]});
   constructor() {
     const param: unknown = arguments.length === 1 ? arguments[0] : false;
     if (arguments.length === 0) {
