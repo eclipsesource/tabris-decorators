@@ -6,8 +6,8 @@
     "tabris": "^3.8.0",
     "tabris-decorators": "^3.8.0"
   },
-   "devDependencies": {
-    "typescript": "3.8.x"
+  "devDependencies": {
+    "typescript": "4.8.x"
   },
   "main": "dist/app.js",
   "scripts": {

@@ -6,6 +6,7 @@ type Factory = (value: unknown) => any;
 const floatRegEx = /^[+-]?([0-9]+|[0-9]*\.[0-9]+)$/;
 
 const staticNumbers = Object.freeze({
+  /* eslint-disable @typescript-eslint/naming-convention */
   '': 0,
   'nan': NaN,
   'infinity': Infinity,
@@ -13,6 +14,7 @@ const staticNumbers = Object.freeze({
 });
 
 const staticBoolean = Object.freeze({
+  /* eslint-disable @typescript-eslint/naming-convention */
   '': false,
   '1': true,
   '0': false,

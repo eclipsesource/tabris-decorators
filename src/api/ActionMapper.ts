@@ -26,9 +26,10 @@ export type Callbacks<T extends object> = {
   apply?: MappedRules
 };
 
-type ActionCreator<TargetFunction extends (...args: any[]) => any, Action> = TargetFunction extends Listeners<any>
-  ? (ev: EventOfListeners<TargetFunction>) => Action
-  : (...args: Parameters<TargetFunction>) => Action;
+type ActionCreator<TargetFunction, Action>
+  = TargetFunction extends Listeners<any> ? (ev: EventOfListeners<TargetFunction>) => Action
+    : TargetFunction extends (...args: any[]) => any ? (...args: Parameters<TargetFunction>) => Action
+    : any;
 
 type FunctionKeysOf<T> = { [K in keyof T]: T[K] extends Function ? K : never }[keyof T];
 
