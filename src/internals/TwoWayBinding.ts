@@ -1,11 +1,11 @@
+import {Widget, WidgetCollection} from 'tabris';
+import {Conversion} from './Conversion';
 import {CustomPropertyDescriptor} from './CustomPropertyDescriptor';
 import {getJsxInfo} from './ExtendedJSX';
 import {subscribe} from './subscribe';
-import {checkPropertyExists, TargetPath, WidgetInterface, Direction, BindingConverter} from './utils-databinding';
+import {BindingConverter, checkPropertyExists, Direction, TargetPath, WidgetInterface} from './utils-databinding';
 import {injector} from '../api/Injector';
 import {BindSuperConfig} from '../decorators/bind';
-import {Widget, WidgetCollection} from 'tabris';
-import {Conversion} from './Conversion';
 
 type LocalPath = [string, string?];
 
@@ -106,7 +106,7 @@ export class TwoWayBinding {
         }
         if (this.initialized || this.targetHasPriority()) {
           this.setLocalValue(this.toLocalValue(targetValue));
-          this.syncBackToTarget();
+          this.syncBackToTarget(targetValue);
         }
       });
     }
@@ -128,10 +128,10 @@ export class TwoWayBinding {
     }
   }
 
-  private syncBackToTarget() {
+  private syncBackToTarget(targetValue: unknown) {
     if (this.direction !== '<<' && this.hasValidSource()) {
       const finalValue = this.toTargetValue(this.getLocalValue());
-      if (finalValue !== undefined) {
+      if ((finalValue !== undefined) && (finalValue !== targetValue)) {
         this.setTargetValue(finalValue);
       }
     }
