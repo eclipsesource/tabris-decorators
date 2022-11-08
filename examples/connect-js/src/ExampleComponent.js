@@ -1,6 +1,5 @@
 const {Composite, Stack, TextView, CheckBox, Listeners, asFactory, WidgetCollection} = require('tabris');
 const {connect} = require('tabris-decorators');
-/* globals StateToProps, DispatchToProps */
 
 /** @returns {tabris.WidgetCollection<any>} */
 const hideChildren = () => new WidgetCollection([]);
@@ -40,12 +39,12 @@ class ExampleComponent extends Composite {
 
 }
 
-/** @type {StateToProps<ExampleComponent>} */
+/** @type {import('tabris-decorators').StateToProps<ExampleComponent>} */
 const stateToProps = state => ({
   text: state.myString
 });
 
-/** @type {DispatchToProps<ExampleComponent>} */
+/** @type {import('tabris-decorators').DispatchToProps<ExampleComponent>} */
 const dispatchToProps = dispatch => ({
   onToggle: ev => dispatch({type: 'TOGGLE_STRING', checked: ev.checked})
 });

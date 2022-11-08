@@ -4,9 +4,7 @@ const {register, StateProvider} = require('tabris-decorators');
 const {FunctionalComponent} = require('./FunctionalComponent');
 const {ExampleComponent} = require('./ExampleComponent');
 
-/* globals Reducers */
-
-/** @type {Reducers} */
+/** @type {import('redux').ReducersMapObject<any, any>} */
 const reducers = {
   myNumber(state, action) {
     if (action.type === 'SET_RANDOM_NUMBER') {

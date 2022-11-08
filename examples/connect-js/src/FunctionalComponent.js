@@ -1,15 +1,15 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 const {Button, Set, Composite} = require('tabris');
 const {connect} = require('tabris-decorators');
-/* globals StateToProps, DispatchToProps */
 
-/** @type {StateToProps<tabris.Composite>} */
+/** @type {import('tabris-decorators').StateToProps<tabris.Composite>} */
 const stateToProps = state => ({
   apply: {
     '#button': Set(Button, {text: 'Random number: ' + state.myNumber})
   }
 });
 
-/** @type {DispatchToProps<tabris.Composite>} */
+/** @type {import('tabris-decorators').DispatchToProps<tabris.Composite>} */
 const dispatchToProps = dispatch => ({
   apply: {
     '#button': Set(Button, {onSelect: () => dispatch({type: 'SET_RANDOM_NUMBER'})})
