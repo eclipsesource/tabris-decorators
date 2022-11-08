@@ -1,5 +1,6 @@
 import {Attributes, Button, Color, Composite, Set} from 'tabris';
 import {connect} from 'tabris-decorators';
+/* eslint-disable @typescript-eslint/naming-convention */
 
 export const FunctionalComponent = connect(
   state => ({

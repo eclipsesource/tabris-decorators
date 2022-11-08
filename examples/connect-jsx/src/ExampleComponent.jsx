@@ -1,13 +1,12 @@
-import {Composite, Properties, Stack, TextView, CheckBox} from 'tabris';
+import {Composite, Stack, TextView, CheckBox} from 'tabris';
 import {connect, prop, event, component} from 'tabris-decorators';
-/* globals StateToProps, DispatchToProps */
 
-/** @type {StateToProps<ExampleComponent>} */
+/** @type {import('tabris-decorators').StateToProps<ExampleComponent>} */
 const stateToProps = state => ({
   text: state.myString
 });
 
-/** @type {DispatchToProps<ExampleComponent>} */
+/** @type {import('tabris-decorators').DispatchToProps<ExampleComponent>} */
 const dispatchToProps = dispatch => ({
   onToggle: ev => dispatch({type: 'TOGGLE_STRING', checked: ev.checked})
 });
@@ -22,7 +21,7 @@ export class ExampleComponent extends Composite {
   @event onToggle;
 
   /**
-   * @param {Properties<ExampleComponent>} properties
+   * @param {tabris.Properties<ExampleComponent>} properties
    */
   constructor(properties) {
     super();

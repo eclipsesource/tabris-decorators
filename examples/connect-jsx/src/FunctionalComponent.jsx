@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import {Button, Composite, Set} from 'tabris';
 import {connect} from 'tabris-decorators';
 
