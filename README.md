@@ -10,4 +10,11 @@ Feature requests (and bug reports) via [GitHub issues](https://github.com/eclips
 * [Technical example apps](https://github.com/eclipsesource/tabris-decorators/blob/master/examples)
 * [Comprehensive real-world example app](https://github.com/eclipsesource/tabris-js-reddit-viewer)
 
+## Build instructions
+
+* `nvm install lts/gallium` or `nvm use lts/gallium`
+* `npm i`
+* `npm run build`
+* `npm test`
+
 Happy Coding!
